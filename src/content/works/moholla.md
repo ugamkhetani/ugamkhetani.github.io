@@ -3,7 +3,11 @@ title: "Moholla"
 year: 2025
 category: "AI Film"
 opening: video
-ratio: "3:2"
+# Every still is 1920x1080 — the work is 16:9. Declared 3:2 until now, which
+# is a narrower box than the picture, so cover threw away 15.6% of the WIDTH,
+# 7.8% off each side. Unlike Diwali and Book My Yamraj there are no bars to
+# remove here: the frames are clean HD, so the crop was cutting picture only.
+ratio: "16:9"
 role: "Music / Sound"
 credits:
   studio: "Kalpnk AI"

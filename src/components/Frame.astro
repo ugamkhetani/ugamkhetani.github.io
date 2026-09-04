@@ -1,6 +1,6 @@
 ---
 import { Image } from 'astro:assets';
-import { framesFor, sizesFor } from '../lib/frames';
+import { framesFor, sizesFor, cropFor } from '../lib/frames';
 import { RATIO, numberFor } from '../data/composition';
 
 interface Props {
@@ -29,7 +29,7 @@ const sizes = sizesFor(span);
   href={`/work/${slug}`}
   data-frame
   data-count={count}
-  style={`--ar:${RATIO[ratio]}`}
+  style={[`--ar:${RATIO[ratio]}`, cropFor(slug)].filter(Boolean).join(';')}
   aria-label={`${title}, ${year}, ${category}`}
 >
   <span class="frame__window">
@@ -110,6 +110,10 @@ const sizes = sizesFor(span);
     width: 100%;
     height: 100%;
     object-fit: cover;
+    /* Re-centres the crop on the PICTURE for frames whose file carries
+       burned-in letterbox. Framing, not motion — see FRAME_CROP in
+       src/lib/frames.ts for why it is here and not in the transform. */
+    object-position: 50% var(--fcy, 50%);
     filter: saturate(0.94) contrast(1.02);
     transition:
       filter var(--d-micro) var(--ease-soft),

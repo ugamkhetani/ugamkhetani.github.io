@@ -52,7 +52,7 @@ import ExternalWatch from '../../components/ExternalWatch.astro';
 import AudioPlayer from '../../components/AudioPlayer.astro';
 import NextWork from '../../components/NextWork.astro';
 import Colophon from '../../components/Colophon.astro';
-import { framesFor } from '../../lib/frames';
+import { framesFor, cropFor } from '../../lib/frames';
 import { parseAwards } from '../../lib/awards';
 import { listFilms } from '../../lib/assets';
 import { order, numberFor, total, RATIO_NUM } from '../../data/composition';
@@ -172,7 +172,7 @@ const FACTS: { k: string; v: string }[] = [
 <Base title={`${d.title} — Ugam Khetani`} description={d.description}>
   <OpNav variant="bracket" base="/" />
 
-  <article class="sc" data-sc style={`--ar:${AR}`}>
+  <article class="sc" data-sc style={[`--ar:${AR}`, cropFor(work.id)].filter(Boolean).join(';')}>
     {/* ── HEAD ────────────────────────────────────────────────── */}
     <header class="hd">
       <p class="mono hd__folio">{num} / {String(total).padStart(2, '0')}</p>
@@ -559,6 +559,9 @@ const FACTS: { k: string; v: string }[] = [
   }
   .cel__win :global(img) {
     width: 100%; height: 100%; object-fit: cover;
+    /* See FRAME_CROP in src/lib/frames.ts — the crop window sits on the
+       picture rather than on the file, for the two works with baked-in bars. */
+    object-position: 50% var(--fcy, 50%);
     filter: saturate(0.94) contrast(1.02);
     transform: scale(1.001);
     transition: filter var(--d-micro) var(--ease), transform 1100ms var(--ease);

@@ -20,7 +20,7 @@
  * would never match an element rendered by this component (HANDOFF §6).
  */
 import { Image } from 'astro:assets';
-import { framesFor } from '../lib/frames';
+import { framesFor, cropFor } from '../lib/frames';
 import { RATIO } from '../data/composition';
 
 interface Props {
@@ -57,7 +57,9 @@ const count = images.length;
   href={`/work/${slug}`}
   data-frame
   data-count={count}
-  style={`--ar:${RATIO[ratio]};--fit:${fit}`}
+  style={[`--ar:${RATIO[ratio]};--fit:${fit}`, free ? undefined : cropFor(slug)]
+    .filter(Boolean)
+    .join(';')}
   aria-label={`${title}, ${year}, ${category}`}
 >
   <span class="st__win">
@@ -121,6 +123,14 @@ const count = images.length;
   .frame__layer :global(img) {
     width: 100%; height: 100%;
     object-fit: var(--fit);
+    /* Re-centres the crop on the PICTURE for a frame whose file carries
+       burned-in letterbox — see FRAME_CROP in src/lib/frames.ts.
+       ONLY WHEN THE BOX IS THE WORK'S OWN RATIO. `free` hands sizing to the
+       caller, and the bed is the caller: its tiles are grid-shaped, so the
+       percentage worked out for a ratio-shaped box does not describe them and
+       would correct on top of BED_CROP. The value is withheld there, and this
+       falls back to the default. */
+    object-position: 50% var(--fcy, 50%);
     filter: saturate(0.94) contrast(1.02);
     transition:
       filter var(--d-micro) var(--ease-soft),
