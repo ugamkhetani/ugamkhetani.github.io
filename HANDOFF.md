@@ -880,6 +880,26 @@ reaches into a component in a SCOPED block**, where `:global()` compiles to the
 parent's `data-astro-cid-*`; check by grepping the built CSS for a literal
 `:global(` , which should never appear.
 
+**A `*/` written inside an already-open comment truncates it, and the rest of
+the prose becomes CSS.** The leftover text lands in the stylesheet as garbage,
+and — the part that actually costs the time — **Astro then ships the rules
+that follow WITHOUT their scope attribute**, so they drop from (0,2,0) to
+(0,1,0) and lose to every component rule. The symptom is perfect: the selector
+reads correctly in the source, the rule IS in the built CSS, and it does not
+apply. Hit while adding a note to an existing comment block in the Aasha
+editorial drafts. **Balance the comment markers before writing the file** —
+`s.count('/*') == s.count('*/')` is a one-line assertion — and grep the built
+CSS for a bare `.class{` where you expect `.class[data-astro-cid-…]{`.
+
+**Two `<style>` blocks in one .astro file are NOT emitted in document order.**
+Measured: this file's SECOND block was bundled BEFORE its first. So a rule
+written later in the file can lose a specificity TIE to one written earlier,
+which is the opposite of what reading the file tells you. It bit on
+`class="blk cr"`, where `.blk` and `.cr` are both (0,2,0) once scoped and
+`.blk { margin-bottom }` won — the block kept the stock 162px instead of the
+99px written for it. **Settle these by weight, not by position:** `.blk.cr` is
+(0,3,0) and no bundler can reorder that.
+
 ## 7 · State of play
 
 ### What the site is, as of now
@@ -915,7 +935,13 @@ All sixteen works have real stills. Homepage, sixteen project pages, Contents.
 4. **A booking link** — `CALL_URL` in `contact.ts` is empty.
 5. **Audio excerpts** — optional; the player is built and waiting.
 
-### The preview library was DELETED on 2026-09-05
+### There is a preview index at `/preview`
+Any `.astro` file dropped in `src/pages/preview/` is listed there on the next
+build — the page globs the folder rather than keeping a list, so it cannot go
+stale, and a draft with no entry in its `NOTES` map still appears under a title
+derived from its filename.
+
+### The library that was there before was DELETED on 2026-09-05
 71 pages, the 10 shared `_pv-*` components and `_pv-mosaic.ts`, on Ugam's
 instruction. **The standing rule before that was to ask first, and it still
 is** — he asked for it explicitly. It is all in git; a single draft comes back
@@ -944,12 +970,16 @@ timeline when they finish.
 - **Conveyor card size:** **E · Draw is applied.** Every mode is still in
   `src/lib/cards.ts` and switching is one word in `index.astro`; the five
   draft PAGES are gone with the rest of the library.
-- **The opening film's width on work pages: D · Inset is APPLIED.** The five
-  drafts are kept at `/preview/aasha-film-a..e` as the record of the
-  comparison — A · Step 920, E · Recess 973, **D · Inset 1050**, B · Span 1126,
-  C · Bleed 1280, all at 1280x800 against a 760px measure. `aasha-film-d` now
-  records the live page rather than proposing anything. Still/audio openings
-  and the episode grids are deliberately untouched.
+- **The opening film's width on work pages: D · Inset is APPLIED** — 1050x590
+  at 1280x800 against a 760px measure. The five drafts it was chosen from were
+  deleted on Ugam's instruction; they are in the history.
+- **A more minimal, more editorial work page.** Three drafts on Aasha at
+  `/preview/aasha-edit-a|b|c`. All three drop the "The work", "The score" and
+  "Credits" headings and keep only **Stills**, redesign the credits, and lift
+  the watch link out of the credits into its own section. **A · Ledger** ruled
+  rows, watch above at title scale. **B · Stack** no rules at all, watch below
+  and centred. **C · Spine** a left label column, watch above as a ruled bar.
+  **Nothing applied.**
 
 ### Settled on 2026-09-05 — do NOT re-raise these
 All four of the questions this section used to hold have been answered. Two

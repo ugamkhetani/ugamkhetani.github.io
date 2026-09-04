@@ -58,8 +58,7 @@ import { listFilms } from '../../lib/assets';
 import { order, numberFor, total, RATIO_NUM } from '../../data/composition';
 
 /* PREVIEW ONLY — the real page is a dynamic route; this one is pinned to
-   Aasha so the three options can be compared on the same work. Aasha opens on
-   a YouTube facade, which is what this draft is about. */
+   Aasha so the three treatments can be compared on the same work. */
 const works = await getCollection('works');
 const bySlug = new Map(works.map((w) => [w.id, w]));
 const sequence = order.filter((s) => bySlug.has(s));
@@ -188,7 +187,7 @@ const FACTS: { k: string; v: string }[] = [
 ];
 ---
 
-<Base title={`A · Step — ${d.title}`} description={d.description}>
+<Base title={`A · Ledger — ${d.title}`} description={d.description}>
   <OpNav variant="bracket" base="/" />
 
   <article class="sc" data-sc style={[`--ar:${AR}`, cropFor(work.id)].filter(Boolean).join(';')}>
@@ -216,7 +215,6 @@ const FACTS: { k: string; v: string }[] = [
 
     {/* ── 01 · THE WORK. One section, four kinds of media. ────── */}
     <section class="blk" aria-label={OPEN_LABEL} data-reveal>
-      <p class="mono blk__lbl"><span class="rl" data-rl></span>{OPEN_LABEL}</p>
 
       {isVideo && (
         <VideoFacade youtube={d.media.youtube} vimeo={d.media.vimeo} instagram={d.media.instagram} title={d.title} poster={poster} alt={d.alt} eager />
@@ -261,7 +259,6 @@ const FACTS: { k: string; v: string }[] = [
 
     {/* ── 02 · THE WRITING, ASSEMBLED ─────────────────────────── */}
     <section class="blk" aria-label="About the work">
-      <p class="mono blk__lbl"><span class="rl" data-rl></span>The score</p>
       <p class="body">{BW.map((w, i) => (<><span class="w" data-w>{w}</span>{i < BW.length - 1 ? ' ' : ''}</>))}</p>
 
       {/* Eight of sixteen works carry a record — two as counts, six as citations. */}
@@ -321,24 +318,27 @@ const FACTS: { k: string; v: string }[] = [
       </div>
     </section>
 
-    {/* ── 04 · CREDITS ────────────────────────────────────────── */}
-    <section class="blk" aria-label="Credits" data-reveal>
-      <p class="mono blk__lbl"><span class="rl" data-rl></span>Credits</p>
-      <dl class="tbl tbl--cr">
+    {creditLinks.length > 0 && (
+      <section class="blk wt" aria-label="Watch" data-reveal>
+        {creditLinks.map((l) => (
+          <a class="wt__a" href={l.url} target="_blank" rel="noopener">
+            <span class="wt__t display">{l.label}</span>
+            <span class="wt__arw" aria-hidden="true">&nearr;</span>
+          </a>
+        ))}
+      </section>
+    )}
+
+    {/* ── CREDITS — no heading ─────────────────────────────────── */}
+    <section class="blk cr" aria-label="Credits" data-reveal>
+      <dl class="cr__list">
         {FACTS.map((f) => (
-          <div class="tbl__cell">
-            <dt class="mono tbl__k">{f.k}</dt>
-            <dd class="tbl__v">{f.v}</dd>
+          <div class="cr__row">
+            <dt class="mono cr__k">{f.k}</dt>
+            <dd class="cr__v">{f.v}</dd>
           </div>
         ))}
       </dl>
-      {creditLinks.length > 0 && (
-        <p class="tbl__links">
-          {creditLinks.map((l) => (
-            <a class="tbl__link" href={l.url} target="_blank" rel="noopener">{l.label} &nearr;</a>
-          ))}
-        </p>
-      )}
     </section>
   </article>
 
@@ -690,45 +690,134 @@ const FACTS: { k: string; v: string }[] = [
   .still { overflow: hidden; background: var(--ground-lift); }
   .ext { margin-top: clamp(24px, 4vh, 48px); }
 
-  /* ══ PREVIEW: THE OPENING FILM IS WIDER THAN THE MEASURE ══════════
-     A clear step past the measure, still plainly a column on the page.
+  /* ══ THE OPENING FILM IS WIDER THAN THE MEASURE ═══════════════════
+     D · Inset, chosen from five built as real pages on Aasha and judged in
+     the browser. The film stops one and a half --margins in from each window
+     edge — measured 1050x590 at 1280x800, against the 760px measure — where
+     B stopped at one margin and A held a fixed 920px column.
 
-     The page sits on one 760px measure and every block begins and ends on it.
-     This lets the OPENING FILM ALONE out of that: the label above it, its
-     rule, the statement, the body, the stills and the credits all stay where
-     they were, so the film breaks the column and the column is still there to
-     be broken.
+     ONLY THE FILM MOVES. The label above it, its rule, the statement, the
+     body, the stills and the credits all stay on the measure, so the film
+     breaks the column and the column is still there to be broken.
 
-     HOW IT ESCAPES. Negative inline margins rather than a wider parent, so
-     .blk keeps its max-width and only this child overflows it. The margin is
-     computed from the SAME --film the width uses, so the two cannot disagree
-     and the frame stays centred at every viewport:
+     WHICH WORKS GET IT, AND WHY THE SELECTOR IS THE WHOLE ANSWER. The three
+     vertical works with multiple episodes — Book My Yamraj's six, Dinshaw's
+     four, Aladdin's four — are excluded, and no test for that is written
+     anywhere. They carry `media.films`, so they render a `.films` GRID rather
+     than a facade, and this rule only reaches `.facade`. The distinction Ugam
+     drew is already the distinction the markup makes: one film gets a facade,
+     several get a grid. A ratio test would have been a second, weaker way of
+     saying the same thing, and would have gone wrong the day a landscape work
+     had episodes.
 
-       width:         var(--film)
-       margin-inline: (100% - var(--film)) / 2      <- negative once wider
+     So this reaches the eight single-video works: seven on YouTube and Diwali
+     on Vimeo. Every one of them is landscape or square.
 
-     SPECIFICITY IS DELIBERATE. VideoFacade sets its own `margin-inline: auto`
-     at (0,2,0) with its scope attribute, and a plain `.blk :global(.facade)`
-     from here is also (0,2,0) — a tie decided by source order, and losing it
-     means `auto` wins and the frame stops being centred. Adding
-     :not([data-instagram]) takes this to (0,4,0), which wins outright and is
-     also the behaviour we want: an Instagram facade is portrait with its own
-     chrome and a 400px cap, and must not be stretched. HANDOFF section 6.
+     THE max() IS A FLOOR AND IT IS LOAD-BEARING. --margin bottoms out at 24px
+     on a phone, where 100vw - 3 x margin is 303px against a measure of 327 —
+     without it the film would be NARROWER THAN THE TEXT beside it. Measured
+     at 375x812: it clamps to 327 and sits flush with the column.
 
-     THIS RULE IS IN THE SCOPED STYLE BLOCK ON PURPOSE. The file's third block
-     is `<style is:global>`, and Astro does not transform :global() inside one
-     — it ships the literal string, no browser understands it, and the whole
-     rule is dropped with no error anywhere. That is exactly what happened on
-     the first attempt here: the CSS was in the bundle and the facade measured
-     760px, unchanged.
+     --measure is `min(760px, 100%)` and the 100% in a custom property resolves
+     where the property is USED. It is used on .facade, whose containing block
+     is .blk, so it resolves to the block's width rather than to .sc's.
 
-     Aasha's facade is 16:9 whatever the work's own ratio, so the height grows
-     with the width. */
-  .sc { --film: min(920px, calc(100vw - 2 * var(--margin))); }
+     IT ESCAPES BY NEGATIVE INLINE MARGINS, not a wider parent, so .blk keeps
+     its max-width and only this child overflows — computed from the SAME
+     --film as the width, so the two cannot disagree at any viewport.
+
+     SPECIFICITY IS DELIBERATE. VideoFacade sets `margin-inline: auto` at
+     (0,2,0) with its own scope attribute; a plain `.blk :global(.facade)` is
+     also (0,2,0) and would be a tie broken by source order, and losing it
+     means `auto` wins and the frame stops being centred. The
+     :not([data-instagram]) takes this to (0,4,0).
+
+     AND IT MUST STAY IN A SCOPED STYLE BLOCK. The third block in this file is
+     `<style is:global>`, where Astro ships :global() as a literal string, no
+     browser understands it and the rule is dropped with no error at all —
+     the symptom is the element measuring exactly as it did before. HANDOFF
+     section 6. */
+  .sc { --film: max(var(--measure), calc(100vw - 3 * var(--margin))); }
   .blk :global(.facade:not([data-instagram])) {
     width: var(--film);
     margin-inline: calc((100% - var(--film)) / 2);
   }
+
+  /* BLOODY BUBBLY IS THE ONE VERTICAL WORK WITH A SINGLE VIDEO, so it is not
+     in the excluded set and it does not belong in the rule above either: an
+     Instagram facade is portrait and carries the post's own chrome.
+
+     It widens on its own terms. 400px is the width Instagram's embed code
+     ships with; 540px is the widest their embed supports, and 440 is a tenth
+     more than the default and comfortably inside that range, so the mounted
+     iframe still matches the facade and nothing jumps on press.
+
+     THE COST IS HEIGHT, because the shape is fixed at 400/700: at 440 the
+     frame is 770px tall, which is 96% of an 800px viewport against 88% before.
+     That is the trade for widening a portrait frame at all, and it is why this
+     is 440 rather than Instagram's full 540 — which would stand 945px tall and
+     be taller than the window it is shown in.
+
+     max-width, not --facade-max: that custom property is set INLINE by
+     VideoFacade, and an inline custom property beats a stylesheet one. */
+  .blk :global(.facade[data-instagram]) { max-width: 440px; }
+
+  /* ══ PREVIEW: MORE MINIMAL, MORE EDITORIAL ════════════════════════
+     THREE HEADINGS ARE GONE — "The work", "The score" and "Credits". Only
+     "Stills" is kept, because it is the one that names something the reader
+     cannot infer: a grid of frames could be production photos, a gallery, or
+     the film's own stills. The other three sat over a video, a paragraph and a
+     table of labelled values, each of which announces itself.
+
+     THE DRAWN RULE WENT WITH THEM. .blk__lbl carries .rl, the hairline that
+     scales in as a section arrives, so removing a label removes a rule — which
+     is most of what makes this read quieter. One rule is left, over the stills.
+
+     NOTHING IS LOST TO ASSISTIVE TECH. Every section keeps its aria-label, so
+     the document still announces Watch, Credits and the rest; only the visible
+     heading is gone. The sections were already labelled that way — the
+     headings were never the accessible name.
+
+     SELECTORS ARE ANCHORED TO .blk ON PURPOSE. These sections are
+     class="blk cr" and class="blk wt", so .blk and .cr match the SAME element
+     at the same (0,2,0) once Astro adds its scope attribute, and a tie is
+     decided by whichever rule the bundle emits last. Written as a bare .cr the
+     margins silently lost — Astro emitted this file's SECOND style block
+     BEFORE its first, so .blk { margin-bottom } came after and won, and the
+     spacing was the stock 162px rather than what is written here. Document
+     order across two <style> blocks in one .astro file is NOT the bundle's
+     order. .blk.cr is (0,3,0) and settles it by weight instead. */
+
+  /* A · LEDGER. The credits are a ruled ledger: one hairline per row, label in
+     mono at the left, value set against it. The rules do the work the heading
+     used to, and it reads as a record rather than a table. The watch link sits
+     ABOVE the credits and is the loudest thing in the block — display face at
+     title scale, its own rule under it, and a full section of air below.
+     Separation is by space and by scale; nothing here is a button. */
+  .blk.cr { margin-top: clamp(40px, 7vh, 90px); }
+  .cr__list { margin: 0; display: block; }
+  .cr__row {
+    display: grid; grid-template-columns: minmax(120px, 26%) 1fr;
+    gap: clamp(16px, 3vw, 40px); align-items: baseline;
+    padding-block: clamp(12px, 1.8vh, 20px);
+    border-top: 1px solid var(--rule);
+  }
+  .cr__row:last-child { border-bottom: 1px solid var(--rule); }
+  .cr__k { margin: 0; font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); }
+  .cr__v { margin: 0; font-size: var(--t-md); color: var(--bone); }
+
+  .blk.wt { margin-bottom: clamp(64px, 11vh, 150px); }
+  .wt__a {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 24px;
+    padding-bottom: clamp(14px, 2vh, 22px);
+    border-bottom: 1px solid var(--rule);
+    text-decoration: none; color: var(--bone);
+    transition: border-color var(--d-micro) var(--ease);
+  }
+  .wt__a:hover { border-bottom-color: var(--bone); }
+  .wt__t { font-size: clamp(1.6rem, 4.2vw, 2.6rem); line-height: 1.05; letter-spacing: -0.02em; }
+  .wt__arw { font-size: var(--t-md); color: var(--dim); transition: transform var(--d-micro) var(--ease), color var(--d-micro) var(--ease); }
+  .wt__a:hover .wt__arw { color: var(--bone); transform: translate(3px, -3px); }
 </style>
 
 <script>
