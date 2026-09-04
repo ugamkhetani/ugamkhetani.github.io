@@ -941,6 +941,17 @@ which is the opposite of what reading the file tells you. It bit on
 99px written for it. **Settle these by weight, not by position:** `.blk.cr` is
 (0,3,0) and no bundler can reorder that.
 
+**Astro's dev URL is `/@fs/<absolute path>`, and this project's path CONTAINS
+SPACES** — `Website Design/Website Draft 3`. So an unquoted `url()` written
+into an inline style from an asset's `.src` is **invalid CSS in dev and fine
+in the build**, where the same asset resolves to `/_astro/01.HASH.jpeg` with no
+space in it. The property is invalid at computed-value time, so it falls back
+to its initial value with no error anywhere: a `background-image` simply
+computes `none` and the element renders empty locally while being perfect in
+production. Quote it AND `encodeURI` it — quotes make it parse, the encoding
+makes it fetch. Caught on the X · Frame draft, where a heading filled with the
+work's own still was rendering as nothing at all.
+
 ## 7 · State of play
 
 ### What the site is, as of now
