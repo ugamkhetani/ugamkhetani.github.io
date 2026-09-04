@@ -115,8 +115,8 @@ something to frame it, the frame wants something inside it.
 | `src/styles/tokens.css` | Every colour, size, duration. Nothing outside it invents one. |
 
 **Pages:** `/` · `/contents` · `/work/<slug>` ×16, plus whatever is under
-`/preview/`. **21 pages build** — 18 real plus 3 current drafts — and two
-redirect stubs for the retired `/about` and `/contact` URLs, so 23 files.
+`/preview/`. **23 pages build** — 18 real plus 5 current drafts — and two
+redirect stubs for the retired `/about` and `/contact` URLs, so 25 files.
 
 **Overlays:** none. All three outgrew them — Contents was the last, and
 `Overlay.astro` plus the `overlay` branch in `RunHead.astro` are now unused.
@@ -842,8 +842,8 @@ parent's `data-astro-cid-*`; check by grepping the built CSS for a literal
 ## 7 · State of play
 
 ### What the site is, as of now
-**21 pages build clean** — 18 real, 3 under `/preview/` — plus two redirect
-stubs for the retired `/about` and `/contact` URLs, so 23 files.
+**23 pages build clean** — 18 real, 5 under `/preview/` — plus two redirect
+stubs for the retired `/about` and `/contact` URLs, so 25 files.
 
 The home page is **one page**: the Academy-countdown opening, the `OpNav`
 menu, a fixed mosaic bed of the catalogue behind everything, the aperture mat,
@@ -903,9 +903,13 @@ timeline when they finish.
 - **Conveyor card size:** **E · Draw is applied.** Every mode is still in
   `src/lib/cards.ts` and switching is one word in `index.astro`; the five
   draft PAGES are gone with the rest of the library.
-- **The opening film's width on work pages.** Three drafts on Aasha —
-  `/preview/aasha-film-a|b|c` — proposing 920px, flush with the page margins,
-  and edge to edge. **Nothing applied.**
+- **The opening film's width on work pages.** Five drafts on Aasha,
+  `/preview/aasha-film-a..e`, all measured at 1280x800 against a live 760px:
+  **A · Step** 920, **E · Recess** 973, **D · Inset** 1050, **B · Span** 1126,
+  **C · Bleed** 1280. B, D and E are the page's own unit — the film stops one,
+  one and a half, or two `--margin`s in from the window edge. **Nothing
+  applied.** Only the facade is covered; works with local MP4s (`FilmPlayer`)
+  and still/audio openings are untouched and are an open question.
 
 ### Settled on 2026-09-05 — do NOT re-raise these
 All four of the questions this section used to hold have been answered. Two
