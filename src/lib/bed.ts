@@ -44,17 +44,24 @@ export const BED_SWAPS: Record<string, string> = {
      one cell in the ring nothing ever sees.
 
      MERE HO IS THE ONE THAT MATTERS HERE. It is the single frame in the bed
-     with type burned into it — a square record sleeve carrying its own title,
-     measured at 0.844 to 0.931 of the frame height — and it is not cropped.
-     Moving it from cell 9 to cell 10 puts that title on screen about a third
-     less often, which is the cheapest way to quiet it without touching the
-     frame. Moholla, which carries no type, takes the better cell.
+     with type burned into it — a square record sleeve carrying its own title —
+     and it is not cropped. Moving it from cell 9 to cell 10 puts that title on
+     screen about a third less often, which is the cheapest way to quiet it
+     without touching the frame. Moholla, which carries no type, takes the
+     better cell.
+
+     THE SLEEVE WAS REPLACED ON 2026-09-05 AND THIS STILL HOLDS. The artwork
+     is a different photograph at 1254x1254 rather than 640x640, but it sets
+     its type in the same place: measured on the new file, "mere ho" runs 0.847
+     to 0.885 of the frame height and "Heeya Tikku" 0.914 to 0.936, against
+     0.844 to 0.931 for the whole block before. Re-measure if it is replaced
+     again — the placement is the reason for the swap, not the file.
 
      WORTH KNOWING ABOUT CELL 15: Bloody Bubbly is the darkest work in the
-     catalogue. Under the bed's own filter it means 3.7 against a ground of 10,
-     so the best cell on the bed reads close to black. None of its five frames
-     clears the ground — the brightest is 7.9 — so a different still would not
-     fix it. */
+     catalogue by a wide margin, and it holds the best cell on the bed. It used
+     to mean 4.2 against a ground of 9 — darker than the ground, a hole rather
+     than a tile — and none of its five frames fixes that; the brightest means
+     7.9. It is now carried by BED_GRADE below rather than by its cell. */
   'bloody-bubbly': 'moholla',
   'moholla': 'mere-ho',
   'mere-ho': 'bloody-bubbly',
