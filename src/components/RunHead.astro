@@ -22,10 +22,22 @@ const ITEMS: { label: string; href?: string; overlay?: string; home?: boolean }[
   { label: 'Works', href: '/', home: true },
   // Was an overlay until the roll; see src/pages/contents.astro.
   { label: 'Contents', href: '/contents' },
-  // A page too — the About outgrew an overlay.
-  { label: 'About', href: '/about' },
-  // A page, not an overlay — it holds a form, so it needs a URL of its own.
-  { label: 'Contact', href: '/contact' },
+  /* SECTIONS OF THE HOME PAGE, NOT PAGES. Both were standalone pages, and
+     both were duplicates once the home page took them on as movements — the
+     same words at two addresses. The pages are deleted; these point at the
+     sections instead, and astro.config.mjs redirects the old URLs there so a
+     link someone was given still lands in the right place.
+
+     They are absolute ("/#about", not "#about") because this header is only
+     ever seen on /contents now — it is hidden on the home page and on work
+     pages, which mount OpNav instead — so a bare fragment would look for an
+     id on the roll and find nothing.
+
+     markCurrent() needs no change: it matches data-path against
+     location.pathname, and "/#about" is not a pathname, so neither item is
+     ever marked current on /contents. That is right — you are on the roll. */
+  { label: 'About', href: '/#about' },
+  { label: 'Contact', href: '/#contact' },
 ];
 ---
 

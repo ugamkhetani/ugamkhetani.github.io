@@ -9,6 +9,15 @@ export default defineConfig({
      gets connection refused while the server is running perfectly well.
      Measured: [::1]:4323 answered 200, 127.0.0.1:4323 answered nothing. */
   server: { host: '127.0.0.1', port: Number(process.env.PORT) || 4327 },
+  /* /about and /contact were standalone pages until the home page became one
+     page carrying both as sections. They are gone, but the URLs existed and
+     may have been sent to people, so they redirect to the sections that
+     replaced them rather than 404. Astro emits a meta-refresh page with a
+     canonical link for each in a static build. */
+  redirects: {
+    '/about': '/#about',
+    '/contact': '/#contact',
+  },
   build: { inlineStylesheets: 'auto' },
   image: {
     // Frames are served at a handful of fixed widths; nothing larger is ever useful.
