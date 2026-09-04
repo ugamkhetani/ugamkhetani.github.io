@@ -14,10 +14,10 @@ before changing anything.
 Paste this:
 
 > I'm continuing work on my portfolio site at
-> `~/Desktop/Website Design/Website Draft 3`. It's static Astro and **not a git
-> repo**, so every overwrite is irreversible — back up before replacing
-> anything. Read HANDOFF.md and README.md first, then tell me what you
-> understand the state to be before changing anything.
+> `~/Desktop/Website Design/Website Draft 3`. It's static Astro, and it IS a git
+> repo now — one commit, working tree clean — so check `git status` before you
+> start and commit as you go. Read HANDOFF.md and README.md first, then tell me
+> what you understand the state to be before changing anything.
 >
 > How I work: don't invent facts — names, credits, years and awards come from
 > my documents, and anything assumed gets flagged with a `←` comment. Build
@@ -759,19 +759,23 @@ drafts. **Ask before deleting any of it.** The shared preview components are
   Ops 16:9 vs 1.71 plus a stray `00.jpg` at 2.11 that sorts first, Book My
   Yamraj 9:16 vs 0.53 (~6%). Broken Reflections' 2.35 vs 1.85 is intentional.
 
-### Housekeeping — one real risk
-**This is not a git repository.** Every overwrite is irreversible, and the
-pre-change backups taken during a session live in a temporary scratchpad that
-does not survive it. Nothing is currently lost — every change is applied,
-verified and documented above — but the next substantial edit deserves a safety
-net first:
+### Housekeeping
+**This IS now a git repository** — initialised at the handoff, one commit on
+`main`, 275 files, working tree clean. `node_modules`, `dist`, `.astro` and
+`.DS_Store` are ignored; `src/media` (279MB of stills) and `_originals` (34MB)
+are tracked, because they are source the site builds from and there is no other
+copy. No single file exceeds 7.5MB, so nothing approaches GitHub's 100MB limit,
+but `.git` is ~293MB — a first clone will take a while.
 
-```bash
-cd "~/Desktop/Website Design/Website Draft 3"
-git init && git add -A && git commit -m "Portfolio site as handed off"
-```
+Identity is set **repo-locally only** (`Ugam Khetani <khetaniugam@gmail.com>`);
+the global git config was left untouched.
 
-`node_modules`, `dist` and `.astro` should go in a `.gitignore` before that.
+Three things committed but safe to delete now that history exists:
+- the six `*-backup` files at the root — snapshots from before version control;
+- `build12.py`, `chrome12.py`, `css12.py` — dead scaffolding from an earlier
+  generator workflow. `build12.py` imports a module (`inner7`) that is not in
+  the folder, so it cannot run;
+- `Overlay.astro`, unused since Contents became a page.
 
 Also worth knowing: the project sits under `~/Desktop`, which is iCloud-synced.
 A dev server once died with an `EPERM` reading a frame mid-build — the file was
