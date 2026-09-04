@@ -858,9 +858,12 @@ are written down.
 - **Bloody Bubbly's description was rewritten** to match the confirmed role.
   The old one was written while the role was assumed to be "Music / Sound /
   Voice Over" and claimed music and voice, which the confirmed **Sound Design**
-  does not carry. "Scope · End-to-end" stays and is not in tension with it —
-  it now reads as end-to-end sound design. Nothing in that file is inferred any
-  more.
+  does not carry. **"Scope · End-to-end" is gone too**, on the same reasoning:
+  on the other two brand campaigns it means music AND sound AND voice in one
+  pass, so on a sound-design credit it reads as a wider scope than the role.
+  The row was removed rather than re-worded — the only honest value left would
+  have restated the Role above it. The page now contains the words "music" and
+  "voice" nowhere at all. Nothing in that file is inferred any more.
 - **Roar and The Shiva Trilogy: studio is `Kalpnk AI`**, confirmed by Ugam —
   the same studio as Moholla, Mumbai Standard Time and My Red Crayon. The
   phrase that was sitting in that field, "Concept trailer · Pitch work", was a

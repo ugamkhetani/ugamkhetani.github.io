@@ -7,7 +7,15 @@
 # to match the confirmed role. The version before it was written
 # while the role was assumed to be "Music / Sound / Voice Over"
 # and claimed music and voice as well as sound — two credits the
-# role does not carry. Nothing here is inferred any more.
+# role does not carry.
+#
+# "End-to-end" went the same day and for the same reason. It was
+# doing the same work the old description did: on the other two
+# brand campaigns it means music AND sound AND voice in one pass,
+# so on a sound-design credit it reads as a wider scope than the
+# role. The Scope row is gone rather than re-worded, because the
+# only honest value left would have restated the Role above it.
+# Nothing here is inferred any more.
 # ─────────────────────────────────────────────────────────────
 title: "Bloody Bubbly"
 year: 2025
@@ -18,10 +26,9 @@ role: "Sound Design"
 credits:
   client: "Bloody Bubbly"
 description: >
-  Sound design for the campaign film, authored end to end. The work's
-  sound built for this cut rather than selected from a catalogue.
+  Sound design for the campaign film. Designed for this cut rather than
+  selected from a catalogue.
 meta:
-  - { label: "Scope", value: "End-to-end" }
   - { label: "Channels", value: "Social-first" }
   - { label: "Format", value: "Vertical, short form" }
   - { label: "Year", value: "2025" }
