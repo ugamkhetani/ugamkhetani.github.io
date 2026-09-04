@@ -105,6 +105,7 @@ something to frame it, the frame wants something inside it.
 | `src/components/Opening.astro` | The loading screen: the Academy countdown, 3 · 2 · 1. |
 | `src/lib/bed.ts` | **The mosaic bed's cast, frame crops and per-tile grade.** Imported by `index.astro` and by the mosaic drafts, so the two cannot drift. |
 | `src/lib/frames.ts` | Every frame in a work's folder, in filename order — and `FRAME_CROP`, where the crop window sits for files with burned-in letterbox. |
+| `src/lib/cards.ts` | **How big an upright work is in the Selected Works conveyor.** One family of scales; `index.astro` names which. Read by the five `works-size-*` drafts too. |
 | `src/lib/awards.ts` | Parses the `awards:` field into citation + awarding body. |
 | `src/lib/_pv-mosaic.ts` | Preview-only: the measured cell map, rankings and draft placements. Nothing on the real site imports it. |
 | `src/components/Overlay.astro` | The overlay shell. Only Contents uses it now. |
@@ -113,9 +114,9 @@ something to frame it, the frame wants something inside it.
 | `src/scripts/cursor.ts` | The pointer trail, and what it is clipped by. |
 | `src/styles/tokens.css` | Every colour, size, duration. Nothing outside it invents one. |
 
-**Pages:** `/` · `/contents` · `/work/<slug>` ×16, plus 66 under `/preview/`.
-**84 pages build**, plus two redirect stubs for the retired `/about` and
-`/contact` URLs — 86 files, as before.
+**Pages:** `/` · `/contents` · `/work/<slug>` ×16, plus 71 under `/preview/`.
+**89 pages build**, plus two redirect stubs for the retired `/about` and
+`/contact` URLs — 91 files.
 
 **Overlays:** none. All three outgrew them — Contents was the last, and
 `Overlay.astro` plus the `overlay` branch in `RunHead.astro` are now unused.
@@ -519,6 +520,39 @@ now and a bare fragment would look for an id on the roll.
 
 ---
 
+**Upright works are scaled up in the conveyor, and the scale comes from the
+RATIO rather than from a list.** Every card was set to one common height with
+its width from the work's ratio, which made a work's AREA proportional to its
+ratio: measured at 1280x800, a 9:16 card was 180x320 against a 16:9 card's
+569x320 — **32%** of the area. Four works are affected and all four are the
+upright, social-first pieces, so the rule was quietly saying the format a piece
+was shot in decides its importance.
+
+`cardScale()` in `src/lib/cards.ts` is one family, `k = ratio^-p`, and
+`index.astro` names the exponent. **E · Draw, p = 0.75, is applied**: a 9:16
+card is now 277x493 and Aladdin 303x378, with everything a square or wider left
+at exactly 1. Chosen from five built as real pages and judged in the browser —
+A · Lift 1.15, B · Balance p=0.5, E · Draw p=0.75, D · Rise p=0.875, C · Column
+p=1.
+
+TAKING IT FROM THE RATIO IS THE POINT. A fifth upright work needs no edit, and
+no work is singled out by name — which also means the rule can be stated in one
+line rather than defended per work.
+
+Two things it did NOT need. The placement script was untouched: it measures
+`offsetWidth` per card and re-measures on resize, load and `fonts.ready`, so it
+picked the new widths up on its own. And nothing below 901px changed, because
+`--card-k` is only read inside `.is-live .wcard` and the conveyor does not go
+live there — verified at 820x900, where the grid still governs.
+
+WATCH THE APERTURE IF THIS IS EVER PUSHED FURTHER. The window is 78vh and a
+9:16 card is `40vh x k x 1.7778`, so the clearance is
+`39vh - 35.56vh x k - 15vh x (1 - lit)`. At E's k that is 66px at 1280x800; at
+C's k=1.7778 it falls to 28px and needs `lit >= 0.771`, which holds only because
+`lit` never leaves 1 across the works section. Sampled, not assumed.
+
+---
+
 ## 6 · Traps — every one of these cost real time
 
 **Astro scopes component CSS with a `data-astro-cid-*` attribute, and
@@ -797,8 +831,8 @@ that is showing you history.
 ## 7 · State of play
 
 ### What the site is, as of now
-**84 pages build clean** — 18 real, 66 under `/preview/` — plus two redirect
-stubs for the retired `/about` and `/contact` URLs, so 86 files as before.
+**89 pages build clean** — 18 real, 71 under `/preview/` — plus two redirect
+stubs for the retired `/about` and `/contact` URLs, so 91 files.
 
 The home page is **one page**: the Academy-countdown opening, the `OpNav`
 menu, a fixed mosaic bed of the catalogue behind everything, the aperture mat,
@@ -829,10 +863,10 @@ All sixteen works have real stills. Homepage, sixteen project pages, Contents.
 4. **A booking link** — `CALL_URL` in `contact.ts` is empty.
 5. **Audio excerpts** — optional; the player is built and waiting.
 
-### The preview library — 66 pages, kept deliberately
+### The preview library — 71 pages, kept deliberately
 Homepage directions (Helix, Deck, Marquee, Weave, Ticket, Monogram, Aperture
-XLV), 37 work-page drafts, 4 loaders, 3 recognition drafts and 13 mosaic-bed
-drafts. **Ask before deleting any of it.** The shared preview components are
+XLV), 37 work-page drafts, 4 loaders, 3 recognition drafts, 13 mosaic-bed
+drafts and 5 conveyor-size drafts. **Ask before deleting any of it.** The shared preview components are
 `_pv-*` in `src/components/`, and `_pv-mosaic.ts` in `src/lib/`.
 
 Note the five one-page drafts import `src/data/about.ts` and
@@ -848,6 +882,11 @@ by five of them — none of that went with the two deleted pages.
   is live on the six citation works.
 - **Loading screen:** Gate, Contact, Scope and Slats are unapplied alternates;
   **Leader** is live. Each is drop-in — one import in `index.astro`.
+- **Conveyor card size:** **E · Draw is applied.** A · Lift, B · Balance,
+  D · Rise and C · Column are unapplied. Each draft names its own mode, so
+  `works-size-e` now RECORDS the live site rather than proposing anything — the
+  way `mosaic-j` and `mosaic-m` do — while the other four still propose.
+  Switching is one word in `index.astro`.
 
 ### Settled on 2026-09-05 — do NOT re-raise these
 All four of the questions this section used to hold have been answered. Two

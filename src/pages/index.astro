@@ -28,6 +28,13 @@ import { getCollection } from 'astro:content';
 import Opening from '../components/Opening.astro';
 import { framesFor } from '../lib/frames';
 import { BED_SWAPS, BED_CROP, BED_GRADE, BED_TILES } from '../lib/bed';
+import { cardK, type CardMode } from '../lib/cards';
+
+/* HOW BIG AN UPRIGHT WORK IS IN THE CONVEYOR — draft E · Draw, applied.
+   Chosen from five built as real pages at /preview/works-size-a..e and judged
+   in the browser. The reasoning, the family and the measurements are in
+   src/lib/cards.ts; this is the one line that selects between them. */
+const CARD_MODE: CardMode = 'draw';
 
 const works = await getCollection('works');
 const bySlug = new Map(works.map((w) => [w.id, w]));
@@ -262,7 +269,7 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
             <div class="wk__world">
               {wnodes.map((n) => (
                 <div class="wcard" data-card data-no={n.no} data-title={n.w.data.title} data-year={n.w.data.year}
-                  style={`--arn:${RATIO_NUM[n.w.data.ratio]}`}>
+                  style={`--arn:${RATIO_NUM[n.w.data.ratio]};--card-k:${cardK(CARD_MODE, RATIO_NUM[n.w.data.ratio])}`}>
                   <Still slug={n.w.id} title={n.w.data.title} year={n.w.data.year}
                     category={n.w.data.category} ratio={n.w.data.ratio}
                     frames={n.w.data.frames} alt={n.w.data.alt}
@@ -1393,8 +1400,20 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
      only; opacity comes off the same depth the scale does. */
   .is-live .wcard {
     position: absolute; left: 50%; top: 50%;
-    height: min(40vh, 26vw);
-    width: calc(min(40vh, 26vw) * var(--arn, 1.7778));
+    /* ONE COMMON HEIGHT, TIMES THE WORK'S OWN SCALE. It was a flat
+       min(40vh, 26vw) for every card, which made a work's AREA proportional to
+       its ratio and left the four upright works the smallest things in the
+       catalogue — a 9:16 covered 32% of what a 16:9 did, which is a hierarchy
+       saying the format a piece was shot in decides its importance.
+
+       --card-k comes from the ratio, not from a list of slugs, so it reaches
+       anything narrower than a square and is exactly 1 for everything else. A
+       fifth upright work needs no edit and no work is named. See cards.ts.
+
+       The placement script needed no change: it measures offsetWidth per card
+       and re-measures on resize, load and fonts.ready. */
+    height: calc(min(40vh, 26vw) * var(--card-k, 1));
+    width: calc(min(40vh, 26vw) * var(--card-k, 1) * var(--arn, 1.7778));
     transform: translate(-50%, -50%) translateX(var(--tx, 0px)) scale(var(--s, 1));
     opacity: var(--op, 1);
     filter: none;

@@ -1,11 +1,12 @@
 /**
  * HOW BIG A WORK IS IN THE SELECTED WORKS CONVEYOR.
  *
- * Preview-only for now. Nothing on the live site imports this; the three
- * drafts at /preview/works-size-a|b|c do, so the MECHANISM is shared and only
- * the numbers differ between them — the same arrangement bed.ts has with the
- * mosaic drafts, and for the same reason. If one of these is adopted, the
- * table it uses moves into index.astro and this file goes with it.
+ * E · DRAW IS APPLIED. index.astro imports this and names 'draw'; the five
+ * drafts at /preview/works-size-a..e name their own mode, so the MECHANISM is
+ * shared while the choice is not — the same arrangement bed.ts has with the
+ * mosaic drafts. Because each draft names its own mode rather than reading the
+ * live one, works-size-e now RECORDS the live site rather than proposing
+ * something, the way mosaic-j and mosaic-m do; the other four still propose.
  *
  * THE PROBLEM IT ADDRESSES. Every card in the conveyor is set to ONE COMMON
  * HEIGHT and takes its width from the work's ratio:
@@ -38,8 +39,12 @@
  * special treatment.
  */
 
-/** Scale 1 is the live site: one common height for every card. */
-export type CardMode = 'live' | 'lift' | 'balance' | 'draw' | 'rise' | 'column';
+/**
+ * 'flat' is what the conveyor did before any of this: one common height for
+ * every card, so scale is always 1. It is NOT the live behaviour any more —
+ * the live site is 'draw' — and it is kept as the way back.
+ */
+export type CardMode = 'flat' | 'lift' | 'balance' | 'draw' | 'rise' | 'column';
 
 /**
  * THE FIVE DRAFTS.
@@ -77,7 +82,7 @@ export type CardMode = 'live' | 'lift' | 'balance' | 'draw' | 'rise' | 'column';
  * of 3.44vh is a floor for them: whatever fits for C fits for these.
  */
 export function cardScale(mode: CardMode, ratio: number): number {
-  if (mode === 'live' || ratio >= 1) return 1;
+  if (mode === 'flat' || ratio >= 1) return 1;
   if (mode === 'lift') return 1.15;
   /* One family, k = ratio^-p, so these cannot drift apart as four separate
      formulas would. Math.pow with a negative exponent on a ratio below 1
