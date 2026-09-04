@@ -40,11 +40,13 @@ rm -rf node_modules/.vite .astro && npm run dev -- --port 4323
 
 | Page | What it is |
 | --- | --- |
-| `/` | The catalogue. Sixteen frames, no text, no bio. |
+| `/` | The whole site as one page — opening, catalogue, about, enquiry. |
 | `/work/<slug>` | One per project, five opening types. |
 | `/contents` | The catalogue read as names — an end-credit roll. |
-| `/about` | Five ruled movements — who, how, across, proof, closing. |
-| `/contact` | Three questions you tap, then it writes the email for you. |
+
+The About material and the enquiry are **sections of the home page**
+(`/#about`, `/#contact`), not pages of their own. They were pages until the
+home page took them on, and the old URLs still work — they redirect.
 
 ---
 
@@ -90,7 +92,9 @@ alt: "Still from Taskaree"
 
 **Ratios** — `2.39:1`, `2.35:1`, `2.08:1`, `21:9`, `2:1`, `16:9`, `3:2`,
 `4:3`, `4:5`, `9:16`, `1:1`. Adding one means editing `src/content.config.ts`
-*and* both RATIO maps in `src/data/composition.ts`. Use the format the piece
+*and* both RATIO maps in `src/data/composition.ts`. If a still has black bars
+baked into the file, the ratio is only half the story — see `FRAME_CROP` in
+`src/lib/frames.ts`. Use the format the piece
 was genuinely made in — the frame's shape tells a visitor what kind of work it
 is before they read anything.
 
@@ -151,11 +155,15 @@ never drift apart.
 1. **Neue Haas Grotesk Display** — drop three `.woff2` into `public/fonts/`
    and they activate themselves. Falls back to Helvetica Neue today.
 2. **The fourteen films** — 4 Dinshaw's, 6 Book My Yamraj, 4 Aladdin.
-3. **Bloody Bubbly** — four assumed fields, marked `←` in its markdown.
-4. **A portrait for About** — name it in `PORTRAIT` in `src/data/about.ts`.
-5. **A booking link** — paste it into `CALL_URL` in `src/data/contact.ts` and
+3. **A portrait for About** — name it in `PORTRAIT` in `src/data/about.ts`.
+4. **A booking link** — paste it into `CALL_URL` in `src/data/contact.ts` and
    the "rather talk" line appears. Empty means it never renders.
-6. **Audio excerpts** — optional; the player is built and waiting.
+5. **Audio excerpts** — optional; the player is built and waiting.
+
+A few smaller things are waiting on a word from you rather than on a file.
+They are marked `←` where they live, and listed in HANDOFF §7 under **Needs a
+word from Ugam** — Bloody Bubbly's description, a mislabelled `studio` on two
+works, Book My Yamraj's declared ratio, and Special Ops' first frame.
 
 All sixteen works have real stills. No stand-ins remain.
 

@@ -30,15 +30,15 @@ Paste this:
 > them cost hours.
 >
 > Where we left off: the mosaic bed, the loading screen and the work pages are
-> all live and settled. Work pages were just narrowed onto a single 760px
-> measure and had their big ghosted section numerals removed. Awaiting my
-> decision, with nothing applied: mosaic drafts A–I and L, recognition drafts B
-> and C, and four alternate loaders. Two open questions you should raise if I
-> don't — the countdown numeral over Taskaree softens to 1.6:1 against the
-> brightest patches under it (dropping `brightness` in `Opening.astro` from 0.8
-> to ~0.65 fixes it), and Bloody Bubbly holds the clearest cell on the mosaic
-> but reads close to black at 3.7 against a ground of 10, which no frame of it
-> can fix.
+> all live and settled. Both of the old open questions are now closed — the
+> countdown dims per frame rather than globally, and Bloody Bubbly's bed tile
+> has a contrast exception that leaves the brightness cap intact. `/about` and
+> `/contact` are gone as standalone pages and redirect to the home page's
+> sections. Awaiting my decision, with nothing applied: mosaic drafts A–I and L,
+> recognition drafts B and C, and four alternate loaders. Two things need a
+> word from me: Bloody Bubbly's description still claims music and voice while
+> its confirmed role is Sound Design, and Book My Yamraj is cropped 6.3% by a
+> 9:16 declaration its stills do not match.
 
 Then say what you want. The two files together are enough to work from.
 
@@ -103,7 +103,8 @@ something to frame it, the frame wants something inside it.
 | `src/components/RunHead.astro` | The four bracketed nav labels. **Hidden on `/` and on work pages** — both hide it and mount `OpNav` instead. |
 | `src/components/OpNav.astro` | The site menu: Ugam Khetani · Works · About · Contact. Takes `base` — empty on the one-page home, `"/"` on work pages so its anchors resolve. |
 | `src/components/Opening.astro` | The loading screen: the Academy countdown, 3 · 2 · 1. |
-| `src/lib/bed.ts` | **The mosaic bed's cast and frame crops.** Imported by `index.astro` and by the mosaic drafts, so the two cannot drift. |
+| `src/lib/bed.ts` | **The mosaic bed's cast, frame crops and per-tile grade.** Imported by `index.astro` and by the mosaic drafts, so the two cannot drift. |
+| `src/lib/frames.ts` | Every frame in a work's folder, in filename order — and `FRAME_CROP`, where the crop window sits for files with burned-in letterbox. |
 | `src/lib/awards.ts` | Parses the `awards:` field into citation + awarding body. |
 | `src/lib/_pv-mosaic.ts` | Preview-only: the measured cell map, rankings and draft placements. Nothing on the real site imports it. |
 | `src/components/Overlay.astro` | The overlay shell. Only Contents uses it now. |
@@ -112,17 +113,17 @@ something to frame it, the frame wants something inside it.
 | `src/scripts/cursor.ts` | The pointer trail, and what it is clipped by. |
 | `src/styles/tokens.css` | Every colour, size, duration. Nothing outside it invents one. |
 
-**Pages:** `/` · `/contents` · `/about` · `/contact` · `/work/<slug>` ×16,
-plus 66 under `/preview/`. **86 pages build.**
+**Pages:** `/` · `/contents` · `/work/<slug>` ×16, plus 66 under `/preview/`.
+**84 pages build**, plus two redirect stubs for the retired `/about` and
+`/contact` URLs — 86 files, as before.
 
 **Overlays:** none. All three outgrew them — Contents was the last, and
 `Overlay.astro` plus the `overlay` branch in `RunHead.astro` are now unused.
 
 **The home page is one page.** It carries the opening, the menu, the mosaic
 bed, the aperture mat and every movement — `#top`, `#works`, `#about`,
-`#contact` are sections of it. `/about` and `/contact` still exist as separate
-pages and are still reachable; whether they should remain is an open question,
-listed in §7.
+`#contact` are sections of it. `/about` and `/contact` no longer exist as
+separate pages; their URLs redirect to those sections.
 
 ---
 
@@ -460,6 +461,64 @@ it is a tally. The old code joined every entry with " · " and split on "·",
 which threw away the entry boundary — invisible on fifteen works and fatal on
 the one with two.
 
+**The countdown dims per frame, not globally.** The white numeral is not
+threatened by how bright a frame is on average but by the brightest patches
+falling inside the glyph's own outline, and that is a property of the
+individual photograph. Measured under the real 3/2/1 ink at ring size, the
+three sat at 2.9:1, 2.2:1 and 3.6:1 against a 3:1 floor for text this large.
+One global value has to be dark enough for the worst of them and then takes a
+fifth of Special Ops' brightness away to fix a highlight that is in Taskaree,
+so each frame carries its own value in `COUNTDOWN` beside its aim — 0.67, 0.58
+and 0.76, all three landing at 4.0:1. The frames stay photographs: ring means
+43.3, 40.3 and 75.8 against a ground of 9. Full workings in `Opening.astro`.
+
+**One bed tile is graded differently, and it is the CONTRAST that moves.**
+Bloody Bubbly holds cell 15, the clearest on the bed, and meant 4.2 against a
+ground of 9 — a hole rather than a dim tile. Brightness cannot fix it: the
+frame is near-black on average but holds a blown pixel at a true 255, so the
+bed's readability ceiling is reached at 0.31. What was crushing it is
+`contrast(1.05)`, which pivots on mid grey and pushes everything below the
+pivot down. Dropping the boost for that tile alone takes it to 9.2 with **not
+one pixel over #4C4C4C** — so the 0.30 cap and the arithmetic that rests on it
+are untouched. The grade therefore lives on `.ms__tile`, not `.ms__bed`, and
+brightness is deliberately a constant no tile can override. 0.99 reads better
+and puts 608 pixels over the ceiling; it is not taken.
+
+**Aspect ratio is metadata, and three works were saying the wrong thing.**
+Moholla was declared 3:2 on clean 1920x1080 stills, so cover threw away 15.6%
+of the width with no bars to justify it; it is 16:9 now. Diwali's 16:9 was
+right — its picture alone is 1.782 — but its file carries UNEVEN burned-in
+bars, 180px top and 115px bottom, so the centre of the file is not the centre
+of the picture and a centred crop kept 35px of bar on screen while losing 29px
+of picture. `FRAME_CROP` in `src/lib/frames.ts` re-centres the window on the
+picture. Book My Yamraj is left alone deliberately — see §6.
+
+**The crop is `object-position`, never a transform.** Both renderers already
+drive `transform` for the hover scale and reset it to `none` under reduced
+motion, so a translate written there would vanish on hover and for a
+reduced-motion visitor — putting the bar back at exactly the moment someone
+looks closer. And the bed is excluded: its tiles are grid-shaped rather than
+ratio-shaped, so the percentage does not describe them and would correct on
+top of `BED_CROP`.
+
+**Work pages render every credit the schema allows.** `FACTS` in
+`[slug].astro` read only `director` and `artist` and silently dropped the other
+four, so eleven of sixteen works were losing a credit — `client` on three,
+`studio` on six, and `with` on Taskaree and Special Ops, both of which name
+Advait Nemlekar as co-composer and credited him nowhere. It is driven off an
+ordered list now, so a key added to `content.config.ts` cannot be forgotten
+here. `CreditBlock.astro` had the complete map all along and is mounted by
+nothing.
+
+**`/about` and `/contact` are sections, not pages.** Both were duplicates once
+the home page took them on as movements. The pages are deleted and the URLs
+redirect, because both existed long enough to have been sent to someone — the
+same reason Contents was made a page rather than an overlay. `RunHead`'s items
+are absolute (`/#about`), since that header is only ever seen on `/contents`
+now and a bare fragment would look for an id on the roll.
+
+---
+
 ## 6 · Traps — every one of these cost real time
 
 **Astro scopes component CSS with a `data-astro-cid-*` attribute, and
@@ -694,43 +753,91 @@ wrong by 10–20% of the frame. Read the position off a rendered grid with a
 centre cross and verify the result the same way — the heuristic is a hint, not
 a measurement.
 
+**A dark scene bottom is not a letterbox bar, and a loose threshold cannot
+tell them apart.** Book My Yamraj looked like a third ratio mismatch: a
+mean-under-16 test called its bottom 90 rows letterbox, which would have
+justified re-centring its crop. Those rows are 16.3 falling smoothly to 13.8 —
+a picture fading into shadow. A REAL bar is flat and reads 0.0, then steps
+straight into the picture: Diwali goes 0.0, 0.3, 1.3, 74.7 in four rows. Use a
+threshold near zero and look at the EDGE, not the level. Acting on the wrong
+reading would have moved 45px of loss onto one end of a frame that had none.
+
+**A custom property named after a token inherits the token.** The countdown's
+per-frame brightness was first written `var(--dim, 0.8)`. `--dim` is already
+the global furniture-grey COLOUR token in `tokens.css`, inherited everywhere,
+so any frame that did not set its own value would have resolved
+`brightness(#858585)` — not a number, so the whole filter is invalid and the
+frame renders at FULL brightness rather than at the fallback. All three frames
+set a value, so nothing would have broken until someone added a fourth, and it
+would have looked like forgotten dimming rather than a name collision. It is
+`--ldr-dim`. **Grep `tokens.css` before naming a custom property.**
+
+**A canvas probe is not what the browser painted.** `drawImage(img, 0, 0)`
+draws the SOURCE bitmap; it knows nothing about `object-fit` or
+`object-position`, so measuring a cropped frame that way reports the whole
+file and every conclusion drawn from it is about an image the visitor never
+sees. Either replicate the cover geometry explicitly or measure somewhere the
+geometry is real. Cost a full round of contradictory readings while verifying
+the Diwali crop.
+
+**A hidden Browser pane does not paint.** Screenshots taken while the pane is
+hidden come back uniformly black, which looks exactly like a page that renders
+nothing. Separately and for a different reason, `[data-reveal]` elements sit at
+`opacity: 0` there for ever, because IntersectionObserver never delivers —
+force `.is-in` before judging anything below the fold. Prefer `read_page` and
+direct measurement over screenshots while the pane is hidden.
+
+**Changing `astro.config.mjs` invalidates the dev server's optimised deps.**
+Every module 504s with "Outdated Optimize Dep" while the HTML still answers
+200, which reads as a broken page rather than a stale cache. The recipe in this
+section fixes it — and note the console buffer keeps the old errors after the
+restart, so re-check with `curl` or a FRESH TAB rather than believing a console
+that is showing you history.
+
 ## 7 · State of play
 
 ### What the site is, as of now
-**86 pages build clean** — 20 real, 66 under `/preview/`.
+**84 pages build clean** — 18 real, 66 under `/preview/` — plus two redirect
+stubs for the retired `/about` and `/contact` URLs, so 86 files as before.
 
 The home page is **one page**: the Academy-countdown opening, the `OpNav`
 menu, a fixed mosaic bed of the catalogue behind everything, the aperture mat,
-and every movement as a section of it.
+and every movement as a section of it. `/about` and `/contact` are movements of
+it and no longer exist separately; their URLs redirect to `/#about` and
+`/#contact`.
 
 Work pages sit on **one 760px measure** — head, quote and every block on the
 same narrow column, so the page has exactly two vertical edges. They mount the
 same menu with `base="/"`. They came from the "Ghost" draft but no longer carry
-its folios: the big ghosted section numerals were removed, and `.blk` is
-`static` again as a result.
+its folios. They now render **every credit the schema allows**, not just
+director and artist.
 
 ### Supplied and working
-All sixteen works have real stills. Homepage, sixteen project pages, Contents,
-About, Contact.
+All sixteen works have real stills. Homepage, sixteen project pages, Contents.
 
 ### Outstanding — things only Ugam can provide
 1. **Neue Haas Grotesk Display** — licensed. Drop three `.woff2` into
    `public/fonts/` and they self-activate. Currently falling back to Helvetica
-   Neue, so any "set in Neue Haas" colophon line would be false today. Note the
-   countdown's aim figures were read against the fallback; they are positions
-   in a photograph, so a font swap does not disturb them.
+   Neue, so any "set in Neue Haas" colophon line would be false today. The
+   countdown's aim figures and its per-frame dim were both read against the
+   fallback; the aims are positions in a photograph and the dims are properties
+   of the photograph, so a font swap disturbs neither.
 2. **Fourteen MP4s** — 4 Dinshaw's, 6 Book My Yamraj, 4 Aladdin. Players are
    built and show a still with an external link until the file appears.
-3. **Bloody Bubbly** — four assumed fields, marked `←` in its markdown.
-4. **A portrait for `/about`** — `PORTRAIT` in `about.ts` is empty.
-5. **A booking link** — `CALL_URL` in `contact.ts` is empty.
-6. **Audio excerpts** — optional; the player is built and waiting.
+3. **A portrait for `/about`** — `PORTRAIT` in `about.ts` is empty. The About
+   material now lives only on the home page's `#about` section.
+4. **A booking link** — `CALL_URL` in `contact.ts` is empty.
+5. **Audio excerpts** — optional; the player is built and waiting.
 
 ### The preview library — 66 pages, kept deliberately
 Homepage directions (Helix, Deck, Marquee, Weave, Ticket, Monogram, Aperture
 XLV), 37 work-page drafts, 4 loaders, 3 recognition drafts and 13 mosaic-bed
 drafts. **Ask before deleting any of it.** The shared preview components are
 `_pv-*` in `src/components/`, and `_pv-mosaic.ts` in `src/lib/`.
+
+Note the five one-page drafts import `src/data/about.ts` and
+`src/data/contact.ts`, and `ContactForm.astro` is mounted by the home page and
+by five of them — none of that went with the two deleted pages.
 
 ### Awaiting a decision — nothing applied
 - **Mosaic bed:** drafts A–I and L are unapplied. A–C predate the "same
@@ -741,23 +848,31 @@ drafts. **Ask before deleting any of it.** The shared preview components are
   is live on the six citation works.
 - **Loading screen:** Gate, Contact, Scope and Slats are unapplied alternates;
   **Leader** is live. Each is drop-in — one import in `index.astro`.
-- **The countdown's brightness.** The three frames are brighter than the set
-  they replaced, and under the numeral they mean 72.9, 84.7 and 61.4. The white
-  numeral clears 7.5:1, 6.3:1 and 9.0:1 against those, but against the
-  brightest patches inside the glyph the **2** falls to 1.6:1 and softens.
-  Dropping `brightness` in `Opening.astro` from 0.8 to about 0.65 would leave
-  the centres at roughly 50–69 and lift all three clear. One value, one file.
-- **Bloody Bubbly holds the best cell on the bed and reads close to black.**
-  Under the bed's filter it means 3.7 against a ground of 10, and none of its
-  five frames clears the ground — the brightest is 7.9. A different still will
-  not fix it; it needs either a different cell or a per-tile exception to the
-  0.30 cap.
-- **`/about` and `/contact` are now redundant as separate pages**, since the
-  home page carries both as sections. They still exist and still work.
-- **Four ratio mismatches** between a declared `ratio:` and the stills' true
-  aspect: Diwali 16:9 vs 1.55 (crops ~13%), Moholla 3:2 vs 1.78 (~19%), Special
-  Ops 16:9 vs 1.71 plus a stray `00.jpg` at 2.11 that sorts first, Book My
-  Yamraj 9:16 vs 0.53 (~6%). Broken Reflections' 2.35 vs 1.85 is intentional.
+
+### Needs a word from Ugam — flagged in the files with `←`
+- **Bloody Bubbly's description** claims "music, sound and voice". The role is
+  now confirmed as **Sound Design**, so the description asserts two credits the
+  role does not — on a portfolio that is worse than a blank. The `meta` line
+  "Scope · End-to-end" carries the same question. Left in his own words rather
+  than rewritten.
+- **Roar and The Shiva Trilogy** both carry `studio: "Concept trailer · Pitch
+  work"`, which is not a studio. It was harmless while credits never rendered;
+  it renders now, as "Studio: Concept trailer · Pitch work". Both `meta` blocks
+  already carry the same fact under "Use case". Name the real studio or delete
+  the line.
+- **Book My Yamraj's ratio.** Its stills are 2160x4096 = 0.527 and it is
+  declared 9:16 = 0.5625, so cover takes 6.3% of the height. It has **no bar**
+  (see §6), so the loss is real picture, already taken evenly at 128px and
+  127px. Nothing in `FRAME_CROP` can help — a shift only moves the loss to one
+  end. Removing it means adding a ratio the enum does not have, and the ratio is
+  shown to readers on Contents, so it is a question about how the work is
+  described. Broken Reflections' 2.35 vs 1.85 remains intentional and exact:
+  its bars are symmetric and the declared ratio removes them precisely.
+- **Special Ops' first frame.** `01.jpg` is 1280x608 and 54KB; the other eight
+  are 1.714 and 5760–8413px wide. Nothing pins frame order — **no work uses the
+  `frames:` field** — so the folder decides, and this low-resolution odd-shaped
+  grab represents the work everywhere except the countdown, which asks for
+  frame 2 explicitly and says why. Rename it, delete it, or pin the order.
 
 ### Housekeeping
 **This IS now a git repository** — initialised at the handoff, one commit on
@@ -770,12 +885,20 @@ but `.git` is ~293MB — a first clone will take a while.
 Identity is set **repo-locally only** (`Ugam Khetani <khetaniugam@gmail.com>`);
 the global git config was left untouched.
 
-Three things committed but safe to delete now that history exists:
-- the six `*-backup` files at the root — snapshots from before version control;
+Things committed but safe to delete now that history exists:
+- the six `*-backup` files at the root — snapshots from before version control.
+  Two of them are backups of `about.astro`, which no longer exists;
 - `build12.py`, `chrome12.py`, `css12.py` — dead scaffolding from an earlier
   generator workflow. `build12.py` imports a module (`inner7`) that is not in
   the folder, so it cannot run;
 - `Overlay.astro`, unused since Contents became a page.
+
+**Three components are now mounted by nothing** — worth knowing before
+debugging one of them and wondering why edits do nothing. `Overlay.astro` as
+above; `Frame.astro`, superseded by `Still.astro` when the home page became one
+page, though it is kept in step with the crop change so it still works if
+revived; and `CreditBlock.astro`, which held the complete credit map that
+`[slug].astro` had been missing.
 
 Also worth knowing: the project sits under `~/Desktop`, which is iCloud-synced.
 A dev server once died with an `EPERM` reading a frame mid-build — the file was
