@@ -160,10 +160,11 @@ never drift apart.
    the "rather talk" line appears. Empty means it never renders.
 5. **Audio excerpts** — optional; the player is built and waiting.
 
-A few smaller things are waiting on a word from you rather than on a file.
-They are marked `←` where they live, and listed in HANDOFF §7 under **Needs a
-word from Ugam** — Bloody Bubbly's description, a mislabelled `studio` on two
-works, Book My Yamraj's declared ratio, and Special Ops' first frame.
+Nothing else is waiting on a decision. The four questions that were open —
+Bloody Bubbly's description, a mislabelled `studio` on two works, Book My
+Yamraj's ratio and Special Ops' first frame — were all settled on 2026-09-05
+and are recorded in HANDOFF §7. Two of them were settled by leaving them
+alone, so they are written down to stop them being raised again.
 
 All sixteen works have real stills. No stand-ins remain.
 

@@ -36,9 +36,9 @@ Paste this:
 > `/contact` are gone as standalone pages and redirect to the home page's
 > sections. Awaiting my decision, with nothing applied: mosaic drafts A–I and L,
 > recognition drafts B and C, and four alternate loaders. Two things need a
-> word from me: Bloody Bubbly's description still claims music and voice while
-> its confirmed role is Sound Design, and Book My Yamraj is cropped 6.3% by a
-> 9:16 declaration its stills do not match.
+> word from me. Everything in §7 marked "Settled" is decided — including two
+> things that look like unfixed problems and are not, so please don't re-raise
+> them.
 
 Then say what you want. The two files together are enough to work from.
 
@@ -849,30 +849,35 @@ by five of them — none of that went with the two deleted pages.
 - **Loading screen:** Gate, Contact, Scope and Slats are unapplied alternates;
   **Leader** is live. Each is drop-in — one import in `index.astro`.
 
-### Needs a word from Ugam — flagged in the files with `←`
-- **Bloody Bubbly's description** claims "music, sound and voice". The role is
-  now confirmed as **Sound Design**, so the description asserts two credits the
-  role does not — on a portfolio that is worse than a blank. The `meta` line
-  "Scope · End-to-end" carries the same question. Left in his own words rather
-  than rewritten.
-- **Roar and The Shiva Trilogy** both carry `studio: "Concept trailer · Pitch
-  work"`, which is not a studio. It was harmless while credits never rendered;
-  it renders now, as "Studio: Concept trailer · Pitch work". Both `meta` blocks
-  already carry the same fact under "Use case". Name the real studio or delete
-  the line.
-- **Book My Yamraj's ratio.** Its stills are 2160x4096 = 0.527 and it is
-  declared 9:16 = 0.5625, so cover takes 6.3% of the height. It has **no bar**
-  (see §6), so the loss is real picture, already taken evenly at 128px and
-  127px. Nothing in `FRAME_CROP` can help — a shift only moves the loss to one
-  end. Removing it means adding a ratio the enum does not have, and the ratio is
-  shown to readers on Contents, so it is a question about how the work is
-  described. Broken Reflections' 2.35 vs 1.85 remains intentional and exact:
-  its bars are symmetric and the declared ratio removes them precisely.
-- **Special Ops' first frame.** `01.jpg` is 1280x608 and 54KB; the other eight
-  are 1.714 and 5760–8413px wide. Nothing pins frame order — **no work uses the
-  `frames:` field** — so the folder decides, and this low-resolution odd-shaped
-  grab represents the work everywhere except the countdown, which asks for
-  frame 2 explicitly and says why. Rename it, delete it, or pin the order.
+### Settled on 2026-09-05 — do NOT re-raise these
+All four of the questions this section used to hold have been answered. Two
+were changes and two were deliberate decisions to leave things alone; the
+latter look like unfixed problems from the outside, which is exactly why they
+are written down.
+
+- **Bloody Bubbly's description was rewritten** to match the confirmed role.
+  The old one was written while the role was assumed to be "Music / Sound /
+  Voice Over" and claimed music and voice, which the confirmed **Sound Design**
+  does not carry. "Scope · End-to-end" stays and is not in tension with it —
+  it now reads as end-to-end sound design. Nothing in that file is inferred any
+  more.
+- **Roar and The Shiva Trilogy: studio is `Kalpnk AI`**, confirmed by Ugam —
+  the same studio as Moholla, Mumbai Standard Time and My Red Crayon. The
+  phrase that was sitting in that field, "Concept trailer · Pitch work", was a
+  description of the work rather than a studio; it moved to `meta` under **Use
+  case**, replacing the vaguer "Pitch / Concept". It was only ever harmless
+  because credits did not render.
+- **Book My Yamraj's ratio stays 9:16. DECIDED, not overlooked.** Its stills
+  are 2160x4096 = 0.527, so cover takes 6.3% of the height — but there is **no
+  bar** (see §6), the loss is already taken evenly at 128px and 127px, and
+  nothing in `FRAME_CROP` can help because a shift would only move it to one
+  end. Removing it would mean adding a ratio the enum does not have, and the
+  ratio is shown to readers on Contents. Leave it.
+- **Special Ops' `01.jpg` stays. DECIDED, not overlooked.** It is 1280x608 and
+  54KB where its eight siblings are 1.714 and 5760–8413px wide, and because no
+  work pins `frames:`, the folder order makes it represent the work everywhere
+  except the countdown — which asks for frame 2 explicitly and says why in
+  `COUNTDOWN`. Ugam has seen this and wants it left as it is.
 
 ### Housekeeping
 **This IS now a git repository** — initialised at the handoff, one commit on

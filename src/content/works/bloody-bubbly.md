@@ -1,12 +1,13 @@
 ---
 # ─────────────────────────────────────────────────────────────
 # Year, role and client confirmed by Ugam, 2026-09-04. They were
-# inferred from the other two brand campaigns until then; the ←
-# markers they carried are gone because the facts are now known.
+# inferred from the other two brand campaigns until then.
 #
-# ONE FIELD IS STILL UNCONFIRMED, and it is now inconsistent with
-# the role rather than merely unknown — see the note on
-# `description` below.
+# The description was rewritten on 2026-09-05, on his instruction,
+# to match the confirmed role. The version before it was written
+# while the role was assumed to be "Music / Sound / Voice Over"
+# and claimed music and voice as well as sound — two credits the
+# role does not carry. Nothing here is inferred any more.
 # ─────────────────────────────────────────────────────────────
 title: "Bloody Bubbly"
 year: 2025
@@ -16,18 +17,11 @@ ratio: "9:16"
 role: "Sound Design"
 credits:
   client: "Bloody Bubbly"
-# ← CHECK THIS. It was written when the role was assumed to be
-#   "Music / Sound / Voice Over", so it claims music and voice as
-#   well as sound. With the role confirmed as Sound Design it is
-#   claiming two credits the role does not, which on a portfolio
-#   is worse than a blank. Left in Ugam's own words rather than
-#   silently rewritten — narrow it, or confirm the wider scope is
-#   right and the role line is just how it is being billed.
 description: >
-  Campaign audio authored end to end — music, sound and voice
-  written for the work rather than selected from a catalogue.
+  Sound design for the campaign film, authored end to end. The work's
+  sound built for this cut rather than selected from a catalogue.
 meta:
-  - { label: "Scope", value: "End-to-end" } # ← same question as the description
+  - { label: "Scope", value: "End-to-end" }
   - { label: "Channels", value: "Social-first" }
   - { label: "Format", value: "Vertical, short form" }
   - { label: "Year", value: "2025" }
