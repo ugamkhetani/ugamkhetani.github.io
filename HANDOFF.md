@@ -1014,6 +1014,16 @@ timeline when they finish.
 - **The opening film's width on work pages: D · Inset is APPLIED** — 1050x590
   at 1280x800 against a 760px measure. The five drafts it was chosen from were
   deleted on Ugam's instruction; they are in the history.
+- **The two labels that are left.** Three drafts on Diwali Ke Shor Mein at
+  `/preview/diwali-lbl-a|b|c`, which takes the CITATION branch of recognition
+  and has no credit link. All three put the **Recognition heading back** — on
+  both the tally and the citation branches, so the treatment holds for all
+  eight awarded works — and restyle **Stills** in the same system, because a
+  page with two labels in two treatments reads as an oversight. **A · Tick** a
+  24px mark above the word instead of a full-measure rule. **B · Margin** the
+  label leaves the column for the white space beside it. **C · Span** the rule
+  moves from under the word to beside it, running to the measure's right edge.
+  **Nothing applied.**
 - **A more minimal, more editorial work page: D · Colophon is APPLIED** to all
   sixteen. The nine drafts stay at `/preview/aasha-edit-a..i` as the record;
   `aasha-edit-d` now reflects the live page. The other eight drop the "The work", "The score" and
