@@ -10,16 +10,26 @@ import type { ImageMetadata } from 'astro';
  * real work here: a countdown is the only kind of loading screen that tells you
  * exactly how much longer it will be.
  *
- * PROMOTED FROM PREVIEW LOADER A. The draft is kept at
- * src/components/_pv-Loader-leader.astro and previewed at /preview/loading-a-leader,
- * which is the only place the opening can actually be watched — here it runs
- * once per session and is then gone until the tab is closed. The two files are
- * separate copies: a change made to one is NOT picked up by the other.
+ * PROMOTED FROM PREVIEW LOADER A. The draft copy and its preview page were
+ * deleted on 2026-09-05 along with the rest of the library, so this file is
+ * now the only one — there is no second copy to keep in step any more.
+ *
+ * HOW TO WATCH IT, since it runs once per session and is then gone until the
+ * tab is closed. In the console:
+ *
+ *   sessionStorage.removeItem('uk-intro'); location.reload();
+ *
+ * To hold a count still, grab the animations IMMEDIATELY on load and keep the
+ * references — they use steps(1, end) with no fill, so a finished one leaves
+ * the timeline and getAnimations() will not hand it back (HANDOFF section 6):
+ *
+ *   const A = document.getAnimations(); A.forEach(a => { a.pause(); a.currentTime = 0; });
+ *   // then A.forEach(a => a.currentTime = 500) for the 2, 180 for the 3, 900 for the 1
  *
  * THIS REPLACED THE HELIX FLIGHT, which flew the catalogue down a spiral axis
- * on CSS perspective. That draft is not lost — it is preview 08 "Helix", where
- * the same geometry is driven by scroll instead of a timer, which is what it
- * was designed for. The previous file is unchanged there.
+ * on CSS perspective, driven by scroll rather than a timer. It lived on as
+ * preview 08 "Helix" until the library was deleted on 2026-09-05; it is in the
+ * history rather than lost.
  *
  * THE SWEEP IS ONE CONIC GRADIENT, not twelve elements or an SVG arc. A
  * conic-gradient with a hard stop at var(--sweep) is a single painted layer the

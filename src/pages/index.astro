@@ -7,8 +7,8 @@
  * one scroll: the title card, the works, who I am, what I work across, how I
  * work, and the enquiry.
  *
- * WHAT CHANGED ON THE WAY IN, and nothing else did: the preview's three
- * _pv- components were promoted to real ones (OpNav, Still) or merged into
+ * WHAT CHANGED ON THE WAY IN, and nothing else did: the draft's three
+ * preview-only components were promoted to real ones (OpNav, Still) or merged into
  * the shared one (ContactForm gained the WhatsApp line the preview copy
  * carried), the nav's unused `theme` label was dropped, and Base is called
  * with `intro` so the opening sequence runs once per session.
@@ -31,9 +31,10 @@ import { BED_SWAPS, BED_CROP, BED_GRADE, BED_TILES } from '../lib/bed';
 import { cardK, type CardMode } from '../lib/cards';
 
 /* HOW BIG AN UPRIGHT WORK IS IN THE CONVEYOR — draft E · Draw, applied.
-   Chosen from five built as real pages at /preview/works-size-a..e and judged
-   in the browser. The reasoning, the family and the measurements are in
-   src/lib/cards.ts; this is the one line that selects between them. */
+   Chosen from five built as real pages and judged in the browser; those pages
+   were deleted with the rest of the preview library on 2026-09-05, but every
+   mode is kept in src/lib/cards.ts along with the reasoning and the
+   measurements. This is the one line that selects between them. */
 const CARD_MODE: CardMode = 'draw';
 
 const works = await getCollection('works');
@@ -161,9 +162,10 @@ for (const stanza of composition) {
   }
 }
 
-/* The bed's cast and its frame corrections live in src/lib/bed.ts, so the
-   drafts under src/pages/preview/ can render from the same tables this page
-   does rather than from a second copy that would drift. */
+/* The bed's cast and its frame corrections live in src/lib/bed.ts. That was
+   so the mosaic drafts could render from the same tables as this page rather
+   than a second copy; the drafts are gone, and the split stays because those
+   tables are content decisions with long arguments attached. */
 const bedCast = wnodes.map((n) => {
   const to = BED_SWAPS[n.w.id];
   return to ? { ...n, w: bySlug.get(to)! } : n;

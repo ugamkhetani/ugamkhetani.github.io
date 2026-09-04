@@ -18,7 +18,7 @@
  * and a city.
  *
  * Promoted from the recognition drafts; the three of them under
- * src/pages/preview/rec-*.astro still import this, so the drafts and the live
+ * The recognition drafts imported this too, so the drafts and the live
  * page read the field through the same code and cannot drift apart.
  */
 

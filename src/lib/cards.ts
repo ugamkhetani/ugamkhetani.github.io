@@ -1,12 +1,13 @@
 /**
  * HOW BIG A WORK IS IN THE SELECTED WORKS CONVEYOR.
  *
- * E · DRAW IS APPLIED. index.astro imports this and names 'draw'; the five
- * drafts at /preview/works-size-a..e name their own mode, so the MECHANISM is
- * shared while the choice is not — the same arrangement bed.ts has with the
- * mosaic drafts. Because each draft names its own mode rather than reading the
- * live one, works-size-e now RECORDS the live site rather than proposing
- * something, the way mosaic-j and mosaic-m do; the other four still propose.
+ * E · DRAW IS APPLIED. index.astro imports this and names 'draw'.
+ *
+ * The five drafts this was chosen from were real pages, deleted on 2026-09-05
+ * with the rest of the library. The MODES ARE
+ * KEPT: they cost nothing, they are the record of what was compared, and
+ * switching to any of them is still one word in index.astro. Restoring a draft
+ * page to look at one again is a git checkout of that path.
  *
  * THE PROBLEM IT ADDRESSES. Every card in the conveyor is set to ONE COMMON
  * HEIGHT and takes its width from the work's ratio:

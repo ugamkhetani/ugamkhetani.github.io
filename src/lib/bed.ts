@@ -1,10 +1,11 @@
 /**
  * The mosaic bed's cast and frame corrections.
  *
- * Lifted out of index.astro so the drafts under src/pages/preview/mosaic-*.astro
- * can read the SAME tables the home page renders from. A draft that proposes
- * "the live bed, with one more swap" has to start from the live bed, and a
- * second copy of these two objects would drift the first time one was edited.
+ * Lifted out of index.astro so the mosaic drafts could read the SAME tables the
+ * home page renders from, rather than a second copy that would drift. Those
+ * drafts were deleted on 2026-09-05; the file stays split out because the
+ * tables are content decisions with long explanations attached, and they are
+ * easier to find and argue with here than buried in a 2000-line page.
  */
 
 /**
