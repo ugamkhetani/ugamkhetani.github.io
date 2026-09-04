@@ -48,8 +48,17 @@ interface Props {
    * carry an `aim` — a zoom and a shift that put the FACE at the middle of the
    * ring rather than the frame. They are a chosen set, not a slice off the
    * front of the score.
+   *
+   * `dim` is that frame's own brightness. It is per-frame rather than one
+   * value for all three because the constraint is per-frame: see the note on
+   * the filter below.
    */
-  stills: { img: ImageMetadata; alt: string; aim?: { zoom: number; x: number; y: number } }[];
+  stills: {
+    img: ImageMetadata;
+    alt: string;
+    aim?: { zoom: number; x: number; y: number };
+    dim?: number;
+  }[];
 }
 const { stills } = Astro.props;
 
@@ -69,6 +78,7 @@ const STEP = 0.36;
           `--d:${(i * STEP).toFixed(2)}s`,
           stills[i]?.aim &&
             `--aim-z:${stills[i].aim!.zoom};--aim-x:${stills[i].aim!.x}%;--aim-y:${stills[i].aim!.y}%`,
+          stills[i]?.dim !== undefined && `--ldr-dim:${stills[i].dim}`,
         ]
           .filter(Boolean)
           .join(';')}
@@ -142,26 +152,56 @@ const STEP = 0.36;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    /* 0.8, not the 0.62 this started at. At 0.62 the frames measured a mean
-       channel of 27.5 against a ground of 10 — technically there and
-       effectively black, which defeats the reason for putting the work behind
-       the count at all.
+    /* BRIGHTNESS IS PER-FRAME, and the fallback here is only for a frame that
+       names no value of its own. The real values live beside the frames they
+       belong to, in COUNTDOWN in index.astro.
 
-       THOSE FIGURES WERE FOR THE OLD SET AND NO LONGER APPLY. The three frames
-       are now chosen ones (see COUNTDOWN in index.astro) and they are brighter.
-       Measured at this grade over the region each numeral actually covers, in
-       counting order:
+       WHY PER-FRAME RATHER THAN ONE NUMBER. Two constraints pull opposite
+       ways: the white numeral has to clear the frame behind it, and the frame
+       has to still read as a photograph — 0.62 was once rejected globally
+       because the frames of the day meant 27.5 against a ground of 9, which is
+       technically there and effectively black. Both constraints are properties
+       of the individual frame, not of the set. One global value therefore has
+       to be dark enough for the WORST frame, which over-dims the other two for
+       a problem they do not have. Special Ops was losing a fifth of its
+       brightness to a highlight that is in Taskaree.
 
-         3  book-my-yamraj  centre 72.9   numeral 7.5:1   worst patch 2.3:1
-         2  taskaree        centre 84.7   numeral 6.3:1   worst patch 1.6:1
-         1  special-ops-2   centre 61.4   numeral 9.0:1   worst patch 3.2:1
+       AND THE PROBLEM IS NOT THE AVERAGE. Against the mean behind each glyph
+       the numeral was always comfortable; it is the brightest PATCHES inside
+       the glyph's own outline that eat the white. So the measurement has to be
+       taken under the glyph's actual ink, not over the region it occupies.
 
-       Against the average behind each glyph the white numeral is comfortable.
-       Against the brightest patches inside it the 2 falls to 1.6:1, so parts of
-       that digit sit on a lit area and soften. If it shows, the fix is this
-       number rather than the frames: 0.65 would still leave the centres at
-       roughly 50 to 69 and lift the numeral clear. */
-    filter: saturate(0.94) contrast(1.02) brightness(0.8);
+       Measured on the rendered page at 1280x800 and again at 1920x1200 — the
+       two agree to within 0.1 — by compositing each frame at ring size with
+       this exact filter chain, masking it with the real 3/2/1 glyphs set in
+       the page's own face and size, and reading the worst pixel under the ink:
+
+                          was  B=0.80          now                ring mean
+         3  book-my-yamraj     2.9:1     B=0.67   4.0:1       51.9 -> 43.3
+         2  taskaree          *2.2:1*    B=0.58   4.0:1       55.8 -> 40.3
+         1  special-ops-2      3.6:1     B=0.76   4.0:1       80.0 -> 75.8
+
+       3:1 is the floor for text this large; the target here is 4:1, so each
+       frame carries about a third of margin. Each value is the BRIGHTEST that
+       still clears the target, which is the whole point of doing it per frame.
+       The ring means show the other constraint is not being paid for it: all
+       three sit far above the 27.5 that was once called effectively black, and
+       Special Ops barely moves.
+
+       An equal-contrast target also happens to even the three frames out, so
+       the count reads as one sequence rather than three exposures. That is a
+       consequence, not the reason.
+
+       THE PROPERTY IS `--ldr-dim`, NOT `--dim`, AND THAT MATTERS. `--dim` is
+       already a global COLOUR token in tokens.css (#858585, the furniture
+       grey), inherited by everything on the page. Named `--dim`, this would
+       read `brightness(#858585)` for any frame that did not set its own —
+       which is not a number, so the whole filter is invalid and the frame
+       renders at FULL brightness rather than at the fallback. The three frames
+       all set a value today, so the bug would not appear until someone added a
+       fourth frame without one, and it would then look like the dimming had
+       been forgotten rather than like a name collision. */
+    filter: saturate(0.94) contrast(1.02) brightness(var(--ldr-dim, 0.8));
     /* THE AIM. object-fit centres the frame; this centres the face inside it.
        Scale first, then shift — the shift is a percentage of the ring, which is
        the box the face position was read in. Defaults are a no-op, so a frame

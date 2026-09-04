@@ -68,12 +68,35 @@ const bySlug = new Map(works.map((w) => [w.id, w]));
    368px ring — correct, but one rounding from a hairline on a smaller ring;
    1.15 doubles that margin and moves the face by a third of a pixel. The ring
    is always square, so these figures hold at every viewport. */
-const COUNTDOWN: { slug: string; frame: number; zoom?: number; x?: number; y?: number }[] = [
-  { slug: 'book-my-yamraj', frame: 1 },                            // behind 3
-  { slug: 'taskaree', frame: 1, zoom: 1.15, y: 5 },                // behind 2
-  { slug: 'special-ops-2', frame: 2, zoom: 1.7, x: 5.4, y: 32.6 }, // behind 1
+/* AND EACH FRAME CARRIES ITS OWN BRIGHTNESS, for the same reason it carries
+   its own aim: the thing being corrected is a property of that photograph.
+
+   The numeral is white, and what threatens it is not how bright the frame is
+   on average but the brightest PATCHES falling inside the glyph's own outline.
+   Measured under the real 3/2/1 ink at ring size, the three were unequal and
+   two were under the 3:1 floor that text this large wants — the 2 worst at
+   2.2:1, on a highlight that belongs to Taskaree alone.
+
+   One global value would have to be dark enough for Taskaree and would then
+   take a fifth of Special Ops' brightness away to fix a highlight that is not
+   in it. So each frame is dimmed only as far as ITS OWN worst pixel requires,
+   which is the brightest each can be:
+
+     3  book-my-yamraj  0.67   2.9:1 -> 4.0:1
+     2  taskaree        0.58   2.2:1 -> 4.0:1
+     1  special-ops-2   0.76   3.6:1 -> 4.0:1
+
+   Full workings, both viewports and the ring means that show the frames are
+   still photographs, are in the filter comment in Opening.astro. Re-measure
+   there rather than nudging these by eye — and re-measure if a frame or an aim
+   changes, because the aim decides which part of the photograph is under the
+   glyph in the first place. */
+const COUNTDOWN: { slug: string; frame: number; zoom?: number; x?: number; y?: number; dim: number }[] = [
+  { slug: 'book-my-yamraj', frame: 1, dim: 0.67 },                            // behind 3
+  { slug: 'taskaree', frame: 1, zoom: 1.15, y: 5, dim: 0.58 },                // behind 2
+  { slug: 'special-ops-2', frame: 2, zoom: 1.7, x: 5.4, y: 32.6, dim: 0.76 }, // behind 1
 ];
-const stills = COUNTDOWN.map(({ slug, frame, zoom, x, y }) => {
+const stills = COUNTDOWN.map(({ slug, frame, zoom, x, y, dim }) => {
   const w = bySlug.get(slug)!;
   const all = framesFor(slug, w.data.frames);
   /* Clamped, so a frame that is renumbered or removed degrades to the last one
@@ -82,6 +105,7 @@ const stills = COUNTDOWN.map(({ slug, frame, zoom, x, y }) => {
     img: all[Math.min(Math.max(1, frame), all.length) - 1],
     alt: w.data.alt,
     aim: zoom || x || y ? { zoom: zoom ?? 1, x: x ?? 0, y: y ?? 0 } : undefined,
+    dim,
   };
 });
 
