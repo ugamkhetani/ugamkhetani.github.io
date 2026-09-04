@@ -973,13 +973,23 @@ timeline when they finish.
 - **The opening film's width on work pages: D · Inset is APPLIED** — 1050x590
   at 1280x800 against a 760px measure. The five drafts it was chosen from were
   deleted on Ugam's instruction; they are in the history.
-- **A more minimal, more editorial work page.** Three drafts on Aasha at
-  `/preview/aasha-edit-a|b|c`. All three drop the "The work", "The score" and
+- **A more minimal, more editorial work page.** Six drafts on Aasha at
+  `/preview/aasha-edit-a..f`. All six drop the "The work", "The score" and
   "Credits" headings and keep only **Stills**, redesign the credits, and lift
-  the watch link out of the credits into its own section. **A · Ledger** ruled
-  rows, watch above at title scale. **B · Stack** no rules at all, watch below
-  and centred. **C · Spine** a left label column, watch above as a ruled bar.
-  **Nothing applied.**
+  the watch link out of the credits into its own section:
+
+  | | credits | watch link |
+  | --- | --- | --- |
+  | A · Ledger | ruled rows | above, 41.6px display, own rule |
+  | B · Stack | stacked pairs, no rules | below, centred, hairline above |
+  | C · Spine | 137px label column, one rule | above, 75px ruled bar |
+  | D · Colophon | one running paragraph, middots, nothing drawn | above, right-aligned |
+  | E · Plate | centred end card, values in display face | below, under a 64px centred hairline |
+  | F · Gutter | labels right, values left, gutter at 38% | above, on the same axis |
+
+  **Nothing applied.** Note the headings and credits are shared by all sixteen
+  work pages, so whichever is taken should go to the whole route unless Ugam
+  wants Aasha treated on its own.
 
 ### Settled on 2026-09-05 — do NOT re-raise these
 All four of the questions this section used to hold have been answered. Two
