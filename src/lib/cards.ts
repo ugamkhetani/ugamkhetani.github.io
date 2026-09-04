@@ -35,14 +35,15 @@
  * scale from the RATIO, so it applies to any work narrower than a square and
  * leaves everything else at exactly 1. Adding a fifth vertical work needs no
  * edit here, and — more importantly — no work is being singled out by name for
- * special treatment. `only` exists to answer "what if it were a list", and is
- * unused by all three drafts.
+ * special treatment.
  */
 
 /** Scale 1 is the live site: one common height for every card. */
-export type CardMode = 'live' | 'lift' | 'balance' | 'column';
+export type CardMode = 'live' | 'lift' | 'balance' | 'draw' | 'rise' | 'column';
 
 /**
+ * THE FIVE DRAFTS.
+ *
  * A · LIFT — a flat, modest boost for anything upright. The smallest change
  * that reads as deliberate rather than as a rounding error. Keeps the common
  * height as the obvious rule and treats the verticals as a mild exception.
@@ -56,12 +57,33 @@ export type CardMode = 'live' | 'lift' | 'balance' | 'column';
  * gives them a common width instead, so a 9:16 becomes the tallest thing in
  * the row. Watch the aperture: at 1280x800 this puts a 9:16 card at 569px in
  * a window 624px tall.
+ *
+ * D · RISE and E · DRAW sit between B and C, nearer C, because B and C are
+ * ALREADY THE SAME RULE at two exponents — k = ratio^-1/2 and k = ratio^-1.
+ * So there is no need to invent a number to land between them: the exponent
+ * is the dial, and the four drafts are one continuous family rather than four
+ * unrelated ideas.
+ *
+ *   B · balance   p = 0.5      equal area with a square card
+ *   E · draw      p = 0.75     the midpoint of the exponent
+ *   D · rise      p = 0.875    halfway again, closest to C
+ *   C · column    p = 1        equal width with a square card
+ *
+ * Note the letters do not run in size order — D is LARGER than E. They are
+ * named in the order they were asked for, the way the mosaic and loader
+ * drafts are, not sorted by magnitude.
+ *
+ * Both are strictly smaller than C at every ratio, so C's aperture clearance
+ * of 3.44vh is a floor for them: whatever fits for C fits for these.
  */
 export function cardScale(mode: CardMode, ratio: number): number {
   if (mode === 'live' || ratio >= 1) return 1;
   if (mode === 'lift') return 1.15;
-  if (mode === 'balance') return 1 / Math.sqrt(ratio);
-  return 1 / ratio; // column
+  /* One family, k = ratio^-p, so these cannot drift apart as four separate
+     formulas would. Math.pow with a negative exponent on a ratio below 1
+     gives a number above 1, which is the enlargement. */
+  const p = mode === 'balance' ? 0.5 : mode === 'draw' ? 0.75 : mode === 'rise' ? 0.875 : 1;
+  return Math.pow(ratio, -p);
 }
 
 /** Rounded for the inline style — four decimals is well under a pixel. */
