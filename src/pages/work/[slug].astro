@@ -222,7 +222,6 @@ const FACTS: { k: string; v: string }[] = [
 
     {/* ── 01 · THE WORK. One section, four kinds of media. ────── */}
     <section class="blk" aria-label={OPEN_LABEL} data-reveal>
-      <p class="mono blk__lbl"><span class="rl" data-rl></span>{OPEN_LABEL}</p>
 
       {isVideo && (
         <VideoFacade youtube={d.media.youtube} vimeo={d.media.vimeo} instagram={d.media.instagram} title={d.title} poster={poster} alt={d.alt} eager />
@@ -267,13 +266,11 @@ const FACTS: { k: string; v: string }[] = [
 
     {/* ── 02 · THE WRITING, ASSEMBLED ─────────────────────────── */}
     <section class="blk" aria-label="About the work">
-      <p class="mono blk__lbl"><span class="rl" data-rl></span>The score</p>
       <p class="body">{BW.map((w, i) => (<><span class="w" data-w>{w}</span>{i < BW.length - 1 ? ' ' : ''}</>))}</p>
 
       {/* Eight of sixteen works carry a record — two as counts, six as citations. */}
       {HAS_AWARDS && (TALLY ? (
         <div class="tally" aria-label="Recognition" data-reveal>
-          <p class="mono tally__lbl">Recognition</p>
           <dl class="tally__row">
             {TALLY.map((t) => (
               <div class="tally__cell">
@@ -285,7 +282,6 @@ const FACTS: { k: string; v: string }[] = [
         </div>
       ) : (
         <div class="rec" aria-label="Recognition" data-reveal>
-          <p class="mono rec__lbl">Recognition</p>
           <ol class="rec__list">
             {CITES.map((c, i) => (
               <li class="rec__row">
@@ -327,24 +323,36 @@ const FACTS: { k: string; v: string }[] = [
       </div>
     </section>
 
-    {/* ── 04 · CREDITS ────────────────────────────────────────── */}
-    <section class="blk" aria-label="Credits" data-reveal>
-      <p class="mono blk__lbl"><span class="rl" data-rl></span>Credits</p>
-      <dl class="tbl tbl--cr">
+    {/* ── 04 · WATCH — lifted out of the credits ──────────────────
+        It was a `.tbl__links` paragraph at the foot of the credits table, so
+        the one action on the page sat inside a block of reference data. It is
+        its own section now, above the credits and set at title scale.
+        Seven of sixteen works carry one; the guard means the other nine
+        render nothing here rather than an empty band. */}
+    {creditLinks.length > 0 && (
+      <section class="blk wt" aria-label="Watch" data-reveal>
+        {creditLinks.map((l) => (
+          <a class="wt__a" href={l.url} target="_blank" rel="noopener">
+            <span class="wt__t display">{l.label}</span>
+            <span class="wt__arw" aria-hidden="true">&nearr;</span>
+          </a>
+        ))}
+      </section>
+    )}
+
+    {/* ── 05 · CREDITS, as a colophon ─────────────────────────────
+        No heading. The dl is kept and set inline rather than swapped for a
+        <p>, so the markup still says "these are pairs" to a screen reader
+        while reading as prose. */}
+    <section class="blk cr" aria-label="Credits" data-reveal>
+      <dl class="cr__list">
         {FACTS.map((f) => (
-          <div class="tbl__cell">
-            <dt class="mono tbl__k">{f.k}</dt>
-            <dd class="tbl__v">{f.v}</dd>
+          <div class="cr__row">
+            <dt class="mono cr__k">{f.k}</dt>
+            <dd class="cr__v">{f.v}</dd>
           </div>
         ))}
       </dl>
-      {creditLinks.length > 0 && (
-        <p class="tbl__links">
-          {creditLinks.map((l) => (
-            <a class="tbl__link" href={l.url} target="_blank" rel="noopener">{l.label} &nearr;</a>
-          ))}
-        </p>
-      )}
     </section>
   </article>
 
@@ -448,11 +456,6 @@ const FACTS: { k: string; v: string }[] = [
     border-top: 1px solid var(--rule);
     border-bottom: 1px solid var(--rule);
   }
-  .tally__lbl {
-    margin: 0 0 clamp(22px, 3.6vh, 40px); text-align: center;
-    font-size: var(--t-micro); letter-spacing: 0.16em;
-    text-transform: uppercase; color: var(--dim);
-  }
   .tally__row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; }
   .tally__cell { text-align: center; padding-inline: clamp(8px, 2vw, 28px); }
   /* Hairlines between the cells only — a border on each would draw one down
@@ -485,11 +488,6 @@ const FACTS: { k: string; v: string }[] = [
      distance below the paragraph. */
   .rec {
     margin: clamp(56px, 9vh, 110px) 0 0;
-  }
-  .rec__lbl {
-    margin: 0 0 clamp(18px, 3vh, 34px);
-    font-size: var(--t-micro); letter-spacing: 0.16em;
-    text-transform: uppercase; color: var(--dim);
   }
   .rec__list {
     margin: 0; padding: 0; list-style: none;
@@ -534,30 +532,6 @@ const FACTS: { k: string; v: string }[] = [
   /* One hairline per edge: the table draws its own left and top, each cell
      its right and bottom. Drawn on all four, every internal edge doubles and
      reads at 1px on a dark ground as uneven weight, not a heavier rule. */
-  .tbl {
-    margin: 0; display: grid;
-    border-left: 1px solid var(--rule-soft);
-    border-top: 1px solid var(--rule-soft);
-  }
-  .tbl__cell {
-    border-right: 1px solid var(--rule-soft);
-    border-bottom: 1px solid var(--rule-soft);
-    padding: clamp(18px, 3vh, 32px) clamp(16px, 2vw, 28px);
-    min-width: 0;
-  }
-  .tbl--cr { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .tbl__k { margin: 0; font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
-  .tbl__v { margin: 10px 0 0; font-size: var(--t-md); line-height: 1.3; color: var(--bone-dim); }
-  .tbl__links { margin: clamp(24px, 4vh, 40px) 0 0; display: flex; flex-wrap: wrap; gap: 24px; }
-  .tbl__link {
-    font-size: var(--t-sm); letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--bone); text-decoration: none;
-    border-bottom: 1px solid var(--rule-accent); padding-bottom: 3px;
-    transition: color var(--d-micro) var(--ease), border-color var(--d-micro) var(--ease);
-  }
-  .tbl__link:hover { color: var(--accent); border-color: var(--accent); }
-  @media (max-width: 860px) { .tbl--cr { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  @media (max-width: 560px) { .tbl--cr { grid-template-columns: 1fr; } }
 
   /* ── FRAMES ─────────────────────────────────────────────────── */
   /* auto-fill so a short last row keeps the cell size of the row above it,
@@ -630,15 +604,6 @@ const FACTS: { k: string; v: string }[] = [
 
   /* The credit table loses every border and becomes cells held apart by
      gaps. The label colour is what keeps the pairs legible without them. */
-  .tbl {
-    border-left: 0; border-top: 0;
-    gap: clamp(24px, 3.4vw, 56px) clamp(28px, 4vw, 72px);
-  }
-  .tbl__cell {
-    border-right: 0; border-bottom: 0;
-    padding: 0;
-  }
-  .tbl__v { margin-top: 6px; }
 
   /* The ghost folio is gone. It set the section's number at 13vw behind each
      heading at 0.04 opacity — decorative, and the only ornament on the page.
@@ -674,8 +639,6 @@ const FACTS: { k: string; v: string }[] = [
   .sc { --measure: min(760px, 100%); }
   .hd, .q, .blk { max-width: var(--measure); }
   .body { max-width: none; }
-  .tbl--cr { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  @media (max-width: 560px) { .tbl--cr { grid-template-columns: 1fr; } }
 </style>
 
 <style>
@@ -767,6 +730,61 @@ const FACTS: { k: string; v: string }[] = [
      max-width, not --facade-max: that custom property is set INLINE by
      VideoFacade, and an inline custom property beats a stylesheet one. */
   .blk :global(.facade[data-instagram]) { max-width: 440px; }
+
+  /* ══ THE PAGE IS LABELLED ONCE, AND THE CREDITS ARE A COLOPHON ════
+     D · Colophon, chosen from nine built as real pages on Aasha.
+
+     FOUR HEADINGS ARE GONE — "The work" (or "Listen"), "The score",
+     "Recognition" and "Credits". "Stills" is the only one left, because it is
+     the only one naming something a reader cannot infer: a grid of frames
+     could be production photos, a gallery, or the film's own stills. The
+     others sat over a video, a paragraph, three figures with their own nouns
+     ("7 Official Selections"), and a list of labelled values — each of which
+     announces itself.
+
+     THE DRAWN RULES WENT WITH THEM. `.blk__lbl` carries `.rl`, the hairline
+     that scales in as a section arrives, so removing a label removes a rule.
+     One is left, over the stills, and it now reads as a mark rather than as
+     furniture — which is what §5's "no rules" note wanted in the first place.
+
+     NOTHING IS LOST TO ASSISTIVE TECH. Every section keeps its `aria-label`,
+     so the document still announces Watch, Credits and the rest. The headings
+     were never the accessible name.
+
+     THE CREDITS ARE A PARAGRAPH, not a table: one running line of pairs
+     divided by middots, set at body size, as a colophon is set at the back of
+     a book. The `dl` is kept and made inline rather than replaced by a `<p>`,
+     so the markup still says "pairs" while reading as prose. `dd` carries a
+     default `margin-inline-start` of 40px which has to be reset, or every
+     value sits a tab stop from its label.
+
+     SELECTORS ARE ANCHORED TO `.blk` DELIBERATELY. These sections are
+     `class="blk cr"` and `class="blk wt"`, so `.blk` and `.cr` match the same
+     element at the same (0,2,0) once Astro adds its scope attribute, and the
+     tie is settled by which rule the BUNDLE emits last — which is not
+     document order: this file's second style block is bundled before its
+     first. `.blk.cr` is (0,3,0) and cannot be reordered out of winning.
+     HANDOFF §6. */
+  .blk.cr { margin-top: clamp(40px, 7vh, 90px); }
+  .cr__list { margin: 0; display: block; max-width: 62ch; }
+  .cr__row { display: inline; }
+  .cr__row:not(:last-child)::after { content: ' · '; color: var(--dim); }
+  .cr__k {
+    display: inline; margin: 0; font-size: var(--t-micro); letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--dim);
+  }
+  .cr__k::after { content: '\00a0\00a0'; }
+  .cr__v { display: inline; margin: 0; font-size: var(--t-md); color: var(--bone); }
+
+  /* The watch link: right-aligned, at title scale, with no rule at all. The
+     separation from the credits is a full section of air and the fact that one
+     is a line of display type and the other a paragraph — not a box. */
+  .blk.wt { margin-bottom: clamp(64px, 11vh, 150px); text-align: right; }
+  .wt__a { display: inline-flex; align-items: baseline; gap: 14px; text-decoration: none; color: var(--bone); }
+  .wt__t { font-size: clamp(1.6rem, 4.2vw, 2.6rem); line-height: 1.05; letter-spacing: -0.02em; }
+  .wt__arw { font-size: var(--t-md); color: var(--dim); transition: transform var(--d-micro) var(--ease), color var(--d-micro) var(--ease); }
+  .wt__a:hover .wt__arw { color: var(--bone); transform: translate(3px, -3px); }
+  .wt__a:hover .wt__t { text-decoration: underline; text-underline-offset: 6px; }
 </style>
 
 <script>

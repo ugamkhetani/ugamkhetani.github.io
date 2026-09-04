@@ -264,7 +264,6 @@ const FACTS: { k: string; v: string }[] = [
       {/* Eight of sixteen works carry a record — two as counts, six as citations. */}
       {HAS_AWARDS && (TALLY ? (
         <div class="tally" aria-label="Recognition" data-reveal>
-          <p class="mono tally__lbl">Recognition</p>
           <dl class="tally__row">
             {TALLY.map((t) => (
               <div class="tally__cell">
@@ -276,7 +275,6 @@ const FACTS: { k: string; v: string }[] = [
         </div>
       ) : (
         <div class="rec" aria-label="Recognition" data-reveal>
-          <p class="mono rec__lbl">Recognition</p>
           <ol class="rec__list">
             {CITES.map((c, i) => (
               <li class="rec__row">

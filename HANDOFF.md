@@ -594,6 +594,47 @@ it resolves to the block's width rather than to `.sc`'s.
 
 ---
 
+**A work page is labelled once, and the credits are a colophon.** Four
+headings are gone — "The work" (or "Listen"), "The score", "Recognition" and
+"Credits". **"Stills" is the only one left**, because it is the only one naming
+something a reader cannot infer: a grid of frames could be production photos, a
+gallery, or the film's own stills. The others sat over a video, a paragraph,
+three figures carrying their own nouns ("7 Official Selections"), and a list of
+labelled values.
+
+THE DRAWN RULES WENT WITH THEM. `.blk__lbl` carries `.rl`, the hairline that
+scales in as a section arrives, so removing a label removes a rule. One is
+left, and it now reads as a mark rather than as furniture — which is what the
+"no rules" note in this section always wanted.
+
+NOTHING IS LOST TO ASSISTIVE TECH. Every section keeps its `aria-label`, so the
+document still announces Watch, Credits, Listen and the rest. The headings were
+never the accessible name. Verified across all sixteen built pages.
+
+**The credits are a paragraph, not a table.** One running line of pairs divided
+by middots, set at body size, as a colophon is set at the back of a book. The
+`dl` is KEPT and made `display: inline` rather than swapped for a `<p>`, so the
+markup still says "these are pairs" to a screen reader while reading as prose.
+`dd` carries a default `margin-inline-start: 40px` that has to be reset, or
+every value sits a tab stop from its label — verified 0px.
+
+**The watch link is its own section, above the credits.** It was a
+`.tbl__links` paragraph at the FOOT of the credits table, so the one action on
+the page sat inside a block of reference data. It is now right-aligned at title
+scale with no rule at all: the separation is a section of air plus the fact
+that one is a line of display type and the other a paragraph. Seven of sixteen
+works carry a credit link; the other nine render nothing there rather than an
+empty band, and keep whatever `ExternalWatch` block they had in the media
+section.
+
+Chosen as D · Colophon from nine treatments built as real pages on Aasha. The
+dead `.tbl*`, `.tally__lbl` and `.rec__lbl` rules were removed with it — 14
+rules and 3 media wrappers, 1952 bytes — and the removal was PROVED inert by
+hashing all sixteen rendered pages before and after with asset hashes and scope
+ids normalised: 16/16 identical.
+
+---
+
 ## 6 · Traps — every one of these cost real time
 
 **Astro scopes component CSS with a `data-astro-cid-*` attribute, and
@@ -973,8 +1014,9 @@ timeline when they finish.
 - **The opening film's width on work pages: D · Inset is APPLIED** — 1050x590
   at 1280x800 against a 760px measure. The five drafts it was chosen from were
   deleted on Ugam's instruction; they are in the history.
-- **A more minimal, more editorial work page.** Six drafts on Aasha at
-  `/preview/aasha-edit-a..f`. All six drop the "The work", "The score" and
+- **A more minimal, more editorial work page: D · Colophon is APPLIED** to all
+  sixteen. The nine drafts stay at `/preview/aasha-edit-a..i` as the record;
+  `aasha-edit-d` now reflects the live page. The other eight drop the "The work", "The score" and
   "Credits" headings and keep only **Stills**, redesign the credits, and lift
   the watch link out of the credits into its own section:
 
