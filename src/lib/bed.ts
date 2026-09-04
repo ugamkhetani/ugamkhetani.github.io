@@ -82,5 +82,44 @@ export const BED_CROP: Record<string, { scale: number; shiftY: number }> = {
   'diwali-ke-shor-mein': { scale: 1.175, shiftY: -1.71 },
 };
 
+/**
+ * ONE TILE IS GRADED DIFFERENTLY, AND IT IS THE CONTRAST THAT MOVES — NOT THE
+ * BRIGHTNESS CAP.
+ *
+ * Bloody Bubbly holds cell 15, the clearest cell on the bed at 0.48, and under
+ * the bed's grade it meant 4.2 against a ground of 9.0. It was not a dim tile,
+ * it was a HOLE — darker than the ground it sat on — and no reframing fixes it,
+ * because all five of its frames are dark; the brightest means 7.9.
+ *
+ * THE OBVIOUS FIX DOES NOT WORK. Raising brightness for this tile is capped
+ * almost immediately: the frame is near-black on average but still contains a
+ * blown pixel at a true 255, so the bed's own readability ceiling is reached at
+ * a brightness of 0.31. There is no room there at all.
+ *
+ * WHAT IS ACTUALLY CRUSHING IT IS THE CONTRAST. `contrast()` pivots around mid
+ * grey, so it pushes everything below the pivot DOWN — and this frame sits far
+ * below it, where the bed's 1.05 costs it more than half its mean. Dropping the
+ * boost for this one tile, with brightness untouched at the bed's own 0.30:
+ *
+ *   contrast   mean   brightest   pixels over the #4C4C4C ceiling
+ *     1.05      4.2      73.9     0          <- the bed's grade, a hole
+ *     1.00      9.2      76.4     0          <- this
+ *     0.99     10.4      77.0     608
+ *
+ * So THE 0.30 BRIGHTNESS CAP IS NOT BROKEN AND THE READABILITY GUARANTEE STILL
+ * HOLDS EXACTLY: not one pixel of this tile exceeds #4C4C4C, which is the whole
+ * basis of the arithmetic in index.astro. The tile simply does not receive a
+ * contrast boost that was never designed with a frame this dark in mind.
+ *
+ * At 9.2 it now reads level with the ground rather than below it, and sits
+ * inside the bed's normal range — Aasha 6.4, Roar 7.8, Taskaree 10.3.
+ *
+ * 0.99 is deliberately NOT taken. It looks better on the mean and it puts 608
+ * pixels over the ceiling, which is the one thing the bed promises never to do.
+ */
+export const BED_GRADE: Record<string, { contrast: number }> = {
+  'bloody-bubbly': { contrast: 1.0 },
+};
+
 /** How many tiles the bed lays down. The cycle repeats to fill them. */
 export const BED_TILES = 30;
