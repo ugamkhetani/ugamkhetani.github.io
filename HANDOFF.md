@@ -553,6 +553,47 @@ C's k=1.7778 it falls to 28px and needs `lit >= 0.771`, which holds only because
 
 ---
 
+**The opening film breaks the measure; the episode grids do not.** Work pages
+sit on one 760px measure, and the opening film alone is let out of it —
+D · Inset, `max(--measure, 100vw - 3 x --margin)`, which stops one and a half
+page-margins in from each window edge. Measured 1050x590 at 1280x800. The
+label, its rule, the statement, the body, the stills and the credits all stay
+on the measure, so the film breaks the column and the column is still there to
+be broken.
+
+WHICH WORKS GET IT IS DECIDED BY THE MARKUP, NOT BY A TEST. The three vertical
+works with several episodes — Book My Yamraj 6, Dinshaw's 4, Aladdin 4 — are
+excluded, and nothing anywhere names them. They carry `media.films`, so they
+render a `.films` GRID and the rule only reaches `.facade`. One film gets a
+facade, several get a grid; that distinction already existed and is exactly the
+one wanted. A ratio test would have said the same thing more weakly and would
+have been wrong the day a landscape work had episodes.
+
+So it reaches the eight single-video works — seven YouTube, Diwali on Vimeo —
+all of them landscape or square. Verified across all sixteen pages.
+
+**Bloody Bubbly widens on its own terms, to 440px.** It is the one vertical
+work with a SINGLE video, so it is not in the excluded set, but its facade is
+an Instagram embed: portrait, carrying the post's own chrome, capped at the
+400px their embed code ships with. 440 is a tenth more and inside Instagram's
+supported 320–540 range, so the mounted iframe still matches the facade and
+nothing jumps on press. **The cost is height** — the shape is fixed at 400/700,
+so it now stands 770px, 96% of an 800px viewport against 88% before. That is
+why it is not Instagram's full 540, which would be 945px tall and taller than
+the window showing it. Set as `max-width`, not `--facade-max`: that custom
+property is written INLINE by VideoFacade, and an inline custom property beats
+a stylesheet one.
+
+**The floor on `--film` is load-bearing.** `--margin` bottoms out at 24px on a
+phone, where `100vw - 3 x margin` is 303px against a measure of 327 — without
+`max(var(--measure), …)` the film would be NARROWER THAN THE TEXT beside it.
+Verified at 375x812: it clamps to 327 and sits flush with the column. Note
+`--measure` is `min(760px, 100%)` and the `100%` in a custom property resolves
+where the property is USED — on `.facade`, whose containing block is `.blk`, so
+it resolves to the block's width rather than to `.sc`'s.
+
+---
+
 ## 6 · Traps — every one of these cost real time
 
 **Astro scopes component CSS with a `data-astro-cid-*` attribute, and
@@ -903,13 +944,12 @@ timeline when they finish.
 - **Conveyor card size:** **E · Draw is applied.** Every mode is still in
   `src/lib/cards.ts` and switching is one word in `index.astro`; the five
   draft PAGES are gone with the rest of the library.
-- **The opening film's width on work pages.** Five drafts on Aasha,
-  `/preview/aasha-film-a..e`, all measured at 1280x800 against a live 760px:
-  **A · Step** 920, **E · Recess** 973, **D · Inset** 1050, **B · Span** 1126,
-  **C · Bleed** 1280. B, D and E are the page's own unit — the film stops one,
-  one and a half, or two `--margin`s in from the window edge. **Nothing
-  applied.** Only the facade is covered; works with local MP4s (`FilmPlayer`)
-  and still/audio openings are untouched and are an open question.
+- **The opening film's width on work pages: D · Inset is APPLIED.** The five
+  drafts are kept at `/preview/aasha-film-a..e` as the record of the
+  comparison — A · Step 920, E · Recess 973, **D · Inset 1050**, B · Span 1126,
+  C · Bleed 1280, all at 1280x800 against a 760px measure. `aasha-film-d` now
+  records the live page rather than proposing anything. Still/audio openings
+  and the episode grids are deliberately untouched.
 
 ### Settled on 2026-09-05 — do NOT re-raise these
 All four of the questions this section used to hold have been answered. Two

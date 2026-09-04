@@ -695,6 +695,78 @@ const FACTS: { k: string; v: string }[] = [
   .cover :global(img), .still :global(img) { width: 100%; height: auto; display: block; }
   .still { overflow: hidden; background: var(--ground-lift); }
   .ext { margin-top: clamp(24px, 4vh, 48px); }
+
+  /* ══ THE OPENING FILM IS WIDER THAN THE MEASURE ═══════════════════
+     D · Inset, chosen from five built as real pages on Aasha and judged in
+     the browser. The film stops one and a half --margins in from each window
+     edge — measured 1050x590 at 1280x800, against the 760px measure — where
+     B stopped at one margin and A held a fixed 920px column.
+
+     ONLY THE FILM MOVES. The label above it, its rule, the statement, the
+     body, the stills and the credits all stay on the measure, so the film
+     breaks the column and the column is still there to be broken.
+
+     WHICH WORKS GET IT, AND WHY THE SELECTOR IS THE WHOLE ANSWER. The three
+     vertical works with multiple episodes — Book My Yamraj's six, Dinshaw's
+     four, Aladdin's four — are excluded, and no test for that is written
+     anywhere. They carry `media.films`, so they render a `.films` GRID rather
+     than a facade, and this rule only reaches `.facade`. The distinction Ugam
+     drew is already the distinction the markup makes: one film gets a facade,
+     several get a grid. A ratio test would have been a second, weaker way of
+     saying the same thing, and would have gone wrong the day a landscape work
+     had episodes.
+
+     So this reaches the eight single-video works: seven on YouTube and Diwali
+     on Vimeo. Every one of them is landscape or square.
+
+     THE max() IS A FLOOR AND IT IS LOAD-BEARING. --margin bottoms out at 24px
+     on a phone, where 100vw - 3 x margin is 303px against a measure of 327 —
+     without it the film would be NARROWER THAN THE TEXT beside it. Measured
+     at 375x812: it clamps to 327 and sits flush with the column.
+
+     --measure is `min(760px, 100%)` and the 100% in a custom property resolves
+     where the property is USED. It is used on .facade, whose containing block
+     is .blk, so it resolves to the block's width rather than to .sc's.
+
+     IT ESCAPES BY NEGATIVE INLINE MARGINS, not a wider parent, so .blk keeps
+     its max-width and only this child overflows — computed from the SAME
+     --film as the width, so the two cannot disagree at any viewport.
+
+     SPECIFICITY IS DELIBERATE. VideoFacade sets `margin-inline: auto` at
+     (0,2,0) with its own scope attribute; a plain `.blk :global(.facade)` is
+     also (0,2,0) and would be a tie broken by source order, and losing it
+     means `auto` wins and the frame stops being centred. The
+     :not([data-instagram]) takes this to (0,4,0).
+
+     AND IT MUST STAY IN A SCOPED STYLE BLOCK. The third block in this file is
+     `<style is:global>`, where Astro ships :global() as a literal string, no
+     browser understands it and the rule is dropped with no error at all —
+     the symptom is the element measuring exactly as it did before. HANDOFF
+     section 6. */
+  .sc { --film: max(var(--measure), calc(100vw - 3 * var(--margin))); }
+  .blk :global(.facade:not([data-instagram])) {
+    width: var(--film);
+    margin-inline: calc((100% - var(--film)) / 2);
+  }
+
+  /* BLOODY BUBBLY IS THE ONE VERTICAL WORK WITH A SINGLE VIDEO, so it is not
+     in the excluded set and it does not belong in the rule above either: an
+     Instagram facade is portrait and carries the post's own chrome.
+
+     It widens on its own terms. 400px is the width Instagram's embed code
+     ships with; 540px is the widest their embed supports, and 440 is a tenth
+     more than the default and comfortably inside that range, so the mounted
+     iframe still matches the facade and nothing jumps on press.
+
+     THE COST IS HEIGHT, because the shape is fixed at 400/700: at 440 the
+     frame is 770px tall, which is 96% of an 800px viewport against 88% before.
+     That is the trade for widening a portrait frame at all, and it is why this
+     is 440 rather than Instagram's full 540 — which would stand 945px tall and
+     be taller than the window it is shown in.
+
+     max-width, not --facade-max: that custom property is set INLINE by
+     VideoFacade, and an inline custom property beats a stylesheet one. */
+  .blk :global(.facade[data-instagram]) { max-width: 440px; }
 </style>
 
 <script>
