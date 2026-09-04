@@ -1,0 +1,35 @@
+---
+const year = new Date().getFullYear();
+---
+
+<footer class="colophon">
+  <hr class="rule" />
+  <div class="colophon__row">
+    <span class="mono mono--dim">© {year} Ugam Khetani</span>
+    <a class="mono colophon__mail" href="mailto:khetaniugam@gmail.com">khetaniugam@gmail.com</a>
+  </div>
+</footer>
+
+<style>
+  .colophon {
+    padding-inline: var(--margin);
+    padding-bottom: var(--s-6);
+    margin-top: clamp(var(--s-6), 10vh, var(--s-8));
+  }
+  .colophon__row {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--s-3);
+    flex-wrap: wrap;
+    padding-top: 18px;
+  }
+  .colophon__mail {
+    color: var(--muted);
+    transition: color var(--d-micro) var(--ease);
+  }
+  .colophon__mail:hover { color: var(--accent); }
+
+  @media (max-width: 640px) {
+    .colophon__row { flex-direction: column; gap: 8px; }
+  }
+</style>

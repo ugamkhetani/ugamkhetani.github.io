@@ -1,0 +1,276 @@
+---
+/**
+ * CONTENTS — THE ROLL.
+ *
+ * The catalogue read as an end-credit roll: the work set at title scale and
+ * read by scrolling, grouped into cards by category. The one filmic idiom in
+ * a site whose other themes are musical, and it belongs here — a composer's
+ * index of the things he scored, set the way those things end.
+ *
+ * A PAGE, NOT AN OVERLAY. Contents was the last overlay in the site; About
+ * and Contact both outgrew theirs for the same reason this one has. At title
+ * scale over sixteen works it wants the height of a document and a URL you
+ * can send someone. `Overlay.astro` and the overlay branch of RunHead went
+ * unused with it — see HANDOFF §4.
+ *
+ * THE READING LINE. A hairline fixed across the viewport at 46vh. Whatever
+ * title crosses it is lit, and the readout at the right takes its catalogue
+ * number and category. This is /about's reading light moved up to title
+ * scale — the same instinct (the page knows where you are reading), stated
+ * once and large instead of word by word.
+ *
+ * THE FLOOR IS --bone-dim AND NEVER LOWER (HANDOFF §5). The unlit state is
+ * the site's own body-copy colour at 14:1, so every title is completely
+ * readable with no script running at all. Brightness is ADDED, never
+ * subtracted, and nothing here uses opacity to dim type — that is exactly
+ * the failure §5 opens with, which has now bitten this project three times.
+ * Proximity drives colour and a hair of scale; it can never make a word
+ * harder to read than it is on any other page. Verified by loading with the
+ * scroll handler prevented from running: all sixteen titles, numbers, roles,
+ * years and ratios are legible and the page is a plain, complete index.
+ *
+ * ORDER AND NUMBERING COME FROM composition.ts. Cards are sorted by
+ * `indexRank`, which is the Index's own order; the catalogue number is
+ * `numberFor`, derived from the homepage composition — so a work carries the
+ * same number here as everywhere else and reordering the score renumbers
+ * this page with it.
+ */
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { numberFor, indexRank, total } from '../data/composition';
+
+const works = await getCollection('works');
+
+const CATEGORY_ORDER = [
+  'Feature Film', 'Web Series', 'Short Film', 'AI Film',
+  'Micro Drama', 'Spec Trailer', 'Brand Work', 'Song',
+];
+
+const cards = CATEGORY_ORDER.map((category) => ({
+  category,
+  items: works
+    .filter((w) => w.data.category === category)
+    .sort((a, b) => indexRank(a.id) - indexRank(b.id)),
+})).filter((c) => c.items.length);
+
+const years = [...new Set(works.map((w) => w.data.year))].sort();
+---
+
+<Base
+  title="Contents — Ugam Khetani"
+  description={`The catalogue read as names — ${total} works in ${cards.length} categories, ${years[0]}–${years[years.length - 1]}. Score, sound design, voice direction and mix for film, series, brand and song.`}
+>
+  <div class="rl" data-roll>
+    {/* ── the reading line, and the readout that rides it ────── */}
+    <div class="rl__line" aria-hidden="true">
+      <i class="rl__rule"></i>
+      <div class="rl__hud">
+        <span class="mono rl__no" data-r-no>{String(total).padStart(3, '0')}</span>
+        <span class="mono rl__cat" data-r-cat>{cards.length} categories</span>
+      </div>
+    </div>
+
+    <header class="rl__head">
+      <p class="mono rl__eyebrow">Contents</p>
+      <h1 class="display rl__h1">The roll</h1>
+      <p class="rl__lede">
+        {total} works, {years[0]}–{years[years.length - 1]}, read the way they end — by scrolling
+        past. Whatever crosses the line is the one being read.
+      </p>
+      <p class="mono rl__cue">Scroll ↓</p>
+    </header>
+
+    <div class="rl__body">
+      {cards.map((card) => (
+        <section class="card">
+          <h2 class="mono card__cat">
+            <span class="card__catline" aria-hidden="true"></span>
+            {card.category}
+            <span class="card__n">{String(card.items.length).padStart(2, '0')}</span>
+          </h2>
+
+          <ul class="card__list">
+            {card.items.map((w) => (
+              <li class="cr" data-credit data-no={numberFor(w.id)} data-cat={w.data.category}>
+                <a class="cr__a" href={`/work/${w.id}`}>
+                  <span class="cr__meta">
+                    <span class="mono cr__no">{numberFor(w.id)}</span>
+                    <span class="mono cr__role">{w.data.role}</span>
+                    {w.data.awards.some((a) => a.star) && (
+                      <span class="mono cr__award">✳ {w.data.awards.find((a) => a.star)?.text}</span>
+                    )}
+                  </span>
+
+                  <span class="display cr__title">{w.data.title}</span>
+
+                  <span class="cr__tail">
+                    <span class="mono cr__yr">{w.data.year}</span>
+                    <span class="mono cr__ratio">{w.data.ratio}</span>
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+
+    <footer class="rl__end">
+      <p class="mono">End of contents</p>
+      <p class="display rl__endt">{total} works</p>
+    </footer>
+  </div>
+</Base>
+
+<style>
+  .rl { padding-inline: var(--margin); padding-top: clamp(140px, 18vh, 200px); padding-bottom: 26vh; }
+
+  /* ── the reading line ─────────────────────────────────────── */
+  .rl__line { position: fixed; left: 0; right: 0; top: 46vh; z-index: 30; pointer-events: none; }
+  .rl__rule { position: absolute; left: var(--margin); right: var(--margin); top: 0; height: 1px; background: var(--rule-accent); }
+  .rl__hud { position: absolute; right: var(--margin); top: 8px; display: flex; align-items: baseline; gap: 12px; }
+  .rl__no { font-size: var(--t-sm); letter-spacing: 0.14em; color: var(--accent); }
+  .rl__cat { font-size: var(--t-micro); letter-spacing: var(--track-mono); color: var(--dim); }
+
+  /* ── head ─────────────────────────────────────────────────── */
+  .rl__eyebrow { font-size: var(--t-micro); letter-spacing: var(--track-mono); color: var(--accent); }
+  .rl__h1 { margin-top: 12px; font-size: var(--t-2xl); letter-spacing: var(--track-tight); line-height: 0.98; }
+  .rl__lede { margin-top: 18px; max-width: 44ch; font-size: var(--t-md); line-height: 1.5; color: var(--bone-dim); }
+  .rl__cue { margin-top: 26px; font-size: var(--t-micro); letter-spacing: var(--track-mono); color: var(--dim); }
+
+  /* ── cards ────────────────────────────────────────────────── */
+  .rl__body { margin-top: clamp(60px, 16vh, 180px); }
+
+  .card { margin-bottom: clamp(48px, 10vh, 120px); }
+  .card__cat {
+    display: flex; align-items: center; gap: 14px;
+    font-size: var(--t-xs); letter-spacing: var(--track-mono);
+    color: var(--accent);
+  }
+  .card__catline { flex: 0 0 40px; height: 1px; background: var(--rule-accent); }
+  .card__n { font-size: var(--t-micro); color: var(--dim); letter-spacing: 0.1em; }
+
+  .card__list { list-style: none; margin: 0; padding: 0; }
+
+  /* ── one credit ───────────────────────────────────────────── */
+  .cr { border-bottom: 1px solid var(--rule-soft); }
+  .cr__a {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+    gap: 8px 28px;
+    padding: clamp(20px, 3.4vh, 40px) 0;
+    text-decoration: none; color: inherit;
+  }
+
+  .cr__meta { grid-column: 1; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; }
+  .cr__no { font-size: var(--t-micro); letter-spacing: 0.14em; color: var(--dim); transition: color var(--d-micro) var(--ease); }
+  .cr__role { font-size: var(--t-micro); letter-spacing: 0.06em; color: var(--muted); }
+  .cr__award { font-size: var(--t-micro); letter-spacing: 0.06em; color: var(--accent); }
+
+  .cr__title {
+    grid-column: 1; margin-top: 6px;
+    font-size: clamp(2rem, 6.2vw, 4.6rem);
+    letter-spacing: var(--track-tight); line-height: 0.96;
+    /* THE FLOOR. Never below --bone-dim, with or without script. */
+    color: var(--bone-dim);
+    /* Proximity brightens toward true white. If color-mix is unsupported the
+       declaration is dropped and the floor above stands — readable either
+       way, which is the point. */
+    color: color-mix(in srgb, var(--bone) calc(var(--near, 0) * 100%), var(--bone-dim));
+    display: block;
+    transform: scale(calc(0.99 + var(--near, 0) * 0.022));
+    transform-origin: left center;
+    will-change: transform;
+  }
+
+  .cr__tail { grid-column: 2; grid-row: 1 / span 2; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+  .cr__yr { font-size: var(--t-xs); color: var(--dim); transition: color var(--d-micro) var(--ease); }
+  .cr__ratio { font-size: var(--t-micro); letter-spacing: 0.08em; color: var(--dim); }
+
+  /* The one crossing the line takes the accent marks. Binary, because a
+     marker that fades in is a marker you cannot trust. */
+  .cr.is-now .cr__no { color: var(--accent); }
+  .cr.is-now .cr__yr { color: var(--bone-dim); }
+
+  .cr__a:hover .cr__title { color: var(--bone); }
+  .cr__a:focus-visible { outline: 1px solid var(--accent); outline-offset: 4px; }
+
+  .rl__end { margin-top: clamp(60px, 14vh, 160px); padding-top: 24px; border-top: 1px solid var(--rule); }
+  .rl__end .mono { font-size: var(--t-micro); letter-spacing: var(--track-mono); color: var(--dim); }
+  .rl__endt { margin-top: 10px; font-size: var(--t-xl); letter-spacing: var(--track-tight); color: var(--bone); }
+
+  @media (max-width: 700px) {
+    .rl__line { display: none; }
+    .cr__a { grid-template-columns: 1fr; }
+    .cr__tail { grid-column: 1; grid-row: auto; flex-direction: row; align-items: baseline; gap: 16px; margin-top: 10px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cr__title { transform: none; }
+  }
+</style>
+
+<script>
+  function initRoll() {
+    const root = document.querySelector('[data-roll]');
+    if (!root || (root as HTMLElement).dataset.bound) return;
+    (root as HTMLElement).dataset.bound = '1';
+
+    const credits = Array.from(root.querySelectorAll('[data-credit]')) as HTMLElement[];
+    const no = root.querySelector('[data-r-no]') as HTMLElement;
+    const cat = root.querySelector('[data-r-cat]') as HTMLElement;
+    if (!credits.length) return;
+
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let raf = 0;
+    let last = -1;
+
+    const paint = () => {
+      raf = 0;
+      const line = innerHeight * 0.46;
+      /* The falloff is a distance in px, not a fraction of the viewport: a
+         title's brightness should not depend on how tall the window is. */
+      const FALL = 260;
+
+      let best = -1;
+      let bestD = Infinity;
+
+      for (let i = 0; i < credits.length; i++) {
+        const el = credits[i];
+        const t = el.querySelector('.cr__title') as HTMLElement;
+        const r = t.getBoundingClientRect();
+        const mid = r.top + r.height / 2;
+        const d = Math.abs(mid - line);
+
+        const near = Math.max(0, 1 - d / FALL);
+        /* Written every frame INCLUDING when it lands on zero. A tolerance
+           test that skips the last write leaves a stale figure in the DOM
+           for ever while the internal state says zero (HANDOFF §6). */
+        t.style.setProperty('--near', still ? (near > 0.6 ? '1' : '0') : near.toFixed(3));
+
+        if (d < bestD) { bestD = d; best = i; }
+      }
+
+      if (best !== last) {
+        last = best;
+        credits.forEach((c, i) => c.classList.toggle('is-now', i === best));
+        const el = credits[best];
+        no.textContent = el.dataset.no || '';
+        cat.textContent = el.dataset.cat || '';
+      }
+    };
+
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(paint); };
+
+    addEventListener('scroll', onScroll, { passive: true });
+    addEventListener('resize', onScroll, { passive: true });
+    /* Fonts land after first paint and move every title's box with them. */
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(paint);
+    paint();
+  }
+
+  initRoll();
+  // The site navigates client-side, so this has to run again after a swap.
+  document.addEventListener('astro:page-load', initRoll);
+</script>

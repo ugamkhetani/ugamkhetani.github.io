@@ -1,0 +1,522 @@
+---
+/**
+ * ABOUT — six movements, built to be read by scrolling.
+ *
+ * MOTION, and the one rule that governs all of it: nothing here is hidden by
+ * a base style. Every entrance lives inside a keyframe applied by .is-in, so
+ * a stalled observer, a backgrounded tab or a script that never ran leaves a
+ * page that simply sits still and reads. base.css carries the same rule and
+ * HANDOFF.md records why — it has bitten this project twice.
+ *
+ * What moves: a scroll progress hairline; the hero assembling word by word;
+ * masked line rises on every large statement; staggered lists; a section
+ * rail that fills as you pass through it; a figure that counts up; and the
+ * selected works, which raise their own still under the pointer.
+ */
+import Base from '../layouts/Base.astro';
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import { HERO, PORTRAIT, WHO, PROCESS, ACROSS, PROOF, CLOSING } from '../data/about';
+import { EMAIL, PHONE, WHATSAPP } from '../data/contact';
+import { framesFor } from '../lib/frames';
+
+const works = await getCollection('works');
+const bySlug = new Map(works.map((w) => [w.id, w]));
+const proof = PROOF.works.map((w) => {
+  const rec = bySlug.get(w.slug);
+  return { ...w, poster: rec ? framesFor(w.slug, rec.data.frames)[0] : null, alt: rec?.data.alt ?? '' };
+});
+
+/** Split a string into words so each can rise on its own delay. */
+const words = (s: string) => s.split(' ');
+---
+
+<Base
+  title="About — Ugam Khetani"
+  description="Composer, producer and sound designer based in Mumbai. Original score for film and OTT, sonic identity for brands, and records — built from the first idea through to the final mix."
+>
+  <div class="ab" data-about>
+    <div class="rail" aria-hidden="true"><span class="rail__in" data-progress></span></div>
+
+    {/* ── Hero ──────────────────────────────────────────────── */}
+    <header class="hero">
+      <div class="hero__text">
+        <p class="mono hero__eyebrow" data-reveal>{HERO.eyebrow}</p>
+
+        <h1 class="hero__statement display">
+          {HERO.statement.map((line, li) => (
+            <span class="line" data-reveal style={`--i:${li + 1}`}>
+              <span class="line__in">
+                {line.map((part) =>
+                  part.accent ? <span class="hot">{part.t}</span> : part.t
+                )}
+              </span>
+            </span>
+          ))}
+        </h1>
+
+        <ul class="tags" data-reveal style="--i:3">
+          {HERO.role.map((r) => (<li class="mono">{r}</li>))}
+        </ul>
+        <ul class="tags tags--dim" data-reveal style="--i:4">
+          {HERO.place.map((r) => (<li class="mono">{r}</li>))}
+        </ul>
+      </div>
+
+      {PORTRAIT && (
+        <div class="hero__portrait" data-reveal style="--i:2">
+          <img src={PORTRAIT} alt="Ugam Khetani" loading="eager" decoding="async" />
+        </div>
+      )}
+    </header>
+
+    <span class="cue" aria-hidden="true">&darr;</span>
+
+    {/* ── Who I am ──────────────────────────────────────────── */}
+    <section class="sec" aria-labelledby="who" data-sec>
+      <div class="sec__side">
+        <h2 class="mono sec__label" id="who"><span class="sec__n">01</span>Who I am</h2>
+        <span class="sec__rail" aria-hidden="true"><i data-secfill></i></span>
+      </div>
+
+      <div class="split">
+        <h3 class="split__lead display">
+          <span class="wrap">
+            {words(WHO.head).map((w, i) => (
+              <span class="line" data-reveal style={`--i:${i}`}><span class="line__in">{w}&nbsp;</span></span>
+            ))}
+          </span>
+        </h3>
+        <div class="prose">
+          {WHO.body.map((p, i) => (<p data-reveal style={`--i:${i}`}>{p}</p>))}
+        </div>
+      </div>
+    </section>
+
+    {/* ── How I work ────────────────────────────────────────── */}
+    <section class="sec" aria-labelledby="how" data-sec>
+      <div class="sec__side">
+        <h2 class="mono sec__label" id="how"><span class="sec__n">02</span>How I work</h2>
+        <span class="sec__rail" aria-hidden="true"><i data-secfill></i></span>
+      </div>
+
+      <div>
+        <ol class="steps">
+          {PROCESS.map((s, i) => (
+            <li class="step" data-reveal style={`--i:${i}`}>
+              <span class="mono step__n">{s.n}</span>
+              <h3 class="step__title display">{s.title}</h3>
+              {s.lines.map((l) => (<p>{l}</p>))}
+            </li>
+          ))}
+        </ol>
+
+        <p class="pull display">
+          {words(PROCESS[2].pull!).map((w, i) => (
+            <span class="line" data-reveal style={`--i:${i}`}><span class="line__in">{w}&nbsp;</span></span>
+          ))}
+        </p>
+      </div>
+    </section>
+
+    {/* ── What I work across ────────────────────────────────── */}
+    <section class="sec" aria-labelledby="across" data-sec>
+      <div class="sec__side">
+        <h2 class="mono sec__label" id="across"><span class="sec__n">03</span>What I work across</h2>
+        <span class="sec__rail" aria-hidden="true"><i data-secfill></i></span>
+      </div>
+
+      <div>
+        <h3 class="lead display">
+          {ACROSS.head.map((line, i) => (
+            <span class="line" data-reveal style={`--i:${i}`}><span class="line__in">{line}</span></span>
+          ))}
+        </h3>
+        <p class="lede" data-reveal style="--i:2">{ACROSS.lede}</p>
+
+        <div class="cols">
+          {ACROSS.columns.map((c, ci) => (
+            <div class="col" data-reveal style={`--i:${ci}`}>
+              <h4 class="mono col__label">{c.label}</h4>
+              <ul>
+                {c.items.map((it, i) => (
+                  <li style={`--i:${i}`}><span class="mono col__n">{String(i + 1).padStart(2, '0')}</span>{it}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    {/* ── Selected proof ────────────────────────────────────── */}
+    <section class="sec" aria-labelledby="proof" data-sec>
+      <div class="sec__side">
+        <h2 class="mono sec__label" id="proof"><span class="sec__n">04</span>Selected proof</h2>
+        <span class="sec__rail" aria-hidden="true"><i data-secfill></i></span>
+      </div>
+
+      <div>
+        <div class="stats">
+          {PROOF.stats.map((s, i) => (
+            <div class="stat" data-reveal style={`--i:${i}`}>
+              <span
+                class="stat__figure display"
+                data-count={s.count ?? undefined}
+                data-pad={s.pad ?? undefined}
+                data-suffix={s.suffix ?? undefined}
+              >{s.figure}</span>
+              <span class="mono stat__label">{s.label}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* The works raise their own still under the pointer — the images are
+            the real ones from the catalogue, not stand-ins. */}
+        <ul class="works" data-works>
+          {proof.map((w, i) => (
+            <li data-reveal style={`--i:${i}`}>
+              <a class="work" href={`/work/${w.slug}`}>
+                <span class="work__title display">{w.title}</span>
+                <span class="mono work__role">{w.role}</span>
+                <span class="work__arrow" aria-hidden="true">→</span>
+              </a>
+              {w.poster && (
+                <span class="work__peek" aria-hidden="true">
+                  <Image src={w.poster} alt="" widths={[420]} sizes="320px" loading="lazy" decoding="async" />
+                </span>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    {/* ── Closing ───────────────────────────────────────────── */}
+    <section class="sec sec--close" aria-labelledby="closing" data-sec>
+      <div class="sec__side">
+        <h2 class="mono sec__label" id="closing"><span class="sec__n">05</span>Closing</h2>
+        <span class="sec__rail" aria-hidden="true"><i data-secfill></i></span>
+      </div>
+
+      <div>
+        <h3 class="lead display">
+          {words(CLOSING.head).map((w, i) => (
+            <span class="line" data-reveal style={`--i:${i}`}><span class="line__in">{w}&nbsp;</span></span>
+          ))}
+        </h3>
+        <p class="lede" data-reveal style="--i:1">{CLOSING.body}</p>
+
+        <a class="call" href="/contact" data-reveal style="--i:2">
+          <span class="call__big display">
+            {words(CLOSING.call).map((w, i) => (
+              <span class="line" data-reveal style={`--i:${i}`}><span class="line__in">{w}&nbsp;</span></span>
+            ))}
+          </span>
+        </a>
+
+        <ul class="direct" data-reveal style="--i:3">
+          <li><span class="mono mono--dim">Email</span> <a href={`mailto:${EMAIL}?subject=${encodeURIComponent('Project enquiry')}`}>{EMAIL}</a></li>
+          <li><span class="mono mono--dim">WhatsApp</span> <a href={WHATSAPP} target="_blank" rel="noopener">Message</a></li>
+          <li><span class="mono mono--dim">Phone</span> <a href={PHONE.href}>{PHONE.value}</a></li>
+        </ul>
+      </div>
+    </section>
+  </div>
+</Base>
+
+<script>
+  function initAbout() {
+    const page = document.querySelector<HTMLElement>('[data-about]');
+    if (!page || page.dataset.bound) return;
+    page.dataset.bound = '1';
+
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+    /* ── the hairline that tracks how far down the page you are ──── */
+    const bar = page.querySelector<HTMLElement>('[data-progress]');
+    const rails = Array.from(page.querySelectorAll<HTMLElement>('[data-secfill]'));
+    const secs = Array.from(page.querySelectorAll<HTMLElement>('[data-sec]'));
+
+    let ticking = false;
+    const measure = () => {
+      ticking = false;
+      const max = document.documentElement.scrollHeight - innerHeight;
+      if (bar) bar.style.transform = `scaleX(${max > 0 ? Math.min(scrollY / max, 1) : 0})`;
+      // each section's own rail fills across the span you can see it
+      secs.forEach((s, i) => {
+        const r = s.getBoundingClientRect();
+        const span = r.height + innerHeight;
+        const done = Math.min(Math.max((innerHeight - r.top) / span, 0), 1);
+        const fill = rails[i];
+        if (fill) fill.style.transform = `scaleY(${done})`;
+      });
+    };
+    const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(measure); } };
+    addEventListener('scroll', onScroll, { passive: true });
+    addEventListener('resize', onScroll, { passive: true });
+    measure();
+
+    /* ── figures that count up, once, when they arrive ───────────── */
+    const counters = Array.from(page.querySelectorAll<HTMLElement>('[data-count]'));
+    if (counters.length && !still) {
+      const io = new IntersectionObserver((entries, obs) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          const el = e.target as HTMLElement;
+          obs.unobserve(el);
+          const to = Number(el.dataset.count);
+          const pad = Number(el.dataset.pad ?? 0);
+          const suffix = el.dataset.suffix ?? '';
+          const t0 = performance.now();
+          const tick = (now: number) => {
+            const p = Math.min((now - t0) / 900, 1);
+            // ease-out so it lands rather than stops
+            const v = Math.round(to * (1 - Math.pow(1 - p, 3)));
+            el.textContent = String(v).padStart(pad, '0') + suffix;
+            if (p < 1) requestAnimationFrame(tick);
+          };
+          requestAnimationFrame(tick);
+        }
+      }, { threshold: 0.6 });
+      counters.forEach((c) => io.observe(c));
+    }
+
+    /* ── the works raise their still under the pointer ───────────── */
+    if (fine && !still) {
+      const list = page.querySelector<HTMLElement>('[data-works]');
+      list?.querySelectorAll<HTMLElement>('li').forEach((li) => {
+        const peek = li.querySelector<HTMLElement>('.work__peek');
+        if (!peek) return;
+        const move = (e: PointerEvent) => {
+          const r = li.getBoundingClientRect();
+          peek.style.setProperty('--x', `${e.clientX - r.left}px`);
+          peek.style.setProperty('--y', `${e.clientY - r.top}px`);
+        };
+        li.addEventListener('pointerenter', (e) => { move(e as PointerEvent); li.classList.add('is-peek'); });
+        li.addEventListener('pointermove', move, { passive: true });
+        li.addEventListener('pointerleave', () => li.classList.remove('is-peek'));
+      });
+    }
+  }
+
+  initAbout();
+  document.addEventListener('astro:page-load', initAbout);
+</script>
+
+<style>
+  .ab { padding-inline: var(--margin); padding-bottom: 18vh; }
+
+  /* Stagger, layered onto the site's own reveal. The reveal itself lives in
+     base.css and only ever animates transform — this adds the delay. */
+  .ab [data-reveal] { --i: 0; }
+  @media (prefers-reduced-motion: no-preference) {
+    .ab [data-reveal].is-in { animation-delay: calc(var(--i) * 70ms); }
+  }
+
+  /* A line rising from behind its own edge. The hidden state exists ONLY in
+     the keyframe: without JS these sit where they belong and never animate. */
+  .line { display: inline-block; overflow: hidden; vertical-align: bottom; }
+  .line__in { display: inline-block; }
+  @media (prefers-reduced-motion: no-preference) {
+    .line[data-reveal].is-in .line__in {
+      animation: line-up 820ms var(--ease) both;
+      animation-delay: calc(var(--i) * 70ms);
+    }
+  }
+  @keyframes line-up { from { transform: translateY(105%); } to { transform: none; } }
+  .wrap { display: block; }
+
+  /* ── the page's own progress hairline ──────────────────────────── */
+  .rail {
+    position: fixed; inset: 0 0 auto 0; height: 1px; z-index: 130;
+    background: var(--rule-soft); pointer-events: none;
+  }
+  .rail__in {
+    display: block; height: 100%; background: var(--accent);
+    transform-origin: left; transform: scaleX(0);
+  }
+
+  /* ── Hero ──────────────────────────────────────────────────────── */
+  .hero {
+    min-height: calc(100vh - var(--head-h));
+    display: grid; grid-template-columns: minmax(0, 1fr);
+    align-content: center; gap: clamp(32px, 5vw, 88px);
+    padding: clamp(120px, 18vh, 220px) 0 clamp(56px, 9vh, 112px);
+  }
+  .hero:has(.hero__portrait) { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: center; }
+  .hero__eyebrow { color: var(--muted); font-size: var(--t-xs); margin: 0 0 clamp(28px, 5vh, 56px); }
+  .hero__statement {
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(2.5rem, 7.6vw, 6.5rem); line-height: 1.02;
+    letter-spacing: var(--track-tight); margin: 0; max-width: 16ch;
+  }
+  .hero__statement .line { display: block; }
+  .hot { color: var(--accent); }
+  .hero__portrait { justify-self: end; width: 100%; }
+  .hero__portrait img { display: block; width: 100%; height: auto; }
+
+  .tags { list-style: none; margin: clamp(32px, 5vh, 56px) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s-3); }
+  .tags--dim { margin-top: 12px; }
+  .tags li { font-size: var(--t-xs); color: var(--muted); }
+  .tags li + li::before { content: '·'; color: var(--rule); margin-right: var(--s-3); }
+  .tags--dim li { color: var(--dim); }
+
+  .cue { display: block; color: var(--dim); font-size: var(--t-md); padding: 0 0 clamp(28px, 5vh, 64px); }
+  @media (prefers-reduced-motion: no-preference) {
+    .cue { animation: cue-drift 2.4s var(--ease) infinite; }
+  }
+  @keyframes cue-drift { 0%, 100% { transform: translateY(0); opacity: 0.5; } 50% { transform: translateY(6px); opacity: 1; } }
+
+  /* ── section scaffolding, with a rail that fills as you pass ───── */
+  /* The same twelve columns and gutter the homepage composes on, so this
+     page shares its rhythm instead of inventing one. The rail takes two,
+     column three is left empty on purpose — the gap is what makes the
+     measure read as a margin rather than as a narrow column. */
+  .sec {
+    border-top: 1px solid var(--rule); padding-top: var(--s-3);
+    padding-bottom: clamp(64px, 11vh, 148px);
+    display: grid;
+    grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+    column-gap: var(--gutter);
+  }
+  .sec__side { grid-column: 1 / span 2; }
+  .sec > :not(.sec__side) { grid-column: 4 / -1; }
+  .sec--close { padding-bottom: 0; }
+  .sec__side { position: sticky; top: calc(var(--head-h) + 32px); align-self: start; display: flex; gap: var(--s-2); }
+  .sec__label { color: var(--muted); font-size: var(--t-xs); margin: 0; display: flex; flex-direction: column; gap: 10px; }
+  /* The catalogue numbers its works 001–016; the page numbers its movements
+     the same way, in the same face, so the two systems read as one. */
+  .sec__n { color: var(--accent); font-variant-numeric: tabular-nums; }
+  .sec__rail { width: 1px; align-self: stretch; min-height: 3rem; background: var(--rule-soft); order: -1; }
+  .sec__rail i { display: block; width: 100%; height: 100%; background: var(--accent); transform-origin: top; transform: scaleY(0); }
+
+  .lead {
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.6rem, 3.4vw, 3rem); line-height: 1.12;
+    letter-spacing: -0.03em; margin: 0 0 var(--s-5); max-width: 22ch;
+  }
+  .lede { color: var(--bone-dim); font-size: var(--t-md); line-height: 1.75; max-width: 48ch; margin: 0 0 clamp(40px, 7vh, 76px); }
+
+  /* ── Who I am ──────────────────────────────────────────────────── */
+  /* 5 · 1 · 5 — the middle column carries nothing. An editorial page holds
+     its two voices apart with space rather than with a gap property. */
+  .split { display: grid; grid-template-columns: 5fr 1fr 5fr; column-gap: var(--gutter); align-items: start; }
+  .split__lead { grid-column: 1; }
+  .prose { grid-column: 3; }
+  .split__lead {
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.6rem, 3.2vw, 2.9rem); line-height: 1.14;
+    letter-spacing: -0.03em; margin: 0; max-width: 15ch;
+  }
+  .prose { max-width: 42ch; }
+  .prose p { color: var(--bone-dim); font-size: var(--t-md); line-height: 1.8; margin: 0 0 var(--s-3); }
+  .prose p:last-child { margin-bottom: 0; color: var(--bone); }
+
+  /* ── How I work ────────────────────────────────────────────────── */
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(28px, 4vw, 72px); }
+  .step { border-top: 1px solid var(--rule-soft); padding-top: var(--s-3); transition: border-color var(--d-micro) var(--ease); }
+  /* Each principle starts a little lower than the last. The eye then reads
+     them in order rather than taking all three at once, and the block gets a
+     diagonal that a row of equal boxes never has. */
+  .step:nth-child(2) { margin-top: clamp(24px, 4vh, 56px); }
+  .step:nth-child(3) { margin-top: clamp(48px, 8vh, 112px); }
+  .step:hover { border-color: var(--accent); }
+  .step__n { display: block; color: var(--accent); font-size: var(--t-xs); margin-bottom: var(--s-3); }
+  .step__title { font-family: var(--display); font-weight: 500; font-size: clamp(1.125rem, 1.9vw, 1.5rem); letter-spacing: -0.025em; margin: 0 0 var(--s-2); max-width: 12ch; }
+  .step p { color: var(--bone-dim); font-size: var(--t-base); line-height: 1.75; margin: 0 0 10px; }
+  .step p:last-child { margin-bottom: 0; }
+
+  /* Set against a rule and indented, rather than centred. A centred pull
+     quote reads as a slide; an indented one reads as a page. */
+  .pull {
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.75rem, 4.4vw, 3.75rem); letter-spacing: -0.035em;
+    line-height: 1.06; color: var(--bone);
+    margin: clamp(64px, 11vh, 140px) 0 0; max-width: 16ch;
+    padding-top: var(--s-4); border-top: 1px solid var(--rule);
+  }
+
+  /* ── What I work across ────────────────────────────────────────── */
+  .cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(28px, 4vw, 72px); }
+  .col__label { color: var(--muted); font-size: var(--t-xs); padding-bottom: 12px; border-bottom: 1px solid var(--rule); margin: 0 0 var(--s-3); }
+  .col ul { list-style: none; margin: 0; padding: 0; }
+  .col li {
+    display: flex; align-items: baseline; gap: 12px;
+    color: var(--bone-dim); font-size: var(--t-md); padding: 9px 0;
+    border-bottom: 1px solid var(--rule-soft);
+    transition: color var(--d-micro) var(--ease), padding-left var(--d-micro) var(--ease);
+  }
+  .col__n { color: transparent; font-size: var(--t-xs); transition: color var(--d-micro) var(--ease); }
+  .col li:hover { color: var(--bone); padding-left: 8px; }
+  .col li:hover .col__n { color: var(--accent); }
+  .col li:last-child { border-bottom: 0; }
+
+  /* ── Selected proof ────────────────────────────────────────────── */
+  .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(24px, 4vw, 64px); margin-bottom: clamp(48px, 9vh, 104px); }
+  .stat { display: flex; flex-direction: column; gap: 8px; }
+  .stat__figure { font-family: var(--display); font-weight: 500; font-size: clamp(1.5rem, 3vw, 2.5rem); letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .stat__label { color: var(--dim); font-size: var(--t-xs); }
+
+  .works { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
+  .works li { position: relative; }
+  .work {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto 2rem;
+    align-items: baseline; gap: var(--s-3);
+    padding: clamp(16px, 2.4vh, 26px) 0; border-bottom: 1px solid var(--rule-soft);
+    text-decoration: none; color: var(--bone);
+    transition: padding-left var(--d-micro) var(--ease);
+  }
+  .work__title { font-family: var(--display); font-weight: 500; font-size: clamp(1.125rem, 2vw, 1.5rem); letter-spacing: -0.025em; }
+  .work__role { color: var(--dim); font-size: var(--t-xs); text-align: right; }
+  .work__arrow { color: var(--dim); text-align: right; transition: transform var(--d-micro) var(--ease), color var(--d-micro) var(--ease); }
+  .works li:hover .work { padding-left: 12px; }
+  .works li:hover .work__arrow { color: var(--accent); transform: translateX(0.3em); }
+
+  /* the still, raised under the pointer */
+  .work__peek {
+    position: absolute; top: var(--y, 50%); left: var(--x, 50%);
+    width: 320px; margin: -110px 0 0 -160px;
+    pointer-events: none; z-index: 3;
+    opacity: 0; transform: scale(0.96);
+    transition: opacity var(--d-micro) var(--ease), transform var(--d-micro) var(--ease);
+  }
+  .work__peek :global(img) { display: block; width: 100%; height: auto; }
+  .works li.is-peek .work__peek { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) { .work__peek { display: none; } }
+
+  /* ── Closing ───────────────────────────────────────────────────── */
+  .call { display: block; text-decoration: none; margin-bottom: clamp(40px, 7vh, 76px); }
+  .call__big {
+    display: block; font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.75rem, 5vw, 4rem); line-height: 1.06;
+    letter-spacing: var(--track-tight); color: var(--bone); max-width: 18ch;
+    transition: color var(--d-micro) var(--ease);
+  }
+  .call:hover .call__big { color: var(--accent); }
+
+  .direct { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s-3) var(--s-5); }
+  .direct li { display: flex; align-items: baseline; gap: 10px; }
+  .direct .mono { font-size: var(--t-xs); }
+  .direct a { font-family: var(--display); font-weight: 500; font-size: var(--t-md); letter-spacing: -0.02em; color: var(--bone); text-decoration: none; transition: color var(--d-micro) var(--ease); }
+  .direct a:hover { color: var(--accent); }
+
+  @media (max-width: 900px) {
+    .sec { grid-template-columns: 1fr; row-gap: var(--s-4); }
+    .sec__side, .sec > :not(.sec__side) { grid-column: 1; }
+    .sec__side { position: static; flex-direction: row; align-items: baseline; }
+    .sec__label { flex-direction: row; gap: var(--s-2); }
+    .split__lead, .prose { grid-column: 1; }
+    .step:nth-child(2), .step:nth-child(3) { margin-top: 0; }
+    .sec__rail { display: none; }
+    .cols, .stats, .steps, .split { grid-template-columns: 1fr; }
+    .split { row-gap: var(--s-4); }
+    .hero, .hero:has(.hero__portrait) { grid-template-columns: 1fr; }
+    .hero__portrait { justify-self: stretch; order: -1; }
+  }
+  @media (max-width: 640px) {
+    .work { grid-template-columns: minmax(0, 1fr) 1.5rem; }
+    .work__role { grid-column: 1; text-align: left; }
+  }
+</style>

@@ -1,0 +1,813 @@
+---
+/**
+ * The contact body: a heading, the direct lines, and a set of questions a
+ * visitor answers by tapping. The answers compose the email — nobody has to
+ * work out how to open a message to a stranger.
+ *
+ * Question numbering is derived from position, so the short and long sets
+ * both read 01, 02, 03 without anything being renumbered by hand.
+ */
+import { EMAIL, PHONE, CALL_URL, CALL_LABEL, WHATSAPP, FIELDS, ELSEWHERE, asked, type Question } from '../data/contact';
+import { total } from '../data/composition';
+
+interface Props {
+  questions?: Question[];
+  /** Preview only: show the call line before a real link exists. */
+  callUrl?: string;
+}
+const { questions = asked(), callUrl = CALL_URL } = Astro.props;
+
+const year = new Date().getFullYear();
+const link = (label: string) => ELSEWHERE.find((e) => e.label === label)!.href;
+
+const lines = questions.map((q) => [q.key, q.line]);
+---
+
+<div class="ct__page">
+  {/* The line belongs to the enquiry, so it is bounded by the enquiry.
+      Hung off .sheet or the page it ran 360px past the last question and
+      straight down through the footer — measured. .ct__page is its
+      containing block now, so it ends exactly where the asking ends. */}
+  <span class="divide" aria-hidden="true"><i class="divide__fill"></i></span>
+
+  <header class="ct__head">
+    <div class="ct__top">
+      <h1 class="ct__statement display">Let’s talk.</h1>
+
+      <p class="ct__lede">Tap the answers. The message writes itself.</p>
+
+      <hr class="ct__rule" />
+      </div>
+
+      {/* A SIBLING of .ct__top, not a child. The div above was never closed,
+          so the parser folded these lines inside it and .ct__head was left
+          holding a single child — which means its justify-content:
+          space-between had nothing to push apart. Measured before the fix:
+          554px of dead space under an 80vh column whose whole job was to
+          anchor these two lines at its foot. */}
+      <ul class="ct__direct">
+        <li>
+          <span class="mono mono--dim">Email</span>
+          <a href={`mailto:${EMAIL}?subject=${encodeURIComponent('Project enquiry')}`}>{EMAIL}</a>
+        </li>
+        <li>
+          <span class="mono mono--dim">Phone</span>
+          <a href={PHONE.href}>{PHONE.value}</a>
+        </li>
+        {
+          callUrl && (
+            <li>
+              <span class="mono mono--dim">Rather talk</span>
+              <a href={callUrl} target="_blank" rel="noopener">{CALL_LABEL}</a>
+            </li>
+          )
+        }
+      </ul>
+    </header>
+
+    <form class="ct__form" id="form">
+      <h2 class="mono ct__grouphead">Project details</h2>
+
+      {
+        questions.map((qu, i) => (
+          <fieldset class="q">
+            <legend class="q__legend">
+              <span class="mono q__n">{String(i + 1).padStart(2, '0')}</span>
+              <span class="q__q">{qu.q}</span>
+              {qu.hint && <span class="mono q__hint">{qu.hint}</span>}
+            </legend>
+            <div class="q__opts">
+              {qu.options.map((o) => (
+                <label class="opt">
+                  <input type={qu.multi ? 'checkbox' : 'radio'} name={qu.key} value={o} />
+                  <span>{o}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        ))
+      }
+
+      <h2 class="mono ct__grouphead ct__grouphead--2">Your details</h2>
+
+      {/* The option chips' shape carried into the details: same 999px pill,
+          same border, same accent once answered — so everything the visitor has
+          given reads as one kind of thing whether they tapped it or typed it.
+          The prompt lives inside, and the field grows to fit what is typed.
+
+          Nothing says "optional". The three that can be skipped are simply
+          quieter — faded to 38%, far enough that the row reads as two things
+          that matter and three that are there if you want them. Their prompts
+          are set in full bone rather than bone-dim to buy back some of what the
+          fade takes, and hovering, focusing or filling one clears the fade
+          entirely, so nobody ever reads a pill they are trying to use at 38%.
+          Assistive tech is told properly regardless: the two that matter carry
+          the `required` attribute. */}
+      <div class="pills">
+        {
+          FIELDS.filter((f) => f.required).map((f) => (
+            <span class="pill">
+              <label class="visually-hidden" for={f.key}>{f.label}</label>
+              <input
+                class="pill__in"
+                id={f.key}
+                name={f.key}
+                type={f.type}
+                required
+                placeholder={f.placeholder}
+                autocomplete={f.autocomplete ?? 'off'}
+                data-grow
+              />
+            </span>
+          ))
+        }
+
+
+        {
+          FIELDS.filter((f) => !f.required).map((f) => (
+            <span class="pill pill--opt">
+              <label class="visually-hidden" for={f.key}>{f.label}</label>
+              <input
+                class="pill__in"
+                id={f.key}
+                name={f.key}
+                type={f.type}
+                placeholder={f.placeholder}
+                autocomplete={f.autocomplete ?? 'off'}
+                data-grow
+              />
+            </span>
+          ))
+        }
+
+        <span class="pill pill--opt pill--area">
+          <label class="visually-hidden" for="more">Notes</label>
+          <textarea
+            class="pill__in"
+            id="more"
+            name="more"
+            rows="2"
+            placeholder="Anything the answers above didn’t cover"></textarea>
+        </span>
+      </div>
+
+      {/* One hairline over the pair rather than a band around it — the same move
+          the section headings make, so this reads as the last section of the page
+          and not as a control panel. No underline anywhere. */}
+      <div class="send" data-send>
+        <div class="send__band">
+          <a class="send__act" id="send" href={`mailto:${EMAIL}`} aria-disabled="true">
+            Send this enquiry <span class="send__arrow" aria-hidden="true">→</span>
+          </a>
+          <p class="mono send__note" id="note"></p>
+        </div>
+
+        <details class="peek">
+          <summary class="mono">See your message</summary>
+          <pre class="peek__body" id="peek"></pre>
+        </details>
+      </div>
+    </form>
+
+    {/* The footer reads as writing, not as a directory — three sentences
+        carrying every link. The Next above it is the mono eyebrow and the
+        display title, at a larger size than the send action so the two are told
+        apart by scale rather than by treatment. */}
+    {/* Two columns, so the right half is not left empty beside the
+        sentences: the writing on the left, the way out and the address
+        stacked on the right. */}
+</div>
+
+  <footer class="ft">
+    <hr class="ft__rule" />
+
+    <p class="ft__prose">
+      Listen on <a href={link('Spotify')} target="_blank" rel="noopener">Spotify</a> or
+      <a href={link('Apple Music')} target="_blank" rel="noopener">Apple Music</a>.
+      Follow on <a href={link('Instagram')} target="_blank" rel="noopener">Instagram</a> or
+      <a href={link('Behance')} target="_blank" rel="noopener">Behance</a>.<br />
+      Connect via <a href={`mailto:${EMAIL}?subject=${encodeURIComponent('Project enquiry')}`}>email</a>,
+      <a href={WHATSAPP} target="_blank" rel="noopener">WhatsApp</a> or
+      <a href={PHONE.href}>phone</a>.
+    </p>
+
+    {/* The standing line and the way out share a row, aligned on their
+        bottom edge so the sentence and "The work" sit on one line. */}
+    <div class="ft__band">
+      <p class="ft__prose ft__prose--quiet">
+        Based in Mumbai, working across time zones. <a class="ft__count" href="/">{total} works</a>.
+      </p>
+
+      <a class="ft__next" href="/">
+        <span class="mono ft__nextlbl">Next page</span>
+        <span class="ft__nexttitle display">The work <span class="ft__arrow" aria-hidden="true">→</span></span>
+      </a>
+    </div>
+
+    <div class="ft__row">
+      <span class="mono mono--dim">© {year} Ugam Khetani</span>
+      <a class="mono ft__mail" href={`mailto:${EMAIL}`}>{EMAIL}</a>
+    </div>
+  </footer>
+
+<script define:vars={{ EMAIL, lines }}>
+  function initContact() {
+  const form = document.getElementById('form');
+  if (!form || form.dataset.bound) return;
+  form.dataset.bound = '1';
+  const send = document.getElementById('send');
+  const peek = document.getElementById('peek');
+  const note = document.getElementById('note');
+
+  /* The note is written one character at a time so a wave can travel through
+     it. The sentence is also written once, visually hidden, and the
+     characters are hidden from assistive tech — otherwise a screen reader
+     reads twenty-three letters instead of four words. The per-character
+     delay rides on --i, so the length of the sentence costs no CSS. */
+  /* Astro scopes component CSS by stamping a data-astro-cid-* attribute on
+     every element in the template, and compiling `.send__ink` to
+     `.send__ink[data-astro-cid-…]`. Elements built here are not in the
+     template, so they never get stamped and the scoped rules would never
+     match them. Copying the attribute off the note itself fixes that and
+     keeps the stylesheet ordinary — no :global, no inline styles. */
+  const scope = Array.from(note.attributes).map((a) => a.name)
+    .find((n) => n.startsWith('data-astro-cid-'));
+  const stamp = (el) => { if (scope) el.setAttribute(scope, ''); return el; };
+
+  function setNote(text) {
+    note.textContent = '';
+    const said = stamp(document.createElement('span'));
+    said.className = 'visually-hidden';
+    said.textContent = text;
+    const ink = stamp(document.createElement('span'));
+    ink.className = 'send__ink';
+    ink.setAttribute('aria-hidden', 'true');
+    for (let i = 0; i < text.length; i++) {
+      const ch = stamp(document.createElement('i'));
+      ch.style.setProperty('--i', String(i));
+      ch.textContent = text[i];
+      ink.appendChild(ch);
+    }
+    note.append(said, ink);
+  }
+
+  function compose() {
+    const d = new FormData(form);
+    const get = (k) => (d.get(k) || '').trim();
+    const name = get('name'), email = get('email'), phone = get('phone');
+    const title = get('title'), link = get('link'), more = get('more');
+
+    const body = ['Hi Ugam,', ''];
+    const answered = [];
+    for (const [key, label] of lines) {
+      const vals = d.getAll(key).filter(Boolean);
+      if (vals.length) answered.push(`${label}: ${vals.join(', ')}`);
+    }
+    body.push(answered.length ? answered.join('\n') : 'I would like to talk about a project.');
+    if (title) body.push('', `Title: ${title}`);
+    if (link) body.push(title ? `Link: ${link}` : '', title ? '' : `Link: ${link}`);
+    if (more) body.push('', more);
+    body.push('', '—', name || 'Your name', email || 'your@email');
+    if (phone) body.push(phone);
+
+    const subject = title ? `Project enquiry — ${title}` : 'Project enquiry';
+    return { subject, text: body.filter((l, i, a) => !(l === '' && a[i - 1] === '')).join('\n'), ready: !!(name && email) };
+  }
+
+  function render() {
+    const { subject, text, ready } = compose();
+    const d = new FormData(form);
+    peek.textContent = `To: ${EMAIL}\nSubject: ${subject}\n\n${text}`;
+    send.href = `mailto:${EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
+    send.classList.toggle('is-ready', ready);
+    /* The line reports the same state the send action does, from the same
+       pass. Denominator is derived from the questions actually asked plus
+       the two fields that must be filled, so moving a question in or out of
+       ASKED renumbers this on its own — nothing to keep in step by hand. */
+    if (divide) {
+      const answered = lines.reduce((n, [key]) => n + (d.getAll(key).filter(Boolean).length ? 1 : 0), 0)
+        + ((d.get('name') || '').trim() ? 1 : 0)
+        + ((d.get('email') || '').trim() ? 1 : 0);
+      divide.style.setProperty('--fill', (answered / (lines.length + 2)).toFixed(3));
+    }
+    send.setAttribute('aria-disabled', String(!ready));
+    if (ready) shell.classList.remove('is-asking');
+    setNote(ready
+      ? 'Opens as a draft. Send it when you’re ready.'
+      : 'Name and email required');
+  }
+
+  // Declared before render() runs — render() clears the refused state, so the
+  // binding has to exist by its first call.
+  const shell = form.querySelector('[data-send]');
+  const divide = document.querySelector('.divide__fill');
+
+  form.addEventListener('input', render);
+  form.addEventListener('change', render);
+  render();
+
+  // Refusal: pointing at the action before it can be used steps it back and
+  // makes it answer. Bound to focus as well as hover so a keyboard reaches it.
+  const asking = (on) => {
+    const want = on && !send.classList.contains('is-ready');
+    // Removed and re-added rather than toggled, so the wave restarts on a
+    // second visit instead of firing once and never again.
+    shell.classList.remove('is-asking');
+    if (want) { void shell.offsetWidth; shell.classList.add('is-asking'); }
+  };
+  send.addEventListener('pointerenter', () => asking(true));
+  send.addEventListener('pointerleave', () => asking(false));
+  send.addEventListener('focus', () => asking(true));
+  send.addEventListener('blur', () => asking(false));
+  send.addEventListener('click', (e) => {
+    if (send.classList.contains('is-ready')) return;
+    e.preventDefault();
+    asking(true);
+  });
+
+  // An answered field is styled exactly like a selected option. Driven by a
+  // class rather than :has(:not(:placeholder-shown)) alone: that selector
+  // matches correctly, but browsers do not reliably recompute the ANCESTOR's
+  // style when a descendant's placeholder state flips — it was verified
+  // failing. The :has() rule stays for first paint and for no-JS; this
+  // guarantees every change after.
+  form.querySelectorAll('.pill__in').forEach((el) => {
+    const shell = el.closest('.pill');
+    const sync = () => shell.classList.toggle('is-filled', el.value.trim() !== '');
+    el.addEventListener('input', sync);
+    sync();
+  });
+
+  // Each pill sizes to its own content, the way an option chip is sized to
+  // its words. Measured against a hidden span carrying the same type, and
+  // capped so one long URL cannot push a pill out of the row.
+  form.querySelectorAll('input[data-grow]').forEach((inp) => {
+    const mirror = document.createElement('span');
+    inp.after(mirror);
+    // Styled here rather than in the stylesheet on purpose: this element is
+    // created at runtime, so it never receives Astro's scoping attribute and
+    // a scoped .pill__mirror rule would silently miss it — which is exactly
+    // how it once rendered visible, repeating every prompt on screen.
+    Object.assign(mirror.style, {
+      position: 'absolute', left: '0', top: '0',
+      visibility: 'hidden', whiteSpace: 'pre', pointerEvents: 'none',
+    });
+    mirror.setAttribute('aria-hidden', 'true');
+    const cs = getComputedStyle(inp);
+    for (const k of ['fontFamily', 'fontSize', 'fontWeight', 'letterSpacing']) mirror.style[k] = cs[k];
+    const sync = () => {
+      mirror.textContent = inp.value || inp.placeholder || '';
+      inp.style.width = Math.min(Math.max(mirror.getBoundingClientRect().width + 6, 48), 360) + 'px';
+    };
+    inp.addEventListener('input', sync);
+    requestAnimationFrame(sync);
+    sync();
+  });
+  }
+
+  initContact();
+  // The site navigates client-side, so this has to run again after a swap.
+  document.addEventListener('astro:page-load', initContact);
+</script>
+
+<style>
+  /* Two columns: the masthead holds the left and stays there, so a visitor
+     three questions deep can still see who they are writing to and that two
+     direct lines exist. The form runs down the right. The footer spans both,
+     because it belongs to the page rather than to either half. */
+  /* Equal halves and a 3.4em gutter, matching the reference exactly. */
+  .ct__page {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 3.4em;
+  }
+
+  /* ── the line ──────────────────────────────────────────────────
+     Centred in the gutter: 50% of .ct__page is 720 at 1440, and the gap
+     between the two columns runs 693–747. Drawn only above 901px, where
+     the page is still two columns. Decoration: aria-hidden, and it can
+     never take a hit. */
+  .divide {
+    display: none;
+    position: absolute; top: 0; z-index: 0;
+    left: 50%; width: 1px;
+    background: var(--rule-soft); pointer-events: none;
+    /* Pulled past .ct__page by exactly the footer's own top margin, so the
+       line's foot lands ON the footer's rule rather than short of it. The
+       two values must stay equal — if .ft's margin-top changes, this
+       changes with it. */
+    bottom: calc(clamp(64px, 11vh, 120px) * -1);
+  }
+  /* And then it carries on a little way past the crossing, so the meeting
+     reads as an intersection rather than as the line stopping there. */
+  .divide::after {
+    content: ''; position: absolute; left: 0; top: 100%;
+    width: 1px; height: clamp(28px, 4vh, 46px);
+    background: var(--rule-soft);
+  }
+  @media (min-width: 901px) { .divide { display: block; } }
+
+  /* The fill reports how much of the enquiry is answered, and its leading
+     edge is masked to nothing over a FIXED 80px so the bar has no visible
+     end — the line brightens downward and loses itself rather than
+     arriving at a mark.
+
+     Fixed rather than proportional: a percentage fade would be nearly
+     invisible at one answer and enormous at five. And height rather than
+     scaleY for the same reason — scaling would stretch the fade with it. */
+  /* --fill is registered so it INTERPOLATES. Both the height and the fade
+     are derived from it, so one transition drives them together; left
+     unregistered a custom property snaps, and the fade would shorten
+     instantly while the bar was still gliding. height is transitioned too,
+     which is what keeps this working where @property is not supported —
+     the bar still moves, only the fade snaps. */
+  @property --fill {
+    syntax: '<number>';
+    inherits: false;
+    initial-value: 0;
+  }
+
+  /* 100% here is the divide's own height, which ends at the crossing — so
+     a complete enquiry fills exactly to the footer rule and the tail below
+     stays grey.
+
+     The fade is 80px while there is still something to answer and closes
+     to nothing as the last answer lands: soft-edged it reads as light
+     travelling down the line, but arriving at the crossing it has to be
+     solid or the finish looks unfinished. */
+  .divide__fill {
+    display: block; width: 100%;
+    --fade: calc(80px * (1 - var(--fill, 0)));
+    height: calc(var(--fill, 0) * 100%);
+    background: var(--accent);
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--fade)), transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - var(--fade)), transparent 100%);
+    transition: height var(--d-page) var(--ease), --fill var(--d-page) var(--ease);
+  }
+  @media (prefers-reduced-motion: reduce) { .divide__fill { transition: none; } }
+
+  /* The rule under the standfirst. .ct__top has to stretch for it: the
+     masthead is a flex column with align-items: flex-start, so an <hr>
+     inside a shrink-to-fit child would have had no width to draw. */
+  .ct__top { align-self: stretch; }
+  .ct__rule {
+    border: 0; border-top: 1px solid var(--rule);
+    margin: clamp(28px, 5vh, 56px) 0 0; width: 100%;
+  }
+  /* The reference's real trick, and the reason its left half reads as
+     composed rather than as a short block adrift: the column is 80vh tall
+     and its contents are pushed apart, so the heading sits at the top and
+     the two lines are anchored at the foot. */
+  .ct__head {
+    grid-column: 1;
+    position: sticky;
+    /* Clears the fixed running head, which is the one thing that would
+       otherwise overlap it. */
+    top: calc(var(--head-h) + clamp(24px, 4vh, 48px));
+    align-self: start;
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+  .ct__form { grid-column: 2; min-width: 0; }
+  /* The footer is deliberately OUTSIDE .ct__page. A sticky item is bounded by
+     its container, not by its grid row — with the footer inside the grid the
+     masthead could slide the whole height of the page and sit invisibly on
+     top of it, swallowing clicks and text selection. */
+  .ft { position: relative; z-index: 1; }
+
+  .ct__statement {
+    font-family: var(--display); font-weight: 500;
+    /* A shade above --t-2xl (2.5–5.5rem). Local rather than a token change,
+       so work-page titles keep the size they were designed at. */
+    font-size: clamp(2.75rem, 7.6vw, 6rem); letter-spacing: var(--track-tight);
+    line-height: 1;
+    /* 8px. The sentence is a standfirst to the heading, not a paragraph
+       after it — close enough to be read as one unit, far enough that two
+       lines of type do not crowd. */
+    margin: 0 0 var(--s-1);
+  }
+  .ct__lede { color: var(--bone-dim); max-width: 48ch; margin: 0; font-size: var(--t-md); }
+
+  /* One line, pushed to the right margin: label and value side by side on a
+     shared baseline rather than stacked, so the whole block is one row deep
+     instead of four and reads as a strip rather than a list. */
+  /* Still one line where the column allows it — label and value side by
+     side — but left-aligned to the masthead now, and free to wrap onto two
+     lines when the left column is too narrow to hold both pairs. */
+  .ct__direct {
+    list-style: none; padding: 0; margin: 0;
+    display: flex; flex-wrap: wrap; gap: var(--s-3) var(--s-5);
+  }
+  .ct__direct li { display: flex; align-items: baseline; gap: 10px; }
+  .ct__direct .mono { font-size: var(--t-xs); }
+  /* No border. The underline came off the send block; it comes off here too. */
+  .ct__direct a {
+    font-family: var(--display); font-size: 1.25rem; font-weight: 500;
+    letter-spacing: -0.02em; color: var(--bone); text-decoration: none;
+    transition: color var(--d-micro) var(--ease);
+  }
+  .ct__direct a:hover { color: var(--accent); }
+
+  .ct__grouphead {
+    margin: clamp(64px, 11vh, 120px) 0 var(--s-4);
+    padding-bottom: 12px; border-bottom: 1px solid var(--rule);
+    color: var(--muted); font-size: var(--t-xs);
+  }
+  .ct__grouphead--2 { margin-top: clamp(56px, 9vh, 96px); }
+
+  .q { border: 0; padding: 0; margin: 0 0 var(--s-5); }
+  .q__legend { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--s-2); margin-bottom: 14px; padding: 0; }
+  .q__n { color: var(--dim); font-size: var(--t-xs); }
+  /* 20px. There is no token between --t-md (18) and --t-lg (22–30), and
+     --t-lg turns a question into a headline. */
+  .q__q { font-family: var(--display); font-weight: 500; font-size: 1.25rem; letter-spacing: -0.02em; }
+  .q__hint { color: var(--dim); font-size: var(--t-xs); }
+
+  .q__opts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .opt { cursor: pointer; }
+  .opt input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .opt span {
+    display: inline-block; padding: 10px 17px;
+    border: 1px solid var(--rule); border-radius: 999px;
+    font-size: var(--t-base); color: var(--bone-dim);
+    transition: color var(--d-micro) var(--ease), border-color var(--d-micro) var(--ease),
+                background-color var(--d-micro) var(--ease);
+  }
+  /* The ring reaches full accent; the words stay white. Previously the ring
+     was a 40% accent used nowhere else on the site, which barely separated
+     from the resting hairline — this is the same one pixel at full strength,
+     so it is unmistakably orange without the chip gaining any weight or the
+     label changing colour. Chosen still adds accent words and the wash. */
+  .opt:hover span { border-color: var(--accent); color: var(--bone); }
+  .opt input:checked + span { color: var(--accent); border-color: var(--accent); background: var(--accent-glow); }
+  .opt input:focus-visible + span { outline: 1px solid var(--accent); outline-offset: 3px; }
+
+  /* Identical geometry to .opt span above — 999px, 9px 15px, same border —
+     so the details and the answers are visibly the same system. */
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    /* Anchors the measuring span the script inserts, so it cannot stretch
+       the page from some distant positioned ancestor. */
+    position: relative;
+    padding: 10px 17px;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    transition: border-color var(--d-micro) var(--ease),
+                background-color var(--d-micro) var(--ease),
+                opacity var(--d-micro) var(--ease);
+  }
+
+  /* The fade sits on .pill--opt itself, one class deep, so every state rule
+     below outranks it. Declared the other way round — a descendant selector
+     per group — it beat them all and left an answered field looking
+     switched off. */
+  .pill--opt { --fade: 0.38; opacity: var(--fade); }
+  /* The prompt starts brighter than the others so the composite lands where
+     a readable prompt lands; without this the words fade with the box. */
+  .pill--opt .pill__in::placeholder { color: var(--bone); }
+
+  .pill:hover { opacity: 1; border-color: var(--rule-accent); }
+  .pill:focus-within { opacity: 1; border-color: var(--accent); }
+  /* Answered reads exactly as selected does — and at full strength, whether
+     it had to be filled in or not. Both rules, deliberately: see the note in
+     the script. */
+  .pill:has(.pill__in:not(:placeholder-shown)),
+  .pill.is-filled { opacity: 1; border-color: var(--accent); background: var(--accent-glow); }
+
+  .pill__in {
+    background: none; border: 0; padding: 0;
+    color: var(--bone);
+    font-family: var(--body); font-size: var(--t-base); line-height: 1.4;
+    min-width: 48px; resize: none;
+  }
+  .pill__in:focus { outline: none; }
+  .pill__in::placeholder { color: var(--bone-dim); }
+  .pill__in:not(:placeholder-shown) { color: var(--accent); }
+
+  .pill--area {
+    display: flex; width: 100%;
+    border-radius: 22px; padding: 12px 18px; align-items: stretch;
+  }
+  .pill--area .pill__in { width: 100%; resize: vertical; line-height: 1.7; }
+
+  /* ── The send action ──────────────────────────────────────────── */
+  .send { margin-top: clamp(48px, 8vh, 88px); }
+  /* wrap: the note does not fit beside the action in a half column. Before
+     this it ran 1213–1411 inside a column ending at 1354 — already 57px
+     over its own edge, saved only by the page margin being wider than the
+     overspill. A bigger action makes that worse, not better. */
+  .send__band {
+    display: flex; align-items: baseline; gap: var(--s-2); flex-wrap: wrap;
+    border-top: 1px solid var(--rule); padding-top: 26px;
+  }
+  .send__act {
+    font-family: var(--display); font-weight: 500;
+    /* This is the ceiling, not a preference. The action measures 8.71px of
+       width per px of font size; the note is 203px of 11px mono and does
+       not scale with the viewport; the row is 606px at 1440 and the gap is
+       now 16px. That leaves 387px, so 44px is the largest that still lets
+       "Name and email required" sit beside it — 383 + 16 + 203 = 602 of
+       606. 45px overruns by 5.
+
+       Below about 1400px the pair wraps whatever the size, because the
+       note's width is fixed while the column shrinks. flex-wrap handles
+       that; this is not trying to defeat it. */
+    font-size: clamp(1.75rem, 3.06vw, 2.75rem);
+    letter-spacing: -0.035em; line-height: 1;
+    color: var(--bone);
+    text-decoration: none; white-space: nowrap;
+    display: inline-flex; align-items: baseline; gap: 0.3em;
+    /* Deliberately NOT pointer-events: none. A control that cannot be
+       pointed at cannot explain itself, and it disappears from assistive
+       tech entirely. It stays reachable, says why, and swallows the click. */
+    cursor: not-allowed;
+    transition: color var(--d-micro) var(--ease), transform var(--d-micro) var(--ease);
+  }
+  .send__act.is-ready { cursor: pointer; }
+  .send__act.is-ready:hover { color: var(--accent); }
+  /* The activation, without an underline. The arrow travels out once and
+     settles the moment the enquiry can be sent — the same distance it
+     already moves on hover, so the gesture is one the page has already
+     taught, said once on its own.
+
+     No fill on the animation: it must release the arrow back to the
+     transition that drives hover, or the first hover after activation
+     would do nothing. */
+  .send__act.is-ready .send__arrow { animation: send-open 720ms var(--ease); }
+  @keyframes send-open {
+    0%   { transform: translateX(-0.55em); }
+    55%  { transform: translateX(0.18em); }
+    100% { transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .send__act.is-ready .send__arrow { animation: none; }
+  }
+
+  .send__arrow { display: inline-block; transition: transform var(--d-micro) var(--ease); }
+  .send__act.is-ready:hover .send__arrow { transform: translateX(0.28em); }
+
+  /* Refused: the action steps back and goes quiet, and the note it was
+     already showing lights up. Same words either way — only the colour
+     answers, which is why there is one span here and not two. */
+  .send.is-asking .send__act { transform: translateX(-4px); color: var(--dim); }
+
+  /* The handover: the action gives up its white immediately, the note takes
+     it 90ms later, so the brightness reads as moving from one to the other
+     rather than as two things changing at once. */
+  .send__ink {
+    /* pre-wrap, not pre. Every character is its own <i>, spaces included, so
+       plain `normal` would collapse the spaces and run the words together —
+       which is why this was `pre`. But `pre` also means it can never wrap,
+       and the ready-state note is 43 characters against a 30ch box: it ran
+       189px past the viewport whenever the form was complete. Measured, and
+       it predates this change — the empty-form note is short enough to fit,
+       which is why it never showed up. pre-wrap keeps the spaces and lets
+       the line break. */
+    display: inline-block; white-space: pre-wrap;
+    /* Grows toward the action, not away from it. */
+    transform-origin: right center;
+    transition: color var(--d-micro) var(--ease) 90ms,
+                transform var(--d-micro) var(--ease) 90ms;
+  }
+  .send__ink i { display: inline-block; font-style: normal; }
+  .send.is-asking .send__ink { color: var(--bone); transform: scale(1.08); }
+
+  /* And a wave through the letters. Mono holds a fixed advance width, so the
+     stroke thickens inside a box that never changes size — the line gains
+     motion without gaining movement. */
+  @keyframes send-swell { 0%, 100% { font-weight: 400 } 45% { font-weight: 700 } }
+  .send.is-asking .send__ink i {
+    animation: send-swell 520ms var(--ease) both;
+    animation-delay: calc(var(--i) * 25ms);
+  }
+
+  .send__note {
+    margin: 0 0 0 auto; text-align: right;
+    /* 32ch, not 30. "Name and email required" needs 30.7ch once the mono
+       tracking is counted, so a 30ch cap wrapped it onto two lines while
+       the row still had 10px spare — the box was the constraint, not the
+       column. At 32ch the pair is 601px of a 606px row.
+
+       The ready-state note is longer and still wraps, which is correct:
+       it has more to say. */
+    color: var(--dim); font-size: var(--t-xs); line-height: 1.8; max-width: 32ch;
+    transition: color var(--d-micro) var(--ease);
+  }
+
+  /* Still a <details>, so it works with no JavaScript at all. The marker is
+     replaced rather than removed — list-style covers Firefox, the -webkit
+     pseudo covers Safari. */
+  .peek { margin-top: var(--s-4); }
+  .peek summary {
+    display: inline-flex; align-items: baseline; gap: 8px;
+    list-style: none; cursor: pointer;
+    color: var(--dim); font-size: var(--t-xs);
+    transition: color var(--d-micro) var(--ease);
+  }
+  .peek summary::-webkit-details-marker { display: none; }
+  .peek summary::before { content: '+'; color: var(--accent); font-size: 12px; line-height: 1; }
+  .peek[open] summary::before { content: '–'; }
+  .peek summary:hover, .peek[open] summary { color: var(--bone); }
+  .peek__body {
+    margin: var(--s-3) 0 0; padding: var(--s-3);
+    background: var(--ground-lift); border: 1px solid var(--rule-soft);
+    font-family: var(--mono); font-size: var(--t-sm); line-height: 1.7;
+    color: var(--bone-dim); white-space: pre-wrap; overflow-x: auto;
+  }
+
+  /* ── The footer ───────────────────────────────────────────────── */
+  .ft { margin-top: clamp(64px, 11vh, 120px); }
+  .ft__rule { border: 0; border-top: 1px solid var(--rule); margin: 0; }
+
+  /* Pushed to the bottom-right corner and cut down: --t-lg here against the
+     send action's --t-xl, so the closing link is quieter than the thing it
+     used to compete with. width:max-content keeps the block only as wide as
+     its own words, so margin-left:auto can carry it to the corner. */
+  /* The band mirrors the page's own 5fr 7fr, inverted: the writing takes the
+     wider half, and the right half — empty until now — carries the way out
+     and the address, stacked. */
+  /* One row: the standing line on the left, the way out on the right, sharing
+     a bottom edge so "The work" reads as being on the same line as it. */
+  .ft__band {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: clamp(24px, 5vw, 96px);
+    flex-wrap: wrap;
+    margin-top: var(--s-4);
+  }
+  .ft__next { display: block; text-decoration: none; text-align: right; }
+  .ft__nextlbl { display: block; color: var(--dim); font-size: var(--t-micro); margin-bottom: 6px; }
+  .ft__nexttitle {
+    display: block;
+    font-family: var(--display); font-weight: 500; font-size: var(--t-lg);
+    letter-spacing: -0.03em; line-height: 1; color: var(--bone);
+    transition: color var(--d-micro) var(--ease);
+  }
+  .ft__next:hover .ft__nexttitle { color: var(--accent); }
+  /* Same travel, same duration, same easing as the send action's arrow. */
+  .ft__arrow { display: inline-block; transition: transform var(--d-micro) var(--ease); }
+  .ft__next:hover .ft__arrow { transform: translateX(0.28em); }
+
+  .ft__prose {
+    color: var(--bone-dim); max-width: 60ch; margin: var(--s-4) 0 0;
+    /* 20px. Same literal as the question text — there is no token between
+       --t-md (18) and --t-lg (22–30), and --t-lg would make a paragraph
+       compete with the Next above it. */
+    font-size: 1.25rem; line-height: 1.8;
+  }
+  /* The links are the only display type in the paragraph, so they are the
+     only things the eye stops on. No underline; colour does the work. */
+  /* inherit, not a fixed size — the links then follow the paragraph
+     whenever it changes instead of having to be kept in step by hand. */
+  .ft__prose a {
+    font-family: var(--display); font-weight: 500; font-size: inherit;
+    letter-spacing: -0.02em; color: var(--bone); text-decoration: none;
+    transition: color var(--d-micro) var(--ease);
+  }
+  .ft__prose a:hover { color: var(--accent); }
+  .ft__prose--quiet { font-size: var(--t-sm); color: var(--dim); margin: 0; }
+  .ft__prose--quiet a { font-size: inherit; color: var(--muted); }
+
+  .ft__row {
+    display: flex; justify-content: space-between; gap: var(--s-3);
+    flex-wrap: wrap; margin-top: clamp(40px, 6vh, 72px);
+  }
+  .ft__mail, .ft__count { color: var(--muted); text-decoration: none; transition: color var(--d-micro) var(--ease); }
+  .ft__mail:hover, .ft__count:hover { color: var(--accent); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .send__act { transition: none; }
+    .send.is-asking .send__act { transform: none; }
+    .send__ink { transition: none; }
+    .send.is-asking .send__ink { transform: none; }
+    .send.is-asking .send__ink i { animation: none; }
+  }
+
+  @media (max-width: 900px) {
+    .ft__band { align-items: flex-start; gap: var(--s-4); }
+    .ft__next { text-align: left; }
+    .ct__page { grid-template-columns: 1fr; }
+    .ct__head, .ct__form { grid-column: 1; }
+    .ct__head {
+      position: static; margin-bottom: clamp(48px, 8vh, 88px);
+      min-height: 0; display: block;
+    }
+    .ct__top { margin-bottom: var(--s-5); }
+  }
+
+  @media (max-width: 640px) {
+    .pill, .pill--area { width: 100%; }
+    .send__band { flex-direction: column; gap: 18px; }
+    .send__note { margin-left: 0; text-align: left; }
+    .send__ink { transform-origin: left center; }
+    .send__act { white-space: normal; }
+    .ct__direct { gap: var(--s-3); }
+  }
+</style>

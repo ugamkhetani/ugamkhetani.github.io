@@ -1,0 +1,394 @@
+---
+/**
+ * PREVIEW — WORK PAGE III · "SEQUENCE".  Aasha.
+ *
+ * THE WORK AS A RUN OF FRAMES, read the way you read a film: one at a time,
+ * in order, with the writing set between them rather than beside them.
+ *
+ * THE FRAMES ARE THE PAGE. The other two variations treat the stills as
+ * evidence filed under the writing — a sheet, or a column of figures. Here
+ * they carry the scroll: each one takes the full measure, each is numbered in
+ * display type large enough to read as a chapter mark, and the three pieces
+ * of writing this work actually has are dealt in between them.
+ *
+ * THE COUNTER IS THE ONE LIVE THING. A fixed folio in the margin reports
+ * which frame currently owns the window, so the page always says where in the
+ * run you are — the same job the works readout does on the homepage, and the
+ * same treatment: mono, tabular, the live figure in accent and nothing else
+ * moving. It is driven by the same scroll pass the homepage's clock uses:
+ * eight rects against the viewport's middle, throttled to a frame. An
+ * IntersectionObserver was the obvious tool and was written first, but it is
+ * the wrong one here — see the note on the script.
+ *
+ * WHY THE QUOTE SITS AFTER THE FIRST FRAME, not before it. "A score begins
+ * before the theme arrives" is a claim about process, and it lands harder
+ * once you have seen a frame of what it produced. The film follows it, the
+ * description follows the film, and the credits close.
+ *
+ * ADDITIVE. With no JavaScript the counter simply never updates and the page
+ * is a complete, ordered, readable run of the work — nothing here is built by
+ * script.
+ *
+ * NOTHING IS INVENTED: every field comes from src/content/works/aasha.md.
+ */
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import OpNav from '../../components/OpNav.astro';
+import VideoFacade from '../../components/VideoFacade.astro';
+import NextWork from '../../components/NextWork.astro';
+import Colophon from '../../components/Colophon.astro';
+import { Image } from 'astro:assets';
+import { framesFor } from '../../lib/frames';
+import { order, numberFor, total } from '../../data/composition';
+
+const works = await getCollection('works');
+const bySlug = new Map(works.map((w) => [w.id, w]));
+const work = bySlug.get('aasha')!;
+const d = work.data;
+
+const seq = order.filter((s) => bySlug.has(s));
+const next = bySlug.get(seq[(seq.indexOf('aasha') + 1) % seq.length])!;
+
+const images = framesFor('aasha', d.frames);
+const poster = images[0];
+const num = numberFor('aasha');
+const AR = d.ratio.replace(':', ' / ');
+
+const FACTS: { k: string; v: string }[] = [
+  { k: 'Role', v: d.role },
+  ...(d.credits.director ? [{ k: 'Director', v: d.credits.director }] : []),
+  ...d.meta.map((m) => ({ k: m.label, v: m.value })),
+];
+
+/* Where the writing falls in the run. Frame 1 opens; the quote lands after
+   it, the film after frame 2, the description after frame 3. Everything past
+   that is an uninterrupted run to the end. */
+const AFTER: Record<number, 'quote' | 'film' | 'body'> = { 1: 'quote', 2: 'film', 3: 'body' };
+---
+
+<Base title={`${d.title} — Ugam Khetani`} description={d.description}>
+  <OpNav variant="bracket" />
+
+  <article class="sq" data-sq style={`--ar:${AR}`}>
+    {/* ── THE FOLIO. Fixed, and the only thing that moves. ────── */}
+    <aside class="fol" aria-hidden="true">
+      <span class="mono fol__k">{num}/{String(total).padStart(2, '0')}</span>
+      <span class="mono fol__live" data-live>01</span>
+      <span class="mono fol__of">of {String(images.length).padStart(2, '0')}</span>
+    </aside>
+
+    {/* ── THE HEAD ────────────────────────────────────────────── */}
+    <header class="hd">
+      <h1 class="hd__t" data-reveal>
+        <span class="line"><span class="line__in">{d.title}</span></span>
+      </h1>
+      <p class="mono hd__meta">
+        {d.category} · {d.year} · {d.role}
+        {d.credits.director && <> · Dir. {d.credits.director}</>}
+      </p>
+      {d.awards.length > 0 && (
+        <p class="mono hd__awards">{d.awards.map((a) => a.text).join(' · ')}</p>
+      )}
+    </header>
+
+    {/* ── THE RUN ─────────────────────────────────────────────── */}
+    {images.map((img, i) => (
+      <>
+        <section class="frm" data-frm data-no={String(i + 1).padStart(2, '0')} aria-label={`Frame ${i + 1}`}>
+          <span class="mono frm__no">{String(i + 1).padStart(2, '0')}</span>
+          <span class="frm__win">
+            <Image
+              src={img}
+              alt={i === 0 ? d.alt : ''}
+              aria-hidden={i === 0 ? undefined : 'true'}
+              widths={[700, 1100, 1700]}
+              sizes="(max-width: 900px) 92vw, 72vw"
+              loading={i < 2 ? 'eager' : 'lazy'}
+              decoding="async"
+            />
+          </span>
+        </section>
+
+        {AFTER[i + 1] === 'quote' && d.quote && (
+          <section class="say say--q" data-reveal>
+            <p class="say__q"><em class="serif">{d.quote}</em></p>
+          </section>
+        )}
+
+        {AFTER[i + 1] === 'film' && d.media.youtube && (
+          <section class="say say--film" aria-label="Film" data-reveal>
+            <p class="mono say__lbl">The film</p>
+            <VideoFacade youtube={d.media.youtube} title={d.title} poster={poster} alt={d.alt} />
+          </section>
+        )}
+
+        {AFTER[i + 1] === 'body' && (
+          <section class="say" data-reveal>
+            <p class="mono say__lbl">The score</p>
+            <p class="say__body">{d.description}</p>
+          </section>
+        )}
+      </>
+    ))}
+
+    {/* ── THE CLOSE ───────────────────────────────────────────── */}
+    <section class="end" aria-label="Credits" data-reveal>
+      <dl class="end__facts">
+        {FACTS.map((f) => (
+          <div class="end__row">
+            <dt class="mono end__k">{f.k}</dt>
+            <dd class="end__v">{f.v}</dd>
+          </div>
+        ))}
+      </dl>
+      {d.links.length > 0 && (
+        <p class="end__links">
+          {d.links.map((l) => (
+            <a class="end__link" href={l.url} target="_blank" rel="noopener">{l.label} &nearr;</a>
+          ))}
+        </p>
+      )}
+    </section>
+  </article>
+
+  <NextWork
+    slug={next.id}
+    title={next.data.title}
+    year={next.data.year}
+    category={next.data.category}
+    frames={next.data.frames}
+    alt={next.data.alt}
+  />
+  <Colophon />
+</Base>
+
+<style is:global>
+  .runhead { display: none !important; }
+</style>
+
+<style>
+  .sq {
+    position: relative;
+    padding: clamp(96px, 15vh, 190px) var(--margin) 0;
+  }
+
+  /* ── THE FOLIO ──────────────────────────────────────────────── */
+  /* Fixed in the left margin, out of the reading column entirely. Hidden
+     below 1100px, where there is no margin to put it in and it would have to
+     sit on top of the work. */
+  .fol {
+    display: none;
+    position: fixed;
+    left: clamp(16px, 2.4vw, 34px);
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 4;
+    flex-direction: column;
+    gap: 4px;
+    pointer-events: none;
+    font-variant-numeric: tabular-nums;
+  }
+  @media (min-width: 1101px) { .fol { display: flex; } }
+  .fol__k { font-size: var(--t-micro); letter-spacing: 0.16em; color: var(--dim); }
+  .fol__live {
+    font-size: var(--t-lg);
+    letter-spacing: 0.02em;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .fol__of { font-size: var(--t-micro); letter-spacing: 0.16em; color: var(--dim); }
+
+  /* ── THE HEAD ───────────────────────────────────────────────── */
+  .hd { max-width: 1180px; margin-inline: auto; text-align: center; }
+  .hd__t {
+    margin: 0;
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: clamp(2.6rem, 10vw, 8rem);
+    line-height: 0.86;
+    letter-spacing: -0.05em;
+    text-transform: uppercase;
+    color: var(--bone);
+  }
+  .hd__meta {
+    margin: clamp(20px, 3.4vh, 36px) 0 0;
+    font-size: var(--t-micro);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .hd__awards {
+    margin: 10px 0 0;
+    font-size: var(--t-xs);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  /* ── THE RUN ────────────────────────────────────────────────── */
+  .frm {
+    position: relative;
+    max-width: 1180px;
+    margin: clamp(64px, 11vh, 150px) auto 0;
+  }
+  /* The number hangs outside the frame on the right, so it reads as a mark on
+     the sheet rather than as a caption belonging to the picture. */
+  .frm__no {
+    position: absolute;
+    top: 0;
+    right: calc(100% + 16px);
+    font-size: var(--t-micro);
+    letter-spacing: 0.16em;
+    color: var(--dim);
+    font-variant-numeric: tabular-nums;
+  }
+  @media (max-width: 1100px) {
+    .frm__no { position: static; display: block; margin-bottom: 8px; }
+  }
+  .frm__win {
+    display: block;
+    aspect-ratio: var(--ar);
+    overflow: hidden;
+    background: var(--ground-lift);
+  }
+  .frm__win :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(0.94) contrast(1.02);
+    transform: scale(1.001);
+    transition:
+      filter var(--d-micro) var(--ease),
+      transform 1100ms var(--ease);
+  }
+  .frm:hover .frm__win :global(img) {
+    filter: saturate(1) contrast(1.06) brightness(1.04);
+    transform: scale(1.035);
+  }
+
+  /* ── THE WRITING BETWEEN ────────────────────────────────────── */
+  .say { max-width: 1180px; margin: clamp(64px, 11vh, 150px) auto 0; }
+  .say__lbl {
+    margin: 0 0 clamp(14px, 2.2vh, 24px);
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--rule);
+    font-size: var(--t-micro);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--bone-dim);
+  }
+
+  /* The quote takes the whole measure and nothing shares its screen. */
+  .say--q { text-align: center; }
+  .say__q {
+    margin: 0 auto;
+    max-width: 18ch;
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: clamp(1.8rem, 5vw, 4rem);
+    line-height: 1.0;
+    letter-spacing: -0.04em;
+    color: var(--bone);
+  }
+  .say__q .serif { color: var(--accent); }
+
+  .say__body {
+    margin: 0;
+    max-width: 60ch;
+    font-size: clamp(1.15rem, 1.9vw, 1.6rem);
+    line-height: 1.42;
+    letter-spacing: -0.012em;
+    color: var(--bone-dim);
+    text-wrap: pretty;
+  }
+
+  /* ── THE CLOSE ──────────────────────────────────────────────── */
+  .end { max-width: 1180px; margin: clamp(80px, 13vh, 170px) auto 0; }
+  .end__facts { margin: 0; }
+  .end__row {
+    display: grid;
+    grid-template-columns: minmax(0, 12rem) minmax(0, 1fr);
+    gap: clamp(20px, 2.5vw, 44px);
+    align-items: baseline;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .end__k {
+    margin: 0;
+    font-size: var(--t-micro);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .end__v { margin: 0; font-size: var(--t-md); line-height: 1.3; color: var(--bone-dim); }
+  .end__links { margin: clamp(24px, 4vh, 40px) 0 0; display: flex; flex-wrap: wrap; gap: 24px; }
+  .end__link {
+    font-size: var(--t-sm);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--bone);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rule-accent);
+    padding-bottom: 3px;
+    transition: color var(--d-micro) var(--ease), border-color var(--d-micro) var(--ease);
+  }
+  .end__link:hover { color: var(--accent); border-color: var(--accent); }
+
+  @media (max-width: 640px) {
+    .end__row { grid-template-columns: 1fr; gap: 4px; }
+  }
+</style>
+
+<script>
+  /* WHICH FRAME OWNS THE WINDOW.
+
+     WRITTEN WITH AN IntersectionObserver FIRST, AND REPLACED. An observer is
+     the textbook answer — collapse the viewport to a band across its middle
+     with a negative rootMargin and let the browser report which frame enters
+     it, no layout read per scroll. It is also unverifiable in the preview
+     pane this was built in, where IntersectionObserver never delivers a
+     single callback, not even the initial one it is specified to fire on
+     observe(). Measured: zero entries after attach and zero after scrolling
+     frame 04 to dead centre, while a direct rect test correctly named 04.
+
+     So this reads eight rects against the viewport's middle on a throttled
+     scroll instead. It is the same thing the homepage's own clock does, it
+     costs eight getBoundingClientRect calls a frame, and it can actually be
+     proven to work. Between frames — where the writing sits — nothing owns
+     the middle and the counter holds its last value, which is the intended
+     reading rather than a gap.
+
+     Throttled through rAF and never inside the handler, so a scroll burst
+     coalesces into one pass; Lenis emits scroll for over a second after a
+     flick, and a rect read per event would be dozens of forced layouts. */
+  function initSequence() {
+    const root = document.querySelector<HTMLElement>('[data-sq]');
+    const live = root?.querySelector<HTMLElement>('[data-live]');
+    if (!root || !live || root.dataset.bound) return;
+    root.dataset.bound = '1';
+
+    const frames = Array.from(root.querySelectorAll<HTMLElement>('[data-frm]'));
+    if (!frames.length) return;
+
+    let raf = 0;
+    const paint = () => {
+      raf = 0;
+      const mid = innerHeight / 2;
+      for (const f of frames) {
+        const r = f.getBoundingClientRect();
+        if (r.top <= mid && r.bottom >= mid) {
+          const no = f.dataset.no;
+          if (no && live.textContent !== no) live.textContent = no;
+          return;
+        }
+      }
+    };
+    const tick = () => { if (!raf) raf = requestAnimationFrame(paint); };
+
+    addEventListener('scroll', tick, { passive: true });
+    addEventListener('resize', tick, { passive: true });
+    paint();
+  }
+  initSequence();
+  document.addEventListener('astro:page-load', initSequence);
+</script>

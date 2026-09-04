@@ -1,0 +1,106 @@
+/* ═══════════════════════════════════════════════════════════════
+   DESIGN TOKENS
+   Colours sampled directly from the rendered 2026 decks.
+   Nothing in this project uses a colour or a duration that is not
+   declared here.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* The Neue Haas Grotesk Display @font-face rules are emitted by
+   src/lib/displayFont.ts, and only once the licensed woff2 files are
+   present in /public/fonts/. Until then the stack below falls through
+   to Helvetica Neue and the site requests nothing it doesn't have. */
+
+:root {
+  /* ── Ground ─────────────────────────────────────────────────── */
+  /* Warm near-black, not neutral. Deliberate: it carries a +2 red cast
+     (r−b), which is what stops the page reading as flat digital black.
+
+     A neutral, darker ground was tried and reverted —
+       --ground: #050505  --ground-lift: #0D0D0D  --ground-deep: #000000
+     along with theme-color #050505 in Base.astro. Worth knowing if it comes
+     up again: the reference this was modelled on uses #0F0F0F, which is
+     LIGHTER than the value below and still reads blacker, because it has no
+     cast at all. The warmth is the variable, not the lightness.
+
+     The type colours are a separate decision and are NOT reverted here.
+     Their previous values, if those are ever wanted back:
+       --bone #F5F1EC  --bone-dim #CFCAC3  --muted #8A857E  --dim #807A71
+       --rule rgba(245,241,236,0.13)  --rule-soft rgba(245,241,236,0.07) */
+  --ground:        #0A0908;   /* warm near-black, not neutral */
+  --ground-lift:   #0F0E0D;
+  --ground-deep:   #060605;
+
+  /* ── Type colours ───────────────────────────────────────────── */
+  /* Four tiers, all of which carry real content — catalogue numbers and
+     years are information, not decoration, so every one of these clears
+     4.5:1 against the ground. The quiet tier is made quiet by size and
+     letter-spacing, not by being hard to read.
+     
+     These were warm off-whites — the original note read "bone, never pure
+     white". Changed deliberately: the whites are now true white and the
+     greys neutral with them, because a warm grey reads yellow the moment
+     it sits beside a pure white. Every tier got brighter, so nothing
+     regressed on contrast. */
+  --bone:          #FFFFFF;   /* primary — true white              19.9:1 */
+  --bone-dim:      #D8D8D8;   /* body copy                         14.0:1 */
+  --muted:         #8F8F8F;   /* metadata labels                    6.2:1 */
+  --dim:           #858585;   /* furniture, numbers, years          5.4:1 */
+
+  /* ── Accent ─────────────────────────────────────────────────── */
+  --accent:        #E85D2C;
+  --accent-deep:   #BF3D0B;
+  --accent-glow:   rgba(232, 93, 44, 0.18);
+
+  /* ── Rules ──────────────────────────────────────────────────── */
+  /* Keyed to the white above, so the hairlines never drift warm of it. */
+  --rule:          rgba(255, 255, 255, 0.13);
+  --rule-soft:     rgba(255, 255, 255, 0.07);
+  --rule-accent:   rgba(232, 93, 44, 0.40);
+
+  /* ── Typefaces ──────────────────────────────────────────────── */
+  --display: 'Neue Haas Grotesk Display', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --body:    'Inter Variable', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --mono:    'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --serif:   'Fraunces Variable', 'Iowan Old Style', Palatino, Georgia, serif;
+
+  /* ── Type scale ─────────────────────────────────────────────── */
+  --t-micro:  0.625rem;   /* 10 — mono labels */
+  --t-xs:     0.6875rem;  /* 11 */
+  --t-sm:     0.8125rem;  /* 13 */
+  --t-base:   1rem;       /* 16 */
+  --t-md:     1.125rem;   /* 18 */
+  --t-lg:     clamp(1.375rem, 2.4vw, 1.875rem);
+  --t-xl:     clamp(1.75rem, 4vw, 3rem);
+  --t-2xl:    clamp(2.5rem, 7vw, 5.5rem);
+  --t-3xl:    clamp(3.25rem, 13vw, 11rem);
+
+  /* Tracking. Wide mono labels do more work here than anything else. */
+  --track-mono:  0.2em;
+  --track-tight: -0.035em;
+
+  /* ── Space — 8px base ───────────────────────────────────────── */
+  --s-1: 8px;  --s-2: 16px; --s-3: 24px; --s-4: 32px;
+  --s-5: 48px; --s-6: 64px; --s-7: 96px; --s-8: 128px;
+
+  /* ── Layout ─────────────────────────────────────────────────── */
+  --margin:   clamp(24px, 6vw, 88px);
+  /* The fixed header's box: padding + one line of the nav type.
+     Overlays clear it so the four labels stay reachable on every view. */
+  --head-h:   clamp(43px, 3.2vw, 56px);
+  --cols:     12;
+  --gutter:   clamp(12px, 1.6vw, 24px);
+  --measure:  68ch;
+
+  /* ── Motion — one easing, three durations ───────────────────── */
+  --ease:     cubic-bezier(0.76, 0, 0.24, 1);
+  --d-micro:  240ms;
+  --d-reveal: 600ms;
+  --d-page:   1000ms;
+}
+
+@media (max-width: 900px) {
+  :root { --cols: 6; }
+}
+@media (max-width: 640px) {
+  :root { --cols: 1; }
+}

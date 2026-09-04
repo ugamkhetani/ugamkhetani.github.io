@@ -1,0 +1,127 @@
+---
+import '../styles/tokens.css';
+import '../styles/base.css';
+import '@fontsource-variable/inter/wght.css';
+import '@fontsource-variable/jetbrains-mono/wght.css';
+import '@fontsource-variable/fraunces/wght-italic.css';
+
+import { ClientRouter } from 'astro:transitions';
+import RunHead from '../components/RunHead.astro';
+import { displayFontFace } from '../lib/displayFont';
+
+const fontFace = displayFontFace();
+
+interface Props {
+  title: string;
+  description: string;
+  /** Homepage only: run the opening frame sequence once per session. */
+  intro?: boolean;
+}
+const { title, description, intro = false } = Astro.props;
+
+
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#0A0908" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+    {fontFace && <style is:inline set:html={fontFace} />}
+
+    {
+      intro && (
+        <script is:inline>
+          try {
+            var seen = sessionStorage.getItem('uk-intro');
+            var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (!seen && !still) {
+              document.documentElement.classList.add('intro-on');
+              sessionStorage.setItem('uk-intro', '1');
+              setTimeout(function () {
+                document.documentElement.classList.remove('intro-on');
+              }, 1560);
+            }
+          } catch (e) {}
+        </script>
+      )
+    }
+    <ClientRouter />
+  </head>
+
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    {/* Pointer trail. Sits above the page but below the opening sequence,
+        and never intercepts a click. */}
+    <canvas class="cursor" data-cursor aria-hidden="true"></canvas>
+
+    <RunHead />
+
+    <main id="main">
+      <slot />
+    </main>
+
+
+
+
+    <script>
+      import '../scripts/main.ts';
+    </script>
+
+    <style>
+      .cursor {
+        position: fixed;
+        inset: 0;
+        z-index: 250;
+        pointer-events: none;
+      }
+      @media (prefers-reduced-motion: reduce) { .cursor { display: none; } }
+      @media (hover: none), (pointer: coarse) { .cursor { display: none; } }
+
+      /* ── Index overlay ─────────────────────────────────────────── */
+      .idx { display: flex; flex-direction: column; gap: var(--s-6); }
+      .idx__cat { padding-bottom: 10px; border-bottom: 1px solid var(--rule); }
+      .idx__list { list-style: none; margin: 0; padding: 0; }
+
+      .idx__row {
+        display: grid;
+        grid-template-columns: 3rem minmax(0, 1fr) minmax(0, 1fr) 4rem;
+        gap: var(--s-2);
+        align-items: baseline;
+        padding: 16px 0;
+        border-bottom: 1px solid var(--rule-soft);
+        transition: color var(--d-micro) var(--ease);
+      }
+      .idx__row:hover { color: var(--accent); }
+      .idx__no { color: var(--dim); font-variant-numeric: tabular-nums; }
+      .idx__title {
+        font-family: var(--display);
+        font-weight: 500;
+        font-size: var(--t-lg);
+        letter-spacing: -0.02em;
+        line-height: 1.05;
+      }
+      .idx__role { color: var(--muted); }
+      .idx__year {
+        color: var(--dim);
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+
+      @media (max-width: 720px) {
+        .idx__row { grid-template-columns: 2.5rem minmax(0, 1fr) 3.5rem; }
+        .idx__role { display: none; }
+      }
+
+      /* ── Info overlay ──────────────────────────────────────────── */
+    </style>
+  </body>
+</html>

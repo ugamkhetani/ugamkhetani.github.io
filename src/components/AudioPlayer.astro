@@ -1,0 +1,220 @@
+---
+import { audioPath } from '../lib/assets';
+
+interface Props {
+  slug: string;
+  src: string;
+  title: string;
+}
+const { slug, src, title } = Astro.props;
+const audio = audioPath(slug, src);
+---
+
+{
+  audio.exists && (
+    <div class="player" data-player>
+      <audio preload="metadata" src={audio.url} data-audio />
+
+      <button class="player__toggle" type="button" data-play aria-label={`Play ${title}`}>
+        <span class="player__icon" data-icon aria-hidden="true" />
+      </button>
+
+      <div class="player__body">
+        <div class="player__row">
+          <span class="mono player__title">{title}</span>
+          <span class="mono player__time" data-time>0:00</span>
+        </div>
+
+        {/* Hairline transport. The meter above it is real signal, not decoration. */}
+        <canvas class="player__meter" data-meter height="18" aria-hidden="true" />
+        <div class="player__track" data-track role="presentation">
+          <span class="player__fill" data-fill />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+<style>
+  .player {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    padding: var(--s-3) 0;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .player__toggle {
+    flex: 0 0 auto;
+    width: 46px;
+    height: 46px;
+    border: 1px solid var(--rule);
+    display: grid;
+    place-items: center;
+    transition: border-color var(--d-micro) var(--ease);
+  }
+  .player__toggle:hover { border-color: var(--accent); }
+
+  .player__icon {
+    width: 0;
+    height: 0;
+    border-left: 9px solid var(--accent);
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    margin-left: 3px;
+  }
+  .player.is-playing .player__icon {
+    width: 9px;
+    height: 12px;
+    border: 0;
+    margin-left: 0;
+    background: linear-gradient(
+      90deg,
+      var(--accent) 0 3px,
+      transparent 3px 6px,
+      var(--accent) 6px 9px
+    );
+  }
+
+  .player__body { flex: 1; min-width: 0; }
+  .player__row {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--s-2);
+    margin-bottom: 9px;
+  }
+  .player__title { color: var(--bone); }
+  .player__time { color: var(--dim); font-variant-numeric: tabular-nums; }
+
+  .player__meter { display: block; width: 100%; height: 18px; opacity: 0.85; }
+
+  .player__track {
+    position: relative;
+    height: 1px;
+    background: var(--rule);
+    cursor: pointer;
+    margin-top: 6px;
+  }
+  .player__fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 0;
+    background: var(--accent);
+  }
+</style>
+
+<script>
+  const CLOSE_ENOUGH = 0.15;
+
+  function fmt(t: number) {
+    if (!isFinite(t)) return '0:00';
+    const m = Math.floor(t / 60);
+    const s = Math.floor(t % 60);
+    return `${m}:${String(s).padStart(2, '0')}`;
+  }
+
+  function setup(player: HTMLElement) {
+    if (player.dataset.bound) return;
+    player.dataset.bound = '1';
+
+    const audio = player.querySelector<HTMLAudioElement>('[data-audio]')!;
+    const toggle = player.querySelector<HTMLButtonElement>('[data-play]')!;
+    const time = player.querySelector<HTMLElement>('[data-time]')!;
+    const track = player.querySelector<HTMLElement>('[data-track]')!;
+    const fill = player.querySelector<HTMLElement>('[data-fill]')!;
+    const meter = player.querySelector<HTMLCanvasElement>('[data-meter]')!;
+
+    let ctx: AudioContext | undefined;
+    let analyser: AnalyserNode | undefined;
+    let raf = 0;
+
+    const draw = () => {
+      if (!analyser) return;
+      const w = (meter.width = meter.clientWidth * devicePixelRatio);
+      const h = meter.height;
+      const bins = new Uint8Array(analyser.frequencyBinCount);
+      analyser.getByteFrequencyData(bins);
+
+      const g = meter.getContext('2d')!;
+      g.clearRect(0, 0, w, h);
+      g.fillStyle =
+        getComputedStyle(player).getPropertyValue('--accent').trim() || '#E85D2C';
+
+      const bars = 64;
+      const step = Math.floor(bins.length / bars);
+      const bw = w / bars;
+      for (let i = 0; i < bars; i++) {
+        const v = bins[i * step] / 255;
+        const bh = Math.max(1, v * h);
+        g.globalAlpha = 0.35 + v * 0.65;
+        g.fillRect(i * bw, h - bh, Math.max(1, bw - 2 * devicePixelRatio), bh);
+      }
+      raf = requestAnimationFrame(draw);
+    };
+
+    toggle.addEventListener('click', async () => {
+      if (audio.paused) {
+        // Analyser is wired on first play — no AudioContext until asked for.
+        if (!ctx) {
+          ctx = new AudioContext();
+          const source = ctx.createMediaElementSource(audio);
+          analyser = ctx.createAnalyser();
+          analyser.fftSize = 256;
+          source.connect(analyser);
+          analyser.connect(ctx.destination);
+        }
+        await ctx.resume();
+        await audio.play();
+      } else {
+        audio.pause();
+      }
+    });
+
+    audio.addEventListener('play', () => {
+      player.classList.add('is-playing');
+      toggle.setAttribute('aria-label', 'Pause');
+      cancelAnimationFrame(raf);
+      draw();
+    });
+
+    const stop = () => {
+      player.classList.remove('is-playing');
+      toggle.setAttribute('aria-label', 'Play');
+      cancelAnimationFrame(raf);
+      raf = 0;
+      meter.getContext('2d')?.clearRect(0, 0, meter.width, meter.height);
+    };
+    audio.addEventListener('pause', stop);
+    audio.addEventListener('ended', stop);
+
+    audio.addEventListener('timeupdate', () => {
+      const pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+      fill.style.width = `${pct}%`;
+      time.textContent = fmt(audio.duration - audio.currentTime);
+    });
+
+    const seek = (clientX: number) => {
+      const box = track.getBoundingClientRect();
+      if (!box.width || !audio.duration) return;
+      audio.currentTime = ((clientX - box.left) / box.width) * audio.duration;
+    };
+    track.addEventListener('click', (e) => seek((e as PointerEvent).clientX));
+
+    // Keyboard: the toggle carries transport, arrows scrub.
+    toggle.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') audio.currentTime += 5;
+      else if (e.key === 'ArrowLeft') audio.currentTime -= 5;
+      else return;
+      e.preventDefault();
+    });
+
+    audio.addEventListener('loadedmetadata', () => {
+      time.textContent = fmt(audio.duration);
+      if (audio.duration < CLOSE_ENOUGH) time.textContent = '0:00';
+    });
+  }
+
+  const boot = () => document.querySelectorAll<HTMLElement>('[data-player]').forEach(setup);
+  document.addEventListener('astro:page-load', boot);
+</script>

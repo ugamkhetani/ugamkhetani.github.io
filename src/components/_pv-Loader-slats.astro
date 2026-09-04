@@ -1,0 +1,179 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+/**
+ * PREVIEW LOADER H · "SLATS".
+ *
+ * A DEPARTURE BOARD MADE OF FILM. Four tall windows, each one running its own
+ * reel of frames upward, each stopping a beat after the one to its left — so
+ * the catalogue lands as a cascade across the screen rather than all at once.
+ * It is the loudest of these and the one that most feels like a machine
+ * settling, which is exactly what a split-flap board is.
+ *
+ * THE CASCADE IS THE DESIGN, and it is 60ms between columns. The four reels are
+ * identical apart from that delay and the frames they carry; every bit of the
+ * character comes from them landing out of step. Land them together and this is
+ * four things sliding, which is nothing.
+ *
+ * EACH REEL IS ONE TRANSFORM. Three frames stacked in a column that is one
+ * frame tall and clipped, translated up two frame-heights — so twelve slots
+ * cost four composited layers and four animated properties, not twelve. And the
+ * twelve slots draw from EIGHT stills, so the browser decodes eight images and
+ * reuses four: the reels differ from each other without costing anything.
+ *
+ * THE STOP IS EASED ALMOST ENTIRELY INTO THE TAIL. cubic-bezier(0.1, 0, 0.16, 1)
+ * spends most of its distance early and arrives slowly, which is how a
+ * mechanical reel with mass actually stops. A symmetric ease would read as a
+ * slide; a linear one would read as a scroll.
+ *
+ * IT IS DROP-IN. Same props, same html.intro-on gate, same 1560ms budget as
+ * Opening.astro — one import swapped in index.astro.
+ */
+interface Props {
+  /** One frame from each of eight works. The reels draw from all of them. */
+  stills: { img: ImageMetadata; alt: string }[];
+}
+const { stills } = Astro.props;
+
+const COLS = 4;
+const DEEP = 3; /* frames per reel — travel is DEEP - 1 */
+const STEP = 0.06; /* the cascade. See the note above. */
+
+/* Each reel takes a different slice of the eight, so no two columns are
+   showing the same picture at the same moment. */
+const reels = Array.from({ length: COLS }, (_, c) =>
+  Array.from({ length: DEEP }, (_, r) => stills[(c * DEEP + r) % stills.length])
+);
+---
+
+<div class="intro" data-intro aria-hidden="true" style={`--travel:${DEEP - 1}`}>
+  <div class="st">
+    <div class="st__board">
+      {reels.map((reel, c) => (
+        <span class="st__win">
+          <span class="st__reel" style={`--d:${(c * STEP).toFixed(3)}s`}>
+            {reel.map((s) => (
+              <span class="st__cell">
+                <Image src={s.img} alt="" widths={[400, 800]} sizes="22vw" loading="eager" decoding="sync" />
+              </span>
+            ))}
+          </span>
+        </span>
+      ))}
+      <span class="st__veil" aria-hidden="true"></span>
+      <span class="st__name display">Ugam Khetani</span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .intro { display: none; }
+
+  :global(html.intro-on) .intro {
+    display: grid;
+    place-items: center;
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    background: var(--ground);
+    animation: st-lift 0.38s var(--ease) forwards;
+    animation-delay: 1.16s;
+  }
+  :global(html.intro-on) body { overflow: hidden; }
+
+  .st {
+    /* The column width sets everything else, so the slats keep their shape at
+       every viewport instead of being clamped independently and drifting. */
+    --cw: min(19vw, 188px);
+    --fh: calc(var(--cw) * 1.34);
+  }
+
+  .st__board {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, var(--cw));
+    gap: clamp(5px, 0.8vw, 10px);
+  }
+
+  .st__win {
+    display: block;
+    height: var(--fh);
+    overflow: hidden;
+    background: var(--ground-deep);
+  }
+
+  /* One transform per reel: three frames, one layer, one property. */
+  .st__reel {
+    display: grid;
+    grid-auto-rows: var(--fh);
+    will-change: transform;
+    /* 0.62s, not the 0.94s this ran at. The last reel starts 3 x 60ms late, so
+       a 0.94s run put the board's settle at 1.15s — one hundredth of a second
+       before the lift, with the name measured at opacity 0.17 as the screen
+       began clipping away. The whole payoff was happening off-screen. The board
+       now rests at 0.80s and the name is fully on at 1.12s, a beat clear. */
+    animation: st-run 0.62s cubic-bezier(0.1, 0, 0.16, 1) forwards;
+    animation-delay: var(--d);
+  }
+  .st__cell { display: block; overflow: hidden; }
+  .st__cell :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(0.94) contrast(1.02) brightness(0.56);
+  }
+
+  .st__veil {
+    position: absolute;
+    inset: 0;
+    background: var(--ground);
+    opacity: 0.24;
+    pointer-events: none;
+  }
+
+  .st__name {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-size: clamp(13px, 1.5vw, 19px);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--bone);
+    opacity: 0;
+    animation: st-name 0.3s var(--ease) forwards;
+    /* After the last reel has stopped, not during — the name arriving into a
+       settled board is the payoff, and over a moving one it is just noise.
+       The last reel rests at 0.80s; this starts at 0.82s and is fully on at
+       1.12s, which is 40ms before the lift rather than after it. */
+    animation-delay: 0.82s;
+    pointer-events: none;
+  }
+
+  /* Exactly two frame-heights, so every reel comes to rest on a frame. */
+  @keyframes st-run {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(0, calc(var(--travel) * var(--fh) * -1), 0); }
+  }
+  @keyframes st-name {
+    from { opacity: 0; transform: translate3d(0, 4px, 0); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes st-lift {
+    to { clip-path: inset(0 0 100% 0); }
+  }
+
+  /* Four 19vw columns on a phone are 60px wide and read as stripes, not
+     frames. Two wider ones keep the cascade legible. */
+  @media (max-width: 640px) {
+    .st { --cw: min(38vw, 200px); }
+    .st__board { grid-template-columns: repeat(2, var(--cw)); }
+    .st__win:nth-child(n + 3) { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .intro { display: none !important; }
+  }
+</style>

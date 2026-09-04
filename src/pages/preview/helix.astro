@@ -1,0 +1,253 @@
+---
+/**
+ * PREVIEW 08 — HELIX.  Delete this folder once a direction is chosen.
+ * Reference: cosmos_1787065588 — images on a spiral receding into black,
+ * the camera flying along it with the name held still in the middle.
+ *
+ * THE CATALOGUE AS A SPIRAL YOU FLY ALONG.
+ *
+ * Sixteen works wound around an axis and set back into the dark, one turn
+ * every few works. Scrolling is not scrolling — it is the camera travelling
+ * down the axis, so works arrive out of the black ahead of you, pass, and
+ * fall away behind.
+ *
+ * THE ORDER IS THE PATH. Position on the helix is position in
+ * composition.ts, so the score literally becomes the route through the work.
+ * The reference's dark void is this site's own ground already — #0A0908 with
+ * its +2 red cast — so nothing had to be restyled to sit works in a void.
+ *
+ * REAL PERSPECTIVE, NO LIBRARY. CSS `perspective` with `preserve-3d` gives
+ * true projection, GPU compositing and correct depth sorting, so distant
+ * works are genuinely smaller rather than scaled to look it. It also keeps
+ * the existing optimised image pipeline and the real scrub — no three.js, no
+ * canvas, nothing new to ship.
+ *
+ * ADDITIVE, AND THIS ONE MATTERS MORE THAN USUAL (§5). A 3D scene puts most
+ * of its content off-screen by design, so the resting state of this page is
+ * NOT the helix — it is a plain, complete, readable index of all sixteen
+ * works. `is-3d` is added by script only, and only when motion is allowed.
+ * With JavaScript off, or reduced motion on, the universe never builds and
+ * what remains is a working catalogue at full strength.
+ *
+ * NO MASTHEAD (§3): the h1 is present for structure and nothing is drawn.
+ */
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/_pv-Nav.astro';
+import Still from '../../components/Still.astro';
+import { getCollection } from 'astro:content';
+import { order, numberFor, total, RATIO_NUM } from '../../data/composition';
+
+const works = await getCollection('works');
+const bySlug = new Map(works.map((w) => [w.id, w]));
+const seq = order.map((slug) => bySlug.get(slug)!).filter(Boolean);
+
+/* ── the helix, in px of scene space ────────────────────────────── */
+const RADIUS = 480;   // how far off the axis each work sits
+const RISE = 520;     // z-gap between consecutive works
+const TURN = 68;      // degrees of rotation per work
+
+const nodes = seq.map((w, i) => {
+  const a = (i * TURN * Math.PI) / 180;
+  return {
+    w,
+    i,
+    x: +(Math.cos(a) * RADIUS).toFixed(1),
+    y: +(Math.sin(a) * RADIUS * 0.52).toFixed(1), // flattened, so it reads as a corridor rather than a tube
+    z: -i * RISE,
+    no: numberFor(w.id),
+  };
+});
+
+const depth = (seq.length - 1) * RISE;
+---
+
+<Base title="Works — Helix" description="Preview only.">
+  <Nav here="helix" name="Helix" idea="A spiral receding into the dark. Scroll flies the camera." />
+
+  <div class="hx" data-helix style={`--depth:${depth}`}>
+    <h1 class="visually-hidden">Ugam Khetani — selected works across film, brand and music</h1>
+
+    <div class="scene" data-scene>
+      <div class="world" data-world>
+        {
+          nodes.map((n) => (
+            <div class="node" data-node data-no={n.no} data-title={n.w.data.title}
+              data-meta={`${n.w.data.category} · ${n.w.data.year} · ${n.w.data.ratio}`}
+              style={`--x:${n.x}px;--y:${n.y}px;--z:${n.z}px;--arn:${RATIO_NUM[n.w.data.ratio]}`}>
+              <Still
+                slug={n.w.id}
+                title={n.w.data.title}
+                year={n.w.data.year}
+                category={n.w.data.category}
+                ratio={n.w.data.ratio}
+                frames={n.w.data.frames}
+                alt={n.w.data.alt}
+                sizes="30vw"
+                eager={n.i < 2}
+                max={3}
+              />
+              <span class="node__cap">
+                <span class="mono node__no">{n.no}</span>
+                <span class="node__title">{n.w.data.title}</span>
+              </span>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+
+    {/* The name held still in the middle, as in the reference. */}
+    <div class="hud" aria-hidden="true">
+      <span class="mono hud__no" data-h-no>{nodes[0].no}</span>
+      <span class="mono hud__of">/ {String(total).padStart(3, '0')}</span>
+      <span class="hud__title" data-h-title>{nodes[0].w.data.title}</span>
+      <span class="mono hud__meta" data-h-meta>{nodes[0].w.data.category} · {nodes[0].w.data.year}</span>
+    </div>
+
+    {/* Scroll room: the flight is driven by this, so the page is as long as
+        the helix is deep. */}
+    <div class="track" aria-hidden="true"></div>
+  </div>
+</Base>
+
+<style>
+  /* ── RESTING STATE: a plain, complete index. No 3D anywhere until the
+     script says so, so this is what a visitor without JavaScript, or with
+     reduced motion, actually gets. ───────────────────────────────── */
+  .hx { padding-inline: var(--margin); padding-top: clamp(150px, 19vh, 220px); padding-bottom: 14vh; }
+  .world { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(20px, 3vw, 48px); }
+  .node__cap { display: flex; align-items: baseline; gap: 10px; margin-top: 9px; }
+  .node__no { font-size: 9px; letter-spacing: 0.12em; color: var(--dim); transition: color var(--d-micro) var(--ease); }
+  .node__title {
+    font-family: var(--display); font-weight: 500; font-size: var(--t-sm);
+    letter-spacing: -0.02em; color: var(--bone-dim);
+    transition: color var(--d-micro) var(--ease);
+  }
+  .hud, .track { display: none; }
+
+  @media (max-width: 900px) { .world { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 640px) { .world { grid-template-columns: 1fr; } }
+
+  /* ── FLIGHT: everything below applies only once `is-3d` is added. ── */
+  .hx.is-3d { padding: 0; }
+
+  .hx.is-3d .scene {
+    position: fixed; inset: 0; z-index: 1;
+    perspective: 1100px;
+    perspective-origin: 50% 46%;
+    overflow: hidden;
+  }
+  .hx.is-3d .world {
+    display: block;
+    position: absolute; top: 50%; left: 50%;
+    width: 0; height: 0;
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+
+  .hx.is-3d .node {
+    position: absolute;
+    width: 30vw;
+    margin: -8vw 0 0 -15vw;               /* centred on its own point */
+    transform: translate3d(var(--x), var(--y), var(--z));
+    /* No rotation: a translated element keeps facing the camera, which is
+       what keeps every still readable however far round the turn it is. */
+  }
+
+  .hx.is-3d .node__cap { justify-content: center; }
+
+  /* The work nearest the camera takes the accent. */
+  .hx.is-3d .node.is-near .node__no { color: var(--accent); }
+  .hx.is-3d .node.is-near .node__title { color: var(--bone); }
+
+  .hx.is-3d .hud {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    position: fixed; z-index: 5; left: 0; right: 0; top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none; text-align: center;
+    /* Held still in the middle while the work flies past it. */
+    mix-blend-mode: difference;
+  }
+  .hud__no { font-size: var(--t-sm); letter-spacing: 0.14em; color: var(--accent); }
+  .hud__of { font-size: 9px; letter-spacing: 0.1em; color: var(--dim); margin-top: -3px; }
+  .hud__title {
+    margin-top: 6px; font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.6rem, 3.6vw, 2.6rem); letter-spacing: var(--track-tight); color: var(--bone);
+  }
+  .hud__meta { font-size: 9px; letter-spacing: 0.1em; color: var(--dim); }
+
+  /* The scrollbar's worth of page that drives the flight. */
+  .hx.is-3d .track { display: block; height: calc(var(--depth) * 1px + 100vh); }
+</style>
+
+<script>
+  function initHelix() {
+    const root = document.querySelector('[data-helix]') as HTMLElement | null;
+    if (!root || root.dataset.bound) return;
+    root.dataset.bound = '1';
+
+    /* The universe is opt-in. Reduced motion keeps the plain index, which is
+       the whole point of building the resting state first (§5). */
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!matchMedia('(min-width: 901px)').matches) return;
+
+    const world = root.querySelector('[data-world]') as HTMLElement;
+    const nodes = Array.from(root.querySelectorAll('[data-node]')) as HTMLElement[];
+    const no = root.querySelector('[data-h-no]') as HTMLElement;
+    const title = root.querySelector('[data-h-title]') as HTMLElement;
+    const meta = root.querySelector('[data-h-meta]') as HTMLElement;
+    if (!world || !nodes.length) return;
+
+    root.classList.add('is-3d');
+
+    const depth = parseFloat(getComputedStyle(root).getPropertyValue('--depth')) || 1;
+    const zOf = nodes.map((n) => parseFloat(n.style.getPropertyValue('--z')) || 0);
+
+    let raf = 0;
+    let last = -1;
+
+    const paint = () => {
+      raf = 0;
+      const max = document.documentElement.scrollHeight - innerHeight;
+      const t = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
+      // The camera flies forward; the world comes toward it.
+      const cam = t * depth;
+      world.style.transform = `translateZ(${cam.toFixed(1)}px)`;
+
+      /* Works at or behind the camera plane must be culled by hand. CSS does
+         not drop them: past the perspective plane an element is projected
+         INVERTED rather than discarded, so everything already flown past
+         reappears as a mirrored ghost. Measured at camera 3510 on the helix —
+         001 through 005 were all behind the eye (zEff >= the 1100px
+         perspective) and all five still reported on-screen boxes, 005 at
+         1440px wide. -40 leaves a margin so a work does not pop out while it
+         is still just in front of the lens. */
+      for (let i = 0; i < zOf.length; i++) {
+        nodes[i].style.visibility = zOf[i] + cam > -40 ? 'hidden' : '';
+      }
+
+      /* Nearest to the camera plane, not nearest in x/y — the helix puts
+         works off-axis on purpose, so distance along z is the only honest
+         measure of which one you are at. */
+      let best = 0;
+      let bestD = Infinity;
+      for (let i = 0; i < zOf.length; i++) {
+        const d = Math.abs(zOf[i] + cam);
+        if (d < bestD) { bestD = d; best = i; }
+      }
+      if (best === last) return;
+      last = best;
+      nodes.forEach((n, i) => n.classList.toggle('is-near', i === best));
+      no.textContent = nodes[best].dataset.no || '';
+      title.textContent = nodes[best].dataset.title || '';
+      meta.textContent = nodes[best].dataset.meta || '';
+    };
+
+    addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(paint); }, { passive: true });
+    addEventListener('resize', () => { if (!raf) raf = requestAnimationFrame(paint); }, { passive: true });
+    paint();
+  }
+
+  initHelix();
+  document.addEventListener('astro:page-load', initHelix);
+</script>

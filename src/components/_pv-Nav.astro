@@ -1,0 +1,54 @@
+---
+/**
+ * PREVIEW ONLY — delete with src/pages/preview/.
+ * A fixed chip naming the direction and linking to the others.
+ */
+interface Props {
+  here: 'reel' | 'helix' | 'deck' | 'conveyor' | 'cascade' | 'wheel';
+  name: string;
+  idea: string;
+}
+const { here, name, idea } = Astro.props;
+
+const all = [
+  { k: 'wheel', href: '/preview/wheel', label: '20 Wheel ★' },
+  { k: 'cascade', href: '/preview/cascade', label: '17 Cascade ★' },
+  { k: 'reel', href: '/preview/reel', label: '03 Reel' },
+  { k: 'helix', href: '/preview/helix', label: '08 Helix' },
+  { k: 'deck', href: '/preview/deck', label: '10 Deck' },
+  { k: 'conveyor', href: '/preview/conveyor', label: '12 Conveyor' },
+];
+---
+
+<aside class="pvn" aria-label="Preview navigation">
+  <p class="mono pvn__tag">Works · direction</p>
+  <p class="pvn__name">{name}</p>
+  <p class="pvn__idea">{idea}</p>
+  <nav class="pvn__nav">
+    {all.map((o) => (
+      <a href={o.href} class={`mono ${o.k === here ? 'is-here' : ''}`}>{o.label}</a>
+    ))}
+  </nav>
+  <a class="mono pvn__back" href="/preview/">All four ↗</a>
+</aside>
+
+<style>
+  .pvn {
+    position: fixed; z-index: 200;
+    left: 14px; bottom: 14px; width: 226px;
+    padding: 12px 14px 11px;
+    background: rgba(6, 6, 5, 0.94);
+    border: 1px solid var(--rule);
+    backdrop-filter: blur(8px);
+  }
+  .pvn__tag { font-size: 10px; letter-spacing: var(--track-mono); color: var(--accent); }
+  .pvn__name { margin-top: 5px; font-size: 14px; color: var(--bone); line-height: 1.15; }
+  .pvn__idea { margin-top: 4px; font-size: 11px; line-height: 1.4; color: var(--dim); }
+  .pvn__nav { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 9px; padding-top: 8px; border-top: 1px solid var(--rule); }
+  .pvn__nav a { font-size: 10px; letter-spacing: 0.06em; color: var(--dim); text-decoration: none; }
+  .pvn__nav a:hover { color: var(--bone); }
+  .pvn__nav a.is-here { color: var(--accent); }
+  .pvn__back { display: inline-block; margin-top: 8px; font-size: 10px; color: var(--muted); text-decoration: none; }
+  .pvn__back:hover { color: var(--bone); }
+  @media (max-width: 700px) { .pvn { display: none; } }
+</style>

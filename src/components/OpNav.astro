@@ -1,0 +1,301 @@
+---
+/**
+ * The top menu, on the one-page home AND on every work page.
+ *
+ * It began as preview-only furniture for the one-page drafts; it is now the
+ * site's menu. The work pages mount the same component with base="/" so its
+ * four anchors point back at the home page's sections instead of at ids that
+ * do not exist beside them — see the note on `base` below.
+ *
+ * The top menu and the story rail.
+ *
+ * The menu keeps RunHead's voice exactly — display face, weight 500, -0.02em,
+ * mix-blend-mode: difference, and the letter roll on hover — because on a
+ * single page the menu is the only piece of furniture that persists, and it
+ * has to read as the same site. What changes is what it points at: four
+ * anchors on one page instead of four addresses.
+ *
+ * THERE IS NO SEPARATE PROGRESS RAIL. An earlier version of this drew its own
+ * marks down the left margin; /about already has `.gauge` in exactly that
+ * position doing exactly that job, so the invented one was removed rather
+ * than sat beside it. The Register page's own furniture is the furniture.
+ *
+ * MARKED BY POSITION, NOT BY OBSERVER. IntersectionObserver reports crossings,
+ * not "which section am I in", and with a pinned section several screens tall
+ * it fires once and then says nothing for the next four thousand pixels. The
+ * rail reads scroll position against each section's own box every frame
+ * instead, so it is right at every point rather than only at the edges.
+ */
+interface Props {
+  /** Unused by this treatment; kept optional so preview drafts can still pass it. */
+  theme?: string;
+  /** Which button treatment to draw. */
+  variant?: 'weight' | 'bracket' | 'lift';
+  /**
+   * What the four anchors hang off. Empty on the one-page home, where the
+   * sections are on the page and "#works" is the whole address. Work pages
+   * pass "/" so the same four items read "/#works" and send the visitor home
+   * to the right place — a bare "#works" on a work page is a link to nowhere,
+   * which is why work pages had no menu at all until now.
+   */
+  base?: string;
+}
+const { variant = 'weight', base = '' } = Astro.props;
+
+/* NAV, FIFTH SET — for the Aperture XXXI–XXXIII drafts.
+   Pass variant="weight" | "bracket" | "lift".
+
+   RESTRAINT, AFTER FIFTEEN. The sets before this one kept adding apparatus —
+   irises, cue dots, faders, staves, film gates. These three each change
+   exactly ONE property and nothing else: the weight of the type, whether it
+   is bracketed, how high it sits. No colour change, no marks, no second
+   element. The whole design is in choosing which single property carries the
+   state, and in doing that one thing properly.
+
+   The first set took a reading (timecode), an optic (focus) and a shape
+   (iris). This one goes after three things the web almost never does:
+   movement that does not ease, type that is the wrong shape on purpose, and
+   an instrument that reports where you are inside a section rather than
+   which section you are in.
+
+   Three different mechanics rather than three coats of paint: one is data
+   (a running timecode), one is optics (rack focus), one is geometry (an
+   iris). Nothing here is a picture of a film thing — no clapperboard, no
+   sprockets — because a drawing of a camera part is costume. These are what
+   the equipment DOES.
+
+   mix-blend-mode: difference is DROPPED here. The original needs it because a
+   nav floating over photographs has to stay legible whatever is behind it —
+   but in the Aperture drafts the mat fills the top 11vh with solid ground, and
+   measured at five scroll positions the nav's bottom sits at 56px while the
+   mat's opening starts at 79px. It is never over an image. Difference blending
+   would also make the accent unusable: differenced against a light backdrop
+   (232,93,44) comes out (32,107,156), a blue. Dropping it is what lets these
+   three use colour at all.
+
+   PREVIOUSLY: a copy of _pv-op-Nav for Aperture XV only. The original is used by
+   64 drafts and is left alone; this differs only in the four entries below.
+
+   ABOUT NOW POINTS AT "WHO I AM", not at the opening. The opening keeps its
+   own entry under the name — which is what the jcsuzanne reference does with
+   "JC" — so About can mean what a visitor expects it to mean. The anchor ids
+   moved with it: the opening is #top and Who I am is #about. */
+const SECTIONS = [
+  { id: 'top', n: '01', label: 'Ugam Khetani' },
+  { id: 'works', n: '02', label: 'Works' },
+  { id: 'about', n: '03', label: 'About' },
+  { id: 'contact', n: '04', label: 'Contact' },
+];
+---
+
+<header class="opnav" data-opnav data-variant={variant}>
+  <nav class="opnav__nav" aria-label="Sections">
+    {
+      SECTIONS.map((s) => {
+        /* THE SPACE HAS TO BE A NON-BREAKING ONE. Each character is set in
+           its own inline-block for the roll, and a plain space that is the
+           only content of an inline-block is both leading and trailing
+           whitespace, so it collapses to nothing — a two-word label would set
+           as one word. U+00A0 does not collapse. The visible text is the only
+           thing affected: aria-label above carries the real label with a real
+           space, so a screen reader still reads two words. */
+        const chars = s.label.split('').map((c) => (c === ' ' ? '\u00A0' : c));
+        return (
+          <a class="itm" href={`${base}#${s.id}`} data-jump={s.id} aria-label={s.label}>
+            <span class="roll" aria-hidden="true">
+              {chars.map((c) => (<i data-l={c}>{c}</i>))}
+            </span>
+          </a>
+        );
+      })
+    }
+  </nav>
+</header>
+
+
+<style>
+  .opnav {
+    position: fixed; inset: 0 0 auto 0; z-index: 140;
+    padding: 20px var(--margin);
+    pointer-events: none;
+  }
+  .opnav__nav {
+    position: relative;
+    display: flex; justify-content: space-between; align-items: baseline;
+    gap: var(--s-2);
+  }
+  .opnav__nav > * { pointer-events: auto; }
+
+  .itm {
+    position: relative;
+    display: inline-flex; align-items: baseline;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(11px, 1.1vw, 14px);
+    letter-spacing: -0.02em; line-height: 1.1;
+    color: var(--bone); text-decoration: none;
+    white-space: nowrap; cursor: pointer;
+  }
+  .itm:focus-visible { outline: 1px solid var(--accent); outline-offset: 5px; }
+
+  .roll { display: inline-block; overflow: hidden; height: 1.15em; line-height: 1.15em; vertical-align: bottom; }
+  .roll i { display: inline-block; position: relative; font-style: normal; transition: transform 0.55s var(--ease); }
+  .roll i::before { content: attr(data-l); position: absolute; top: 100%; left: 0; }
+  .itm:hover .roll i, .itm:focus-visible .roll i { transform: translateY(-100%); }
+
+  /* ══ WEIGHT ═══════════════════════════════════════════════════════
+     THE ONLY THING THAT CHANGES IS THE WEIGHT. Same colour, same size, same
+     position, same everything — the current item is simply heavier, and the
+     weight travels up the axis rather than switching.
+
+     SET IN INTER, DELIBERATELY. --display is 'Neue Haas Grotesk Display',
+     which is not among the faces this project loads — only Fraunces, Inter
+     and JetBrains Mono are @font-face'd — so it resolves to whatever Helvetica
+     the machine has, and a fallback has discrete weights: regular, then bold,
+     with nothing in between. Animating weight there is a jump, not a move.
+     Inter Variable is genuinely loaded and genuinely variable, so the axis is
+     real and 350 to 680 is a glide. A weight menu set in a face without a
+     weight axis is just a bold menu. */
+  .opnav[data-variant="weight"] .itm {
+    font-family: 'Inter Variable', system-ui, sans-serif;
+    font-variation-settings: 'wght' 350;
+    color: var(--bone-dim);
+    transition: font-variation-settings 0.42s var(--ease), color 0.42s var(--ease);
+  }
+  .opnav[data-variant="weight"] .itm.is-current,
+  .opnav[data-variant="weight"] .itm:hover,
+  .opnav[data-variant="weight"] .itm:focus-visible {
+    font-variation-settings: 'wght' 680;
+    color: var(--bone);
+  }
+
+  /* ══ BRACKET ══════════════════════════════════════════════════════
+     THE PARENTHESES BECOME THE STATE. This menu has worn brackets round every
+     item since the first draft — (About) (Works) (Philosophy) (Contact) —
+     where they were pure decoration, applied to everything and therefore
+     saying nothing. Here only the current item is bracketed. The mark the
+     page already owned turns into the only piece of information it needs.
+
+     THE SPACE IS RESERVED WHETHER THEY SHOW OR NOT. Brackets that appear and
+     disappear would push every neighbour sideways on each section change —
+     a menu that twitches as you scroll. They fade in on ground that was
+     always held for them, so nothing moves. */
+  .opnav[data-variant="bracket"] .itm { color: var(--bone-dim); transition: color 0.3s var(--ease); }
+  .opnav[data-variant="bracket"] .itm.is-current { color: var(--bone); }
+  .opnav[data-variant="bracket"] .roll::before,
+  .opnav[data-variant="bracket"] .roll::after {
+    display: inline-block;
+    opacity: 0; transition: opacity 0.28s var(--ease);
+  }
+  .opnav[data-variant="bracket"] .roll::before { content: '('; margin-right: 0.12em; }
+  .opnav[data-variant="bracket"] .roll::after { content: ')'; margin-left: 0.12em; }
+  .opnav[data-variant="bracket"] .itm.is-current .roll::before,
+  .opnav[data-variant="bracket"] .itm.is-current .roll::after,
+  .opnav[data-variant="bracket"] .itm:hover .roll::before,
+  .opnav[data-variant="bracket"] .itm:hover .roll::after { opacity: 1; }
+
+  /* ══ LIFT ═════════════════════════════════════════════════════════
+     ONE HAIRLINE, AND THE CURRENT ITEM STANDS OFF IT. Everything rests on a
+     rule that runs the width of the bar; the item you are in is lifted four
+     pixels clear of it. Position is the whole signal — no colour, no mark, no
+     size change.
+
+     It works because the rule gives the eye something to measure against. The
+     same four pixels without it would read as a mistake; with it they read as
+     a state, which is the difference between displacement and alignment. */
+  .opnav[data-variant="lift"] .opnav__nav { align-items: flex-end; padding-bottom: 9px; }
+  .opnav[data-variant="lift"] .opnav__nav::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: 0;
+    height: 1px; background: var(--rule);
+  }
+  .opnav[data-variant="lift"] .itm {
+    color: var(--bone-dim);
+    transform: translateY(0);
+    transition: transform 0.34s var(--ease), color 0.34s var(--ease);
+  }
+  .opnav[data-variant="lift"] .itm.is-current,
+  .opnav[data-variant="lift"] .itm:hover,
+  .opnav[data-variant="lift"] .itm:focus-visible {
+    transform: translateY(-4px);
+    color: var(--bone);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .roll i, .itm, .roll::before, .roll::after { transition: none !important; }
+  }
+</style>
+
+<script>
+  function initOpNav() {
+    const nav = document.querySelector('[data-opnav]') as HTMLElement | null;
+    if (!nav || nav.dataset.bound) return;
+    nav.dataset.bound = '1';
+
+    const items = Array.from(nav.querySelectorAll('[data-jump]')) as HTMLElement[];
+    const ids = items.map((a) => a.dataset.jump!);
+    const sections = ids.map((id) => document.getElementById(id));
+
+    /* Anchors are handled by hand rather than left to the browser. The site
+       runs Lenis, and a native hash jump lands instantly while Lenis is still
+       easing, so the page arrives twice. One smooth scroll, one arrival.
+
+       THE EARLY RETURN IS LOAD-BEARING ON WORK PAGES. None of the four ids
+       exist there, so nothing is prevented and the browser follows the real
+       href — "/#works" — which is exactly the wanted behaviour: leave the
+       work, land on the home page at that section. */
+    items.forEach((a) => {
+      a.addEventListener('click', (e) => {
+        const el = document.getElementById(a.dataset.jump!);
+        if (!el) return;
+        e.preventDefault();
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        history.replaceState(null, '', `#${a.dataset.jump}`);
+      });
+    });
+
+    /* NO SPY WHERE THERE IS NOTHING TO SPY ON. On a work page every lookup
+       above returns null, and the loop below would then leave `now` at its
+       initial 0 and mark the FIRST item current on every page — the menu would
+       claim you were in the opening of a page that has no opening. Where none
+       of the sections are present the menu is a set of links and nothing more,
+       so the scroll work is skipped entirely rather than run to no effect. */
+    if (!sections.some(Boolean)) return;
+
+    let raf = 0;
+    let last = -1;
+    const paint = () => {
+      raf = 0;
+      const y = scrollY + innerHeight * 0.35;
+
+      /* Which section the reading line is inside — measured against each
+         section's own box. An IntersectionObserver reports crossings, and a
+         pinned works section several screens tall would fire once and then
+         say nothing for thousands of pixels. */
+      let now = 0;
+      for (let i = 0; i < sections.length; i++) {
+        const s = sections[i];
+        if (!s) continue;
+        const top = s.offsetTop;
+        if (y >= top) now = i;
+      }
+
+      /* Progress runs every paint — it is continuous, not per-section. */
+      const span = document.documentElement.scrollHeight - innerHeight;
+      nav.style.setProperty('--nav-prog',
+        span > 0 ? String(Math.min(1, Math.max(0, scrollY / span))) : '0');
+
+
+      if (now === last) return;
+      last = now;
+      items.forEach((a, i) => a.classList.toggle('is-current', i === now));
+
+    };
+
+    addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(paint); }, { passive: true });
+    addEventListener('resize', () => { if (!raf) raf = requestAnimationFrame(paint); }, { passive: true });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(paint);
+    paint();
+  }
+
+  initOpNav();
+  document.addEventListener('astro:page-load', initOpNav);
+</script>

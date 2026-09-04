@@ -1,0 +1,1505 @@
+---
+/**
+ * PREVIEW — ONE PAGE · VARIATION XXIV "Ticket"
+ * Kept, not throwaway. Do not delete without asking.
+ *
+ * THE STYLE: every movement is a document.
+ *
+ * THE REFERENCE — cosmos_770642330.mp4, gone through frame by frame with
+ * AVFoundation, screen cropped at 992x562 so the numbers are read off pixels.
+ *
+ *   0.0s  Headline positive, centred, flanked by micro-data at both edges.
+ *   1.9s  A paragraph with an underlined italic name, a bold italic studio
+ *         name and boxed glyphs run through the middle of a plain sentence.
+ *   3.2s  A section placard: one giant word, "SOME / SELECTED" hard against
+ *         its left, "WEB DESIGN / UI AND UX" against its right.
+ *   3.45s The ground changes — a dark edge at 34% of the frame, rising.
+ *   4.6s  That same panel is now an inset card, 548 of 992px, the type inside
+ *         unchanged in size. The panel shrank; the type did not.
+ *   4.6s  Props scattered around it: a ticket stub with a barcode, a sachet,
+ *         a circular badge with its text set on the curve.
+ *   7.0s  The closing: the opening headline returns, inverted.
+ *
+ * ONE CLOCK. A single scroll pass writes --e (entry), --x (exit) and --p
+ * (through) onto every movement including the opening, and the style reads
+ * whichever it needs. One pass, one set of numbers, so no two transitions can
+ * drift apart.
+ *
+ * THE PALETTE IS NOT TAKEN. The reference is black on cream; the register
+ * stays as it is.
+ *
+ * THE COMMITMENT. Perforated rule above and below, a stub down the left
+ * carrying the number, the name, the folio and a seal, and the body to the
+ * right of a torn edge. The reference has these as scattered props — a stub
+ * with a barcode, a sachet, a badge with its text on a curve. Here the whole
+ * page is made of them, which is the difference between borrowing a motif and
+ * committing to one. Even the lists rule with dashes rather than solids.
+ *
+ * THE PERFORATION is a repeating gradient at 5px on, 6px off, at the
+ * register's own hairline weight. A dotted border was tried and read as a
+ * table rule; the gradient reads as a tear line.
+ *
+ * THE MOTION. The seal turns 240 degrees as its movement traverses the window,
+ * off --p rather than --e or --x so it moves the whole time the section is
+ * anywhere near the frame rather than only as it arrives, and the perforations
+ * come up from 40% as the document reaches the middle.
+ *
+ * ── COMMITTED ───────────────────────────────────────────────────────
+ *
+ * Nothing on this page is a .sec. The register's twelve-column section grid is
+ * deliberately unused, because a style you commit to has to own its layout
+ * rather than sit inside someone else's — every movement is a .mvt and every
+ * movement is built the same way, opening and enquiry included.
+ *
+ * The works keep the folded conveyor: constant 10vh edge-to-edge spacing down
+ * the straight middle, the chain turning away at either end and coming back
+ * small and dim behind the near ones. Its placard rides OVER the pin rather
+ * than above it, so the section's height is left exactly as the fold needs it.
+ *
+ * THE REAL SITE IS UNTOUCHED.
+ */
+import Base from '../../layouts/Base.astro';
+import OpNav from '../../components/_pv-op-Nav.astro';
+import Still from '../../components/Still.astro';
+import ContactForm from '../../components/ContactForm.astro';
+import { HERO, PORTRAIT, WHO, PROCESS, ACROSS, CLOSING } from '../../data/about';
+import { EMAIL, PHONE, WHATSAPP } from '../../data/contact';
+import { composition, numberFor, total, RATIO_NUM } from '../../data/composition';
+import { getCollection } from 'astro:content';
+
+const works = await getCollection('works');
+const bySlug = new Map(works.map((w) => [w.id, w]));
+
+const wordsOf = (s: string) => s.split(' ');
+const cut = (s: string): [string, string] => {
+  const i = s.indexOf(',');
+  return i < 0 ? [s, ''] : [s.slice(0, i + 1), s.slice(i + 1).trim()];
+};
+const [whoSans, whoSerif] = cut(WHO.head);
+const LEDGER = Array.from({ length: 12 }, (_, i) => i);
+const clauses = (l: string) => l.split(/(?<=\?)\s+/).filter(Boolean);
+const asks = (c: string) => c.trim().endsWith('?');
+
+/* The name, taken from the eyebrow rather than retyped. */
+const NAME = HERO.eyebrow.split('·')[0].trim();
+const NAME_PARTS = NAME.split(' ');
+
+/* The catalogue's real year range, for the corner labels — read off the
+   collection so it can never drift from the works themselves. */
+const YEARS = [...new Set(works.map((w) => w.data.year))].sort();
+const RANGE = `${YEARS[0]} — ${YEARS[YEARS.length - 1]}`;
+
+/* The sentence, read out of HERO.statement rather than retyped so it cannot
+   drift from the About page, with the accent riding on the word it belongs to.
+   The two source lines join with a space BETWEEN them and none INSIDE, which
+   turns "film" + ", brand & sound." into one clause rather than two fragments
+   with a gap before the comma. */
+type Word = { w: string; accent: boolean };
+const STMT_TEXT = HERO.statement.map((l) => l.map((p) => p.t).join('')).join(' ');
+const ACCENT_WORD = (HERO.statement.flat().find((p) => p.accent)?.t ?? '').toLowerCase();
+const STMT_WORDS: Word[] = STMT_TEXT.split(' ').filter(Boolean).map((w) => ({
+  w, accent: !!ACCENT_WORD && w.toLowerCase().replace(/[^a-z&]/g, '') === ACCENT_WORD,
+}));
+const fill = (words: Word[], max: number): Word[][] => {
+  const out: Word[][] = [];
+  let line: Word[] = []; let len = 0;
+  for (const it of words) {
+    const add = line.length ? it.w.length + 1 : it.w.length;
+    if (line.length && len + add > max) { out.push(line); line = [it]; len = it.w.length; }
+    else { line.push(it); len += add; }
+  }
+  if (line.length) out.push(line);
+  return out;
+};
+const STMT_PAIR = fill(STMT_WORDS, 22);
+
+const R = 900;
+const STEP = 0.5;
+let wi = 0;
+const wnodes: { w: any; i: number; no: string; x: number }[] = [];
+for (const stanza of composition) {
+  for (const p of stanza.items) {
+    const w = bySlug.get(p.slug)!;
+    wnodes.push({
+      w, i: wi, no: numberFor(w.id),
+      /* Which side this work drifts to once it has gone behind. Taken from
+         its column in the score, as the original Conveyor did, so the same
+         work always passes on the same side rather than being scattered. */
+      x: +((((p.col - 1) + p.span / 2 - 6) / 6)).toFixed(3),
+    });
+    wi++;
+  }
+}
+---
+
+<Base
+  title="One page XXIV — Ticket — Ugam Khetani"
+  description="Preview only. The whole site as one scroll — the title card, the works, who, across, how, and the enquiry."
+>
+  <OpNav theme="Variation XXIV · Ticket" />
+
+  <div class="rg" data-rg>
+    <div class="gauge" aria-hidden="true"><span class="gauge__in" data-progress></span></div>
+
+    <div class="rh" data-runhead aria-hidden="true">
+      <span class="mono rh__name">{NAME}</span>
+      <span class="mono rh__sep">&mdash;</span>
+      <span class="mono rh__mv" data-rh-mv>Selected works</span>
+      <span class="mono rh__folio" data-rh-folio>01/05</span>
+    </div>
+
+    <header class="ov ov--tk" id="about">
+      <div class="tk__perf" aria-hidden="true"></div>
+      <div class="tk__row">
+        <div class="tk__stub">
+          <span class="mono tk__n">00</span>
+          <h2 class="mono tk__t">Opening</h2>
+          <span class="mono tk__folio">00/05</span>
+          <span class="tk__badge" aria-hidden="true">
+            <svg viewBox="0 0 100 100">
+              <defs><path id="bp-00" d="M50,50 m-36,0 a36,36 0 1,1 72,0 a36,36 0 1,1 -72,0" /></defs>
+              <text><textPath href="#bp-00">UGAM KHETANI &#183; COMPOSER &#183; </textPath></text>
+            </svg>
+          </span>
+        </div>
+
+        <div class="tk__body">
+          <p class="tk__name">
+            {NAME_PARTS.map((part, i) => (
+              <span class="line tk__w" data-reveal style={`--i:${i + 1}`}>
+                <span class="line__in">{part}</span>
+              </span>
+            ))}
+          </p>
+          <h1 class="tk__cap">
+            {STMT_PAIR.map((ln, i) => (
+              <span class="line" data-reveal style={`--i:${i + 3}`}>
+                <span class="line__in">
+                  {ln.map((word, k) => (
+                    <Fragment>
+                      {k > 0 ? ' ' : ''}
+                      {word.accent ? <em class="hot serif">{word.w}</em> : word.w}
+                    </Fragment>
+                  ))}
+                </span>
+              </span>
+            ))}
+          </h1>
+          <div class="tk__edge" data-reveal style="--i:5">
+            <span class="mono">{total} works</span>
+            <span class="mono">{HERO.place[0]}</span>
+            <span class="mono">{RANGE}</span>
+            <span class="mono ov__cue">Scroll &darr;</span>
+          </div>
+        </div>
+      </div>
+      <div class="tk__perf" aria-hidden="true"></div>
+    </header>
+
+    <section class="mvt mvt--tk sec--works" id="works" aria-labelledby="r-works" data-mv="0" style={`--count:${wnodes.length}`}>
+      <div class="tk__stub tk__stub--over">
+        <span class="mono tk__n">01</span>
+        <h2 class="mono tk__t" id="r-works">Selected works</h2>
+        <span class="mono tk__folio">01/05</span>
+        <span class="tk__badge" aria-hidden="true">
+            <svg viewBox="0 0 100 100">
+              <defs><path id="bp-01" d="M50,50 m-36,0 a36,36 0 1,1 72,0 a36,36 0 1,1 -72,0" /></defs>
+              <text><textPath href="#bp-01">UGAM KHETANI &#183; MOVEMENT 01 &#183; </textPath></text>
+            </svg>
+          </span>
+      </div>
+
+      <div class="wk" data-works-conveyor style={`--r:${R};--step:${STEP}`}>
+        <div class="wk__pin">
+          <div class="wk__scene" data-scene>
+            <div class="wk__world">
+              {wnodes.map((n) => (
+                <div class="wcard" data-card data-no={n.no} data-title={n.w.data.title}
+                  style={`--arn:${RATIO_NUM[n.w.data.ratio]};--cx0:${n.x}`}>
+                  <Still
+                    slug={n.w.id} title={n.w.data.title} year={n.w.data.year}
+                    category={n.w.data.category} ratio={n.w.data.ratio}
+                    frames={n.w.data.frames} alt={n.w.data.alt}
+                    sizes="46vw" eager={n.i < 3} max={2}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <p class="mono wk__read">
+            <span class="wk__no" data-w-no>{wnodes[0].no}</span>
+            <span class="wk__of">/ {String(total).padStart(3, '0')}</span>
+            <span class="wk__title" data-w-title>{wnodes[0].w.data.title}</span>
+            <span class="wk__folio">01/05</span>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="mvt mvt--tk" aria-labelledby="r-who" data-mv="1">
+      <div class="tk__stub">
+        <span class="mono tk__n">02</span>
+        <h2 class="mono tk__t" id="r-who">Who I am</h2>
+        <span class="mono tk__folio">02/05</span>
+        <span class="tk__badge" aria-hidden="true">
+            <svg viewBox="0 0 100 100">
+              <defs><path id="bp-02" d="M50,50 m-36,0 a36,36 0 1,1 72,0 a36,36 0 1,1 -72,0" /></defs>
+              <text><textPath href="#bp-02">UGAM KHETANI &#183; MOVEMENT 02 &#183; </textPath></text>
+            </svg>
+          </span>
+      </div>
+
+      <div class="tk__body">
+      <h3 class="s__stmt">
+        <span class="line" data-reveal><span class="line__in">{whoSans}</span></span>
+        {whoSerif && (
+          <em class="s__mark serif">
+            <span class="line" data-reveal style="--i:1"><span class="line__in">{whoSerif}</span></span>
+          </em>
+        )}
+      </h3>
+
+      <div class="s__body">
+        {WHO.body.map((p, i) => (
+          <div class="s__p read" data-read style={`--s:${i}`}>
+            <p>{wordsOf(p).map((w) => <span class="w">{w + ' '}</span>)}</p>
+          </div>
+        ))}
+      </div>
+      </div>
+    </section>
+
+    <section class="mvt mvt--tk" aria-labelledby="r-across" data-mv="2">
+      <div class="tk__stub">
+        <span class="mono tk__n">03</span>
+        <h2 class="mono tk__t" id="r-across">What I work across</h2>
+        <span class="mono tk__folio">03/05</span>
+        <span class="tk__badge" aria-hidden="true">
+            <svg viewBox="0 0 100 100">
+              <defs><path id="bp-03" d="M50,50 m-36,0 a36,36 0 1,1 72,0 a36,36 0 1,1 -72,0" /></defs>
+              <text><textPath href="#bp-03">UGAM KHETANI &#183; MOVEMENT 03 &#183; </textPath></text>
+            </svg>
+          </span>
+      </div>
+
+      <div class="tk__body">
+      <h3 class="s__stmt">
+        <span class="line" data-reveal><span class="line__in">{ACROSS.head[0]}</span></span>
+        <em class="s__mark serif">
+          <span class="line" data-reveal style="--i:1"><span class="line__in">{ACROSS.head[1]}</span></span>
+        </em>
+      </h3>
+
+      <div class="s__lede read" data-read>
+        <p>{wordsOf(ACROSS.lede).map((w) => <span class="w">{w + ' '}</span>)}</p>
+      </div>
+
+      <div class="s__cols">
+        {ACROSS.columns.map((c, ci) => (
+          <div class="s__col" data-reveal style={`--i:${ci}`}>
+            <h4 class="mono s__collab">{c.label}</h4>
+            <ul>
+              {c.items.map((it, i) => (
+                <li><span class="mono s__coln">{String(i + 1).padStart(2, '0')}</span>{it}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+      </div>
+    </section>
+
+    <section class="mvt mvt--tk" id="philosophy" aria-labelledby="r-how" data-mv="3">
+      <div class="tk__stub">
+        <span class="mono tk__n">04</span>
+        <h2 class="mono tk__t" id="r-how">How I work</h2>
+        <span class="mono tk__folio">04/05</span>
+        <span class="tk__badge" aria-hidden="true">
+            <svg viewBox="0 0 100 100">
+              <defs><path id="bp-04" d="M50,50 m-36,0 a36,36 0 1,1 72,0 a36,36 0 1,1 -72,0" /></defs>
+              <text><textPath href="#bp-04">UGAM KHETANI &#183; MOVEMENT 04 &#183; </textPath></text>
+            </svg>
+          </span>
+      </div>
+
+      <div class="tk__body">
+      <ol class="s__steps">
+        {PROCESS.map((s) => (
+          <li class="s__step">
+            <hr class="draw" data-reveal />
+            <span class="mono s__stepn">{s.n}</span>
+            <h3 class="s__steptitle" data-reveal>{s.title}</h3>
+            <div class="s__steplines read" data-read>
+              {s.lines.flatMap((l) => clauses(l)).map((c) => (
+                <p class={asks(c) ? 'asks serif' : undefined}>
+                  {wordsOf(c).map((w) => <span class="w">{w + ' '}</span>)}
+                </p>
+              ))}
+            </div>
+          </li>
+        ))}
+      </ol>
+      </div>
+    </section>
+
+    <section class="mvt mvt--tk mvt--close" id="contact" aria-labelledby="r-close" data-mv="4">
+      <div class="tk__stub">
+        <span class="mono tk__n">05</span>
+        <h2 class="mono tk__t" id="r-close">Closing</h2>
+        <span class="mono tk__folio">05/05</span>
+        <span class="tk__badge" aria-hidden="true">
+            <svg viewBox="0 0 100 100">
+              <defs><path id="bp-05" d="M50,50 m-36,0 a36,36 0 1,1 72,0 a36,36 0 1,1 -72,0" /></defs>
+              <text><textPath href="#bp-05">UGAM KHETANI &#183; MOVEMENT 05 &#183; </textPath></text>
+            </svg>
+          </span>
+      </div>
+
+      <div class="tk__body">
+      <h3 class="s__stmt s__stmt--serif serif">
+        {wordsOf(CLOSING.head).map((w, i) => (
+          <span class="line" data-reveal style={`--i:${i}`}><span class="line__in">{w}&nbsp;</span></span>
+        ))}
+      </h3>
+
+      <div class="s__lede read" data-read>
+        <p>{wordsOf(CLOSING.body).map((w) => <span class="w">{w + ' '}</span>)}</p>
+      </div>
+
+      <ul class="s__links" data-reveal>
+        <li><span class="mono mono--dim">Email</span> <a href={`mailto:${EMAIL}?subject=${encodeURIComponent('Project enquiry')}`}>{EMAIL}</a></li>
+        <li><span class="mono mono--dim">WhatsApp</span> <a href={WHATSAPP} target="_blank" rel="noopener">Message</a></li>
+        <li><span class="mono mono--dim">Phone</span> <a href={PHONE.href}>{PHONE.value}</a></li>
+      </ul>
+
+      <div class="s__enq">
+        <ContactForm />
+      </div>
+      </div>
+    </section>
+  </div>
+</Base>
+
+<style is:global>
+  .runhead { display: none !important; }
+</style>
+
+<script>
+  function initRegister() {
+    const page = document.querySelector<HTMLElement>('[data-rg]');
+    if (!page || page.dataset.bound) return;
+    page.dataset.bound = '1';
+
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const bar = page.querySelector<HTMLElement>('[data-progress]');
+
+    type Block = { words: HTMLElement[]; el: HTMLElement; lit: number };
+    const blocks: Block[] = Array.from(page.querySelectorAll<HTMLElement>('[data-read]')).map((el) => ({
+      el, words: Array.from(el.querySelectorAll<HTMLElement>('.w')), lit: 0,
+    }));
+    if (still) for (const b of blocks) { b.words.forEach((w) => w.classList.add('is-lit')); b.lit = b.words.length; }
+
+    let ticking = false;
+    const measure = () => {
+      ticking = false;
+      const vh = innerHeight;
+      const max = document.documentElement.scrollHeight - vh;
+      if (bar) bar.style.transform = `scaleY(${max > 0 ? Math.min(scrollY / max, 1) : 0})`;
+      if (still) return;
+      const line = vh * 0.68;
+      for (const b of blocks) {
+        const r = b.el.getBoundingClientRect();
+        const span = r.height + vh * 0.16;
+        const p = span > 0 ? (line - r.top) / span : 0;
+        const want = Math.max(0, Math.min(b.words.length, Math.ceil(p * b.words.length)));
+        if (want === b.lit) continue;
+        if (want > b.lit) for (let i = b.lit; i < want; i++) b.words[i].classList.add('is-lit');
+        else for (let i = want; i < b.lit; i++) b.words[i].classList.remove('is-lit');
+        b.lit = want;
+      }
+    };
+    const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(measure); } };
+    addEventListener('scroll', onScroll, { passive: true });
+    addEventListener('resize', onScroll, { passive: true });
+    measure();
+
+    /* ── the ledger answers the pointer, as ONE system ────────────
+       Rule i in EVERY ledger sits at the same x: they are all laid out
+       inside the same page padding, on the same twelve columns. Column i
+       is therefore not seven separate hairlines but ONE line running the
+       height of the document, drawn in pieces.
+
+       That is why this is bound once on the page and drives every ledger
+       together. Bound per section — which is how it was — each section
+       ran its own loop, so crossing a seam fired one pointerleave while
+       the next fired pointermove, and the light died and was reborn at
+       every boundary. Nothing was wrong with the drawing; the system was
+       simply cut into pieces that could not see each other.
+
+       Vertical offsets are stored DOCUMENT-relative (rect.top + scrollY).
+       Cached viewport offsets are only correct at scroll position zero,
+       which is exactly why the segment effect used to work in the first
+       movement and nowhere below it.
+
+       Eased, frame-driven, sleeps when settled, real pointers only. */
+    if (fine && !still) {
+      const ruled = matchMedia('(min-width: 901px)');
+      const ledgers = Array.from(page.querySelectorAll<HTMLElement>('.ledger'));
+      const perLedger = ledgers.map((l) => Array.from(l.querySelectorAll<HTMLElement>('i')));
+      const cols = perLedger.length ? perLedger[0].length : 0;
+
+      if (cols) {
+        const groups: HTMLElement[][] = [];
+        for (let i = 0; i < cols; i++) groups.push(perLedger.map((rs) => rs[i]).filter(Boolean));
+
+        let lefts: number[] = [];
+        let tops: number[] = [];
+        let span = 0;
+        const cache = () => {
+          lefts = groups.map((g) => g[0].getBoundingClientRect().left);
+          tops = ledgers.map((l) => l.getBoundingClientRect().top + scrollY);
+          span = lefts.length > 1 ? lefts[1] - lefts[0] : 0;
+        };
+        cache();
+        addEventListener('resize', cache, { passive: true });
+        // Rules move vertically as images settle, so refresh once things load.
+        addEventListener('load', cache);
+
+        const val = new Float32Array(cols);
+        const shown = new Float32Array(cols).fill(-1);
+        let px = -1e5, py = 0, inside = false, raf = 0;
+
+        const frame = () => {
+          raf = 0;
+          let busy = false;
+          const docY = py + scrollY;
+          for (let k = 0; k < ledgers.length; k++) {
+            ledgers[k].style.setProperty('--py', (docY - tops[k]).toFixed(1) + 'px');
+          }
+          for (let i = 0; i < cols; i++) {
+            const d = Math.abs(lefts[i] - px);
+            const t = inside ? Math.max(0, 1 - d / 200) : 0;
+            val[i] += (t * t - val[i]) * 0.2;
+            if (val[i] < 0.002) val[i] = 0;
+            // The delta test alone never writes the last step home: a value
+            // that lands on 0 from 0.002 differs by less than the threshold,
+            // so the DOM kept a stale 0.002 for ever while the state said 0.
+            // Invisible at 1px — 0.0019 of alpha — but the resting state
+            // should be the resting state. Force the final write.
+            if (Math.abs(val[i] - shown[i]) > 0.003 || (val[i] === 0 && shown[i] !== 0)) {
+              for (const el of groups[i]) {
+                el.style.setProperty('--lit', val[i].toFixed(3));
+              }
+              shown[i] = val[i];
+            }
+            if (val[i] > 0) busy = true;
+          }
+          if (inside || busy) raf = requestAnimationFrame(frame);
+        };
+        const kick = () => { if (!raf) raf = requestAnimationFrame(frame); };
+
+        page.addEventListener('pointermove', (e) => {
+          const pe = e as PointerEvent;
+          if (pe.pointerType !== 'mouse' || !ruled.matches) return;
+          px = pe.clientX; py = pe.clientY; inside = true; kick();
+        }, { passive: true });
+        page.addEventListener('pointerleave', () => { inside = false; kick(); });
+      }
+    }
+
+    /* SCOPED — About selects [data-count] meaning "a statistic"; Still puts
+       data-count on every work anchor meaning "how many stills". Unscoped, the
+       counter wrote textContent over sixteen image stacks. */
+    const counters = Array.from(page.querySelectorAll<HTMLElement>('.stat__figure[data-count]'));
+    if (counters.length && !still) {
+      const io = new IntersectionObserver((entries, obs) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          const el = e.target as HTMLElement;
+          obs.unobserve(el);
+          const to = Number(el.dataset.count);
+          const pad = Number(el.dataset.pad ?? 0);
+          const suffix = el.dataset.suffix ?? '';
+          const final = String(to).padStart(pad, '0') + suffix;
+          /* The count is decoration; the figure is information. Belt and
+             braces so the true figure lands whatever the frame loop does. */
+          const settle = setTimeout(() => { el.textContent = final; }, 1500);
+          const t0 = performance.now();
+          const tick = (now: number) => {
+            const p = Math.min((now - t0) / 900, 1);
+            const v = Math.round(to * (1 - Math.pow(1 - p, 3)));
+            el.textContent = p < 1 ? String(v).padStart(pad, '0') + suffix : final;
+            if (p < 1) requestAnimationFrame(tick); else clearTimeout(settle);
+          };
+          requestAnimationFrame(tick);
+        }
+      }, { threshold: 0.6 });
+      counters.forEach((c) => io.observe(c));
+    }
+
+    if (fine && !still) {
+      page.querySelector<HTMLElement>('[data-works]')?.querySelectorAll<HTMLElement>('li').forEach((li) => {
+        const peek = li.querySelector<HTMLElement>('.work__peek');
+        if (!peek) return;
+        const move = (e: PointerEvent) => {
+          const r = li.getBoundingClientRect();
+          peek.style.setProperty('--x', `${e.clientX - r.left}px`);
+          peek.style.setProperty('--y', `${e.clientY - r.top}px`);
+        };
+        li.addEventListener('pointerenter', (e) => { move(e as PointerEvent); li.classList.add('is-peek'); });
+        li.addEventListener('pointermove', move, { passive: true });
+        li.addEventListener('pointerleave', () => li.classList.remove('is-peek'));
+      });
+    }
+  }
+
+  initRegister();
+  document.addEventListener('astro:page-load', initRegister);
+</script>
+
+<script>
+  function initOpWorks() {
+    const sec = document.querySelector('.sec--works') as HTMLElement | null;
+    const wk = document.querySelector('[data-works-conveyor]') as HTMLElement | null;
+    if (!sec || !wk || wk.dataset.bound) return;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!matchMedia('(min-width: 901px)').matches) {
+      if (!wk.dataset.armed) { wk.dataset.armed = '1'; addEventListener('resize', () => initOpWorks(), { passive: true }); }
+      return;
+    }
+    wk.dataset.bound = '1';
+
+    const cards = Array.from(wk.querySelectorAll('[data-card]')) as HTMLElement[];
+    const readout = sec.querySelector('.wk__read') as HTMLElement;
+    const no = sec.querySelector('[data-w-no]') as HTMLElement;
+    const title = sec.querySelector('[data-w-title]') as HTMLElement;
+    if (!cards.length) return;
+
+    sec.classList.add('is-live');
+
+    /* Natural, unscaled heights. offsetHeight is layout height and is blind
+       to transforms, which is exactly what the stack needs — and it is read
+       once here and on resize rather than every frame, because sixteen
+       offsetHeight reads inside a scroll handler is sixteen forced layouts a
+       frame. Read after `is-live` is applied, so the cards are already at
+       their scene width. */
+    let H = cards.map((c) => c.offsetHeight || 300);
+    /* Which side each work drifts to once it is behind, set on the element
+       by the score. Read once — it never changes. */
+    const CX = cards.map((c) => parseFloat(c.style.getPropertyValue('--cx0')) || 0);
+    const remeasure = () => { H = cards.map((c) => c.offsetHeight || 300); };
+    addEventListener('resize', remeasure, { passive: true });
+    addEventListener('load', remeasure);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(remeasure);
+
+    const cs = getComputedStyle(wk);
+    const R = parseFloat(cs.getPropertyValue('--r')) || 900;
+    const STEP = parseFloat(cs.getPropertyValue('--step')) || 0.5;
+
+    /* Not left to lazy loading: the cards sit in a 0x0 world and are culled
+       with visibility:hidden, so the browser never schedules them — measured,
+       five of sixteen never loaded, one of them on screen. */
+    const warm = (i: number) => {
+      const c = cards[i];
+      if (!c || c.dataset.warm) return;
+      c.dataset.warm = '1';
+      c.querySelectorAll('img').forEach((img) => {
+        if (!(img as HTMLImageElement).complete) (img as HTMLImageElement).loading = 'eager';
+      });
+    };
+    const warmAround = (b: number) => { for (let k = -3; k <= 3; k++) warm((b + k + cards.length) % cards.length); };
+    cards.forEach((_, i) => { if (i < 4) warm(i); });
+
+    let raf = 0, last = -1, turn = 0;
+    const paint = () => {
+      raf = 0;
+      const rect = sec.getBoundingClientRect();
+      const run = sec.offsetHeight - innerHeight;
+      const t = run > 0 ? Math.min(1, Math.max(0, -rect.top / run)) : 0;
+      const phase = t * (cards.length - 1);
+
+      /* One pitch for every step. The arc's own R·sin(θ) bunched the works
+         hard at the extremes — measured gaps of 65, 47, 99, 253, 426, 130,
+         105, 10px. Height is linear in the distance from centre now; only
+         the depth still follows the arc. */
+      /* ── CONSTANT EDGE-TO-EDGE SPACING ─────────────────────────
+         The works are different shapes: at the same width a 9:16 stands
+         nearly three times the height of a 2.39:1. A constant CENTRE-to-
+         centre pitch therefore leaves wildly different gaps between the
+         pictures — the tall ones almost touching, the wide ones marooned.
+
+         So the column is STACKED, not stepped. Every work is placed exactly
+         GAP below the bottom edge of the one above it, using rendered
+         heights, so the distance between two pictures is the same number for
+         every pair at every point in the scroll, whatever the two shapes
+         are. That is only possible because the depth is a scale: the height
+         is known before the placement, which a translateZ can never give
+         you, since its foreshortening is applied after layout. The falloff
+         is the same P/(P+z) the perspective was producing, so the depth
+         reads exactly as it did. */
+      const PERSP = 1250;
+      const GAP = innerHeight * 0.10;
+      const n = cards.length;
+
+      const s = new Array(n), hr = new Array(n);
+      for (let i = 0; i < n; i++) {
+        /* The centre bias, and ONLY the centre bias: the work under the eye
+           is the biggest, its neighbours a little smaller. Frozen at 1.4
+           steps because past roughly there the fold below takes over, and
+           two depth curves multiplied together drove the far works down to
+           specks (0.86 x 0.37 is one thing, 0.41 x 0.37 quite another).
+           Freezing also kills the periodicity: 1 - cos() turns back on
+           itself, and since the stack accumulates rendered heights, a wrong
+           height far off screen would shift everything still on it. */
+        const a = Math.min(Math.abs(i - phase), 1.4) * STEP;
+        const z = R * (1 - Math.cos(a));
+        s[i] = PERSP / (PERSP + z);
+        hr[i] = H[i] * s[i];
+      }
+
+      /* Half of mine, the gap, half of yours. */
+      const pos = new Array(n);
+      pos[0] = 0;
+      for (let i = 1; i < n; i++) pos[i] = pos[i - 1] + hr[i - 1] / 2 + GAP + hr[i] / 2;
+
+      /* Slide the whole stack so the work at `phase` sits on the centre
+         line, interpolated between its neighbours so the travel stays
+         continuous instead of snapping from one work to the next. */
+      const k = Math.max(0, Math.min(n - 2, Math.floor(phase)));
+      const f = Math.max(0, Math.min(1, phase - k));
+      const offset = pos[k] + (pos[k + 1] - pos[k]) * f;
+
+      /* == THE FOLD: the depth put back ==========================
+         `pos` above is no longer a screen coordinate. It is arc LENGTH along
+         a path, and the path is a hockey stick: dead straight through the
+         middle of the frame, then curving away from the camera at either
+         end.
+
+         The straight part is what keeps the promise made above. Inside it
+         there is no foreshortening at all, so two consecutive works stay
+         exactly GAP apart whatever their shapes.
+
+         Past U0 the path bends onto a circle of radius FOLD_R. Works swing
+         away, shrink, dim and drift to one side. And because a circle comes
+         back round, so do they: a work four or so along has travelled far
+         enough that it returns into frame, small and low and behind the near
+         ones, and is caught in the gaps between them. That returning chain
+         is what the original Conveyor had and the flat stack lost.
+
+         Straight-then-curved rather than the original's single unbroken arc:
+         the arc bent the near works too, which is exactly what made its gaps
+         come out at 65, 47, 99, 253, 426, 130, 105, 10px. */
+      const U0 = innerHeight * 0.52;
+      /* The radius sets how long the turn is in works, and that is the whole
+         balance. Too tight and the stretch that matters — the last of it,
+         where a work comes back INTO frame — is over in less than one work,
+         so the chain blinks rather than files past. Too wide and the turn
+         runs eight works long, which means nothing comes back at all unless
+         seven works are queued on that side: measured, the frame went empty
+         above the front work and the effect only ever appeared below it.
+         At this radius the turn is about four and a half works, a work
+         returns after three and a half, and both sides stay populated. */
+      const FOLD_R = innerHeight * 0.62;
+      const LATERAL = innerWidth * 0.20;
+
+      let best = 0, bestD = Infinity;
+      for (let i = 0; i < n; i++) {
+        const u = pos[i] - offset;
+        const a = Math.abs(u), sgn = u < 0 ? -1 : 1;
+        const c = cards[i];
+
+        let y = u, sf = 1, dep = 0, cx = 0, gone = false;
+        if (a > U0) {
+          const th = Math.min((a - U0) / FOLD_R, Math.PI);
+          const zf = FOLD_R * (1 - Math.cos(th));
+          sf = PERSP / (PERSP + zf);
+          y = sgn * (U0 + FOLD_R * Math.sin(th)) * sf;
+          dep = th / Math.PI;
+          /* Ramped in over the first part of the turn, so the works you can
+             actually read stay on one vertical line, and held after — a work
+             at the back keeps its side rather than sliding home again. */
+          cx = CX[i] * Math.min(th / 0.8, 1) * LATERAL * sf;
+          gone = th >= Math.PI * 0.985;
+        }
+
+        c.style.setProperty('--ty', `${y.toFixed(1)}px`);
+        c.style.setProperty('--cx', `${cx.toFixed(1)}px`);
+        c.style.setProperty('--s', (s[i] * sf).toFixed(4));
+        c.style.setProperty('--dim', (1 - dep * 0.42).toFixed(3));
+        /* Culled at the far side of the turn, where the chain would double
+           back through itself. */
+        c.style.visibility = gone ? 'hidden' : '';
+
+        const ad = Math.abs(i - phase);
+        if (ad < bestD) { bestD = ad; best = i; }
+      }
+      if (best === last) return;
+      last = best;
+      warmAround(best);
+      cards.forEach((c, i) => { c.style.zIndex = String(100 - Math.abs(i - best)); });
+
+      if (readout) {
+        readout.classList.add('is-turning');
+        clearTimeout(turn);
+        turn = window.setTimeout(() => {
+          no.textContent = cards[best].dataset.no || '';
+          title.textContent = cards[best].dataset.title || '';
+          readout.classList.remove('is-turning');
+        }, 130);
+      }
+    };
+    addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(paint); }, { passive: true });
+    addEventListener('resize', () => { if (!raf) raf = requestAnimationFrame(paint); }, { passive: true });
+    paint();
+  }
+
+  function initRunningHead() {
+    const rh = document.querySelector('[data-runhead]') as HTMLElement | null;
+    if (!rh || rh.dataset.bound) return;
+    rh.dataset.bound = '1';
+    const mv = rh.querySelector('[data-rh-mv]') as HTMLElement;
+    const folio = rh.querySelector('[data-rh-folio]') as HTMLElement;
+    const secs = Array.from(document.querySelectorAll('[data-mv]')) as HTMLElement[];
+    const NAMES = [{n:"01",t:"Selected works"},{n:"02",t:"Who I am"},{n:"03",t:"What I work across"},{n:"04",t:"How I work"},{n:"05",t:"Closing"}];
+    if (!secs.length) return;
+
+    let raf = 0, last = -1, turn = 0;
+    const paint = () => {
+      raf = 0;
+      const line = scrollY + innerHeight * 0.4;
+      let now = -1;
+      for (const s of secs) if (line >= s.offsetTop) now = Number(s.dataset.mv);
+      if (now === last) return;
+      last = now;
+      rh.classList.add('is-turning');
+      clearTimeout(turn);
+      turn = window.setTimeout(() => {
+        if (now < 0) { mv.textContent = ''; folio.textContent = ''; }
+        else { mv.textContent = NAMES[now].t; folio.textContent = NAMES[now].n + '/05'; }
+        rh.classList.remove('is-turning');
+      }, 200);
+    };
+    addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(paint); }, { passive: true });
+    addEventListener('resize', () => { if (!raf) raf = requestAnimationFrame(paint); }, { passive: true });
+    paint();
+  }
+
+  /* The opening's name drifts up more slowly than the page, so the hand-over
+     to the works reads as a camera move rather than a cut. Additive: with no
+     script --drift is unset and the name simply sits where it is laid out. */
+  function initDrift() {
+    const mast = document.querySelector('.ov--mono .ov__mast') as HTMLElement | null;
+    if (!mast || mast.dataset.bound) return;
+    mast.dataset.bound = '1';
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let raf = 0;
+    const paint = () => {
+      raf = 0;
+      const d = Math.min(innerHeight, Math.max(0, scrollY)) * 0.18;
+      mast.style.setProperty('--drift', `${d.toFixed(1)}px`);
+    };
+    addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(paint); }, { passive: true });
+    paint();
+  }
+
+  initOpWorks();
+  initRunningHead();
+  initDrift();
+  document.addEventListener('astro:page-load', () => { initOpWorks(); initRunningHead(); initDrift(); });
+</script>
+
+<style>
+  .rg {
+    --tier-0: clamp(2.75rem, 10vw, 9rem);
+    --tier-1: clamp(2.5rem, 8vw, 7.5rem);
+    --tier-2: clamp(1.75rem, 5vw, 4.25rem);
+    --tier-3: clamp(1.5rem, 2.8vw, 2.5rem);
+    --tier-4: clamp(1.0625rem, 1.35vw, 1.375rem);
+
+    padding-inline: var(--margin);
+    padding-bottom: 20vh;
+  }
+
+  .rg [data-reveal] { --i: 0; }
+  @media (prefers-reduced-motion: no-preference) {
+    .rg [data-reveal].is-in { animation-delay: calc(var(--i) * 70ms); }
+  }
+
+  .line {
+    display: inline-block; overflow: hidden; vertical-align: bottom;
+    padding-bottom: 0.24em; margin-bottom: -0.24em;
+    padding-right: 0.06em; margin-right: -0.06em;
+  }
+  .line__in { display: inline-block; }
+  /* text-indent INHERITS, and every inline-block is a block container that
+     applies it to its own first line. The hanging indent on .stmt below was
+     therefore re-applied inside each masked word, pushing the word out of
+     its own overflow:hidden box — measured: .line boxes collapsed from full
+     word width to 4px, exactly the padding, and the statement rendered as
+     fragments. The hang has to happen once, on the statement, and stop. */
+  .line, .line__in { text-indent: 0; }
+  @media (prefers-reduced-motion: no-preference) {
+    .line[data-reveal].is-in .line__in {
+      animation: line-up 900ms var(--ease) both;
+      animation-delay: calc(var(--i) * 70ms);
+    }
+  }
+  @keyframes line-up { from { transform: translateY(135%); } to { transform: none; } }
+
+  .draw { display: block; height: 1px; border: 0; margin: 0; background: var(--rule); transform-origin: left; }
+  @media (prefers-reduced-motion: no-preference) {
+    .draw[data-reveal].is-in { animation: draw 1000ms var(--ease) both; }
+  }
+  @keyframes draw { from { transform: scaleX(0); } to { transform: none; } }
+
+  .read p { color: var(--bone-dim); margin: 0 0 var(--s-3); }
+  .read p:last-child { margin-bottom: 0; }
+  .w { transition: color var(--d-reveal) var(--ease); }
+  .w.is-lit { color: var(--bone); }
+
+  .gauge {
+    position: fixed; z-index: 120; pointer-events: none;
+    left: calc(var(--margin) * 0.42); width: 1px;
+    top: calc(var(--head-h) + 24px); bottom: 24px;
+    background: var(--rule-soft);
+  }
+  .gauge__in { display: block; width: 100%; height: 100%; background: var(--accent); transform-origin: top; transform: scaleY(0); }
+  @media (max-width: 900px) { .gauge { display: none; } }
+
+  /* ── the ledger ────────────────────────────────────────────────
+     Twelve hairlines on the site's own column boundaries. Decoration,
+     aria-hidden, pointer-events: none — it lies over the whole section
+     and would otherwise take every hit in it. Drawn only above 901px,
+     where --cols is still twelve; below that it would spill into
+     implicit columns, so it is simply not rendered. */
+  .ledger { display: none; }
+  @media (min-width: 901px) {
+    .ledger {
+      position: absolute; inset: 0; z-index: 0; pointer-events: none;
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--gutter);
+    }
+  }
+  /* ── C · THE LIT SEGMENT ───────────────────────────────────────
+     Light localised in BOTH axes: falloff across x chooses which lines
+     answer, a gradient centred on the cursor's own height chooses how
+     much of each one lights. What travels is a short glowing length of
+     line — a lamp held against the grid rather than a switch thrown.
+
+     Each ledger carries its own --py measured from its own document top,
+     so when the cursor sits near a seam the ledger below already has a
+     small negative --py and its share of the glow is drawn too. The
+     segment crosses the boundary instead of stopping at it.
+
+     The line moves to a pseudo-element because a border cannot carry a
+     gradient. It sits at left: 0, exactly where the border was. */
+  .ledger i { display: block; position: relative; transform-origin: top; }
+  .ledger i::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 1px;
+    background:
+      linear-gradient(to bottom,
+        transparent calc(var(--py, -9999px) - 130px),
+        rgba(255, 255, 255, var(--lit, 0)) calc(var(--py, -9999px) - 24px),
+        rgba(255, 255, 255, var(--lit, 0)) calc(var(--py, -9999px) + 24px),
+        transparent calc(var(--py, -9999px) + 130px)),
+      var(--rule-soft);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    /* The base reveal would nudge the whole overlay 14px down; the rules
+       do their own entrance instead. Hidden state lives only here, and
+       the overlay carries no content. */
+    .ledger[data-reveal].is-in { animation: none; }
+    .ledger[data-reveal].is-in i {
+      animation: rule-down 1100ms var(--ease) both;
+      animation-delay: calc(var(--i) * 45ms);
+    }
+  }
+  @keyframes rule-down { from { transform: scaleY(0); } to { transform: none; } }
+
+  /* ── Opening ───────────────────────────────────────────────────── */
+  .open {
+    position: relative;
+    min-height: calc(100vh - var(--head-h));
+    display: flex; flex-direction: column; justify-content: center;
+    padding: clamp(120px, 17vh, 210px) 0 clamp(36px, 6vh, 72px);
+  }
+  .open > :not(.ledger) { position: relative; z-index: 1; }
+  .open__eyebrow { color: var(--muted); font-size: var(--t-xs); margin: 0 0 clamp(28px, 5vh, 60px); }
+  .open__h {
+    font-family: var(--display); font-weight: 500;
+    font-size: var(--tier-1); line-height: 0.98;
+    letter-spacing: -0.045em; margin: 0;
+  }
+  .open__h .line { display: block; }
+  .serif { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spacing: -0.015em; }
+  /* Fraunces sets optically smaller than the grotesk at the same size. */
+  .open__h .serif { font-size: 1.07em; letter-spacing: -0.02em; }
+  .hot { color: var(--accent); }
+
+  .open__foot {
+    display: flex; flex-wrap: wrap; align-items: baseline;
+    justify-content: space-between; gap: var(--s-3);
+    margin-top: clamp(36px, 6vh, 72px);
+    padding-top: 16px; border-top: 1px solid var(--rule);
+  }
+  .tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s-3); }
+  .tags li { font-size: var(--t-xs); color: var(--muted); }
+  .tags li + li::before { content: '·'; color: var(--rule); margin-right: var(--s-3); }
+  .tags--dim li { color: var(--dim); }
+  .open__portrait { max-width: 340px; margin-top: var(--s-4); }
+  .open__portrait img { display: block; width: 100%; height: auto; }
+
+  .cue { display: block; color: var(--dim); font-size: var(--t-md); margin-top: clamp(24px, 4vh, 48px); }
+  @media (prefers-reduced-motion: no-preference) {
+    .cue { animation: cue-drift 2.4s var(--ease) infinite; }
+  }
+  @keyframes cue-drift { 0%, 100% { transform: translateY(0); opacity: 0.5; } 50% { transform: translateY(6px); opacity: 1; } }
+
+  /* ── section grid ──────────────────────────────────────────────
+     Placed child by child. A `> *` blanket compiles with the scoping
+     attribute on both compounds and outranks a single scoped class,
+     silently flattening every placement below it to full width. */
+  .sec {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+    column-gap: var(--gutter);
+    padding-top: clamp(56px, 10vh, 130px);
+    padding-bottom: clamp(56px, 10vh, 130px);
+  }
+  .sec--close { padding-bottom: 0; }
+  .sec > .spine { grid-column: 1 / span 1; z-index: 1; }
+  .sec > .stmt  { grid-column: 2 / -2; z-index: 1; }
+  .sec > .well  { grid-column: 4 / -1; z-index: 1; }
+  .sec > .steps { grid-column: 4 / -1; z-index: 1; }
+
+  /* The spine holds its name at the head and its folio at the foot, the
+     way a book page carries them. */
+  .spine {
+    align-self: stretch;
+    display: flex; flex-direction: column; justify-content: space-between;
+    align-items: flex-start; gap: var(--s-4);
+  }
+  .spine__top { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s-3); }
+  .spine__n { color: var(--accent); font-size: var(--t-xs); font-variant-numeric: tabular-nums; }
+  .spine__folio { color: var(--dim); font-size: var(--t-xs); font-variant-numeric: tabular-nums; }
+  /* vertical-rl reads top-to-bottom; the half turn sends it up the spine. */
+  .spine__t {
+    writing-mode: vertical-rl; transform: rotate(180deg);
+    margin: 0; color: var(--bone); font-size: var(--t-xs); white-space: nowrap;
+  }
+
+  /* ── statements, with the first line hung ──────────────────────
+     The outdent is smaller than the page margin at every width the
+     clamp can reach, so the line can never leave the page. */
+  .stmt {
+    font-family: var(--display); font-weight: 500;
+    font-size: var(--tier-2); line-height: 1.06; letter-spacing: -0.042em;
+    margin: 0 0 clamp(40px, 8vh, 88px);
+    text-indent: clamp(-84px, -5.4vw, 0px);
+  }
+  .stmt__a, .stmt__b { display: inline; }
+  .stmt__b { letter-spacing: -0.02em; }
+  .stmt--stack .stmt__a, .stmt--stack .stmt__b { display: block; }
+  /* Only the first line hangs; the second returns to the measure, which
+     is what makes the indent read as a hang rather than as a shift. */
+  .stmt--stack .stmt__b { text-indent: 0; padding-left: clamp(0px, 5vw, 80px); }
+  .stmt--serif { letter-spacing: -0.018em; line-height: 1.1; max-width: 20ch; }
+
+  .lede { font-size: var(--tier-4); line-height: 1.72; max-width: 46ch; margin: 0 0 clamp(44px, 8vh, 88px); }
+  .well { display: block; }
+  /* ── the stair ─────────────────────────────────────────────────
+     Each paragraph starts one column further right than the last. The
+     well spans section columns 4–12, so its own column 1+i lands on
+     section column 4+i — which is exactly where a ledger hairline is
+     drawn. Measured at 1440: the five paragraphs begin at 409, 516,
+     624, 732 and 839, every one of them a rule position, off by zero.
+     That is the whole point of it. The prose steps down the page ON the
+     structure, which is what turns the ledger from something drawn over
+     the page into something the page is built on.
+
+     The measure is held constant at 44ch and only the start moves, so
+     the fifth paragraph reads no harder than the first. */
+  .stair {
+    display: grid;
+    grid-template-columns: repeat(9, minmax(0, 1fr));
+    column-gap: var(--gutter);
+    row-gap: clamp(20px, 3.4vh, 38px);
+  }
+  .stair__p { grid-column: calc(1 + var(--s)) / -1; }
+  .stair__p p { font-size: var(--tier-4); line-height: 1.82; max-width: 44ch; margin: 0; }
+
+  /* ── 02 · C · THE QUESTIONS ────────────────────────────────────
+     Every clause takes its own line, and the ones that ask take the
+     serif. Movement 01 already uses Fraunces italic for the half of a
+     sentence that turns something over rather than states it; a question
+     is that same move, so it gets the same voice. Three questions were
+     packed into a single line and read as one long sentence — they are
+     three now, and each is legible as a question at a glance.
+
+     Set at 19px, matching movement 01, which is the same kind of writing
+     and was set larger than this section for no reason. */
+  .steps { list-style: none; margin: 0; padding: 0; }
+  .step {
+    display: grid; grid-template-columns: 3rem minmax(0, 4fr) minmax(0, 5fr);
+    column-gap: var(--gutter); align-items: baseline;
+    padding: clamp(24px, 4vh, 46px) 0;
+  }
+  .step .draw { grid-column: 1 / -1; margin-bottom: clamp(24px, 4vh, 46px); }
+  .step__n { color: var(--accent); font-size: var(--t-xs); }
+  .step__title {
+    font-family: var(--display); font-weight: 500;
+    font-size: var(--tier-3); line-height: 1.08; letter-spacing: -0.032em;
+    margin: 0; max-width: 11ch;
+  }
+  .step__lines { font-size: var(--tier-4); line-height: 1.66; max-width: 46ch; }
+  .step__lines p { margin: 0 0 clamp(10px, 1.5vh, 15px); }
+  .step__lines p:last-child { margin-bottom: 0; }
+  .asks {
+    font-family: var(--serif); font-style: italic; font-weight: 400;
+    letter-spacing: -0.012em; font-size: 1.06em;
+    padding-left: clamp(0px, 2vw, 28px);
+  }
+  /* ── the tone band ─────────────────────────────────────────────
+     The margins cancel the page's own padding exactly, so this is the
+     viewport's width and not a pixel more. */
+  .band {
+    margin: clamp(24px, 5vh, 64px) calc(var(--margin) * -1);
+    padding: clamp(72px, 14vh, 180px) var(--margin);
+    background: var(--ground-lift);
+    border-top: 1px solid var(--rule-soft);
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .band__q {
+    font-size: var(--tier-0); line-height: 0.98; letter-spacing: -0.03em;
+    color: var(--bone); margin: 0; max-width: 13ch;
+    padding-left: clamp(0px, 16vw, 240px);
+  }
+  /* The caption was anchored by an accent em dash. It is anchored by an
+     accent rule instead — same job, same colour, no dash. The indent moves
+     to margin-left so padding-left can hold the rule off the text. */
+  .band__cap {
+    display: block; color: var(--dim); font-size: var(--t-xs);
+    margin-top: var(--s-4);
+    margin-left: clamp(0px, 16vw, 240px);
+    padding-left: 12px;
+    border-left: 1px solid var(--accent);
+  }
+
+  /* ── 03 · Movement's grid, as asked ────────────────────────────── */
+  .cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(28px, 4vw, 72px); align-items: start; }
+  .col__lab { color: var(--accent); font-size: var(--t-xs); padding-bottom: 12px; border-bottom: 1px solid var(--rule); margin: 0 0 var(--s-3); }
+  .col ul { list-style: none; margin: 0; padding: 0; }
+  .col li {
+    display: flex; align-items: baseline; gap: 12px;
+    /* 21px at 1440, up from a flat 18px. The floor stays at 18px rather
+       than dropping to 1rem: a clamp that bottoms out at 16px would have
+       made these SMALLER on a phone than they were before, which is not
+       what "slightly bigger" means. */
+    color: var(--bone-dim); font-size: clamp(1.125rem, 1.5vw, 1.3125rem); padding: 10px 0;
+    border-bottom: 1px solid var(--rule-soft);
+    transition: color var(--d-micro) var(--ease), padding-left var(--d-micro) var(--ease);
+  }
+  .col__n { color: transparent; font-size: var(--t-xs); transition: color var(--d-micro) var(--ease); }
+  .col li:hover { color: var(--bone); padding-left: 8px; }
+  .col li:hover .col__n { color: var(--accent); }
+  .col li:last-child { border-bottom: 0; }
+
+  /* ── 04 ────────────────────────────────────────────────────────── */
+  .stats { display: flex; flex-wrap: wrap; gap: clamp(28px, 5vw, 88px); padding-bottom: clamp(48px, 9vh, 104px); }
+  .stat { display: flex; flex-direction: column; gap: 10px; }
+  .stat__figure {
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.75rem, 3.4vw, 2.875rem); letter-spacing: -0.04em; line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat__lab { color: var(--dim); font-size: var(--t-xs); }
+
+  .works { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
+  .works li { position: relative; }
+  .work {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto 2rem;
+    align-items: baseline; gap: var(--s-3);
+    padding: clamp(18px, 2.8vh, 30px) 0; border-bottom: 1px solid var(--rule-soft);
+    color: var(--bone); transition: padding-left var(--d-micro) var(--ease);
+  }
+  .work__title { font-family: var(--display); font-weight: 500; font-size: var(--tier-3); letter-spacing: -0.03em; line-height: 1.1; }
+  .work__role { color: var(--dim); font-size: var(--t-xs); text-align: right; }
+  .work__arrow { color: var(--dim); text-align: right; transition: transform var(--d-micro) var(--ease), color var(--d-micro) var(--ease); }
+  .works li:hover .work { padding-left: 12px; }
+  .works li:hover .work__arrow { color: var(--accent); transform: translateX(0.3em); }
+
+  .work__peek {
+    position: absolute; top: var(--y, 50%); left: var(--x, 50%);
+    width: 320px; margin: -110px 0 0 -160px;
+    pointer-events: none; z-index: 3;
+    opacity: 0; transform: scale(0.96);
+    transition: opacity var(--d-micro) var(--ease), transform var(--d-micro) var(--ease);
+  }
+  .work__peek :global(img) { display: block; width: 100%; height: auto; }
+  .works li.is-peek .work__peek { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) { .work__peek { display: none; } }
+
+  /* ── 05 ────────────────────────────────────────────────────────── */
+  .call { display: block; padding-top: clamp(40px, 7vh, 80px); margin-bottom: clamp(40px, 7vh, 76px); }
+  .call__big {
+    display: block; font-family: var(--display); font-weight: 500;
+    font-size: var(--tier-0); line-height: 0.94; letter-spacing: -0.05em;
+    color: var(--bone); max-width: 13ch;
+    transition: color var(--d-micro) var(--ease);
+  }
+  .call:hover .call__big { color: var(--accent); }
+  .call__tail { display: block; color: var(--dim); font-size: var(--t-xs); margin-top: var(--s-3); }
+
+  .direct { list-style: none; margin: 0; padding: var(--s-4) 0 0; border-top: 1px solid var(--rule); display: flex; flex-wrap: wrap; gap: var(--s-3) var(--s-5); }
+  .direct li { display: flex; align-items: baseline; gap: 10px; }
+  .direct .mono { font-size: var(--t-xs); }
+  .direct a { font-family: var(--display); font-weight: 500; font-size: var(--t-md); letter-spacing: -0.02em; color: var(--bone); transition: color var(--d-micro) var(--ease); }
+  .direct a:hover { color: var(--accent); }
+
+  @media (max-width: 900px) {
+    .sec { grid-template-columns: 1fr; row-gap: var(--s-4); }
+    /* Answering the by-name rules above at equal specificity — a bare class
+       would lose, and `2 / -2` on a one-column grid conjures a phantom. */
+    .sec > .spine, .sec > .stmt, .sec > .well, .sec > .steps { grid-column: 1 / -1; }
+    .spine { flex-direction: row; align-items: baseline; justify-content: flex-start; gap: var(--s-3); }
+    .spine__top { flex-direction: row; align-items: baseline; gap: var(--s-3); }
+    .spine__t { writing-mode: horizontal-tb; transform: none; }
+    .stmt { text-indent: 0; }
+    .stmt--stack .stmt__b { padding-left: 0; }
+    .stair { grid-template-columns: 1fr; }
+    .stair__p { grid-column: 1 / -1; }
+    .step { grid-template-columns: 2.5rem minmax(0, 1fr); row-gap: 12px; }
+    .step__lines { grid-column: 2; }
+    .asks { padding-left: 0; }
+    .cols { grid-template-columns: 1fr; }
+    .band__q { padding-left: 0; }
+    .band__cap { margin-left: 0; }
+  }
+  @media (max-width: 640px) {
+    .work { grid-template-columns: minmax(0, 1fr) 1.5rem; }
+    .work__role { grid-column: 1; text-align: left; }
+  }
+
+  /* The band carries NO ledger, deliberately. It is the one place in the
+     site where the ground changes, and it is left clean so the change of
+     tone is the only thing happening there.
+
+     The cost is stated rather than hidden: the ledger runs the height of
+     the document everywhere else, and this is the one interval where it
+     does not. The pointer's lit segment therefore fades out as it enters
+     the band and returns below it. If that break ever reads as a fault
+     rather than as a rest, the fix is a ledger on the band inset to
+     `0 var(--margin)` and pulled out vertically by the band's own margin,
+     `calc(clamp(24px, 5vh, 64px) * -1)`, which is what used to be here. */
+  .band { position: relative; }
+
+  /* ══ THE OPENING ══════════════════════════════════════════════ */
+  .ov {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    padding-block: clamp(120px, 17vh, 190px) clamp(40px, 7vh, 80px);
+    position: relative;
+  }
+  .ov__mast { display: block; }
+  .ov__word {
+    display: block;
+    font-family: var(--display); font-weight: 500;
+    letter-spacing: -0.045em; line-height: 0.86;
+    color: var(--bone); text-transform: uppercase;
+  }
+  .ov__roles { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; }
+  .ov__roles li {
+    font-size: var(--t-sm); letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--bone-dim);
+  }
+  .ov__stmt {
+    font-family: var(--display); font-weight: 500;
+    letter-spacing: var(--track-tight); line-height: 1.02; color: var(--bone-dim);
+  }
+  .ov__stmt .hot { color: var(--accent); }
+  .ov__place { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 22px; }
+  .ov__place li { font-size: var(--t-xs); letter-spacing: 0.08em; color: var(--dim); }
+  .ov__cue { font-size: var(--t-micro); letter-spacing: var(--track-mono); color: var(--dim); }
+
+  /* ── CORNER LABELS ────────────────────────────────────────────
+     The small print is pinned to the corners of the opening block and the
+     middle is left to the name. Nothing is set between the two scales, which
+     is what makes the jump from 12px to 280px read as deliberate rather than
+     as a heading that got out of hand. */
+  .ov__corner { position: absolute; z-index: 2; }
+  .ov__corner--tl { top: clamp(110px, 15vh, 165px); left: 0; }
+  .ov__corner--tr { top: clamp(110px, 15vh, 165px); right: 0; text-align: right; }
+  .ov__corner--bl { bottom: clamp(34px, 6vh, 66px); left: 0; }
+  .ov__corner--br { bottom: clamp(34px, 6vh, 66px); right: 0; text-align: right; }
+  /* The left corners are stated explicitly because a centred opening sets
+     text-align on the whole block, and the corner labels inherited it — the
+     roles came out ragged, each line centred on the one above instead of
+     stacking off a shared left edge. */
+  .ov__corner--tl, .ov__corner--bl { text-align: left; }
+  .ov__corner p {
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--dim); margin: 0;
+  }
+  .ov__range { color: var(--accent); margin-top: 3px !important; }
+  .ov__corner--tr .ov__place { flex-direction: column; align-items: flex-end; gap: 3px; }
+  .ov__corner--tl .ov__roles { flex-direction: column; gap: 3px; }
+
+  /* ══ RUNNING HEAD ═════════════════════════════════════════════ */
+  .rh {
+    position: fixed; z-index: 100; left: var(--margin); bottom: 24px;
+    display: flex; align-items: baseline; gap: 10px;
+    pointer-events: none; font-variant-numeric: tabular-nums;
+  }
+  .rh__name { font-size: var(--t-micro); letter-spacing: 0.18em; text-transform: uppercase; color: var(--bone-dim); }
+  .rh__sep { font-size: var(--t-micro); color: var(--dim); }
+  .rh__mv, .rh__folio {
+    font-size: var(--t-micro); letter-spacing: 0.14em; color: var(--dim);
+    transition: opacity 320ms var(--ease);
+  }
+  .rh__folio { color: var(--accent); }
+  .rh.is-turning .rh__mv, .rh.is-turning .rh__folio { opacity: 0; }
+  @media (max-width: 900px) { .rh { display: none; } }
+
+  /* ══ 01 · THE WORKS ═══════════════════════════════════════════ */
+  .sec--works { position: relative; margin-inline: calc(var(--margin) * -1); padding-block: 0; }
+  .sec--works.is-live { height: calc(var(--count) * 62vh + 100vh); }
+  .is-live .wk { height: 100%; }
+  .wk__pin {
+    position: sticky; top: 0; height: 100vh; overflow: hidden;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 9%, #000 91%, transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 9%, #000 91%, transparent 100%);
+  }
+  .wk__scene { position: relative; height: 100%; perspective: 1250px; perspective-origin: 50% 50%; }
+
+  .wk__world { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(20px, 3vw, 48px); margin-inline: var(--margin); padding-block: clamp(60px, 12vh, 140px); }
+  .is-live .wk__world {
+    display: block; position: absolute; top: 50%; left: 50%;
+    width: 0; height: 0; margin: 0; padding: 0; transform-style: preserve-3d;
+  }
+  /* Scale, then position, then centre. The depth is a SCALE rather than a
+     translateZ so each work's rendered height is known before it is placed —
+     which is what makes a constant edge-to-edge gap possible at all. The
+     -50% pair resolves against the unscaled box and is applied last, so the
+     card's centre lands on --ty whatever the scale is. */
+  .is-live .wcard {
+    position: absolute;
+    /* Capped on HEIGHT as well as width. Without the third term a 9:16
+       stands 960px in a 900px viewport: it bleeds off the top and bottom
+       of the screen at once, so its gap above and its gap below can never
+       be seen together, and the pin's fade mask eats both ends. The cap is
+       expressed as a width (height x aspect) so it can sit inside the same
+       min(). Landscape works are untouched — 46vw/60vh is smaller for them. */
+    width: min(46vw, 60vh, calc(74vh * var(--arn, 1.7778)));
+    transform: translate(-50%, -50%) translate(var(--cx, 0px), var(--ty, 0px)) scale(var(--s, 1));
+    /* Works that have gone round the back sit in less light. Reading light,
+       not a veil: the floor is 0.58, so a thumbnail behind is still legible
+       as a picture rather than a grey plate. */
+    filter: brightness(var(--dim, 1));
+    will-change: transform;
+  }
+  /* Rounded again: 5.5% of the card's width, the radius measured off the
+     reference. A flat 4px made the pictures read as browser windows. */
+  .is-live .wcard :global(.st__win) {
+    border-radius: 5.5%;
+    box-shadow: 0 40px 90px rgba(0, 0, 0, 0.6);
+  }
+
+  .wk__read {
+    position: absolute; z-index: 5; right: var(--margin); bottom: 30px;
+    display: flex; align-items: baseline; gap: 10px;
+    font-size: var(--t-xs); font-variant-numeric: tabular-nums; pointer-events: none;
+  }
+  .wk__no { color: var(--accent); letter-spacing: 0.14em; }
+  .wk__of { color: var(--dim); font-size: var(--t-micro); }
+  .wk__title {
+    font-family: var(--display); font-weight: 500; font-size: var(--t-md);
+    letter-spacing: -0.02em; color: var(--bone); margin-left: 6px;
+    transition: opacity 260ms var(--ease);
+  }
+  .wk__folio { color: var(--dim); font-size: var(--t-micro); letter-spacing: 0.14em; margin-left: 12px; }
+  .wk__read.is-turning .wk__title { opacity: 0; }
+
+  /* ══ RHYTHM ═══════════════════════════════════════════════════ */
+  .rg .sec { padding-block: clamp(90px, 17vh, 210px); }
+  .sec--bare { position: relative; }
+  .sec > .enq { grid-column: 1 / -1; z-index: 1; margin-top: clamp(50px, 10vh, 120px); }
+  .enq :global(.ct__page) { padding-top: 0; }
+
+  @media (max-width: 900px) {
+    .wk__pin { position: static; height: auto; -webkit-mask-image: none; mask-image: none; }
+    .wk__world { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .ov__corner { position: static; text-align: left !important; margin-bottom: 18px; }
+  }
+
+  /* ── THE COMMON RHYTHM ────────────────────────────────────────────
+     Every movement on the page is a .mvt and nothing on the page is a .sec —
+     the register's twelve-column section grid is deliberately not used here,
+     because a style you commit to has to own its own layout rather than sit
+     inside someone else's. Sections bleed to the viewport and pad themselves
+     back in, so any ground, rule or panel a style wants can run edge to edge. */
+  .mvt {
+    position: relative;
+    margin-inline: calc(var(--margin) * -1);
+    padding-inline: var(--margin);
+    padding-block: clamp(64px, 11vh, 150px);
+    overflow: clip;
+  }
+  .mvt.sec--works { padding-block: 0; padding-inline: 0; overflow: visible; }
+  .mvt + .mvt { border-top: 1px solid var(--rule-soft); }
+
+  .s__stmt {
+    margin: 0; font-family: var(--display); font-weight: 500;
+    letter-spacing: -0.028em; color: var(--bone);
+  }
+  .s__mark { color: var(--bone-dim); font-style: italic; }
+  .s__p { margin-bottom: var(--s-3); }
+  .s__p p, .s__lede p { margin: 0; }
+  .s__lede { color: var(--bone-dim); }
+  .s__collab { color: var(--accent); font-size: var(--t-xs); padding-bottom: 10px; border-bottom: 1px solid var(--rule); margin: 0 0 var(--s-3); }
+  .s__col ul { list-style: none; margin: 0; padding: 0; }
+  .s__col li { display: flex; gap: 10px; padding-block: 7px; border-bottom: 1px solid var(--rule-soft); font-size: var(--t-sm); color: var(--bone-dim); }
+  .s__coln { color: var(--dim); font-size: var(--t-xs); }
+  .s__steps { list-style: none; margin: 0; padding: 0; }
+  .s__stepn { color: var(--accent); font-size: var(--t-xs); }
+  .s__steptitle { margin: 6px 0 var(--s-3); font-family: var(--display); font-weight: 500; font-size: clamp(1.1rem, 2.2vw, 1.7rem); letter-spacing: -0.02em; color: var(--bone); }
+  .s__steplines p { margin: 0 0 8px; color: var(--bone-dim); }
+  .s__steplines .asks { color: var(--dim); }
+  .s__links { list-style: none; margin: 0; padding: 0; }
+  .s__enq :global(.ct__page) { padding-top: 0; }
+  .hot { color: var(--accent); }
+  .ov__cue { color: var(--dim); }
+
+  /* ══ XXIV · TICKET ═══════════════════════════════════════════════
+     THE COMMITMENT: every movement is a document. Perforated rule above and
+     below, a stub down the left holding the number, the name and a rotating
+     seal, and the body to the right of a torn edge. The reference has these
+     scattered as props — a ticket stub with a barcode, a sachet, a circular
+     badge; here the whole page is made of them, which is the difference
+     between borrowing a motif and committing to one. */
+  .ov--tk, .mvt--tk { display: block; }
+  .ov--tk { justify-content: center; }
+
+  /* The perforation. Two dashes and a gap, at the register's hairline weight —
+     a dotted border would have read as a table rule. */
+  .tk__perf {
+    height: 1px; border: 0;
+    background: repeating-linear-gradient(to right,
+      var(--rule) 0 5px, transparent 5px 11px);
+    opacity: calc(0.4 + var(--p, 0) * 0.6);
+  }
+  .tk__row {
+    display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
+    column-gap: clamp(22px, 3.4vw, 58px);
+    padding-block: clamp(34px, 6vh, 84px);
+  }
+  .tk__stub {
+    display: flex; flex-direction: column; gap: 10px;
+    border-right: 1px dashed var(--rule);
+    padding-right: clamp(16px, 2.4vw, 34px);
+  }
+  .tk__n { color: var(--accent); font-size: var(--t-xs); font-variant-numeric: tabular-nums; }
+  .tk__t {
+    margin: 0; font-size: var(--t-xs); letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--bone-dim);
+  }
+  .tk__folio { color: var(--dim); font-size: var(--t-xs); font-variant-numeric: tabular-nums; }
+  /* The seal turns as its movement passes — 240 degrees over the whole
+     traverse, off --p rather than --e or --x so it moves the entire time the
+     section is anywhere near the window rather than only as it arrives. */
+  .tk__badge { display: block; width: clamp(70px, 8.5vw, 116px); aspect-ratio: 1; margin-top: auto; }
+  .tk__badge svg { width: 100%; height: 100%; transform: rotate(calc(var(--p, 0) * 240deg)); }
+  .tk__badge text {
+    font-family: var(--mono); font-size: 9.4px; letter-spacing: 0.16em;
+    fill: var(--dim); text-transform: uppercase;
+  }
+  .tk__stub--over {
+    position: absolute; z-index: 5; border-right: 0;
+    top: clamp(74px, 11vh, 120px); left: var(--margin);
+  }
+
+  .tk__name {
+    margin: 0; font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.9rem, min(9.5vw, 13vh), 7.5rem);
+    line-height: 0.86; letter-spacing: -0.055em;
+    text-transform: uppercase; color: var(--bone);
+  }
+  .tk__w { display: block; }
+  .tk__cap {
+    margin: clamp(14px, 2.4vh, 32px) 0 0;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1rem, min(3.4vw, 4.6vh), 2.5rem);
+    line-height: 1.08; letter-spacing: var(--track-tight);
+    text-transform: uppercase; color: var(--bone-dim);
+  }
+  .tk__cap .line { display: block; }
+  .tk__cap .hot, .ov--tk .hot, .mvt--tk .hot {
+    text-transform: none; font-family: var(--serif);
+    font-style: italic; font-weight: 300; font-size: 1.06em;
+  }
+  .tk__edge {
+    display: flex; gap: clamp(18px, 3.4vw, 48px); flex-wrap: wrap;
+    margin-top: clamp(22px, 4vh, 54px); padding-top: clamp(12px, 1.8vh, 18px);
+    border-top: 1px dashed var(--rule);
+    font-size: var(--t-micro); letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--dim);
+  }
+
+  .mvt--tk .s__stmt { max-width: 21ch; font-size: clamp(1.3rem, min(4vw, 5.4vh), 3.1rem); line-height: 1.14; }
+  .mvt--tk .s__mark { display: block; margin-top: 0.2em; }
+  .mvt--tk .s__body { margin-top: clamp(26px, 5vh, 60px); columns: 2; column-gap: clamp(24px, 4vw, 56px); max-width: 64ch; }
+  .mvt--tk .s__p { break-inside: avoid; }
+  .mvt--tk .s__lede { max-width: 52ch; margin-top: clamp(20px, 3.6vh, 44px); }
+  .mvt--tk .s__cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(22px, 3.4vw, 52px); margin-top: clamp(30px, 5.5vh, 72px); }
+  .mvt--tk .s__col { border-top: 1px dashed var(--rule); padding-top: clamp(12px, 2vh, 20px); }
+  .mvt--tk .s__collab { border-bottom: 0; padding-bottom: 4px; }
+  .mvt--tk .s__steps { display: grid; gap: clamp(30px, 5vh, 64px); margin-top: clamp(30px, 5.5vh, 72px); }
+  .mvt--tk .s__step .draw { margin-bottom: clamp(16px, 2.6vh, 28px); }
+  .mvt--tk .s__links { display: grid; gap: 10px; margin-top: clamp(24px, 4vh, 52px); max-width: 48ch; }
+  .mvt--tk .s__links li { display: flex; gap: 14px; padding-block: 9px; border-bottom: 1px dashed var(--rule-soft); }
+  .mvt--tk .s__enq { margin-top: clamp(50px, 10vh, 120px); }
+
+  @media (max-width: 900px) {
+    .tk__row { grid-template-columns: 1fr; row-gap: var(--s-4); }
+    .tk__stub { flex-direction: row; align-items: baseline; gap: var(--s-3); border-right: 0; padding-right: 0; }
+    .tk__badge { display: none; }
+    .mvt--tk .s__body, .mvt--tk .s__cols { columns: 1; grid-template-columns: 1fr; }
+  }
+</style>
+<script>
+  /* ONE CLOCK FOR THE WHOLE PAGE. Three numbers written onto every movement,
+     the opening included:
+        --e  entry   0 as its top touches the foot of the window, 1 at the top
+        --x  exit    0 until it starts to leave, 1 as its foot clears the top
+        --p  through 0 fully below, 1 fully past
+     Whichever style is on the page reads whichever of the three it needs, so
+     no two transitions can drift apart — there is one pass and one set of
+     values behind all of them. */
+  function initSpine() {
+    const rg = document.querySelector<HTMLElement>('[data-rg]');
+    if (!rg || rg.dataset.spineBound) return;
+    rg.dataset.spineBound = '1';
+    const secs = Array.from(rg.querySelectorAll<HTMLElement>('.ov, .mvt'));
+    if (!secs.length) return;
+    let raf = 0;
+    const paint = () => {
+      raf = 0;
+      const vh = innerHeight;
+      for (const el of secs) {
+        const r = el.getBoundingClientRect();
+        const h = Math.max(1, r.height);
+        el.style.setProperty('--e', Math.min(1, Math.max(0, (vh - r.top) / vh)).toFixed(4));
+        el.style.setProperty('--x', Math.min(1, Math.max(0, -r.top / h)).toFixed(4));
+        el.style.setProperty('--p', Math.min(1, Math.max(0, (vh - r.top) / (vh + h))).toFixed(4));
+      }
+    };
+    addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(paint); }, { passive: true });
+    addEventListener('resize', () => { if (!raf) raf = requestAnimationFrame(paint); }, { passive: true });
+    paint();
+  }
+  initSpine();
+  document.addEventListener('astro:page-load', initSpine);
+</script>

@@ -1,0 +1,153 @@
+---
+/**
+ * PREVIEW — RECOGNITION A · "INDEX".
+ *
+ * THE SELECTIONS AS AN INDEX. One numbered row per entry, ruled off from the
+ * next, with the honour set small above the festival that gave it. It is the
+ * selections page of a press kit: a list that can be counted at a glance and
+ * read line by line, and that stays a list at any length.
+ *
+ * THE FESTIVAL IS THE HEADLINE, NOT THE STATUS. "Official Selection" is the
+ * same on both rows; the festivals are what differ, so the festivals carry the
+ * display type and the status is reduced to a label above them. The live page
+ * has this exactly backwards — everything is one size, so the repeated words
+ * are as loud as the ones that carry the information.
+ *
+ * THE FIGURE COLUMN IS ALIGNED, NOT DECORATIVE. Tabular numerals in a fixed
+ * column, so 01 and 02 sit on the same left edge and the rows read as one
+ * ordered set rather than as two paragraphs that happen to start with digits.
+ */
+import Base from '../../layouts/Base.astro';
+import Stage from '../../components/_pv-RecStage.astro';
+import { getEntry } from 'astro:content';
+import { parseAwards } from '../../lib/awards';
+
+const work = await getEntry('works', 'diwali-ke-shor-mein')!;
+const CITES = parseAwards(work.data.awards);
+
+/* The other shapes the field takes across the catalogue, so the treatment can
+   be judged on more than the one work it was drawn for. */
+const other = await Promise.all(
+  ['mumbai-standard-time', 'moholla', 'dinshaws-dildaari-battles'].map((s) => getEntry('works', s)!)
+);
+---
+
+<Base title="Recognition A — Index" description="Preview only.">
+  <Stage
+    letter="A"
+    name="Index"
+    note="One numbered row per selection, ruled off from the next, with the honour set small above the festival that gave it. The festivals carry the display type because the festivals are what differ — the status is the same on both rows, and on the live page it is set just as loud as the names it repeats."
+  >
+    <div class="rec" aria-label="Recognition">
+      <p class="mono rec__lbl">Recognition</p>
+
+      <ol class="rec__list">
+        {CITES.map((c, i) => (
+          <li class="rec__row">
+            <span class="mono rec__n">{String(i + 1).padStart(2, '0')}</span>
+            <span class="rec__body">
+              <span class="mono rec__cit">
+                {c.star && <span class="rec__star" aria-hidden="true">★</span>}
+                {c.citation}
+              </span>
+              {c.body && <span class="rec__where display">{c.body}</span>}
+            </span>
+          </li>
+        ))}
+      </ol>
+    </div>
+
+    <section slot="robustness" class="rb">
+      <p class="mono rb__lbl">The same treatment, the other shapes in the catalogue</p>
+      <div class="rb__grid">
+        {other.map((w) => (
+          <div class="rb__cell">
+            <p class="mono rb__work">{w.data.title}</p>
+            <ol class="rec__list rec__list--sm">
+              {parseAwards(w.data.awards).map((c, i) => (
+                <li class="rec__row">
+                  <span class="mono rec__n">{String(i + 1).padStart(2, '0')}</span>
+                  <span class="rec__body">
+                    <span class="mono rec__cit">
+                      {c.star && <span class="rec__star" aria-hidden="true">★</span>}
+                      {c.citation}
+                    </span>
+                    {c.body && <span class="rec__where display">{c.body}</span>}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        ))}
+      </div>
+    </section>
+  </Stage>
+</Base>
+
+<style>
+  .rec {
+    margin: clamp(44px, 7vh, 90px) 0 0;
+    padding-top: clamp(24px, 4vh, 46px);
+    border-top: 1px solid var(--rule);
+  }
+  .rec__lbl {
+    margin: 0 0 clamp(18px, 3vh, 34px);
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--dim);
+  }
+
+  .rec__list { margin: 0; padding: 0; list-style: none; }
+
+  .rec__row {
+    display: grid;
+    /* A fixed figure column, so every festival starts on one left edge. */
+    grid-template-columns: clamp(44px, 5vw, 68px) minmax(0, 1fr);
+    align-items: baseline;
+    gap: clamp(10px, 2vw, 24px);
+    padding: clamp(16px, 2.6vh, 28px) 0;
+    border-top: 1px solid var(--rule-soft);
+  }
+  .rec__row:first-child { border-top: 0; padding-top: 0; }
+
+  .rec__n {
+    font-size: var(--t-micro); letter-spacing: var(--track-mono);
+    color: var(--dim); font-variant-numeric: tabular-nums;
+  }
+
+  .rec__body { display: grid; gap: clamp(6px, 1vh, 11px); }
+
+  .rec__cit {
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--accent);
+  }
+  .rec__star { margin-right: 0.5em; color: var(--accent); }
+
+  /* The festival, in the display face — the one thing on the row that differs
+     from the row above it, so the one thing set at size. */
+  .rec__where {
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.3rem, 3vw, 2.35rem);
+    line-height: 1.06; letter-spacing: -0.035em;
+    color: var(--bone); text-wrap: balance;
+  }
+
+  /* ── the robustness strip ─────────────────────────────────────── */
+  .rb { max-width: 1180px; margin: clamp(90px, 15vh, 190px) auto 0; }
+  .rb__lbl {
+    margin: 0 0 clamp(20px, 3vh, 34px); padding-bottom: 12px;
+    border-bottom: 1px solid var(--rule-soft);
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--dim);
+  }
+  .rb__grid {
+    display: grid; gap: clamp(24px, 4vw, 52px);
+    grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  }
+  .rb__work {
+    margin: 0 0 14px;
+    font-size: var(--t-micro); letter-spacing: var(--track-mono);
+    text-transform: uppercase; color: var(--muted);
+  }
+  .rec__list--sm .rec__where { font-size: clamp(1.05rem, 1.7vw, 1.35rem); }
+  .rec__list--sm .rec__row { padding: 12px 0; }
+</style>

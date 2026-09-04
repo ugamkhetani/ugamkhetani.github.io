@@ -1,0 +1,109 @@
+---
+/**
+ * PREVIEW ONLY — the surroundings for the recognition drafts.
+ *
+ * A RECOGNITION BAND CANNOT BE JUDGED ON ITS OWN. On the real page it sits at
+ * the foot of section 02, under the folio, the ruled label and the description
+ * — and how much room it is allowed to take, how loud it may be and where its
+ * rules should fall are all answers to what is immediately above it. So each
+ * draft is shown in that context, reproduced from src/pages/work/[slug].astro:
+ * same folio, same ruled label, same body measure, same block width.
+ *
+ * THE REVEAL ANIMATIONS ARE NOT REPRODUCED. On the real page the words and
+ * rules arrive on scroll; here everything is at its settled state, because the
+ * question is what the section looks like when it has arrived, and a draft you
+ * have to scroll into view to see is a draft you cannot compare.
+ */
+interface Props {
+  letter: string;
+  name: string;
+  note: string;
+}
+const { letter, name, note } = Astro.props;
+
+/* The real page's own copy for this work, so the band is judged against the
+   paragraph it actually follows rather than against filler. */
+const BODY =
+  'Debut theatrical feature. Original score developed from concept to final mix ' +
+  'and delivered in-house. Each cue built from texture first and melody second, ' +
+  'so colour and atmosphere lead the score before the theme arrives.';
+---
+
+<main class="stage">
+  <header class="stage__head">
+    <p class="mono stage__k">Recognition · Option {letter}</p>
+    <h1 class="stage__t display">{name}</h1>
+    <p class="stage__note">{note}</p>
+    <p class="mono stage__ctx">Shown in place — Diwali Ke Shor Mein, section 02</p>
+  </header>
+
+  {/* ── the real page's section 02, reproduced ─────────────────── */}
+  <section class="blk" aria-label="About the work">
+    <span class="fol" aria-hidden="true">02</span>
+    <p class="mono blk__lbl"><span class="rl"></span>The score</p>
+    <p class="body">{BODY}</p>
+
+    <slot />
+  </section>
+
+  <slot name="robustness" />
+</main>
+
+<style is:global>
+  .runhead { display: none !important; }
+</style>
+
+<style>
+  .stage { padding: clamp(80px, 12vh, 150px) var(--margin) clamp(80px, 14vh, 180px); }
+
+  .stage__head { max-width: 1180px; margin: 0 auto clamp(64px, 10vh, 130px); }
+  .stage__k {
+    margin: 0 0 clamp(16px, 2.6vh, 30px);
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--accent);
+  }
+  .stage__t {
+    margin: 0;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(2.2rem, 8vw, 6rem);
+    line-height: 0.88; letter-spacing: -0.05em;
+    text-transform: uppercase; color: var(--bone);
+  }
+  .stage__note {
+    margin: clamp(20px, 3.4vh, 38px) 0 0;
+    max-width: 62ch;
+    font-size: clamp(1rem, 1.45vw, 1.2rem);
+    line-height: 1.5; letter-spacing: -0.01em;
+    color: var(--bone-dim); text-wrap: pretty;
+  }
+  .stage__ctx {
+    margin: clamp(18px, 2.6vh, 28px) 0 0;
+    font-size: var(--t-micro); letter-spacing: var(--track-mono);
+    text-transform: uppercase; color: var(--dim);
+  }
+
+  /* ── lifted verbatim from the work page, so the band is in its own room ── */
+  .blk { position: relative; max-width: 1180px; margin: 0 auto; }
+  .fol {
+    position: absolute; left: 0; top: -0.36em;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(4rem, 11vw, 9rem);
+    line-height: 1; letter-spacing: -0.05em;
+    color: var(--bone); opacity: 0.05;
+    pointer-events: none;
+  }
+  .blk__lbl {
+    position: relative;
+    margin: 0 0 clamp(16px, 2.6vh, 28px);
+    padding-bottom: 12px;
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--bone-dim);
+  }
+  .rl { position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--rule); }
+  .body {
+    margin: 0; max-width: 60ch;
+    font-size: clamp(1.15rem, 1.9vw, 1.6rem);
+    line-height: 1.42; letter-spacing: -0.012em;
+    color: var(--bone-dim); text-wrap: pretty;
+  }
+</style>

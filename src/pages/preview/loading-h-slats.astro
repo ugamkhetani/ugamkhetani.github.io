@@ -1,0 +1,134 @@
+---
+/**
+ * PREVIEW — LOADING SCREEN H · "SLATS".
+ *
+ * A STAGE FOR JUDGING ONE LOADER. The real one only ever runs once per
+ * session on the homepage, which makes it almost impossible to look at; this
+ * plays it on load and again whenever you ask, over a stand-in for the page
+ * it hands over to.
+ *
+ * THE LOADER ITSELF IS UNTOUCHED by this page — same component, same
+ * html.intro-on gate, same 1560ms budget. The only thing here that the real
+ * site does not have is the replay, and it works exactly the way Base does:
+ * add the class, remove it 1560ms later.
+ */
+import Base from '../../layouts/Base.astro';
+import Loader from '../../components/_pv-Loader-slats.astro';
+import { getCollection } from 'astro:content';
+import { order } from '../../data/composition';
+import { framesFor } from '../../lib/frames';
+
+const works = await getCollection('works');
+const bySlug = new Map(works.map((w) => [w.id, w]));
+/* The same eight the homepage feeds its opening: every other work in score
+   order, so they are spread across the run rather than taken off the front. */
+const SLUGS = order.filter((_, i) => i % 2 === 0).slice(0, 8);
+const stills = SLUGS.map((slug) => {
+  const w = bySlug.get(slug)!;
+  return { img: framesFor(slug, w.data.frames)[0], alt: w.data.alt };
+});
+---
+
+<Base title="Loading screen H — Slats" description="Preview only.">
+  <Loader stills={stills} />
+
+  <main class="stage" data-stage>
+    <p class="mono stage__k">Loading screen H</p>
+    <h1 class="stage__t display">Slats</h1>
+    <p class="stage__note">A departure board made of film. Four tall windows each run their own reel of frames upward, each stopping 70ms after the one to its left, so the catalogue lands as a cascade across the screen rather than all at once. The stop is eased almost entirely into the tail, which is how a mechanical reel with mass actually comes to rest.</p>
+    <button class="stage__go mono" type="button" data-replay>Replay &#8635;</button>
+    <p class="mono stage__hint">or press R</p>
+  </main>
+</Base>
+
+<style is:global>
+  .runhead { display: none !important; }
+</style>
+
+<style>
+  .stage {
+    min-height: 100vh;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    text-align: center;
+    padding: clamp(96px, 15vh, 190px) var(--margin);
+  }
+  .stage__k {
+    margin: 0 0 clamp(20px, 3.4vh, 40px);
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--dim);
+  }
+  .stage__t {
+    margin: 0;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(2.4rem, 9vw, 7rem);
+    line-height: 0.86; letter-spacing: -0.05em;
+    text-transform: uppercase; color: var(--bone);
+  }
+  .stage__note {
+    margin: clamp(24px, 4vh, 44px) auto 0;
+    max-width: 54ch;
+    font-size: clamp(1rem, 1.5vw, 1.25rem);
+    line-height: 1.5; letter-spacing: -0.01em;
+    color: var(--bone-dim); text-wrap: pretty;
+  }
+  .stage__go {
+    margin: clamp(32px, 5.5vh, 64px) 0 0;
+    padding: 12px 22px;
+    background: transparent;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--bone);
+    cursor: pointer;
+    transition: border-color var(--d-micro) var(--ease), color var(--d-micro) var(--ease);
+  }
+  .stage__go:hover { border-color: var(--accent); color: var(--accent); }
+  .stage__go:focus-visible { outline: 1px solid var(--accent); outline-offset: 4px; }
+  .stage__hint {
+    margin: 12px 0 0;
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--dim);
+  }
+</style>
+
+<script>
+  /* REPLAY, THE SAME WAY Base DOES IT. Add html.intro-on, take it off after
+     1560ms — the loader's own animations restart from zero because the element
+     goes back to display:none in between, which discards their state.
+
+     The one-per-session guard is deliberately NOT here: Base writes a
+     sessionStorage key so a returning visitor never sees the opening again,
+     and on a page whose whole purpose is watching it that would mean seeing
+     it exactly once and never again. */
+  function initStage() {
+    const stage = document.querySelector<HTMLElement>('[data-stage]');
+    if (!stage || stage.dataset.bound) return;
+    stage.dataset.bound = '1';
+
+    const root = document.documentElement;
+    let timer = 0;
+    const play = () => {
+      window.clearTimeout(timer);
+      root.classList.remove('intro-on');
+      /* Two frames, not one: removing and re-adding a class inside a single
+         frame is coalesced into no change at all, and the animations never
+         restart. */
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => {
+          root.classList.add('intro-on');
+          timer = window.setTimeout(() => root.classList.remove('intro-on'), 1560);
+        })
+      );
+    };
+
+    stage.querySelector('[data-replay]')?.addEventListener('click', play);
+    addEventListener('keydown', (e) => {
+      if (e.key === 'r' || e.key === 'R') play();
+    });
+    play();
+  }
+  initStage();
+  document.addEventListener('astro:page-load', initStage);
+</script>

@@ -1,0 +1,142 @@
+---
+/**
+ * PREVIEW — MOSAIC C · "GRADED".
+ *
+ * RANK IS DEPTH. The other two options decide where a work sits; this one
+ * decides how far back it stands. Every tile carries its own brightness, set
+ * from its work's rank: the first work sits at 0.30, the twelfth at 0.11, and
+ * the rest are spaced between. The favourites catch the light and the others
+ * recede into texture, which is what "preferred visibility" actually looks like
+ * on a wall.
+ *
+ * IT CAN ONLY EVER GO DARKER THAN THE CAP, WHICH IS WHY IT IS SAFE. The page's
+ * readability arithmetic depends on 0.30 being the ceiling — at that value the
+ * brightest pixel a photograph can put on screen is #4C4C4C and bone on it is
+ * 8.4:1. Nothing here exceeds 0.30; every other tile is further down. So the
+ * guarantee is not weakened by this option, it is strengthened for eleven
+ * twelfths of the bed.
+ *
+ * THE FILTER HAD TO MOVE TO THE TILE. On the live bed brightness is one filter
+ * on .ms__bed, which cannot vary per child. Here .ms__bed keeps saturate and
+ * contrast — the grade that makes the wall one picture — and each tile carries
+ * only its own brightness. Two filters instead of one, both composited.
+ *
+ * IT ALSO RUNS DENSER, 7 x 6, because grading needs a field to work across:
+ * with thirty tiles the twelve steps are too coarse to read as depth. The
+ * denser grid is the reason the tiles are small here, and small tiles are the
+ * mode this option is arguing for — the bed as texture rather than as pictures,
+ * which is the opposite of what B argues.
+ */
+import Base from '../../layouts/Base.astro';
+import Stage from '../../components/_pv-MosaicStage.astro';
+import Tile from '../../components/_pv-MosaicTile.astro';
+import { getCollection } from 'astro:content';
+import { RANKED, weights, BEST_FRAME } from '../../lib/_pv-mosaic';
+
+const works = await getCollection('works');
+const bySlug = new Map(works.map((w) => [w.id, w]));
+
+const COLS = 7;
+const ROWS = 6;
+const N = COLS * ROWS; // 42
+
+/* How many tiles each rank gets: a linear ramp from 4 shares down to 1,
+   largest-remainder so it sums to exactly 42. */
+const W = weights(N, RANKED.length, 4, 1);
+
+/* Brightness per rank — 0.30 at the top, 0.11 at the bottom. The cap is the
+   page's, and nothing is allowed above it. */
+const TOP = 0.3;
+const FLOOR = 0.11;
+const BRIGHT = RANKED.map((_, i) =>
+  +(TOP - (i * (TOP - FLOOR)) / (RANKED.length - 1)).toFixed(3)
+);
+
+/* Build the pool, then deal it out so the same work never lands next to itself
+   — horizontally or vertically. A wall with two identical frames touching
+   reads as a mistake rather than as a repeat. */
+const pool: number[] = [];
+W.forEach((n, r) => { for (let k = 0; k < n; k++) pool.push(r); });
+
+const grid: number[] = [];
+const remaining = [...pool];
+for (let cell = 0; cell < N; cell++) {
+  const left = cell % COLS === 0 ? -1 : grid[cell - 1];
+  const above = cell < COLS ? -1 : grid[cell - COLS];
+  /* Prefer the rank with the most left to place that does not touch itself. */
+  const counts = new Map<number, number>();
+  remaining.forEach((r) => counts.set(r, (counts.get(r) ?? 0) + 1));
+  const options = [...counts.entries()]
+    .filter(([r]) => r !== left && r !== above)
+    .sort((a, b) => b[1] - a[1] || a[0] - b[0]);
+  const pick = (options[0] ?? [...counts.entries()].sort((a, b) => b[1] - a[1])[0])[0];
+  grid.push(pick);
+  remaining.splice(remaining.indexOf(pick), 1);
+}
+
+const TILES = grid.map((r, cell) => ({
+  w: bySlug.get(RANKED[r])!,
+  rank: r + 1,
+  bright: BRIGHT[r],
+  cell,
+}));
+---
+
+<Base title="Mosaic C — Graded" description="Preview only.">
+  <Stage
+    letter="C"
+    name="Graded"
+    note="Rank is depth. Each tile carries its own brightness, from 0.30 for the first work down to 0.11 for the twelfth, so the favourites catch the light and the rest recede into texture. Nothing exceeds the page's 0.30 cap, so the readability guarantee is strengthened rather than weakened. It runs denser — 7 x 6 — because grading needs a field to read across."
+  >
+    <div class="ms__ground" slot="bed" aria-hidden="true">
+      <div class="ms__bed">
+        {TILES.map((t) => (
+          <span class="ms__tile" style={`--b:${t.bright}`}>
+            <Tile slug={t.w.id} frames={t.w.data.frames} alt=""
+              sizes="16vw" pick={BEST_FRAME[t.w.id] ?? 1} />
+            <span class="ms__mark mono" aria-hidden="true">
+              <b>{String(t.rank).padStart(2, '0')}</b>
+              <i>{t.bright}</i>
+            </span>
+          </span>
+        ))}
+      </div>
+    </div>
+  </Stage>
+</Base>
+
+<style>
+  .ms__ground { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  /* The bed keeps the grade that makes the wall one picture; brightness moves
+     to the tile, because a filter on the parent cannot vary per child. */
+  .ms__bed {
+    position: absolute; inset: -10%;
+    display: grid; grid-template-columns: repeat(7, minmax(0, 1fr));
+    grid-auto-rows: minmax(0, 1fr); gap: clamp(4px, 0.7vw, 11px);
+    filter: saturate(0.7) contrast(1.05);
+    transform: translate3d(0, calc(var(--prog, 0) * -8%), 0) scale(1.06);
+    will-change: transform;
+  }
+  .ms__tile {
+    position: relative; display: block; overflow: hidden; min-height: 0;
+    border-radius: clamp(5px, 0.6vw, 10px);
+    /* Never above 0.30 — the page's cap is the ceiling, not a target. */
+    filter: brightness(var(--b, 0.3));
+  }
+  .ms__tile :global(img) { border-radius: inherit; }
+
+  .ms__mark { display: none; }
+  :global(.rg.map-on) .ms__tile { filter: brightness(calc(var(--b, 0.3) * 2.1)); outline: 1px solid var(--rule-accent); outline-offset: -1px; }
+  :global(.rg.map-on) .ms__mark {
+    position: absolute; inset: 0; z-index: 2;
+    display: grid; align-content: center; justify-items: center; gap: 2px;
+    text-align: center; font-size: 8px; letter-spacing: 0.06em;
+    color: var(--bone); background: rgba(6, 6, 5, 0.55);
+  }
+  :global(.rg.map-on) .ms__mark b { font-size: 14px; letter-spacing: 0; color: var(--accent); }
+  :global(.rg.map-on) .ms__mark i { font-style: normal; font-size: 8px; color: var(--dim); }
+
+  @media (max-width: 900px) {
+    .ms__bed { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  }
+</style>

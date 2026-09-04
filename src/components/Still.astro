@@ -1,0 +1,162 @@
+---
+/**
+ * The image stack. Promoted out of preview when CIII became the site;
+ * still used by the drafts kept under src/pages/preview/.
+ *
+ * The image stack, with no chrome. Frame.astro carries a fixed meta line
+ * (number, title, year) that suits the current homepage; these four
+ * directions each want their own apparatus around the picture, so this
+ * renders only the window and leaves the furniture to the page.
+ *
+ * IT IS DELIBERATELY WIRE-COMPATIBLE WITH THE REAL SCRUBBING. The root is
+ * `[data-frame]` with `data-count`, the layers are `.frame__layer` with
+ * `data-layer`, and `.is-cut` is what reveals one — which is exactly what
+ * src/scripts/frames.ts queries and toggles. So every preview gets the real
+ * pointer scrub, the real keyboard arrows and the real centred-frame
+ * behaviour on touch, with no second implementation to keep in step.
+ *
+ * The layer CSS is duplicated here rather than imported because Astro scopes
+ * component styles: Frame.astro's `.frame__layer` compiles with ITS cid and
+ * would never match an element rendered by this component (HANDOFF §6).
+ */
+import { Image } from 'astro:assets';
+import { framesFor } from '../lib/frames';
+import { RATIO } from '../data/composition';
+
+interface Props {
+  slug: string;
+  title: string;
+  year: number;
+  category: string;
+  ratio: string;
+  frames: string[];
+  alt: string;
+  sizes: string;
+  eager?: boolean;
+  /** contain keeps the whole frame visible inside a fixed box (Gate). */
+  fit?: 'cover' | 'contain';
+  /** Skip the aspect-ratio box — the caller is sizing the window itself. */
+  free?: boolean;
+  /** Cap the stills rendered. The 3D scenes composite every layer at once,
+   *  and the full catalogue is 113 images; three per work still scrubs. */
+  max?: number;
+}
+const {
+  slug, title, year, category, ratio, frames, alt, sizes,
+  eager = false, fit = 'cover', free = false, max = 0,
+} = Astro.props;
+
+const all = framesFor(slug, frames);
+const images = max > 0 ? all.slice(0, max) : all;
+const count = images.length;
+---
+
+<a
+  class="st"
+  class:list={[{ 'st--free': free }]}
+  href={`/work/${slug}`}
+  data-frame
+  data-count={count}
+  style={`--ar:${RATIO[ratio]};--fit:${fit}`}
+  aria-label={`${title}, ${year}, ${category}`}
+>
+  <span class="st__win">
+    {
+      images.map((img, i) => (
+        <span class="frame__layer" data-layer={i}>
+          <Image
+            src={img}
+            alt={i === 0 ? alt : ''}
+            widths={[480, 800, 1200, 1800]}
+            sizes={sizes}
+            loading={eager && i === 0 ? 'eager' : 'lazy'}
+            decoding="async"
+            aria-hidden={i === 0 ? undefined : 'true'}
+          />
+        </span>
+      ))
+    }
+  </span>
+  <slot />
+</a>
+
+<style>
+  .st {
+    display: block; position: relative;
+    color: var(--bone); text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+    --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+    --d-fade: 500ms;
+    /* Frame.astro's own value. Both live on the component rather than in
+       tokens.css, so the two have to be kept in step by hand — and until the
+       drift was added below, this one was simply absent and the transform
+       referenced a token that did not exist. */
+    --d-drift: 1100ms;
+  }
+
+  .st__win {
+    display: block; position: relative;
+    aspect-ratio: var(--ar);
+    overflow: hidden;
+    background: var(--ground-lift);
+    isolation: isolate;
+  }
+  /* `free` hands sizing to the caller, and BOTH boxes have to be told. The
+     window's `height: 100%` resolves against this anchor, and an anchor with
+     auto height is zero tall — which collapsed the whole stack to 896x0 while
+     the caller's box was a correct 896x504. Sizing the window alone is not
+     enough. */
+  .st--free { height: 100%; }
+  .st--free .st__win { aspect-ratio: auto; height: 100%; }
+
+  .frame__layer {
+    position: absolute; inset: 0;
+    opacity: 0;
+    will-change: opacity;
+    transition: opacity var(--d-fade) var(--ease-soft);
+  }
+  .frame__layer[data-layer='0'] { opacity: 1; transition: none; }
+  .frame__layer.is-cut { opacity: 1; }
+
+  .frame__layer :global(img) {
+    width: 100%; height: 100%;
+    object-fit: var(--fit);
+    filter: saturate(0.94) contrast(1.02);
+    transition:
+      filter var(--d-micro) var(--ease-soft),
+      transform var(--d-drift) var(--ease-soft);
+    transform: scale(1.001); /* kills sub-pixel edge seams */
+  }
+  .st:hover .frame__layer :global(img),
+  .st:focus-visible .frame__layer :global(img),
+  .st.is-active .frame__layer :global(img) {
+    filter: saturate(1) contrast(1.06) brightness(1.04);
+  }
+
+  /* THE SLOW DRIFT, WHICH THIS COMPONENT WAS MISSING. Frame.astro eases the
+     whole window in by 3.5% over --d-drift while the stills crossfade, so a
+     cut reads as one movement rather than a switch. Still.astro copied the
+     crossfade and the filter but not this, so every preview — and, once CIII
+     became the site, the site itself — was cutting between frames without
+     the drift underneath.
+
+     Bound to hover, not to a particular still, exactly as the original has
+     it: scoping it to the first cut was tried there and reverted, because it
+     made image 03 arrive at a different size from image 02 and the frame
+     stopped feeling like one continuous object. The consequence is the
+     intended one — image 01 is seen at rest at true scale, and everything
+     reached by hovering is seen 3.5% larger. */
+  .st:hover .frame__layer :global(img),
+  .st:focus-visible .frame__layer :global(img),
+  .st.is-active .frame__layer :global(img) {
+    transform: scale(1.035);
+  }
+
+  .st:focus-visible { outline: none; }
+  .st:focus-visible .st__win { outline: 1px solid var(--accent); outline-offset: -1px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .frame__layer { transition: none; }
+    .frame__layer :global(img) { transition: none; transform: none; }
+  }
+</style>

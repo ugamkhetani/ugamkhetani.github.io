@@ -1,0 +1,301 @@
+---
+/**
+ * PREVIEW — WORK PAGE XIII · "PROSE".  Aasha.
+ *
+ * A REORDERED PAGE, AND TWO REBUILT SECTIONS. The spine X, XI and XII share
+ * holds: what is this, what did he do on it, let me see it, why it matters,
+ * then the details — with the role set as display type under the title rather
+ * than in 10px of mono metadata, which is where IX left it.
+ *
+ * WHAT MOVES HERE IS WHERE RECOGNITION SITS, which is a layout question and
+ * not only a styling one.
+ *
+ * RECOGNITION FOLDS INTO THE WRITING. A festival record is a claim about
+ * the work, so it belongs in the paragraph that makes claims about the work,
+ * not in a band of its own three screens later. The figures are set at
+ * display size INLINE in that sentence — big enough to be read as numbers,
+ * still part of a line of prose.
+ *
+ * THE CREDITS RUN AS PROSE TOO. A table is the reflex and it is not the only
+ * option: film writing has always set credits as a sentence. Values carry
+ * bone, labels stay dim, and the whole block reads at body size — so the foot
+ * of the page is something you can actually read rather than a grid you have
+ * to scan. Nothing is asserted that the file does not hold: the connectives
+ * are neutral joins between fields, never a claim of their own.
+ *
+ * NOTHING IS INVENTED: every field comes from src/content/works/aasha.md.
+ */
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import OpNav from '../../components/OpNav.astro';
+import VideoFacade from '../../components/VideoFacade.astro';
+import NextWork from '../../components/NextWork.astro';
+import Colophon from '../../components/Colophon.astro';
+import { Image } from 'astro:assets';
+import { framesFor } from '../../lib/frames';
+import { order, numberFor, total } from '../../data/composition';
+
+const works = await getCollection('works');
+const bySlug = new Map(works.map((w) => [w.id, w]));
+const work = bySlug.get('aasha')!;
+const d = work.data;
+
+const seq = order.filter((s) => bySlug.has(s));
+const next = bySlug.get(seq[(seq.indexOf('aasha') + 1) % seq.length])!;
+
+const images = framesFor('aasha', d.frames);
+const poster = images[0];
+const num = numberFor('aasha');
+const AR = d.ratio.replace(':', ' / ');
+
+/* THE TALLY. One string in the file, split into figure/label pairs so the
+   numbers can be set as numbers. Every part must begin with a figure or the
+   whole thing falls back to the raw line — a tally with one broken cell is
+   worse than no tally. */
+const RAW_AWARDS = d.awards.map((a) => a.text).join(' · ');
+const AW_PARTS = RAW_AWARDS.split('·').map((p) => p.trim()).filter(Boolean);
+const AW_MATCH = AW_PARTS.map((p) => p.match(/^(\d+)\s+(.+)$/));
+const TALLY = AW_MATCH.every(Boolean)
+  ? AW_MATCH.map((m) => ({ n: m![1], k: m![2] }))
+  : null;
+
+const ALL_SPECS: { k: string; v: string }[] = d.meta.map((m) => ({ k: m.label, v: m.value }));
+
+/* PROSE CANNOT REPEAT ITSELF THE WAY A TABLE CAN. A table may carry Year and
+   Format beside a heading that also states them — the eye reads a table by
+   column and never notices. Set as a sentence the same rows come out as
+   "...a short film directed by Sameer Talawdekar, 2025. ... Format Short
+   film. Year 2025." So any spec whose value is already in the lead sentence
+   is dropped from the run: matched on the value, case-insensitively, rather
+   than on the label, because a file could name that field anything. */
+const SAID = new Set([String(d.year).toLowerCase(), d.category.toLowerCase()]);
+const SPECS = ALL_SPECS.filter((s) => !SAID.has(s.v.trim().toLowerCase()));
+---
+
+<Base title={`${d.title} — Ugam Khetani`} description={d.description}>
+  <OpNav variant="bracket" />
+
+  <article class="wk" style={`--ar:${AR}`}>
+    {/* ── 1 · WHAT IT IS, AND WHAT HE DID ─────────────────────── */}
+    <header class="hd">
+      <p class="mono hd__folio">{num} / {String(total).padStart(2, '0')} · {d.category} · {d.year}</p>
+      <h1 class="hd__t" data-reveal>
+        <span class="line"><span class="line__in">{d.title}</span></span>
+      </h1>
+      <p class="hd__role" data-reveal>{d.role}</p>
+      {d.credits.director && (
+        <p class="mono hd__dir">A film by {d.credits.director}</p>
+      )}
+    </header>
+
+    {/* ── 2 · SEE IT ──────────────────────────────────────────── */}
+    <section class="blk blk--film" aria-label="Film" data-reveal>
+      <VideoFacade youtube={d.media.youtube!} title={d.title} poster={poster} alt={d.alt} eager />
+    </section>
+
+    {/* ── 3 · WHY IT EXISTS, WITH THE RECORD IN IT ────────────── */}
+    <section class="blk" aria-label="About the score" data-reveal>
+      {d.quote && <p class="say"><em class="serif">{d.quote}</em></p>}
+      <p class="body">{d.description.trim()}</p>
+
+      {(TALLY || RAW_AWARDS) && (
+        <p class="rec" aria-label="Recognition">
+          {TALLY ? TALLY.map((t, i) => (
+            <>{i > 0 ? <span class="rec__sep" aria-hidden="true"> · </span> : ''}<span class="rec__n">{t.n}</span> <span class="rec__k">{t.k.toLowerCase()}</span></>
+          )) : <span class="rec__k">{RAW_AWARDS}</span>}
+        </p>
+      )}
+    </section>
+
+    {/* ── 5 · THE STILLS ──────────────────────────────────────── */}
+    <section class="blk" aria-label="Stills" data-reveal>
+      <p class="mono blk__lbl">Stills</p>
+      <div class="grid">
+        {images.map((img, i) => (
+          <figure class="cel">
+            <span class="cel__win">
+              <Image
+                src={img}
+                alt={i === 0 ? d.alt : ''}
+                aria-hidden={i === 0 ? undefined : 'true'}
+                widths={[420, 700, 1100]}
+                sizes="(max-width: 720px) 46vw, 30vw"
+                loading={i < 3 ? 'eager' : 'lazy'}
+                decoding="async"
+              />
+            </span>
+            <figcaption class="mono cel__no">{String(i + 1).padStart(2, '0')}</figcaption>
+          </figure>
+        ))}
+      </div>
+    </section>
+
+    {/* ── 6 · THE COLOPHON, AS PROSE ─────────────────────────── */}
+    <section class="blk" aria-label="Credits" data-reveal>
+      <p class="mono blk__lbl">Credits</p>
+      <p class="pro">
+        <span class="pro__v">{d.role}</span> on <span class="pro__v">{d.title}</span>,
+        {d.credits.director ? <> a {d.category.toLowerCase()} directed by <span class="pro__v">{d.credits.director}</span>,</> : <> a {d.category.toLowerCase()},</>}
+        {' '}<span class="pro__v">{d.year}</span>.
+        {SPECS.map((s) => (
+          <> <span class="pro__k">{s.k}</span> <span class="pro__v">{s.v}</span>.</>
+        ))}
+      </p>
+      {d.links.length > 0 && (
+        <p class="pro__links">
+          {d.links.map((l) => (
+            <a class="pro__link" href={l.url} target="_blank" rel="noopener">{l.label} &nearr;</a>
+          ))}
+        </p>
+      )}
+    </section>
+
+  </article>
+
+  <NextWork
+    slug={next.id}
+    title={next.data.title}
+    year={next.data.year}
+    category={next.data.category}
+    frames={next.data.frames}
+    alt={next.data.alt}
+  />
+  <Colophon />
+</Base>
+
+<style is:global>
+  .runhead { display: none !important; }
+</style>
+
+<style>
+  .wk { padding: clamp(96px, 15vh, 190px) var(--margin) 0; }
+  .blk { max-width: 1180px; margin: 0 auto clamp(72px, 12vh, 160px); }
+
+  /* ── 1 · HEAD ───────────────────────────────────────────────── */
+  .hd { max-width: 1180px; margin: 0 auto clamp(56px, 9vh, 120px); text-align: center; }
+  .hd__folio {
+    margin: 0 0 clamp(22px, 4vh, 44px);
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--dim);
+    font-variant-numeric: tabular-nums;
+  }
+  .hd__t {
+    margin: 0;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(2.6rem, 10vw, 8rem);
+    line-height: 0.86; letter-spacing: -0.05em;
+    text-transform: uppercase; color: var(--bone);
+  }
+  /* THE ROLE, PROMOTED. It was 10px mono furniture in IX; it is the single
+     most important fact on a composer's work page. */
+  .hd__role {
+    margin: clamp(18px, 3vh, 34px) 0 0;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.25rem, 2.8vw, 2.2rem);
+    line-height: 1.05; letter-spacing: var(--track-tight);
+    color: var(--accent);
+  }
+  .hd__dir {
+    margin: 12px 0 0;
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--muted);
+  }
+
+  .blk--film { margin-bottom: clamp(72px, 12vh, 160px); }
+
+  /* ── 3 · THE WRITING ────────────────────────────────────────── */
+  .say {
+    margin: 0 auto clamp(30px, 5vh, 56px);
+    max-width: 22ch; text-align: center;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.4rem, 3.2vw, 2.5rem);
+    line-height: 1.04; letter-spacing: var(--track-tight);
+    color: var(--bone);
+  }
+  .say .serif { color: var(--accent); }
+  .body {
+    margin: 0 auto; max-width: 60ch; text-align: center;
+    font-size: clamp(1.1rem, 1.8vw, 1.5rem);
+    line-height: 1.44; letter-spacing: -0.012em;
+    color: var(--bone-dim); text-wrap: pretty;
+  }
+
+  /* ── THE RECORD, INLINE IN THE PROSE ────────────────────────── */
+  /* Display figures inside a line of text. vertical-align keeps the big
+     numeral sitting on the same baseline as the words beside it — left alone
+     it drags the whole line box down and opens a gap above the sentence. */
+  .rec {
+    margin: clamp(30px, 5vh, 56px) auto 0;
+    max-width: 60ch; text-align: center;
+    line-height: 1.5;
+  }
+  .rec__n {
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.9rem, 4vw, 3rem);
+    letter-spacing: -0.04em; color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    vertical-align: -0.06em;
+  }
+  .rec__k {
+    font-size: var(--t-sm); letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--bone-dim);
+  }
+  .rec__sep { color: var(--dim); }
+
+  /* ── 5 · STILLS ─────────────────────────────────────────────── */
+  .blk__lbl {
+    margin: 0 0 clamp(16px, 2.6vh, 28px);
+    padding-bottom: 10px; border-bottom: 1px solid var(--rule);
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--bone-dim);
+  }
+  .grid {
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(20px, 2.6vw, 46px);
+  }
+  .cel { margin: 0; }
+  .cel__win {
+    display: block; aspect-ratio: var(--ar);
+    overflow: hidden; background: var(--ground-lift);
+  }
+  .cel__win :global(img) {
+    width: 100%; height: 100%; object-fit: cover;
+    filter: saturate(0.94) contrast(1.02);
+    transform: scale(1.001);
+    transition: filter var(--d-micro) var(--ease), transform 1100ms var(--ease);
+  }
+  .cel:hover .cel__win :global(img) {
+    filter: saturate(1) contrast(1.06) brightness(1.04);
+    transform: scale(1.035);
+  }
+  .cel__no {
+    display: block; margin-top: 8px;
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    color: var(--dim); font-variant-numeric: tabular-nums;
+  }
+  @media (max-width: 720px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+  /* ── THE COLOPHON, AS PROSE ─────────────────────────────────── */
+  /* Credits as a sentence, which film writing has always done. Values bone,
+     labels dim — the two colours are what let a run of prose still be
+     scanned, and they replace the rules a table would need. */
+  .pro {
+    margin: 0 auto; max-width: 62ch; text-align: center;
+    font-size: clamp(1.05rem, 1.6vw, 1.35rem);
+    line-height: 1.7; letter-spacing: -0.008em;
+    color: var(--muted); text-wrap: pretty;
+  }
+  .pro__v { color: var(--bone-dim); }
+  .pro__k {
+    font-size: 0.78em; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--dim);
+  }
+  .pro__links { margin: clamp(28px, 5vh, 52px) 0 0; display: flex; justify-content: center; flex-wrap: wrap; gap: 24px; }
+  .pro__link {
+    font-size: var(--t-sm); letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--bone); text-decoration: none;
+    border-bottom: 1px solid var(--rule-accent); padding-bottom: 3px;
+    transition: color var(--d-micro) var(--ease), border-color var(--d-micro) var(--ease);
+  }
+  .pro__link:hover { color: var(--accent); border-color: var(--accent); }
+</style>

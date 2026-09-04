@@ -1,0 +1,386 @@
+---
+/**
+ * PREVIEW — WORK PAGE X · "BILLING".  Aasha.
+ *
+ * A REORDERED PAGE, AND TWO REBUILT SECTIONS.
+ *
+ * THE ORDER FIRST, because it was the real problem with IX. That page led
+ * with a statement, then the film, then the writing, and buried the role in a
+ * line of mono metadata. A visitor arriving from the catalogue has already
+ * chosen the work; what they want, in order, is: what is this, what did he do
+ * on it, let me see it, why does it matter, and then the details. So:
+ *
+ *   title + ROLE GIVEN ITS OWN LINE  ·  the film  ·  the writing
+ *   ·  what it won  ·  the stills  ·  the credits
+ *
+ * The role is the single most important fact on a composer's work page and it
+ * was set at 10px. Here it is display type directly under the title.
+ *
+ * THE AWARDS, REBUILT. The content file holds one string — "7 Official
+ * Selections · 10 Nominations · 6 Wins" — and IX printed it as a line of
+ * 11px caps, so three hard-won numbers read as a caption. Split into
+ * figure/label pairs, the numbers can be set AS numbers: three display
+ * figures on a ruled band, labels beneath in mono. Nothing is invented; if a
+ * part does not begin with a figure the whole tally falls back to the
+ * original line, so a differently shaped award can never render broken.
+ *
+ * THE CREDITS, REBUILT AS A BILLING BLOCK — the stack at the foot of a film
+ * poster. Centred, caps, tightly tracked, and hierarchical: the role largest,
+ * the director under it, the specifications smallest. It suits a short film
+ * better than a table does, and it closes the page the way the thing itself
+ * closes.
+ *
+ * NO CONDENSED FACE IS PRETENDED. A real billing block is set in compressed
+ * gothic; this site does not load one, and --display falls back to Helvetica.
+ * So the effect is built from what is actually here — caps, tight tracking,
+ * centred hierarchy, hairline rules — rather than from a face that would
+ * silently not arrive.
+ *
+ * NOTHING IS INVENTED: every field comes from src/content/works/aasha.md.
+ */
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import OpNav from '../../components/OpNav.astro';
+import VideoFacade from '../../components/VideoFacade.astro';
+import NextWork from '../../components/NextWork.astro';
+import Colophon from '../../components/Colophon.astro';
+import { Image } from 'astro:assets';
+import { framesFor } from '../../lib/frames';
+import { order, numberFor, total } from '../../data/composition';
+
+const works = await getCollection('works');
+const bySlug = new Map(works.map((w) => [w.id, w]));
+const work = bySlug.get('aasha')!;
+const d = work.data;
+
+const seq = order.filter((s) => bySlug.has(s));
+const next = bySlug.get(seq[(seq.indexOf('aasha') + 1) % seq.length])!;
+
+const images = framesFor('aasha', d.frames);
+const poster = images[0];
+const num = numberFor('aasha');
+const AR = d.ratio.replace(':', ' / ');
+
+/* THE TALLY. One string in the file, split into figure/label pairs so the
+   numbers can be set as numbers. Every part must begin with a figure or the
+   whole thing falls back to the raw line — a tally with one broken cell is
+   worse than no tally. */
+const RAW_AWARDS = d.awards.map((a) => a.text).join(' · ');
+const AW_PARTS = RAW_AWARDS.split('·').map((p) => p.trim()).filter(Boolean);
+const AW_MATCH = AW_PARTS.map((p) => p.match(/^(\d+)\s+(.+)$/));
+const TALLY = AW_MATCH.every(Boolean)
+  ? AW_MATCH.map((m) => ({ n: m![1], k: m![2] }))
+  : null;
+
+const SPECS: { k: string; v: string }[] = d.meta.map((m) => ({ k: m.label, v: m.value }));
+---
+
+<Base title={`${d.title} — Ugam Khetani`} description={d.description}>
+  <OpNav variant="bracket" />
+
+  <article class="wk" style={`--ar:${AR}`}>
+    {/* ── 1 · WHAT IT IS, AND WHAT HE DID ─────────────────────── */}
+    <header class="hd">
+      <p class="mono hd__folio">{num} / {String(total).padStart(2, '0')} · {d.category} · {d.year}</p>
+      <h1 class="hd__t" data-reveal>
+        <span class="line"><span class="line__in">{d.title}</span></span>
+      </h1>
+      <p class="hd__role" data-reveal>{d.role}</p>
+      {d.credits.director && (
+        <p class="mono hd__dir">A film by {d.credits.director}</p>
+      )}
+    </header>
+
+    {/* ── 2 · SEE IT ──────────────────────────────────────────── */}
+    <section class="blk blk--film" aria-label="Film" data-reveal>
+      <VideoFacade youtube={d.media.youtube!} title={d.title} poster={poster} alt={d.alt} eager />
+    </section>
+
+    {/* ── 3 · WHY IT EXISTS ───────────────────────────────────── */}
+    <section class="blk" aria-label="About the score" data-reveal>
+      {d.quote && <p class="say"><em class="serif">{d.quote}</em></p>}
+      <p class="body">{d.description.trim()}</p>
+    </section>
+
+    {/* ── 4 · WHAT IT WON ─────────────────────────────────────── */}
+    {(TALLY || RAW_AWARDS) && (
+      <section class="tally" aria-label="Recognition" data-reveal>
+        <p class="mono tally__lbl">Recognition</p>
+        {TALLY ? (
+          <dl class="tally__row">
+            {TALLY.map((t) => (
+              <div class="tally__cell">
+                <dt class="tally__n">{t.n}</dt>
+                <dd class="mono tally__k">{t.k}</dd>
+              </div>
+            ))}
+          </dl>
+        ) : (
+          <p class="mono tally__raw">{RAW_AWARDS}</p>
+        )}
+      </section>
+    )}
+
+    {/* ── 5 · THE STILLS ──────────────────────────────────────── */}
+    <section class="blk" aria-label="Stills" data-reveal>
+      <p class="mono blk__lbl">Stills</p>
+      <div class="grid">
+        {images.map((img, i) => (
+          <figure class="cel">
+            <span class="cel__win">
+              <Image
+                src={img}
+                alt={i === 0 ? d.alt : ''}
+                aria-hidden={i === 0 ? undefined : 'true'}
+                widths={[420, 700, 1100]}
+                sizes="(max-width: 720px) 46vw, 30vw"
+                loading={i < 3 ? 'eager' : 'lazy'}
+                decoding="async"
+              />
+            </span>
+            <figcaption class="mono cel__no">{String(i + 1).padStart(2, '0')}</figcaption>
+          </figure>
+        ))}
+      </div>
+    </section>
+
+    {/* ── 6 · THE BILLING BLOCK ───────────────────────────────── */}
+    <section class="bill" aria-label="Credits" data-reveal>
+      <span class="bill__rule" aria-hidden="true"></span>
+
+      <p class="bill__lead">{d.title}</p>
+      <p class="bill__role">{d.role} &nbsp;·&nbsp; {d.category} &nbsp;·&nbsp; {d.year}</p>
+      {d.credits.director && <p class="bill__dir">Directed by {d.credits.director}</p>}
+
+      <dl class="bill__specs">
+        {SPECS.map((s) => (
+          <div class="bill__spec">
+            <dt class="bill__k">{s.k}</dt>
+            <dd class="bill__v">{s.v}</dd>
+          </div>
+        ))}
+      </dl>
+
+      {d.links.length > 0 && (
+        <p class="bill__links">
+          {d.links.map((l) => (
+            <a class="bill__link" href={l.url} target="_blank" rel="noopener">{l.label} &nearr;</a>
+          ))}
+        </p>
+      )}
+    </section>
+  </article>
+
+  <NextWork
+    slug={next.id}
+    title={next.data.title}
+    year={next.data.year}
+    category={next.data.category}
+    frames={next.data.frames}
+    alt={next.data.alt}
+  />
+  <Colophon />
+</Base>
+
+<style is:global>
+  .runhead { display: none !important; }
+</style>
+
+<style>
+  .wk { padding: clamp(96px, 15vh, 190px) var(--margin) 0; }
+  .blk { max-width: 1180px; margin: 0 auto clamp(72px, 12vh, 160px); }
+
+  /* ── 1 · HEAD ───────────────────────────────────────────────── */
+  .hd { max-width: 1180px; margin: 0 auto clamp(56px, 9vh, 120px); text-align: center; }
+  .hd__folio {
+    margin: 0 0 clamp(22px, 4vh, 44px);
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--dim);
+    font-variant-numeric: tabular-nums;
+  }
+  .hd__t {
+    margin: 0;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(2.6rem, 10vw, 8rem);
+    line-height: 0.86; letter-spacing: -0.05em;
+    text-transform: uppercase; color: var(--bone);
+  }
+  /* THE ROLE, PROMOTED. It was 10px mono furniture in IX; it is the single
+     most important fact on a composer's work page. */
+  .hd__role {
+    margin: clamp(18px, 3vh, 34px) 0 0;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.25rem, 2.8vw, 2.2rem);
+    line-height: 1.05; letter-spacing: var(--track-tight);
+    color: var(--accent);
+  }
+  .hd__dir {
+    margin: 12px 0 0;
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--muted);
+  }
+
+  .blk--film { margin-bottom: clamp(72px, 12vh, 160px); }
+
+  /* ── 3 · THE WRITING ────────────────────────────────────────── */
+  .say {
+    margin: 0 auto clamp(30px, 5vh, 56px);
+    max-width: 22ch; text-align: center;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.4rem, 3.2vw, 2.5rem);
+    line-height: 1.04; letter-spacing: var(--track-tight);
+    color: var(--bone);
+  }
+  .say .serif { color: var(--accent); }
+  .body {
+    margin: 0 auto; max-width: 60ch; text-align: center;
+    font-size: clamp(1.1rem, 1.8vw, 1.5rem);
+    line-height: 1.44; letter-spacing: -0.012em;
+    color: var(--bone-dim); text-wrap: pretty;
+  }
+
+  /* ── 4 · THE TALLY ──────────────────────────────────────────── */
+  /* Three figures set as figures, on a ruled band. The numbers carry the
+     weight and the labels sit under them in mono — the reverse of IX, where
+     everything was one line of 11px caps and the numbers disappeared. */
+  .tally {
+    max-width: 1180px;
+    margin: 0 auto clamp(72px, 12vh, 160px);
+    padding-block: clamp(30px, 5vh, 60px);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .tally__lbl {
+    margin: 0 0 clamp(24px, 4vh, 44px);
+    text-align: center;
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--dim);
+  }
+  .tally__row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin: 0;
+  }
+  .tally__cell {
+    text-align: center;
+    padding-inline: clamp(8px, 2vw, 28px);
+  }
+  /* Hairlines BETWEEN the cells only — a border on every cell would draw one
+     down the outer edges too, where the band already has its own ends. */
+  .tally__cell + .tally__cell { border-left: 1px solid var(--rule-soft); }
+  .tally__n {
+    margin: 0;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(3rem, 9vw, 7rem);
+    line-height: 0.82; letter-spacing: -0.05em;
+    color: var(--bone);
+    font-variant-numeric: tabular-nums;
+  }
+  .tally__k {
+    margin: clamp(12px, 2vh, 20px) 0 0;
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--accent);
+    line-height: 1.5;
+  }
+  .tally__raw {
+    margin: 0; text-align: center;
+    font-size: var(--t-sm); letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--accent);
+  }
+  @media (max-width: 620px) {
+    .tally__row { grid-template-columns: 1fr; }
+    .tally__cell + .tally__cell {
+      border-left: 0; border-top: 1px solid var(--rule-soft);
+      margin-top: clamp(20px, 4vh, 32px); padding-top: clamp(20px, 4vh, 32px);
+    }
+  }
+
+  /* ── 5 · STILLS ─────────────────────────────────────────────── */
+  .blk__lbl {
+    margin: 0 0 clamp(16px, 2.6vh, 28px);
+    padding-bottom: 10px; border-bottom: 1px solid var(--rule);
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--bone-dim);
+  }
+  .grid {
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(20px, 2.6vw, 46px);
+  }
+  .cel { margin: 0; }
+  .cel__win {
+    display: block; aspect-ratio: var(--ar);
+    overflow: hidden; background: var(--ground-lift);
+  }
+  .cel__win :global(img) {
+    width: 100%; height: 100%; object-fit: cover;
+    filter: saturate(0.94) contrast(1.02);
+    transform: scale(1.001);
+    transition: filter var(--d-micro) var(--ease), transform 1100ms var(--ease);
+  }
+  .cel:hover .cel__win :global(img) {
+    filter: saturate(1) contrast(1.06) brightness(1.04);
+    transform: scale(1.035);
+  }
+  .cel__no {
+    display: block; margin-top: 8px;
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    color: var(--dim); font-variant-numeric: tabular-nums;
+  }
+  @media (max-width: 720px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+  /* ── 6 · THE BILLING BLOCK ──────────────────────────────────── */
+  /* The stack at the foot of a poster: centred, caps, tightly tracked, and
+     strictly hierarchical — role largest, director under it, specifications
+     smallest. Everything is centred on one axis, which is what makes a
+     billing block read as a block rather than as a list. */
+  .bill {
+    max-width: 760px;
+    margin: 0 auto clamp(72px, 12vh, 160px);
+    text-align: center;
+  }
+  .bill__rule {
+    display: block; width: 56px; height: 1px;
+    margin: 0 auto clamp(28px, 5vh, 56px);
+    background: var(--accent);
+  }
+  .bill__lead {
+    margin: 0;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.6rem, 4vw, 3rem);
+    line-height: 1; letter-spacing: -0.04em;
+    text-transform: uppercase; color: var(--bone);
+  }
+  .bill__role {
+    margin: clamp(14px, 2.4vh, 24px) 0 0;
+    font-size: var(--t-sm); letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--accent);
+  }
+  .bill__dir {
+    margin: 10px 0 0;
+    font-size: var(--t-xs); letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--bone-dim);
+  }
+
+  /* The specification stack. Label and value on one centred line each, the
+     label dim and the value bone — a poster sets these as one run, and the
+     two colours are what keep it readable without a rule between them. */
+  .bill__specs {
+    margin: clamp(28px, 5vh, 52px) 0 0;
+    display: flex; flex-direction: column; gap: 7px;
+  }
+  .bill__spec {
+    display: flex; justify-content: center; gap: 10px;
+    font-size: var(--t-xs); letter-spacing: 0.16em; text-transform: uppercase;
+  }
+  .bill__k { margin: 0; color: var(--dim); }
+  .bill__v { margin: 0; color: var(--bone-dim); }
+
+  .bill__links { margin: clamp(28px, 5vh, 52px) 0 0; display: flex; justify-content: center; flex-wrap: wrap; gap: 24px; }
+  .bill__link {
+    font-size: var(--t-sm); letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--bone); text-decoration: none;
+    border-bottom: 1px solid var(--rule-accent); padding-bottom: 3px;
+    transition: color var(--d-micro) var(--ease), border-color var(--d-micro) var(--ease);
+  }
+  .bill__link:hover { color: var(--accent); border-color: var(--accent); }
+</style>

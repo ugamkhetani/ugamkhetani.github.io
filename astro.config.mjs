@@ -1,0 +1,18 @@
+import { defineConfig } from 'astro/config';
+
+export default defineConfig({
+  site: 'https://ugamkhetani.com',
+  trailingSlash: 'ignore',
+  /* host is pinned to IPv4 loopback on purpose. Left to itself the dev
+     server binds only to [::1], and this machine's /etc/hosts maps
+     `localhost` to BOTH 127.0.0.1 and ::1 — so a browser that picks IPv4
+     gets connection refused while the server is running perfectly well.
+     Measured: [::1]:4323 answered 200, 127.0.0.1:4323 answered nothing. */
+  server: { host: '127.0.0.1', port: Number(process.env.PORT) || 4327 },
+  build: { inlineStylesheets: 'auto' },
+  image: {
+    // Frames are served at a handful of fixed widths; nothing larger is ever useful.
+    responsiveStyles: true,
+  },
+  prefetch: { prefetchAll: true, defaultStrategy: 'hover' },
+});

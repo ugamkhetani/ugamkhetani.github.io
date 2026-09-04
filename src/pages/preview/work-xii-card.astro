@@ -1,0 +1,352 @@
+---
+/**
+ * PREVIEW — WORK PAGE XII · "CARD".  Aasha.
+ *
+ * A REORDERED PAGE, AND TWO REBUILT SECTIONS.
+ *
+ * THE ORDER, which was the real problem with IX: that page led with a
+ * statement, then the film, then the writing, and set the role — the single
+ * most important fact on a composer's work page — in 10px of mono metadata.
+ * A visitor arriving from the catalogue has already chosen the work. What
+ * they want, in order, is: what is this, what did he do on it, let me see it,
+ * why does it matter, then the details. All three of these share that spine
+ * and differ only in how the last two sections are set.
+ *
+ * THE AWARDS AS A RECORD, set in the panel the rest of this site already
+ * uses — the same outline, radius and ground the homepage gives its enquiry.
+ * Each figure gets its own ruled row with a leader running out to it, the way
+ * a results table sets a score, so the three quantities line up on a common
+ * right edge and can be compared at a glance rather than read as a sentence.
+ *
+ * THE CREDITS AS A COLOPHON IN THE SAME PANEL, so the foot of the page reads
+ * as one object rather than as two lists that happen to be adjacent. The role
+ * is lifted out of the rows and set as display type at the head of it,
+ * because it is the answer to the only question this page exists to answer.
+ *
+ * NOTHING IS INVENTED: every field comes from src/content/works/aasha.md.
+ */
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import OpNav from '../../components/OpNav.astro';
+import VideoFacade from '../../components/VideoFacade.astro';
+import NextWork from '../../components/NextWork.astro';
+import Colophon from '../../components/Colophon.astro';
+import { Image } from 'astro:assets';
+import { framesFor } from '../../lib/frames';
+import { order, numberFor, total } from '../../data/composition';
+
+const works = await getCollection('works');
+const bySlug = new Map(works.map((w) => [w.id, w]));
+const work = bySlug.get('aasha')!;
+const d = work.data;
+
+const seq = order.filter((s) => bySlug.has(s));
+const next = bySlug.get(seq[(seq.indexOf('aasha') + 1) % seq.length])!;
+
+const images = framesFor('aasha', d.frames);
+const poster = images[0];
+const num = numberFor('aasha');
+const AR = d.ratio.replace(':', ' / ');
+
+/* THE TALLY. One string in the file, split into figure/label pairs so the
+   numbers can be set as numbers. Every part must begin with a figure or the
+   whole thing falls back to the raw line — a tally with one broken cell is
+   worse than no tally. */
+const RAW_AWARDS = d.awards.map((a) => a.text).join(' · ');
+const AW_PARTS = RAW_AWARDS.split('·').map((p) => p.trim()).filter(Boolean);
+const AW_MATCH = AW_PARTS.map((p) => p.match(/^(\d+)\s+(.+)$/));
+const TALLY = AW_MATCH.every(Boolean)
+  ? AW_MATCH.map((m) => ({ n: m![1], k: m![2] }))
+  : null;
+
+const SPECS: { k: string; v: string }[] = d.meta.map((m) => ({ k: m.label, v: m.value }));
+---
+
+<Base title={`${d.title} — Ugam Khetani`} description={d.description}>
+  <OpNav variant="bracket" />
+
+  <article class="wk" style={`--ar:${AR}`}>
+    {/* ── 1 · WHAT IT IS, AND WHAT HE DID ─────────────────────── */}
+    <header class="hd">
+      <p class="mono hd__folio">{num} / {String(total).padStart(2, '0')} · {d.category} · {d.year}</p>
+      <h1 class="hd__t" data-reveal>
+        <span class="line"><span class="line__in">{d.title}</span></span>
+      </h1>
+      <p class="hd__role" data-reveal>{d.role}</p>
+      {d.credits.director && (
+        <p class="mono hd__dir">A film by {d.credits.director}</p>
+      )}
+    </header>
+
+    {/* ── 2 · SEE IT ──────────────────────────────────────────── */}
+    <section class="blk blk--film" aria-label="Film" data-reveal>
+      <VideoFacade youtube={d.media.youtube!} title={d.title} poster={poster} alt={d.alt} eager />
+    </section>
+
+    {/* ── 3 · WHY IT EXISTS ───────────────────────────────────── */}
+    <section class="blk" aria-label="About the score" data-reveal>
+      {d.quote && <p class="say"><em class="serif">{d.quote}</em></p>}
+      <p class="body">{d.description.trim()}</p>
+    </section>
+
+    {/* ── 4 · WHAT IT WON ─────────────────────────────────────── */}
+    {(TALLY || RAW_AWARDS) && (
+      <section class="blk" aria-label="Recognition" data-reveal>
+        <p class="mono blk__lbl">Recognition</p>
+        <div class="pan">
+          {TALLY ? (
+            <dl class="rec">
+              {TALLY.map((t) => (
+                <div class="rec__row">
+                  <dt class="rec__k">{t.k}</dt>
+                  <dd class="rec__n">{t.n}</dd>
+                </div>
+              ))}
+            </dl>
+          ) : (
+            <p class="mono rec__raw">{RAW_AWARDS}</p>
+          )}
+        </div>
+      </section>
+    )}
+
+    {/* ── 5 · THE STILLS ──────────────────────────────────────── */}
+    <section class="blk" aria-label="Stills" data-reveal>
+      <p class="mono blk__lbl">Stills</p>
+      <div class="grid">
+        {images.map((img, i) => (
+          <figure class="cel">
+            <span class="cel__win">
+              <Image
+                src={img}
+                alt={i === 0 ? d.alt : ''}
+                aria-hidden={i === 0 ? undefined : 'true'}
+                widths={[420, 700, 1100]}
+                sizes="(max-width: 720px) 46vw, 30vw"
+                loading={i < 3 ? 'eager' : 'lazy'}
+                decoding="async"
+              />
+            </span>
+            <figcaption class="mono cel__no">{String(i + 1).padStart(2, '0')}</figcaption>
+          </figure>
+        ))}
+      </div>
+    </section>
+
+    {/* ── 6 · THE COLOPHON, IN THE SAME PANEL ─────────────────── */}
+    <section class="blk" aria-label="Credits" data-reveal>
+      <p class="mono blk__lbl">Credits</p>
+      <div class="pan pan--clo">
+        <p class="clo__role">{d.role}</p>
+        <p class="mono clo__sub">
+          {d.title} · {d.category} · {d.year}
+          {d.credits.director && <> · Dir. {d.credits.director}</>}
+        </p>
+
+        <dl class="clo__facts">
+          {SPECS.map((s) => (
+            <div class="clo__row">
+              <dt class="mono clo__k">{s.k}</dt>
+              <dd class="clo__v">{s.v}</dd>
+            </div>
+          ))}
+        </dl>
+
+        {d.links.length > 0 && (
+          <p class="clo__links">
+            {d.links.map((l) => (
+              <a class="clo__link" href={l.url} target="_blank" rel="noopener">{l.label} &nearr;</a>
+            ))}
+          </p>
+        )}
+      </div>
+    </section>
+
+  </article>
+
+  <NextWork
+    slug={next.id}
+    title={next.data.title}
+    year={next.data.year}
+    category={next.data.category}
+    frames={next.data.frames}
+    alt={next.data.alt}
+  />
+  <Colophon />
+</Base>
+
+<style is:global>
+  .runhead { display: none !important; }
+</style>
+
+<style>
+  .wk { padding: clamp(96px, 15vh, 190px) var(--margin) 0; }
+  .blk { max-width: 1180px; margin: 0 auto clamp(72px, 12vh, 160px); }
+
+  /* ── 1 · HEAD ───────────────────────────────────────────────── */
+  .hd { max-width: 1180px; margin: 0 auto clamp(56px, 9vh, 120px); text-align: center; }
+  .hd__folio {
+    margin: 0 0 clamp(22px, 4vh, 44px);
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--dim);
+    font-variant-numeric: tabular-nums;
+  }
+  .hd__t {
+    margin: 0;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(2.6rem, 10vw, 8rem);
+    line-height: 0.86; letter-spacing: -0.05em;
+    text-transform: uppercase; color: var(--bone);
+  }
+  /* THE ROLE, PROMOTED. It was 10px mono furniture in IX; it is the single
+     most important fact on a composer's work page. */
+  .hd__role {
+    margin: clamp(18px, 3vh, 34px) 0 0;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.25rem, 2.8vw, 2.2rem);
+    line-height: 1.05; letter-spacing: var(--track-tight);
+    color: var(--accent);
+  }
+  .hd__dir {
+    margin: 12px 0 0;
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--muted);
+  }
+
+  .blk--film { margin-bottom: clamp(72px, 12vh, 160px); }
+
+  /* ── 3 · THE WRITING ────────────────────────────────────────── */
+  .say {
+    margin: 0 auto clamp(30px, 5vh, 56px);
+    max-width: 22ch; text-align: center;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.4rem, 3.2vw, 2.5rem);
+    line-height: 1.04; letter-spacing: var(--track-tight);
+    color: var(--bone);
+  }
+  .say .serif { color: var(--accent); }
+  .body {
+    margin: 0 auto; max-width: 60ch; text-align: center;
+    font-size: clamp(1.1rem, 1.8vw, 1.5rem);
+    line-height: 1.44; letter-spacing: -0.012em;
+    color: var(--bone-dim); text-wrap: pretty;
+  }
+
+  /* ── THE PANEL, borrowed from the homepage ──────────────────── */
+  .pan {
+    border: 1px solid var(--rule);
+    border-radius: 14px;
+    background: var(--ground);
+    padding: clamp(24px, 4vh, 48px) clamp(22px, 3.4vw, 52px);
+  }
+
+  /* ── 4 · THE RECORD ─────────────────────────────────────────── */
+  /* A leader runs from each label out to its figure, so the three land on a
+     common right edge and compare at a glance. The leader is a flexed rule
+     rather than a row of dots: dots do not sit on a baseline reliably across
+     faces, and one hairline reads cleaner at this size. */
+  .rec { margin: 0; }
+  .rec__row {
+    display: flex; align-items: baseline; gap: 16px;
+    padding: clamp(12px, 2vh, 20px) 0;
+  }
+  .rec__row + .rec__row { border-top: 1px solid var(--rule-soft); }
+  .rec__k {
+    margin: 0; flex: 0 0 auto;
+    font-size: clamp(1rem, 1.5vw, 1.25rem);
+    letter-spacing: -0.01em; color: var(--bone-dim);
+  }
+  /* The leader. An empty flex child with a rule through its middle. */
+  .rec__row::after {
+    content: ''; order: 1; flex: 1 1 auto;
+    height: 1px; background: var(--rule-soft);
+    transform: translateY(-0.32em);
+  }
+  .rec__n {
+    margin: 0; order: 2; flex: 0 0 auto;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    line-height: 1; letter-spacing: -0.04em;
+    color: var(--accent); font-variant-numeric: tabular-nums;
+  }
+  .rec__raw {
+    margin: 0; font-size: var(--t-sm); letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--accent);
+  }
+
+  /* ── 5 · STILLS ─────────────────────────────────────────────── */
+  .blk__lbl {
+    margin: 0 0 clamp(16px, 2.6vh, 28px);
+    padding-bottom: 10px; border-bottom: 1px solid var(--rule);
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--bone-dim);
+  }
+  .grid {
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(20px, 2.6vw, 46px);
+  }
+  .cel { margin: 0; }
+  .cel__win {
+    display: block; aspect-ratio: var(--ar);
+    overflow: hidden; background: var(--ground-lift);
+  }
+  .cel__win :global(img) {
+    width: 100%; height: 100%; object-fit: cover;
+    filter: saturate(0.94) contrast(1.02);
+    transform: scale(1.001);
+    transition: filter var(--d-micro) var(--ease), transform 1100ms var(--ease);
+  }
+  .cel:hover .cel__win :global(img) {
+    filter: saturate(1) contrast(1.06) brightness(1.04);
+    transform: scale(1.035);
+  }
+  .cel__no {
+    display: block; margin-top: 8px;
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    color: var(--dim); font-variant-numeric: tabular-nums;
+  }
+  @media (max-width: 720px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+  /* ── 6 · THE COLOPHON ───────────────────────────────────────── */
+  /* Same panel as the record above it, so the foot of the page reads as one
+     object. The role is lifted out of the rows and set as display type,
+     because it is the answer to the question the page exists to answer. */
+  .pan--clo { text-align: center; }
+  .clo__role {
+    margin: 0;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.6rem, 4vw, 2.8rem);
+    line-height: 1; letter-spacing: -0.04em;
+    text-transform: uppercase; color: var(--bone);
+  }
+  .clo__sub {
+    margin: clamp(12px, 2vh, 20px) 0 0;
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .clo__facts {
+    margin: clamp(26px, 4.4vh, 48px) auto 0;
+    max-width: 620px;
+  }
+  .clo__row {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 18px; align-items: baseline;
+    padding: 11px 0;
+    border-top: 1px solid var(--rule-soft);
+  }
+  .clo__k { margin: 0; text-align: right; font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+  .clo__v { margin: 0; text-align: left; font-size: var(--t-base); line-height: 1.35; color: var(--bone-dim); }
+  .clo__links { margin: clamp(26px, 4.4vh, 48px) 0 0; display: flex; justify-content: center; flex-wrap: wrap; gap: 24px; }
+  .clo__link {
+    font-size: var(--t-sm); letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--bone); text-decoration: none;
+    border-bottom: 1px solid var(--rule-accent); padding-bottom: 3px;
+    transition: color var(--d-micro) var(--ease), border-color var(--d-micro) var(--ease);
+  }
+  .clo__link:hover { color: var(--accent); border-color: var(--accent); }
+
+  @media (max-width: 560px) {
+    .clo__row { grid-template-columns: 1fr; gap: 3px; text-align: center; }
+    .clo__k, .clo__v { text-align: center; }
+  }
+</style>

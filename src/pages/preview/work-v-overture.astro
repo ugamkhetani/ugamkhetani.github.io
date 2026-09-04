@@ -1,0 +1,356 @@
+---
+/**
+ * PREVIEW — WORK PAGE V · "OVERTURE".  Aasha.
+ *
+ * THE PAGE DOES WHAT THE WORK DOES.
+ *
+ * Aasha's note says the score was built before the theme: the harmonic
+ * environment, the textural palette, the sense of space — and the tune
+ * emerging from inside it afterwards. The quote states it outright: "A score
+ * begins before the theme arrives."
+ *
+ * So this page begins before the image arrives. The first screen is the
+ * sentence alone at display scale on empty ground — no still, no title, no
+ * furniture beyond a single folio. The name comes second. The film comes
+ * third. The frames come last, and by then you have been told what to look
+ * for. WITHHOLDING IS THE WHOLE DESIGN, and it is the one editorial move on
+ * this page that could not be swapped for another without losing the idea.
+ *
+ * IT COSTS SOMETHING AND THE COST IS THE POINT. A work page that opens on a
+ * still sells the work in one second; this one asks for four. That is the
+ * right trade for a page reached from a catalogue — the visitor has already
+ * chosen this work, so the job is no longer to catch them.
+ *
+ * THE TYPE IS THE IMAGE. At this size the sentence has to be set, not just
+ * sized: a measure in the low twenties so it stacks into a block rather than
+ * running as one long line — measured, two lines at 1280x720 and more as the
+ * viewport narrows — with leading under 1 to close them up, the tracking
+ * pulled to the display value, and the accent carried by a single word
+ * rather than the whole sentence: "begins", the word the argument turns on.
+ *
+ * NOTHING IS INVENTED: every field comes from src/content/works/aasha.md.
+ * The one authored decision is which word of the quote takes the accent.
+ */
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import OpNav from '../../components/OpNav.astro';
+import VideoFacade from '../../components/VideoFacade.astro';
+import NextWork from '../../components/NextWork.astro';
+import Colophon from '../../components/Colophon.astro';
+import { Image } from 'astro:assets';
+import { framesFor } from '../../lib/frames';
+import { order, numberFor, total } from '../../data/composition';
+
+const works = await getCollection('works');
+const bySlug = new Map(works.map((w) => [w.id, w]));
+const work = bySlug.get('aasha')!;
+const d = work.data;
+
+const seq = order.filter((s) => bySlug.has(s));
+const next = bySlug.get(seq[(seq.indexOf('aasha') + 1) % seq.length])!;
+
+const images = framesFor('aasha', d.frames);
+const poster = images[0];
+const num = numberFor('aasha');
+const AR = d.ratio.replace(':', ' / ');
+
+/* The quote, split so one word can take the accent. Matched rather than
+   retyped, so the sentence still comes wholly from the content file — if the
+   quote changes and no longer contains the word, the whole line simply sets
+   plain instead of the page inventing a sentence. */
+const TURN = 'begins';
+const q = d.quote ?? '';
+const at = q.toLowerCase().indexOf(TURN);
+const QUOTE = at < 0
+  ? [{ t: q, hot: false }]
+  : [
+      { t: q.slice(0, at), hot: false },
+      { t: q.slice(at, at + TURN.length), hot: true },
+      { t: q.slice(at + TURN.length), hot: false },
+    ];
+
+const FACTS: { k: string; v: string }[] = [
+  { k: 'Role', v: d.role },
+  ...(d.credits.director ? [{ k: 'Director', v: d.credits.director }] : []),
+  ...d.meta.map((m) => ({ k: m.label, v: m.value })),
+];
+---
+
+<Base title={`${d.title} — Ugam Khetani`} description={d.description}>
+  <OpNav variant="bracket" />
+
+  <article class="ov" style={`--ar:${AR}`}>
+    {/* ── 1 · THE SENTENCE, ALONE ─────────────────────────────── */}
+    <section class="opn" aria-label="Statement">
+      <p class="mono opn__folio">{num} / {String(total).padStart(2, '0')}</p>
+      {q && (
+        <p class="opn__q" data-reveal>
+          <span class="line"><span class="line__in">
+            {QUOTE.map((p) => (p.hot ? <em class="serif hot">{p.t}</em> : p.t))}
+          </span></span>
+        </p>
+      )}
+      <p class="mono opn__cue">Scroll &darr;</p>
+    </section>
+
+    {/* ── 2 · THE NAME ────────────────────────────────────────── */}
+    <section class="nm" aria-label="Title">
+      <h1 class="nm__t" data-reveal>
+        <span class="line"><span class="line__in">{d.title}</span></span>
+      </h1>
+      <p class="mono nm__meta">
+        {d.category} · {d.year} · {d.role}
+        {d.credits.director && <> · Dir. {d.credits.director}</>}
+      </p>
+      {d.awards.length > 0 && (
+        <p class="mono nm__awards">{d.awards.map((a) => a.text).join(' · ')}</p>
+      )}
+    </section>
+
+    {/* ── 3 · THE FILM ────────────────────────────────────────── */}
+    <section class="blk" aria-label="Film" data-reveal>
+      <p class="mono blk__lbl">The film</p>
+      <VideoFacade youtube={d.media.youtube!} title={d.title} poster={poster} alt={d.alt} />
+    </section>
+
+    {/* ── 4 · THE WRITING ─────────────────────────────────────── */}
+    <section class="blk" aria-label="About the score" data-reveal>
+      <p class="mono blk__lbl">The score</p>
+      <p class="body">{d.description}</p>
+    </section>
+
+    {/* ── 5 · THE FRAMES, LAST ────────────────────────────────── */}
+    <section class="plates" aria-label="Stills" data-reveal>
+      <p class="mono blk__lbl">Stills</p>
+      <div class="plates__grid">
+        {images.map((img, i) => (
+          <figure class="pl">
+            <span class="pl__win">
+              <Image
+                src={img}
+                alt={i === 0 ? d.alt : ''}
+                aria-hidden={i === 0 ? undefined : 'true'}
+                widths={[420, 700, 1100]}
+                sizes="(max-width: 720px) 46vw, 30vw"
+                loading="lazy"
+                decoding="async"
+              />
+            </span>
+            <figcaption class="mono pl__no">{String(i + 1).padStart(2, '0')}</figcaption>
+          </figure>
+        ))}
+      </div>
+    </section>
+
+    {/* ── 6 · THE CLOSE ───────────────────────────────────────── */}
+    <section class="end" aria-label="Credits" data-reveal>
+      <dl class="end__facts">
+        {FACTS.map((f) => (
+          <div class="end__row">
+            <dt class="mono end__k">{f.k}</dt>
+            <dd class="end__v">{f.v}</dd>
+          </div>
+        ))}
+      </dl>
+      {d.links.length > 0 && (
+        <p class="end__links">
+          {d.links.map((l) => (
+            <a class="end__link" href={l.url} target="_blank" rel="noopener">{l.label} &nearr;</a>
+          ))}
+        </p>
+      )}
+    </section>
+  </article>
+
+  <NextWork
+    slug={next.id}
+    title={next.data.title}
+    year={next.data.year}
+    category={next.data.category}
+    frames={next.data.frames}
+    alt={next.data.alt}
+  />
+  <Colophon />
+</Base>
+
+<style is:global>
+  .runhead { display: none !important; }
+</style>
+
+<style>
+  .ov { padding-inline: var(--margin); }
+
+  /* ── 1 · THE SENTENCE ───────────────────────────────────────── */
+  /* A full screen with one sentence on it and nothing else. min-height rather
+     than height, so a short viewport scrolls instead of clipping the type. */
+  .opn {
+    position: relative;
+    min-height: 100vh;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    text-align: center;
+    padding-block: clamp(96px, 15vh, 190px) clamp(48px, 8vh, 96px);
+  }
+  .opn__folio {
+    margin: 0 0 clamp(32px, 6vh, 72px);
+    font-size: var(--t-micro);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--dim);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* THE TYPE IS THE IMAGE, so it is set rather than sized. The 21ch measure
+     stacks this sentence into a block instead of one long line — two lines at
+     1280x720, more as the viewport narrows; leading under 1 closes them up;
+     the tracking is pulled to the display value the site uses on its largest
+     type. text-wrap: balance evens the lines so the second is never a single
+     orphaned word. */
+  .opn__q {
+    margin: 0;
+    max-width: 21ch;
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: clamp(2.2rem, 7vw, 6rem);
+    line-height: 0.96;
+    letter-spacing: -0.045em;
+    color: var(--bone);
+    text-wrap: balance;
+  }
+  .opn__q .hot { color: var(--accent); }
+  .opn__cue {
+    margin: clamp(48px, 9vh, 110px) 0 0;
+    font-size: var(--t-micro);
+    letter-spacing: var(--track-mono);
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+
+  /* ── 2 · THE NAME ───────────────────────────────────────────── */
+  .nm {
+    max-width: 1180px;
+    margin: clamp(64px, 11vh, 150px) auto 0;
+    text-align: center;
+    padding-top: clamp(40px, 7vh, 90px);
+    border-top: 1px solid var(--rule);
+  }
+  .nm__t {
+    margin: 0;
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: clamp(2.6rem, 10vw, 8rem);
+    line-height: 0.86;
+    letter-spacing: -0.05em;
+    text-transform: uppercase;
+    color: var(--bone);
+  }
+  .nm__meta {
+    margin: clamp(20px, 3.4vh, 36px) 0 0;
+    font-size: var(--t-micro);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .nm__awards {
+    margin: 10px 0 0;
+    font-size: var(--t-xs);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  /* ── 3–4 · FILM AND WRITING ─────────────────────────────────── */
+  .blk { max-width: 1180px; margin: clamp(64px, 11vh, 150px) auto 0; }
+  .blk__lbl {
+    margin: 0 0 clamp(14px, 2.2vh, 24px);
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--rule);
+    font-size: var(--t-micro);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--bone-dim);
+  }
+  .body {
+    margin: 0;
+    max-width: 60ch;
+    font-size: clamp(1.15rem, 1.9vw, 1.6rem);
+    line-height: 1.42;
+    letter-spacing: -0.012em;
+    color: var(--bone-dim);
+    text-wrap: pretty;
+  }
+
+  /* ── 5 · THE FRAMES ─────────────────────────────────────────── */
+  /* Small and regular, deliberately. They arrive after the argument has been
+     made, so their job is evidence rather than spectacle — a plate section at
+     the back of a book, not a hero. */
+  .plates { max-width: 1180px; margin: clamp(64px, 11vh, 150px) auto 0; }
+  .plates__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(20px, 2.6vw, 46px);
+  }
+  .pl { margin: 0; }
+  .pl__win {
+    display: block;
+    aspect-ratio: var(--ar);
+    overflow: hidden;
+    background: var(--ground-lift);
+  }
+  .pl__win :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(0.94) contrast(1.02);
+    transform: scale(1.001);
+    transition:
+      filter var(--d-micro) var(--ease),
+      transform 1100ms var(--ease);
+  }
+  .pl:hover .pl__win :global(img) {
+    filter: saturate(1) contrast(1.06) brightness(1.04);
+    transform: scale(1.035);
+  }
+  .pl__no {
+    display: block;
+    margin-top: 8px;
+    font-size: var(--t-micro);
+    letter-spacing: 0.16em;
+    color: var(--dim);
+    font-variant-numeric: tabular-nums;
+  }
+  @media (max-width: 720px) {
+    .plates__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  /* ── 6 · THE CLOSE ──────────────────────────────────────────── */
+  .end { max-width: 1180px; margin: clamp(80px, 13vh, 170px) auto 0; }
+  .end__facts { margin: 0; }
+  .end__row {
+    display: grid;
+    grid-template-columns: minmax(0, 12rem) minmax(0, 1fr);
+    gap: clamp(20px, 2.5vw, 44px);
+    align-items: baseline;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .end__k { margin: 0; font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+  .end__v { margin: 0; font-size: var(--t-md); line-height: 1.3; color: var(--bone-dim); }
+  .end__links { margin: clamp(24px, 4vh, 40px) 0 0; display: flex; flex-wrap: wrap; gap: 24px; }
+  .end__link {
+    font-size: var(--t-sm);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--bone);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rule-accent);
+    padding-bottom: 3px;
+    transition: color var(--d-micro) var(--ease), border-color var(--d-micro) var(--ease);
+  }
+  .end__link:hover { color: var(--accent); border-color: var(--accent); }
+
+  @media (max-width: 640px) {
+    .end__row { grid-template-columns: 1fr; gap: 4px; }
+  }
+</style>

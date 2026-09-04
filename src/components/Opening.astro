@@ -1,0 +1,227 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+/**
+ * THE OPENING — THE ACADEMY COUNTDOWN.
+ *
+ * A sweep hand wipes a circle once per count while the numerals cut 3 · 2 · 1,
+ * and then the film starts. It is the oldest opening in cinema and it is doing
+ * real work here: a countdown is the only kind of loading screen that tells you
+ * exactly how much longer it will be.
+ *
+ * PROMOTED FROM PREVIEW LOADER A. The draft is kept at
+ * src/components/_pv-Loader-leader.astro and previewed at /preview/loading-a-leader,
+ * which is the only place the opening can actually be watched — here it runs
+ * once per session and is then gone until the tab is closed. The two files are
+ * separate copies: a change made to one is NOT picked up by the other.
+ *
+ * THIS REPLACED THE HELIX FLIGHT, which flew the catalogue down a spiral axis
+ * on CSS perspective. That draft is not lost — it is preview 08 "Helix", where
+ * the same geometry is driven by scroll instead of a timer, which is what it
+ * was designed for. The previous file is unchanged there.
+ *
+ * THE SWEEP IS ONE CONIC GRADIENT, not twelve elements or an SVG arc. A
+ * conic-gradient with a hard stop at var(--sweep) is a single painted layer the
+ * compositor can animate through an @property angle — no geometry, no
+ * stroke-dasharray, nothing to lay out. The registered property is what makes
+ * it animate at all: an unregistered custom property has no type, so the
+ * browser can only swap it, and the sweep would jump in three steps.
+ *
+ * THE FRAMES ARE THE COUNT. Rather than draw three numerals on empty ground,
+ * each count holds one still from the catalogue behind the ring — so the
+ * countdown is also the first look at the work, and 1.1 seconds does two jobs
+ * instead of one.
+ *
+ * NO AUDIO. A leader's beep is the one part of this that cannot be borrowed:
+ * sound on load is hostile, and every browser blocks it anyway.
+ *
+ * TIMING IS OWNED BY Base.astro, which adds html.intro-on and removes it after
+ * 1560ms. Everything here has to be finished by then: the three counts run
+ * 0 to 1.08s and the lift runs 1.14s to 1.54s. Change one and the other has to
+ * move.
+ */
+interface Props {
+  /**
+   * One frame per count, in counting order: first behind 3, last behind 1.
+   * Three are used. index.astro names them, names the frame index too, and may
+   * carry an `aim` — a zoom and a shift that put the FACE at the middle of the
+   * ring rather than the frame. They are a chosen set, not a slice off the
+   * front of the score.
+   */
+  stills: { img: ImageMetadata; alt: string; aim?: { zoom: number; x: number; y: number } }[];
+}
+const { stills } = Astro.props;
+
+/* Three counts at 0.36s. Four would run past the budget; two does not read as
+   a countdown. The numerals descend, so the last thing before the page is 1,
+   and stills[i] is the frame behind COUNTS[i] — first entry behind 3. */
+const COUNTS = [3, 2, 1];
+const STEP = 0.36;
+---
+
+<div class="intro" data-intro aria-hidden="true">
+  <div class="ldr">
+    {COUNTS.map((n, i) => (
+      <span
+        class="ldr__frame"
+        style={[
+          `--d:${(i * STEP).toFixed(2)}s`,
+          stills[i]?.aim &&
+            `--aim-z:${stills[i].aim!.zoom};--aim-x:${stills[i].aim!.x}%;--aim-y:${stills[i].aim!.y}%`,
+        ]
+          .filter(Boolean)
+          .join(';')}
+      >
+        {stills[i] && (
+          <Image src={stills[i].img} alt="" widths={[600, 1000]} sizes="46vw" loading="eager" decoding="sync" />
+        )}
+      </span>
+    ))}
+
+    <span class="ldr__ring" aria-hidden="true"></span>
+    <span class="ldr__cross ldr__cross--v" aria-hidden="true"></span>
+    <span class="ldr__cross ldr__cross--h" aria-hidden="true"></span>
+
+    {COUNTS.map((n, i) => (
+      <span class="ldr__n display" style={`--d:${(i * STEP).toFixed(2)}s`}>{n}</span>
+    ))}
+  </div>
+</div>
+
+<style>
+  /* The sweep angle has to be a REGISTERED property or it cannot be
+     interpolated — an unregistered custom property is an untyped token, so the
+     browser swaps it rather than animating it and the hand jumps. */
+  @property --sweep {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 0deg;
+  }
+
+  /* Hidden unless the inline head script opts in — so a visitor who has
+     already seen it, or who prefers reduced motion, never sees a flash. */
+  .intro { display: none; }
+
+  :global(html.intro-on) .intro {
+    display: grid;
+    place-items: center;
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    background: var(--ground);
+    animation: ldr-lift 0.4s var(--ease) forwards;
+    animation-delay: 1.14s;
+  }
+  :global(html.intro-on) body { overflow: hidden; }
+
+  .ldr {
+    position: relative;
+    width: min(46vw, 46vh);
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border-radius: 50%;
+    background: var(--ground-deep);
+  }
+
+  /* Each count holds one still, cut in — not faded. A leader cuts. */
+  .ldr__frame {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    /* NO forwards. The element rests at opacity 0; the animation holds it at
+       1 for its own 0.36s and then hands it back to the base value. With
+       forwards each count would stick and all three numerals would be on
+       screen together by the end. */
+    animation: ldr-cut 0.36s steps(1, end);
+    animation-delay: var(--d);
+  }
+  .ldr__frame :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* 0.8, not the 0.62 this started at. At 0.62 the frames measured a mean
+       channel of 27.5 against a ground of 10 — technically there and
+       effectively black, which defeats the reason for putting the work behind
+       the count at all.
+
+       THOSE FIGURES WERE FOR THE OLD SET AND NO LONGER APPLY. The three frames
+       are now chosen ones (see COUNTDOWN in index.astro) and they are brighter.
+       Measured at this grade over the region each numeral actually covers, in
+       counting order:
+
+         3  book-my-yamraj  centre 72.9   numeral 7.5:1   worst patch 2.3:1
+         2  taskaree        centre 84.7   numeral 6.3:1   worst patch 1.6:1
+         1  special-ops-2   centre 61.4   numeral 9.0:1   worst patch 3.2:1
+
+       Against the average behind each glyph the white numeral is comfortable.
+       Against the brightest patches inside it the 2 falls to 1.6:1, so parts of
+       that digit sit on a lit area and soften. If it shows, the fix is this
+       number rather than the frames: 0.65 would still leave the centres at
+       roughly 50 to 69 and lift the numeral clear. */
+    filter: saturate(0.94) contrast(1.02) brightness(0.8);
+    /* THE AIM. object-fit centres the frame; this centres the face inside it.
+       Scale first, then shift — the shift is a percentage of the ring, which is
+       the box the face position was read in. Defaults are a no-op, so a frame
+       without an aim behaves exactly as before. */
+    transform: translate(var(--aim-x, 0), var(--aim-y, 0)) scale(var(--aim-z, 1));
+  }
+
+  /* The sweep. One conic gradient, one animated angle. */
+  .ldr__ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1px solid var(--rule);
+    background: conic-gradient(
+      from -90deg,
+      rgba(255, 255, 255, 0.13) 0deg,
+      rgba(255, 255, 255, 0.13) var(--sweep),
+      transparent var(--sweep)
+    );
+    animation: ldr-sweep 0.36s linear infinite;
+  }
+
+  .ldr__cross {
+    position: absolute;
+    background: var(--rule-soft);
+  }
+  .ldr__cross--v { top: 0; bottom: 0; width: 1px; }
+  .ldr__cross--h { left: 0; right: 0; height: 1px; }
+
+  .ldr__n {
+    position: absolute;
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: min(22vw, 22vh);
+    line-height: 1;
+    letter-spacing: -0.05em;
+    color: var(--bone);
+    font-variant-numeric: tabular-nums;
+    opacity: 0;
+    /* NO forwards — same reason as the frames above. */
+    animation: ldr-cut 0.36s steps(1, end);
+    animation-delay: var(--d);
+  }
+
+  @keyframes ldr-sweep {
+    from { --sweep: 0deg; }
+    to { --sweep: 360deg; }
+  }
+  /* steps(1, end): a count appears at its moment and holds. A fade would make
+     three numerals visible at once through the crossover. */
+  @keyframes ldr-cut {
+    from { opacity: 1; }
+    to { opacity: 1; }
+  }
+  /* The whole thing wipes up, the way the decks wipe. */
+  @keyframes ldr-lift {
+    to { clip-path: inset(0 0 100% 0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .intro { display: none !important; }
+  }
+</style>

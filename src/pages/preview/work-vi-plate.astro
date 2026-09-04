@@ -1,0 +1,399 @@
+---
+/**
+ * PREVIEW — WORK PAGE VI · "PLATE".  Aasha.
+ *
+ * THE WORK AS A MONOGRAPH, not as a feature. The other five are magazine
+ * shapes — a sheet, a spread, a run, a cue list, an opener. This one is a
+ * BOOK: an asymmetric measure with a standing outer margin, the frames tipped
+ * in as full-width plates, every note hung in that margin, and a colophon at
+ * the foot instead of a credits block.
+ *
+ * THE MARGIN IS THE IDEA. Everything that is not the work itself lives out
+ * there — plate numbers, the role, the director, the awards — set small and
+ * quiet and never interrupting the column. A book does this so the eye can
+ * run down the text without stepping over apparatus, and so the apparatus is
+ * always in the same place when it is wanted. It is the exact opposite of
+ * the caption-under-the-picture the web defaults to.
+ *
+ * THE PLATES BLEED PAST THE COLUMN, and only they do. The measure is set for
+ * reading; the pictures are set for looking, so they take the full page width
+ * and the text does not. That difference — one element deliberately wider
+ * than everything around it — is what makes a book feel designed rather than
+ * poured.
+ *
+ * THE OPENING PARAGRAPH TAKES A RAISED INITIAL. Not a drop cap: a dropped
+ * letter needs a float and a hand-tuned line count, and it breaks the moment
+ * the measure reflows. A raised initial is one font-size and one baseline
+ * nudge, survives every width, and does the same job of marking where the
+ * reading starts.
+ *
+ * THE MARGIN FOLDS UNDER 1100px, because a standing margin on a phone is not
+ * a margin — it is a column of orphans. Below that the notes run inline above
+ * their plates and the book becomes a scroll, which is the honest thing for
+ * it to become.
+ *
+ * NOTHING IS INVENTED: every field comes from src/content/works/aasha.md.
+ */
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import OpNav from '../../components/OpNav.astro';
+import VideoFacade from '../../components/VideoFacade.astro';
+import NextWork from '../../components/NextWork.astro';
+import Colophon from '../../components/Colophon.astro';
+import { Image } from 'astro:assets';
+import { framesFor } from '../../lib/frames';
+import { order, numberFor, total } from '../../data/composition';
+
+const works = await getCollection('works');
+const bySlug = new Map(works.map((w) => [w.id, w]));
+const work = bySlug.get('aasha')!;
+const d = work.data;
+
+const seq = order.filter((s) => bySlug.has(s));
+const next = bySlug.get(seq[(seq.indexOf('aasha') + 1) % seq.length])!;
+
+const images = framesFor('aasha', d.frames);
+const poster = images[0];
+const num = numberFor('aasha');
+const AR = d.ratio.replace(':', ' / ');
+
+/* The opening paragraph takes a raised initial, so its first character is
+   split off. Done here rather than with ::first-letter, which cannot be
+   given its own line-height reliably across the sentence's first line.
+
+   THE LETTER IS NOT DUPLICATED FOR SCREEN READERS. The first version wrapped
+   it aria-hidden and repeated it in a visually-hidden span, which is the
+   usual reflex and is wrong here: an inline span does not break a word in the
+   accessibility tree, so the paragraph already reads as "Original". All the
+   duplicate achieved was making the text content literally "OOriginal", which
+   is what any reader, extractor or search index would then see. */
+const BODY = d.description.trim();
+const INITIAL = BODY.slice(0, 1);
+const REST = BODY.slice(1);
+
+const FACTS: { k: string; v: string }[] = [
+  { k: 'Role', v: d.role },
+  ...(d.credits.director ? [{ k: 'Director', v: d.credits.director }] : []),
+  ...d.meta.map((m) => ({ k: m.label, v: m.value })),
+];
+---
+
+<Base title={`${d.title} — Ugam Khetani`} description={d.description}>
+  <OpNav variant="bracket" />
+
+  <article class="bk" style={`--ar:${AR}`}>
+    {/* ── THE TITLE PAGE ──────────────────────────────────────── */}
+    <header class="tp">
+      <p class="mono tp__folio">{num} / {String(total).padStart(2, '0')}</p>
+      <h1 class="tp__t" data-reveal>
+        <span class="line"><span class="line__in">{d.title}</span></span>
+      </h1>
+      {d.quote && (
+        <p class="tp__q" data-reveal><em class="serif">{d.quote}</em></p>
+      )}
+      <p class="mono tp__imp">
+        {d.category} · {d.year}{d.credits.director && <> · Dir. {d.credits.director}</>}
+      </p>
+    </header>
+
+    {/* ── THE BOOK. Column plus a standing outer margin. ──────── */}
+    <div class="bk__page">
+      {/* the text column */}
+      <div class="col">
+        <p class="mono col__lbl">The score</p>
+        <p class="col__body" data-reveal>
+          <span class="col__init">{INITIAL}</span>{REST}
+        </p>
+      </div>
+
+      {/* the standing margin, holding everything that is not the work */}
+      <aside class="mrg">
+        <p class="mono mrg__note"><span class="mrg__k">Role</span>{d.role}</p>
+        {d.credits.director && (
+          <p class="mono mrg__note"><span class="mrg__k">Director</span>{d.credits.director}</p>
+        )}
+        {d.awards.length > 0 && (
+          <p class="mono mrg__note mrg__note--hot">
+            <span class="mrg__k">Festivals</span>{d.awards.map((a) => a.text).join(' · ')}
+          </p>
+        )}
+      </aside>
+    </div>
+
+    {/* ── THE FILM, as the first plate ────────────────────────── */}
+    <figure class="plate plate--film" data-reveal>
+      <VideoFacade youtube={d.media.youtube!} title={d.title} poster={poster} alt={d.alt} eager />
+      <figcaption class="mono plate__cap"><span class="plate__no">Pl. 00</span> The film</figcaption>
+    </figure>
+
+    {/* ── THE PLATES ──────────────────────────────────────────── */}
+    {images.map((img, i) => (
+      <figure class="plate" data-reveal>
+        <span class="plate__win">
+          <Image
+            src={img}
+            alt={i === 0 ? d.alt : ''}
+            aria-hidden={i === 0 ? undefined : 'true'}
+            widths={[800, 1300, 1900]}
+            sizes="(max-width: 1100px) 92vw, 78vw"
+            loading={i < 2 ? 'eager' : 'lazy'}
+            decoding="async"
+          />
+        </span>
+        <figcaption class="mono plate__cap">
+          <span class="plate__no">Pl. {String(i + 1).padStart(2, '0')}</span>
+          {d.title} — {d.category}, {d.year}
+        </figcaption>
+      </figure>
+    ))}
+
+    {/* ── THE COLOPHON ────────────────────────────────────────── */}
+    <section class="clo" aria-label="Credits" data-reveal>
+      <p class="mono clo__rule" aria-hidden="true"></p>
+      <dl class="clo__facts">
+        {FACTS.map((f) => (
+          <div class="clo__row">
+            <dt class="mono clo__k">{f.k}</dt>
+            <dd class="clo__v">{f.v}</dd>
+          </div>
+        ))}
+      </dl>
+      {d.links.length > 0 && (
+        <p class="clo__links">
+          {d.links.map((l) => (
+            <a class="clo__link" href={l.url} target="_blank" rel="noopener">{l.label} &nearr;</a>
+          ))}
+        </p>
+      )}
+    </section>
+  </article>
+
+  <NextWork
+    slug={next.id}
+    title={next.data.title}
+    year={next.data.year}
+    category={next.data.category}
+    frames={next.data.frames}
+    alt={next.data.alt}
+  />
+  <Colophon />
+</Base>
+
+<style is:global>
+  .runhead { display: none !important; }
+</style>
+
+<style>
+  .bk {
+    --measure: minmax(0, 1fr);
+    --margin-col: clamp(150px, 15vw, 240px);
+    --book: min(1180px, 100%);
+    padding: clamp(96px, 15vh, 190px) var(--margin) 0;
+  }
+
+  /* ── TITLE PAGE ─────────────────────────────────────────────── */
+  .tp { width: var(--book); margin-inline: auto; text-align: center; }
+  .tp__folio {
+    margin: 0 0 clamp(28px, 5vh, 60px);
+    font-size: var(--t-micro);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--dim);
+    font-variant-numeric: tabular-nums;
+  }
+  .tp__t {
+    margin: 0;
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: clamp(2.6rem, 10vw, 8rem);
+    line-height: 0.86;
+    letter-spacing: -0.05em;
+    text-transform: uppercase;
+    color: var(--bone);
+  }
+  .tp__q {
+    margin: clamp(30px, 5.5vh, 64px) auto 0;
+    max-width: 20ch;
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: clamp(1.25rem, 2.6vw, 2rem);
+    line-height: 1.08;
+    letter-spacing: var(--track-tight);
+    color: var(--accent);
+  }
+  .tp__imp {
+    margin: clamp(30px, 5.5vh, 64px) 0 0;
+    font-size: var(--t-micro);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ── THE PAGE: column + standing margin ─────────────────────── */
+  .bk__page {
+    display: grid;
+    grid-template-columns: var(--measure) var(--margin-col);
+    column-gap: clamp(32px, 4vw, 72px);
+    width: var(--book);
+    margin: clamp(80px, 13vh, 170px) auto 0;
+    align-items: start;
+  }
+
+  .col__lbl {
+    margin: 0 0 clamp(14px, 2.2vh, 24px);
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--rule);
+    font-size: var(--t-micro);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--bone-dim);
+  }
+  .col__body {
+    margin: 0;
+    max-width: 62ch;
+    font-size: clamp(1.15rem, 1.9vw, 1.6rem);
+    line-height: 1.44;
+    letter-spacing: -0.012em;
+    color: var(--bone-dim);
+    text-wrap: pretty;
+    hanging-punctuation: first;
+  }
+
+  /* A RAISED initial, not a dropped one — see the note in the frontmatter.
+     The negative baseline nudge is what keeps it sitting ON the first line
+     rather than pushing that line down. */
+  .col__init {
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: 2.6em;
+    line-height: 0.8;
+    letter-spacing: -0.04em;
+    color: var(--bone);
+    padding-right: 0.06em;
+    vertical-align: -0.12em;
+  }
+
+  /* ── THE STANDING MARGIN ────────────────────────────────────── */
+  .mrg { padding-top: calc(var(--t-micro) + 22px); }
+  .mrg__note {
+    margin: 0 0 clamp(16px, 2.6vh, 26px);
+    font-size: var(--t-xs);
+    line-height: 1.6;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+  .mrg__k {
+    display: block;
+    margin-bottom: 3px;
+    font-size: var(--t-micro);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+  .mrg__note--hot { color: var(--accent); }
+
+  /* ── THE PLATES ─────────────────────────────────────────────── */
+  /* Wider than the reading measure and than the margin — the one element on
+     the page allowed to be. */
+  .plate {
+    width: var(--book);
+    margin: clamp(72px, 12vh, 160px) auto 0;
+  }
+  .plate__win {
+    display: block;
+    aspect-ratio: var(--ar);
+    overflow: hidden;
+    background: var(--ground-lift);
+  }
+  .plate__win :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(0.94) contrast(1.02);
+    transform: scale(1.001);
+    transition:
+      filter var(--d-micro) var(--ease),
+      transform 1100ms var(--ease);
+  }
+  .plate:hover .plate__win :global(img) {
+    filter: saturate(1) contrast(1.06) brightness(1.04);
+    transform: scale(1.035);
+  }
+  /* The caption hangs in the outer margin beside the plate, not under it. */
+  .plate__cap {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--margin-col);
+    column-gap: clamp(32px, 4vw, 72px);
+    margin-top: 10px;
+    font-size: var(--t-micro);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+  .plate__no {
+    grid-column: 2;
+    grid-row: 1;
+    color: var(--bone-dim);
+    font-variant-numeric: tabular-nums;
+  }
+  .plate__cap { grid-auto-flow: dense; }
+
+  /* ── THE COLOPHON ───────────────────────────────────────────── */
+  .clo {
+    width: min(720px, 100%);
+    margin: clamp(96px, 15vh, 200px) auto 0;
+    text-align: center;
+  }
+  .clo__rule {
+    display: block;
+    width: 64px;
+    height: 1px;
+    margin: 0 auto clamp(28px, 5vh, 56px);
+    background: var(--rule);
+  }
+  .clo__facts { margin: 0; }
+  .clo__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 18px;
+    align-items: baseline;
+    padding: 11px 0;
+  }
+  .clo__k {
+    margin: 0;
+    text-align: right;
+    font-size: var(--t-micro);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .clo__v { margin: 0; text-align: left; font-size: var(--t-base); line-height: 1.35; color: var(--bone-dim); }
+  .clo__links { margin: clamp(28px, 5vh, 52px) 0 0; display: flex; justify-content: center; flex-wrap: wrap; gap: 24px; }
+  .clo__link {
+    font-size: var(--t-sm);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--bone);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rule-accent);
+    padding-bottom: 3px;
+    transition: color var(--d-micro) var(--ease), border-color var(--d-micro) var(--ease);
+  }
+  .clo__link:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* The margin folds. Below this width it is a column of orphans, so the
+     notes run inline and the book becomes a scroll. */
+  @media (max-width: 1100px) {
+    .bk__page { grid-template-columns: 1fr; row-gap: clamp(32px, 5vh, 56px); }
+    .mrg {
+      padding-top: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0 clamp(28px, 5vw, 56px);
+      border-top: 1px solid var(--rule-soft);
+      padding-top: clamp(20px, 3vh, 32px);
+    }
+    .plate__cap { grid-template-columns: 1fr; }
+    .plate__no { grid-column: 1; }
+  }
+</style>

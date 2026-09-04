@@ -1,0 +1,168 @@
+---
+/**
+ * PREVIEW ONLY — the real viewing conditions for the mosaic-bed drafts.
+ *
+ * A BED CANNOT BE JUDGED WITHOUT THE THINGS THAT HIDE IT. On the home page the
+ * mosaic is seen through the aperture mat and behind opaque panels, and those
+ * two together throw away most of it. Showing a bed on its own would be showing
+ * something no visitor ever sees. So this reproduces, from index.astro:
+ *   · .ms__ground / .ap__mat — the mat with its 100vmax ground shadow
+ *   · .ms__panel — real panels at their real 767 and 991px widths
+ *   · the scroll clock — --prog 0 to 1 drives the bed's 8% drift, --lit opens
+ *     the aperture, both wired to real scrolling
+ *
+ * THE CONTROLS ARE THE POINT. Panels can be taken away to see the whole window,
+ * and the cell map draws the grid with each tile's index and the work in it, so
+ * a claim about what is visible can be checked rather than taken on trust.
+ *
+ * The bed itself is a slot: each draft supplies its own.
+ */
+interface Props {
+  letter: string;
+  name: string;
+  note: string;
+}
+const { letter, name, note } = Astro.props;
+---
+
+<div class="rg" data-rg>
+  <slot name="bed" />
+  <div class="ap__mat" aria-hidden="true"></div>
+
+  <main class="pv">
+    <header class="pv__head">
+      <p class="mono pv__k">Mosaic bed · Option {letter}</p>
+      <h1 class="pv__t display">{name}</h1>
+      <p class="pv__note">{note}</p>
+      <div class="pv__ctl">
+        <button class="mono pv__b" type="button" data-panels>Hide panels</button>
+        <button class="mono pv__b" type="button" data-map>Show cell map</button>
+        <button class="mono pv__b" type="button" data-frames>Use brightest frames</button>
+      </div>
+      <p class="mono pv__hint">Scroll — the aperture opens and the bed drifts, exactly as on the home page</p>
+    </header>
+
+    {[0, 1, 2].map((i) => (
+      <section class="pv__sec">
+        <div class="ms__panel" data-panel style={i === 1 ? 'max-width:991px' : ''}>
+          <p class="pv__stmt display">
+            {i === 0 && 'A score begins before the theme arrives.'}
+            {i === 1 && 'Texture first, melody second.'}
+            {i === 2 && 'The catalogue behind the type.'}
+          </p>
+          <p class="pv__p">
+            A panel at its real width — {i === 1 ? '991' : '767'}px against an 1101px aperture, which
+            is {i === 1 ? '90' : '70'}% of the window. Where one sits, only the outer edges of the bed survive.
+          </p>
+        </div>
+      </section>
+    ))}
+
+    <section class="pv__sec pv__sec--open">
+      <p class="mono pv__gap">No panel here — the whole aperture is open</p>
+    </section>
+  </main>
+</div>
+
+<style is:global>
+  .runhead { display: none !important; }
+</style>
+
+<style>
+  .rg { position: relative; }
+
+  /* ── lifted verbatim from index.astro ─────────────────────────── */
+  .ap__mat {
+    position: fixed; z-index: 1; pointer-events: none;
+    inset: calc(11vh + (1 - var(--lit, 0)) * 15vh) calc(7vw + (1 - var(--lit, 0)) * 13vw);
+    box-shadow: 0 0 0 100vmax var(--ground);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    will-change: inset;
+  }
+  .ms__panel {
+    margin: clamp(24px, 4.4vh, 58px) auto 0; max-width: 78ch;
+    padding: clamp(22px, 3.6vh, 46px) clamp(20px, 3vw, 44px);
+    background: var(--ground);
+    border: 1px solid var(--rule-soft);
+    border-radius: clamp(10px, 1.2vw, 20px);
+  }
+  :global(.rg.no-panels) .ms__panel { background: transparent; border-color: transparent; }
+  :global(.rg.no-panels) .ms__panel > * { opacity: 0.12; }
+
+  .pv { position: relative; z-index: 2; padding: 0 var(--margin) 40vh; text-align: center; }
+  .pv__head { min-height: 92vh; display: grid; align-content: center; justify-items: center; }
+  .pv__k { margin: 0 0 clamp(16px, 2.6vh, 30px); font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); }
+  .pv__t { margin: 0; font-family: var(--display); font-weight: 500; font-size: clamp(2.2rem, 8vw, 6rem); line-height: 0.88; letter-spacing: -0.05em; text-transform: uppercase; color: var(--bone); }
+  .pv__note { margin: clamp(20px, 3.4vh, 38px) auto 0; max-width: 58ch; font-size: clamp(1rem, 1.45vw, 1.2rem); line-height: 1.5; color: var(--bone-dim); text-wrap: pretty; }
+
+  .pv__ctl { display: flex; gap: 12px; margin-top: clamp(26px, 4vh, 46px); flex-wrap: wrap; justify-content: center; }
+  .pv__b {
+    padding: 11px 20px; background: var(--ground); border: 1px solid var(--rule); border-radius: 999px;
+    font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase; color: var(--bone); cursor: pointer;
+    transition: border-color var(--d-micro) var(--ease), color var(--d-micro) var(--ease);
+  }
+  .pv__b:hover, .pv__b[aria-pressed='true'] { border-color: var(--accent); color: var(--accent); }
+  .pv__hint { margin: 14px 0 0; font-size: var(--t-micro); letter-spacing: var(--track-mono); text-transform: uppercase; color: var(--dim); }
+
+  .pv__sec { min-height: 96vh; display: grid; align-content: center; }
+  .pv__sec--open { min-height: 120vh; align-content: center; }
+  .pv__stmt { margin: 0; font-family: var(--display); font-weight: 500; font-size: clamp(1.25rem, 3.4vw, 2.6rem); line-height: 1.14; letter-spacing: -0.028em; color: var(--bone); }
+  .pv__p { margin: clamp(16px, 2.6vh, 28px) auto 0; max-width: 54ch; font-size: var(--t-md); line-height: 1.5; color: var(--bone-dim); }
+  .pv__gap { font-size: var(--t-micro); letter-spacing: var(--track-mono); text-transform: uppercase; color: var(--dim); }
+</style>
+
+<script>
+  /* The home page's own clock, reduced to the two properties the bed reads:
+     --lit opens the aperture, --prog drifts the bed. Both are written once per
+     frame from scroll position, exactly as the real one does. */
+  function initStage() {
+    const rg = document.querySelector<HTMLElement>('[data-rg]');
+    if (!rg || rg.dataset.bound) return;
+    rg.dataset.bound = '1';
+
+    let raf = 0;
+    const paint = () => {
+      raf = 0;
+      const span = document.documentElement.scrollHeight - innerHeight;
+      const p = span > 0 ? Math.min(1, Math.max(0, scrollY / span)) : 0;
+      rg.style.setProperty('--prog', p.toFixed(4));
+      /* Open across the first screen, then hold — the real one opens as the
+         opening movement leaves. */
+      rg.style.setProperty('--lit', Math.min(1, scrollY / (innerHeight * 0.8)).toFixed(4));
+    };
+    addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(paint); }, { passive: true });
+    addEventListener('resize', () => { if (!raf) raf = requestAnimationFrame(paint); }, { passive: true });
+    paint();
+
+    const panels = rg.querySelector<HTMLButtonElement>('[data-panels]');
+    panels?.addEventListener('click', () => {
+      const off = rg.classList.toggle('no-panels');
+      panels.setAttribute('aria-pressed', String(off));
+      panels.textContent = off ? 'Show panels' : 'Hide panels';
+    });
+
+    /* THE FRAME SWAP IS A SEPARATE DECISION FROM PLACEMENT, so it is off by
+       default: what loads is exactly the frame the live bed shows today. */
+    const frames = rg.querySelector<HTMLButtonElement>('[data-frames]');
+    frames?.addEventListener('click', () => {
+      const on = rg.dataset.frames !== 'bright';
+      rg.dataset.frames = on ? 'bright' : 'live';
+      rg.querySelectorAll<HTMLImageElement>('.ms__tile img').forEach((img) => {
+        const next = on ? img.dataset.bright : img.dataset.live;
+        if (next) img.src = next;
+      });
+      frames.setAttribute('aria-pressed', String(on));
+      frames.textContent = on ? 'Use frame 1 (live)' : 'Use brightest frames';
+    });
+
+    const map = rg.querySelector<HTMLButtonElement>('[data-map]');
+    map?.addEventListener('click', () => {
+      const on = rg.classList.toggle('map-on');
+      map.setAttribute('aria-pressed', String(on));
+      map.textContent = on ? 'Hide cell map' : 'Show cell map';
+    });
+  }
+  initStage();
+  document.addEventListener('astro:page-load', initStage);
+</script>

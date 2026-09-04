@@ -1,0 +1,127 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  /** One of these two. YouTube stays first and required-by-convention so
+   *  every existing caller keeps working unchanged. */
+  youtube?: string;
+  /** Vimeo, as "<id>/<privacy-hash>" or just "<id>". */
+  vimeo?: string;
+  /** An Instagram post short code. */
+  instagram?: string;
+  title: string;
+  poster: ImageMetadata;
+  alt: string;
+  /** Full-bleed openings load their poster immediately. */
+  eager?: boolean;
+}
+const { youtube, vimeo, instagram, title, poster, alt, eager = false } = Astro.props;
+
+/* AN INSTAGRAM EMBED IS PORTRAIT AND CARRIES ITS OWN CHROME — a header, a
+   caption and a row of controls — so it will not sit in the 16:9 box the
+   other two use. 400 x 700 is the shape their own embed code ships with, and
+   the facade matches it so the poster and the mounted player are the same
+   size and nothing jumps on press.
+
+   SET INLINE RATHER THAN AS A MODIFIER CLASS, so the shape travels with the
+   element that decides it and the CSS below needs only one rule with a
+   default. A modifier class works here too — an earlier version used one, and
+   it appeared not to, which was the dev server serving a stale stylesheet
+   rather than anything wrong with the class. Worth recording because the
+   symptom is convincing: the element carries the class, the rule is in the
+   source, and the computed style shows neither. */
+const isIG = !!instagram;
+const SHAPE = isIG ? '400 / 700' : '16 / 9';
+const MAXW = isIG ? '400px' : 'none';
+---
+
+<div class="facade" style={`--facade-ar:${SHAPE};--facade-max:${MAXW}`} data-facade data-youtube={youtube} data-vimeo={vimeo} data-instagram={instagram} data-title={title}>
+  <div class="facade__stage">
+    <Image
+      src={poster}
+      alt={alt}
+      widths={[800, 1400, 2000]}
+      sizes="100vw"
+      loading={eager ? 'eager' : 'lazy'}
+      decoding="async"
+      class="facade__poster"
+    />
+  </div>
+
+  <button class="facade__play" type="button">
+    <span class="facade__tri" aria-hidden="true"></span>
+    <span class="mono">Watch</span>
+    <span class="visually-hidden">{title}</span>
+  </button>
+</div>
+
+<style>
+  .facade {
+    position: relative;
+    background: var(--ground-deep);
+    /* Written inline by the component — see the note there on why this is not
+       a modifier class. The defaults keep every existing caller at 16:9. */
+    aspect-ratio: var(--facade-ar, 16 / 9);
+    max-width: var(--facade-max, none);
+    margin-inline: auto;
+    overflow: hidden;
+  }
+
+  .facade__stage { position: absolute; inset: 0; }
+  .facade__stage :global(img),
+  .facade__stage :global(iframe) {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    object-fit: cover;
+  }
+  .facade__poster {
+    transition: transform var(--d-page) var(--ease), filter var(--d-micro) var(--ease);
+  }
+  .facade:hover .facade__poster { transform: scale(1.02); filter: brightness(1.05); }
+
+  /* Nothing third-party exists until this is pressed. */
+  .facade__play {
+    position: absolute;
+    left: var(--margin);
+    bottom: var(--margin);
+    display: inline-flex;
+    align-items: center;
+    gap: 11px;
+    padding: 11px 18px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: rgba(10, 9, 8, 0.35);
+    backdrop-filter: blur(6px);
+    color: var(--bone);
+    transition: border-color var(--d-micro) var(--ease), background var(--d-micro) var(--ease);
+  }
+  .facade__play .mono { color: inherit; }
+  .facade__play:hover {
+    border-color: var(--accent);
+    background: rgba(10, 9, 8, 0.6);
+  }
+  .facade__tri {
+    width: 0;
+    height: 0;
+    border-left: 7px solid var(--accent);
+    border-top: 4.5px solid transparent;
+    border-bottom: 4.5px solid transparent;
+  }
+
+  .facade.is-playing .facade__play,
+  .facade.is-playing .facade__poster { display: none; }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 640px) {
+    .facade__play { left: var(--margin); bottom: var(--s-3); padding: 9px 14px; }
+  }
+</style>

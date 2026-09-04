@@ -1,0 +1,78 @@
+---
+import { Image } from 'astro:assets';
+import { framesFor } from '../lib/frames';
+import { numberFor } from '../data/composition';
+
+interface Props {
+  slug: string;
+  title: string;
+  year: number;
+  category: string;
+  frames: string[];
+  alt: string;
+}
+const { slug, title, year, category, frames, alt } = Astro.props;
+const number = numberFor(slug);
+const [poster] = framesFor(slug, frames);
+---
+
+<a class="next" href={`/work/${slug}`}>
+  <div class="next__bg">
+    <Image
+      src={poster}
+      alt={alt}
+      widths={[800, 1400, 2000]}
+      sizes="100vw"
+      loading="lazy"
+      decoding="async"
+    />
+  </div>
+
+  <div class="next__inner shell">
+    <span class="mono mono--accent">Next work</span>
+    <h2 class="next__title display">{title}<span class="stop">.</span></h2>
+    <span class="mono next__meta">{number} &nbsp;·&nbsp; {category} &nbsp;·&nbsp; {year}</span>
+  </div>
+</a>
+
+<style>
+  /* The catalogue never dead-ends. */
+  .next {
+    position: relative;
+    display: block;
+    margin-top: clamp(var(--s-7), 16vh, 220px);
+    min-height: clamp(340px, 52vh, 560px);
+    display: grid;
+    align-items: end;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .next__bg { position: absolute; inset: 0; z-index: -1; }
+  .next__bg :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.42) saturate(0.8);
+    transform: scale(1.02);
+    transition: filter var(--d-page) var(--ease), transform var(--d-page) var(--ease);
+  }
+  .next:hover .next__bg :global(img),
+  .next:focus-visible .next__bg :global(img) {
+    filter: brightness(0.58) saturate(0.95);
+    transform: scale(1.06);
+  }
+
+  .next__inner {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-block: clamp(var(--s-4), 6vh, var(--s-6));
+  }
+
+  .next__title {
+    font-size: var(--t-2xl);
+    margin: 0;
+  }
+  .next__meta { color: var(--bone-dim); }
+</style>

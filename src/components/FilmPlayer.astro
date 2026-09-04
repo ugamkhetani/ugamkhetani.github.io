@@ -1,0 +1,136 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { filmPath, posterPath } from '../lib/assets';
+
+interface Props {
+  slug: string;
+  src: string;
+  label: string;
+  href?: string;
+  poster?: string;
+  ratio: '16:9' | '9:16' | '1:1';
+  /** Used as the poster until a dedicated one is supplied. */
+  fallbackPoster: ImageMetadata;
+  alt: string;
+}
+const { slug, src, label, href, poster, ratio, fallbackPoster, alt } = Astro.props;
+
+const film = filmPath(slug, src);
+const posterUrl = posterPath(slug, poster);
+const AR = { '16:9': '16 / 9', '9:16': '9 / 16', '1:1': '1 / 1' }[ratio];
+
+// Host of the original post, shown when the film itself isn't here yet.
+const origin = href ? (href.includes('instagram') ? 'Instagram' : href.includes('drive.google') ? 'Drive' : 'Original') : null;
+---
+
+<figure class="film" style={`--ar:${AR}`}>
+  {
+    film.exists ? (
+      <video class="film__video" controls preload="none" playsinline poster={posterUrl}>
+        <source src={film.url} type="video/mp4" />
+        Your browser cannot play this video.
+      </video>
+    ) : (
+      <Fragment>
+        {/* No file yet. With a link back to the original we send people there;
+            without one, the still stands on its own rather than pretending. */}
+        {href ? (
+          <a
+            class="film__await"
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`${label} — opens on ${origin}`}
+          >
+            <Image
+              src={fallbackPoster}
+              alt={alt}
+              widths={[400, 700, 1000]}
+              sizes="(max-width: 640px) 100vw, 33vw"
+              loading="lazy"
+              decoding="async"
+            />
+            <span class="film__await-mark mono">
+              View on {origin} <span aria-hidden="true">↗</span>
+            </span>
+          </a>
+        ) : (
+          <div class="film__await film__await--quiet">
+            <Image
+              src={fallbackPoster}
+              alt={alt}
+              widths={[400, 700, 1000]}
+              sizes="(max-width: 640px) 100vw, 33vw"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+        )}
+      </Fragment>
+    )
+  }
+
+  <figcaption class="film__cap">
+    <span class="mono">{label}</span>
+    {
+      film.exists && href && (
+        <a class="mono film__src" href={href} target="_blank" rel="noopener noreferrer">
+          Original <span aria-hidden="true">↗</span>
+        </a>
+      )
+    }
+  </figcaption>
+</figure>
+
+<style>
+  .film { margin: 0; }
+
+  .film__video,
+  .film__await {
+    display: block;
+    position: relative;
+    width: 100%;
+    aspect-ratio: var(--ar);
+    background: var(--ground-deep);
+    object-fit: cover;
+  }
+
+  .film__await :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(0.9) brightness(0.72);
+    transition: filter var(--d-micro) var(--ease);
+  }
+  .film__await:hover :global(img) { filter: saturate(1) brightness(0.92); }
+  .film__await--quiet :global(img) { filter: saturate(0.9) brightness(0.82); }
+
+  .film__await-mark {
+    position: absolute;
+    left: 14px;
+    bottom: 14px;
+    padding: 8px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.42);
+    background: rgba(10, 9, 8, 0.4);
+    backdrop-filter: blur(6px);
+    color: var(--bone);
+    transition: border-color var(--d-micro) var(--ease);
+  }
+  .film__await:hover .film__await-mark { border-color: var(--accent); }
+
+  .film__cap {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--s-2);
+    align-items: baseline;
+    margin-top: 11px;
+    padding-top: 9px;
+    border-top: 1px solid var(--rule-soft);
+  }
+  .film__src {
+    color: var(--dim);
+    transition: color var(--d-micro) var(--ease);
+  }
+  .film__src:hover { color: var(--accent); }
+</style>

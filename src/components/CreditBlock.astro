@@ -1,0 +1,158 @@
+---
+interface Credits {
+  director?: string;
+  client?: string;
+  studio?: string;
+  production?: string;
+  with?: string;
+  artist?: string;
+}
+interface Props {
+  role: string;
+  credits: Credits;
+  awards: { star: boolean; text: string }[];
+  meta: { label: string; value: string }[];
+  links: { label: string; url: string; platform: string }[];
+}
+const { role, credits, awards, meta, links } = Astro.props;
+
+const CREDIT_LABELS: [keyof Credits, string][] = [
+  ['director', 'Direction'],
+  ['client', 'Client'],
+  ['studio', 'Studio'],
+  ['production', 'Production'],
+  ['artist', 'Artist'],
+  ['with', 'Collaboration'],
+];
+const creditRows = CREDIT_LABELS.filter(([k]) => credits[k]).map(([k, label]) => ({
+  label,
+  value: credits[k]!,
+}));
+---
+
+<section class="credits" aria-label="Credits and details">
+  <hr class="rule" />
+
+  <!-- The decks' four-column mono block, kept intact. -->
+  <div class="credits__meta">
+    {
+      meta.map((m) => (
+        <div class="credits__field">
+          <span class="mono">{m.label}</span>
+          <span class="credits__value">{m.value}</span>
+        </div>
+      ))
+    }
+  </div>
+
+  <div class="credits__lower">
+    <dl class="credits__list">
+      <div class="credits__row">
+        <dt class="mono mono--dim">Role</dt>
+        <dd>{role}</dd>
+      </div>
+      {
+        creditRows.map((c) => (
+          <div class="credits__row">
+            <dt class="mono mono--dim">{c.label}</dt>
+            <dd>{c.value}</dd>
+          </div>
+        ))
+      }
+    </dl>
+
+    <div class="credits__side">
+      {
+        awards.length > 0 && (
+          <div class="credits__awards">
+            <span class="mono mono--dim">Recognition</span>
+            <ul>
+              {awards.map((a) => (
+                <li>
+                  {a.star && <span class="credits__star" aria-hidden="true">★</span>}
+                  {a.text}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+
+      {
+        links.length > 0 && (
+          <div class="credits__links">
+            <span class="mono mono--dim">Elsewhere</span>
+            <ul>
+              {links.map((l) => (
+                <li>
+                  <a href={l.url} target="_blank" rel="noopener noreferrer">
+                    {l.label} <span aria-hidden="true">↗</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .credits { margin-top: clamp(var(--s-6), 12vh, var(--s-8)); }
+
+  .credits__meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--s-4) var(--s-3);
+    padding-top: var(--s-3);
+  }
+  .credits__field { display: flex; flex-direction: column; gap: 7px; }
+  .credits__field::before {
+    content: '';
+    display: block;
+    width: 100%;
+    max-width: 96px;
+    height: 1px;
+    background: var(--rule-accent);
+    margin-bottom: 4px;
+  }
+  .credits__value {
+    font-size: var(--t-base);
+    color: var(--bone);
+    line-height: 1.35;
+  }
+
+  .credits__lower {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: clamp(var(--s-4), 6vw, var(--s-7));
+    margin-top: clamp(var(--s-5), 8vh, var(--s-7));
+  }
+
+  .credits__list { margin: 0; }
+  .credits__row {
+    display: grid;
+    grid-template-columns: 8.5rem 1fr;
+    gap: var(--s-2);
+    padding: 12px 0;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .credits__row dt { padding-top: 3px; }
+  .credits__row dd { margin: 0; color: var(--bone-dim); }
+
+  .credits__side { display: flex; flex-direction: column; gap: var(--s-5); }
+  .credits__side ul { list-style: none; margin: 10px 0 0; padding: 0; }
+  .credits__side li { color: var(--bone-dim); padding: 6px 0; font-size: var(--t-sm); }
+  .credits__star { color: var(--accent); margin-right: 7px; }
+
+  .credits__links a {
+    border-bottom: 1px solid var(--rule-accent);
+    transition: color var(--d-micro) var(--ease);
+  }
+  .credits__links a:hover { color: var(--accent); }
+
+  @media (max-width: 520px) {
+    .credits__row { grid-template-columns: 1fr; gap: 4px; }
+  }
+</style>

@@ -1,0 +1,146 @@
+---
+/**
+ * PREVIEW — RECOGNITION B · "PLATE".
+ *
+ * THE BAND THE PAGE ALREADY HAS, GIVEN A HIERARCHY. This keeps the live
+ * section's exact shape — centred, ruled top and bottom, in the same place at
+ * the foot of section 02 — and changes only what is inside it. Of the three
+ * drafts it is the smallest move: nothing about the page's rhythm changes, so
+ * it is the one that can go in without anything else being reconsidered.
+ *
+ * IT IS A TITLE CARD, NOT A CAPTION. Each selection is a stack — the honour in
+ * small caps above, the festival in the display face below — with real air
+ * between the two entries. That is how a festival plate is set on a poster,
+ * and it is the reading order the information actually has: what it won, then
+ * where.
+ *
+ * THE DIVIDER IS A RULE, NOT A DOT. The live page separates the two entries
+ * with the same "·" it uses inside them, which is the whole reason the section
+ * reads as one run-on sentence. A short centred rule cannot be confused with
+ * punctuation belonging to either side of it.
+ *
+ * THE CENTRED SET IS WHY THIS ONE CAPS AT TWO OR THREE. Centred stacks stop
+ * scanning once there are more than a few — Index handles a long list, this
+ * handles a short one well. Diwali has two.
+ */
+import Base from '../../layouts/Base.astro';
+import Stage from '../../components/_pv-RecStage.astro';
+import { getEntry } from 'astro:content';
+import { parseAwards } from '../../lib/awards';
+
+const work = await getEntry('works', 'diwali-ke-shor-mein')!;
+const CITES = parseAwards(work.data.awards);
+
+const other = await Promise.all(
+  ['mumbai-standard-time', 'moholla', 'dinshaws-dildaari-battles'].map((s) => getEntry('works', s)!)
+);
+---
+
+<Base title="Recognition B — Plate" description="Preview only.">
+  <Stage
+    letter="B"
+    name="Plate"
+    note="The band the page already has, given a hierarchy. Same centred shape, same rules, same place — each selection becomes a stack with the honour above and the festival below, and the two entries are divided by a rule rather than by the same dot used inside them. The smallest of the three moves: nothing about the page's rhythm changes."
+  >
+    <div class="rec" aria-label="Recognition">
+      <p class="mono rec__lbl">Recognition</p>
+
+      <ul class="rec__set">
+        {CITES.map((c) => (
+          <li class="rec__item">
+            <p class="mono rec__cit">
+              {c.star && <span class="rec__star" aria-hidden="true">★</span>}
+              {c.citation}
+            </p>
+            {c.body && <p class="rec__where display">{c.body}</p>}
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <section slot="robustness" class="rb">
+      <p class="mono rb__lbl">The same treatment, the other shapes in the catalogue</p>
+      <div class="rb__grid">
+        {other.map((w) => (
+          <div class="rb__cell">
+            <p class="mono rb__work">{w.data.title}</p>
+            <ul class="rec__set rec__set--sm">
+              {parseAwards(w.data.awards).map((c) => (
+                <li class="rec__item">
+                  <p class="mono rec__cit">
+                    {c.star && <span class="rec__star" aria-hidden="true">★</span>}
+                    {c.citation}
+                  </p>
+                  {c.body && <p class="rec__where display">{c.body}</p>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+  </Stage>
+</Base>
+
+<style>
+  /* The live band's own geometry, unchanged. */
+  .rec {
+    margin: clamp(44px, 7vh, 90px) 0 0;
+    padding-block: clamp(30px, 5vh, 58px);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .rec__lbl {
+    margin: 0 0 clamp(26px, 4.2vh, 46px); text-align: center;
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--dim);
+  }
+
+  .rec__set { margin: 0; padding: 0; list-style: none; display: grid; }
+  .rec__item { text-align: center; }
+
+  /* A RULE BETWEEN, NOT A DOT. Short and centred, so it cannot be read as
+     punctuation belonging to the line above or below it. */
+  .rec__item + .rec__item { margin-top: clamp(26px, 4.4vh, 50px); padding-top: clamp(26px, 4.4vh, 50px); position: relative; }
+  .rec__item + .rec__item::before {
+    content: '';
+    position: absolute; top: 0; left: 50%;
+    width: clamp(28px, 4vw, 54px); height: 1px;
+    transform: translateX(-50%);
+    background: var(--rule);
+  }
+
+  .rec__cit {
+    margin: 0 0 clamp(10px, 1.6vh, 16px);
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--accent);
+  }
+  .rec__star { margin-right: 0.5em; }
+
+  .rec__where {
+    margin: 0 auto; max-width: 22ch;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.35rem, 3.2vw, 2.5rem);
+    line-height: 1.04; letter-spacing: -0.04em;
+    color: var(--bone); text-wrap: balance;
+  }
+
+  /* ── the robustness strip ─────────────────────────────────────── */
+  .rb { max-width: 1180px; margin: clamp(90px, 15vh, 190px) auto 0; }
+  .rb__lbl {
+    margin: 0 0 clamp(20px, 3vh, 34px); padding-bottom: 12px;
+    border-bottom: 1px solid var(--rule-soft);
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--dim);
+  }
+  .rb__grid {
+    display: grid; gap: clamp(24px, 4vw, 52px);
+    grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  }
+  .rb__work {
+    margin: 0 0 14px; text-align: center;
+    font-size: var(--t-micro); letter-spacing: var(--track-mono);
+    text-transform: uppercase; color: var(--muted);
+  }
+  .rec__set--sm .rec__where { font-size: clamp(1.05rem, 1.7vw, 1.35rem); }
+</style>

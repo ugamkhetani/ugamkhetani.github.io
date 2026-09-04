@@ -1,0 +1,102 @@
+---
+/**
+ * PREVIEW — MOSAIC G · "FLANKS II".
+ *
+ * FLANKS, WITH THE SWAP AND THE CROPS. Ranks one to six still run down the two
+ * outer columns, which a panel almost never reaches — behind text 0.13 of the
+ * time against 0.387 for the inner ones — so at the moments a visitor is
+ * reading, the works either side of the type are the top of the list.
+ *
+ * SHIVA AND ROAR HAVE TRADED CELLS, as asked. The Shiva Trilogy moves from cell
+ * 14 to cell 8 and Roar takes 14. The ranks keep their works; only the two
+ * cells exchange, so nothing else about the arrangement moves.
+ *
+ * THE BED IS THE LIVE ONE, TO THE PIXEL. Six columns, thirty tiles, the same
+ * gap, the same -10% inset, brightness(0.30) saturate(0.7) contrast(1.05), the
+ * same -8% drift on --prog and scale(1.06) — every declaration copied from
+ * index.astro. Only which work stands in which cell is being proposed.
+ *
+ * THE TWO LETTERBOXED FRAMES ARE CROPPED. Broken Reflections and Diwali Ke Shor
+ * Mein carry black bars inside the source files — 21.3% and 13.2% of the frame,
+ * measured. Both are scaled past the tile edge, and Diwali is shifted as well
+ * because its bars are uneven. See CROP in src/lib/_pv-mosaic.ts.
+ */
+import Base from '../../layouts/Base.astro';
+import Stage from '../../components/_pv-MosaicStage.astro';
+import Tile from '../../components/_pv-MosaicTile.astro';
+import { getCollection } from 'astro:content';
+import { RANKED, PLACEMENTS_2, CLEAR_RANK, BEST_FRAME, CROP } from '../../lib/_pv-mosaic';
+
+const works = await getCollection('works');
+const bySlug = new Map(works.map((w) => [w.id, w]));
+
+const ORDER = PLACEMENTS_2['flanks2'];
+const CLEAR = new Map(CLEAR_RANK.map((c) => [c.cell, c.clear]));
+
+const TILES: { w: any; rank: number; cell: number; live: boolean; clear: number }[] =
+  Array.from({ length: 30 });
+ORDER.forEach((cell, i) => {
+  TILES[cell] = { w: bySlug.get(RANKED[i])!, rank: i + 1, cell, live: true, clear: CLEAR.get(cell) ?? 0 };
+});
+let fill = 0;
+for (let cell = 0; cell < 30; cell++) {
+  if (TILES[cell]) continue;
+  const r = fill++ % RANKED.length;
+  TILES[cell] = { w: bySlug.get(RANKED[r])!, rank: r + 1, cell, live: false, clear: 0 };
+}
+---
+
+<Base title="Mosaic G — Flanks II" description="Preview only.">
+  <Stage letter="G" name="Flanks II" note="Flanks with the two changes asked for. Ranks one to six still run down the outer columns a panel almost never reaches, so the works beside the type are the top of the list. The Shiva Trilogy and Roar have traded cells — Shiva to 8, Roar to 14 — and the two letterboxed frames, Broken Reflections and Diwali, are cropped past their bars.">
+    <div class="ms__ground" slot="bed" aria-hidden="true">
+      <div class="ms__bed">
+        {TILES.map((t) => (
+          <span class="ms__tile" class:list={[{ 'is-dead': !t.live }]}>
+            <Tile slug={t.w.id} frames={t.w.data.frames} alt=""
+              pick={BEST_FRAME[t.w.id] ?? 1} crop={CROP[t.w.id]} />
+            <span class="ms__mark mono" aria-hidden="true">
+              <b>{t.live ? String(t.rank).padStart(2, '0') : '\u2014'}</b>
+              {t.w.data.title}
+              <i>{t.live ? `cell ${t.cell} · clear ${t.clear}` : `cell ${t.cell} · never seen`}</i>
+            </span>
+          </span>
+        ))}
+      </div>
+    </div>
+  </Stage>
+</Base>
+
+<style>
+  /* ── index.astro's bed, copied declaration for declaration ─────── */
+  .ms__ground { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .ms__bed {
+    position: absolute; inset: -10%;
+    display: grid; grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-auto-rows: minmax(0, 1fr); gap: clamp(5px, 0.8vw, 13px);
+    filter: brightness(0.30) saturate(0.7) contrast(1.05);
+    transform: translate3d(0, calc(var(--prog, 0) * -8%), 0) scale(1.06);
+    will-change: transform;
+  }
+  .ms__tile { position: relative; display: block; overflow: hidden; min-height: 0; border-radius: clamp(6px, 0.7vw, 12px); }
+  .ms__tile :global(img) { border-radius: inherit; }
+
+  .ms__mark { display: none; }
+  :global(.rg.map-on) .ms__bed { filter: brightness(0.62) saturate(0.7) contrast(1.05); }
+  :global(.rg.map-on) .ms__tile { outline: 1px solid var(--rule-accent); outline-offset: -1px; }
+  :global(.rg.map-on) .ms__tile.is-dead { outline-color: rgba(255, 255, 255, 0.1); }
+  :global(.rg.map-on) .ms__mark {
+    position: absolute; inset: 0; z-index: 2;
+    display: grid; align-content: center; justify-items: center; gap: 3px;
+    padding: 6px; text-align: center;
+    font-size: 9px; letter-spacing: 0.08em; line-height: 1.25;
+    color: var(--bone); background: rgba(6, 6, 5, 0.62);
+  }
+  :global(.rg.map-on) .ms__mark b { font-size: 15px; letter-spacing: 0; color: var(--accent); }
+  :global(.rg.map-on) .ms__tile.is-dead .ms__mark { color: var(--dim); background: rgba(6, 6, 5, 0.85); }
+  :global(.rg.map-on) .ms__tile.is-dead .ms__mark b { color: var(--dim); }
+  :global(.rg.map-on) .ms__mark i { font-style: normal; font-size: 8px; color: var(--dim); }
+
+  @media (max-width: 900px) {
+    .ms__bed { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+</style>

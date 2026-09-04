@@ -1,0 +1,178 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+/**
+ * PREVIEW LOADER D · "GATE".
+ *
+ * FILM THROUGH A PROJECTOR. A strip of the catalogue is pulled upward past a
+ * fixed gate — sprocket holes running down both edges — and it decelerates
+ * onto one frame and stops. The name sits in the gate the whole time, so the
+ * strip runs behind it rather than beside it.
+ *
+ * THE STRIP MOVES, NOT THE FRAMES. One translateY on the whole strip, so
+ * eight stills cost one composited layer and one animated property between
+ * them. Animating each frame's position would be eight layers and eight
+ * chances to fall out of step.
+ *
+ * IT DECELERATES ONTO A FRAME RATHER THAN STOPPING ANYWHERE. The travel is
+ * seven frame-heights exactly, so the strip lands with the eighth centred in
+ * the gate — a projector coming to rest between frames is a fault, and it
+ * looks like one.
+ *
+ * THE SPROCKETS ARE A REPEATING GRADIENT, not elements. Two painted edges
+ * rather than forty boxes, and they scroll with the strip because they are
+ * its own background — so the perforations and the frames can never slip
+ * relative to each other.
+ *
+ * IT GLIDES RATHER THAN JUDDERS, which is a choice and not an oversight. Real
+ * film through a gate is intermittent — a claw pulls each frame and holds it —
+ * and stepping the run to match reads as a stutter at this speed, on a screen
+ * that is only up for a second. The easing is weighted almost entirely to the
+ * deceleration instead, so the strip arrives with the weight of something
+ * mechanical stopping without pretending to be sixteen discrete pulls.
+ *
+ * IT IS DROP-IN. Same props, same html.intro-on gate, same 1560ms budget as
+ * Opening.astro — one import swapped in index.astro.
+ */
+interface Props {
+  /** One frame from each of eight works. The whole strip is the catalogue. */
+  stills: { img: ImageMetadata; alt: string }[];
+}
+const { stills } = Astro.props;
+
+/* Seven gaps between eight frames — the strip travels exactly that far, so it
+   comes to rest with the last frame centred rather than between two. */
+const TRAVEL = stills.length - 1;
+---
+
+<div class="intro" data-intro aria-hidden="true" style={`--n:${stills.length};--travel:${TRAVEL}`}>
+  <div class="gt">
+    <div class="gt__win">
+      <div class="gt__strip">
+        {stills.map((s) => (
+          <span class="gt__frame">
+            <Image src={s.img} alt="" widths={[600, 1000]} sizes="46vw" loading="eager" decoding="sync" />
+          </span>
+        ))}
+      </div>
+      <span class="gt__perf gt__perf--l" aria-hidden="true"></span>
+      <span class="gt__perf gt__perf--r" aria-hidden="true"></span>
+      <span class="gt__veil" aria-hidden="true"></span>
+    </div>
+    <span class="gt__name display">Ugam Khetani</span>
+  </div>
+</div>
+
+<style>
+  .intro { display: none; }
+
+  :global(html.intro-on) .intro {
+    display: grid;
+    place-items: center;
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    background: var(--ground);
+    animation: gt-lift 0.38s var(--ease) forwards;
+    animation-delay: 1.16s;
+  }
+  :global(html.intro-on) body { overflow: hidden; }
+
+  .gt {
+    position: relative;
+    /* The gate. One frame tall, so only one is ever fully in it. */
+    --fw: min(46vw, 420px);
+    --fh: calc(var(--fw) * 0.62);
+    width: var(--fw);
+  }
+
+  .gt__win {
+    position: relative;
+    height: var(--fh);
+    overflow: hidden;
+    background: var(--ground-deep);
+  }
+
+  /* One transform for the whole strip: eight stills, one layer, one property. */
+  .gt__strip {
+    display: grid;
+    grid-auto-rows: var(--fh);
+    will-change: transform;
+    animation: gt-run 1.02s cubic-bezier(0.12, 0, 0.2, 1) forwards;
+  }
+  .gt__frame { display: block; overflow: hidden; }
+  .gt__frame :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(0.94) contrast(1.02) brightness(0.5);
+  }
+
+  /* Perforations as a painted edge rather than forty elements.
+
+     THE HOLES ARE LISTED FIRST BECAUSE THE FIRST LAYER PAINTS ON TOP. With the
+     opaque edge first, it covered the pattern completely and both edges of the
+     strip rendered as plain grey bars — the sprockets were in the stylesheet
+     and not on the screen. Holes over edge, in that order. */
+  .gt__perf {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: clamp(9px, 1.5vw, 14px);
+    background:
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0 7px,
+        var(--bone-dim) 7px 15px,
+        transparent 15px 22px
+      ),
+      linear-gradient(var(--ground) 0 0);
+  }
+  .gt__perf--l { left: 0; }
+  .gt__perf--r { right: 0; }
+
+  /* A FLAT SCRIM, the same device Focus uses, because the name has to hold over
+     EIGHT photographs rather than one and the strip picks which. Measured
+     against the brightest pixel behind the type, the darkest-safe frame was
+     giving 2.98:1 on its own — fine on average, thin over a highlight. The
+     scrim plus a lower brightness lifts the worst case rather than the mean. */
+  .gt__veil {
+    position: absolute;
+    inset: 0;
+    background: var(--ground);
+    opacity: 0.3;
+    pointer-events: none;
+  }
+
+  .gt__name {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-size: clamp(13px, 1.5vw, 19px);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--bone);
+    /* PLAIN BONE, NOT difference. Difference inverts whatever is behind it, and
+       behind it is an arbitrary photograph — over a warm frame the name came out
+       saturated blue, which is legible but is not a colour this palette owns and
+       changes with every still that passes. The frames are held dark enough
+       instead that white simply holds. */
+    pointer-events: none;
+  }
+
+  /* Exactly seven frame-heights, so the last one lands centred in the gate. */
+  @keyframes gt-run {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(0, calc(var(--travel) * var(--fh) * -1), 0); }
+  }
+  @keyframes gt-lift {
+    to { clip-path: inset(0 0 100% 0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .intro { display: none !important; }
+  }
+</style>
