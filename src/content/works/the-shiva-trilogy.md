@@ -7,6 +7,12 @@ opening: video
 ratio: "16:9"
 role: "Music / Sound / Voice Over"
 credits:
+  # ← CHECK THIS. "Concept trailer · Pitch work" is not a studio, and until
+  #   now it never rendered — the work page read only `director` and `artist`,
+  #   so anything put here was invisible. It renders from now on, and it reads
+  #   "Studio: Concept trailer · Pitch work". The `meta` block below already
+  #   carries the same fact under a label that fits it. Either name the real
+  #   studio here or delete this line; left in place rather than guessed at.
   studio: "Concept trailer · Pitch work"
 quote: "Pitch work is where audio earns its seat at the creative table."
 description: >

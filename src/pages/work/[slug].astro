@@ -161,10 +161,35 @@ const TALLY = AW_MATCH.length && AW_MATCH.every(Boolean)
 /* Each award kept whole, and split on its FIRST dot only. */
 const CITES = TALLY ? [] : parseAwards(d.awards);
 
+/* EVERY CREDIT THE SCHEMA ALLOWS, IN ONE ORDERED LIST. This read only
+   `director` and `artist` and silently dropped the other four, which is not a
+   layout choice — the information simply never reached the page. Eleven of the
+   sixteen works were losing a credit: `client` on Aladdin, Dinshaw's and Bloody
+   Bubbly, `studio` on Book My Yamraj, Moholla, Mumbai Standard Time, My Red
+   Crayon, Roar and The Shiva Trilogy, and `with` on Taskaree and Special Ops —
+   the last two being collaborators named in the markdown and credited nowhere.
+
+   Driven off a list rather than a chain of appends so a key added to
+   content.config.ts cannot be forgotten here; an unhandled key now shows up as
+   a missing label rather than as silence. The order and the wording follow
+   CreditBlock.astro, which had the full map all along and is not mounted by
+   anything — except that `director` stays "Director" rather than becoming
+   "Direction", because that is what these pages already say. */
+const CREDIT_ORDER: [keyof typeof d.credits, string][] = [
+  ['director', 'Director'],
+  ['client', 'Client'],
+  ['studio', 'Studio'],
+  ['production', 'Production'],
+  ['artist', 'Artist'],
+  ['with', 'Collaboration'],
+];
+
 const FACTS: { k: string; v: string }[] = [
   { k: 'Role', v: d.role },
-  ...(d.credits.director ? [{ k: 'Director', v: d.credits.director }] : []),
-  ...(d.credits.artist ? [{ k: 'Artist', v: d.credits.artist }] : []),
+  ...CREDIT_ORDER.filter(([key]) => d.credits[key]).map(([key, label]) => ({
+    k: label,
+    v: d.credits[key]!,
+  })),
   ...d.meta.map((m) => ({ k: m.label, v: m.value })),
 ];
 ---
