@@ -114,9 +114,9 @@ something to frame it, the frame wants something inside it.
 | `src/scripts/cursor.ts` | The pointer trail, and what it is clipped by. |
 | `src/styles/tokens.css` | Every colour, size, duration. Nothing outside it invents one. |
 
-**Pages:** `/` · `/contents` · `/work/<slug>` ×16, plus 71 under `/preview/`.
-**89 pages build**, plus two redirect stubs for the retired `/about` and
-`/contact` URLs — 91 files.
+**Pages:** `/` · `/contents` · `/work/<slug>` ×16, plus whatever is under
+`/preview/`. **21 pages build** — 18 real plus 3 current drafts — and two
+redirect stubs for the retired `/about` and `/contact` URLs, so 23 files.
 
 **Overlays:** none. All three outgrew them — Contents was the last, and
 `Overlay.astro` plus the `overlay` branch in `RunHead.astro` are now unused.
@@ -828,11 +828,22 @@ section fixes it — and note the console buffer keeps the old errors after the
 restart, so re-check with `curl` or a FRESH TAB rather than believing a console
 that is showing you history.
 
+**`:global()` inside `<style is:global>` is NOT transformed — it ships as a
+literal string.** No browser understands `:global(...)`, so the whole rule is
+invalid and dropped, with no error at build time and nothing in the console.
+The symptom is perfect: the selector is in the source, the rule is in the
+shipped CSS, and the element measures exactly as it did before. Cost a full
+round on the Aasha film-width drafts, where the rule was appended to the file's
+LAST style block — which happens to be the `is:global` one. **Put a rule that
+reaches into a component in a SCOPED block**, where `:global()` compiles to the
+parent's `data-astro-cid-*`; check by grepping the built CSS for a literal
+`:global(` , which should never appear.
+
 ## 7 · State of play
 
 ### What the site is, as of now
-**89 pages build clean** — 18 real, 71 under `/preview/` — plus two redirect
-stubs for the retired `/about` and `/contact` URLs, so 91 files.
+**21 pages build clean** — 18 real, 3 under `/preview/` — plus two redirect
+stubs for the retired `/about` and `/contact` URLs, so 23 files.
 
 The home page is **one page**: the Academy-countdown opening, the `OpNav`
 menu, a fixed mosaic bed of the catalogue behind everything, the aperture mat,
@@ -863,15 +874,22 @@ All sixteen works have real stills. Homepage, sixteen project pages, Contents.
 4. **A booking link** — `CALL_URL` in `contact.ts` is empty.
 5. **Audio excerpts** — optional; the player is built and waiting.
 
-### The preview library — 71 pages, kept deliberately
-Homepage directions (Helix, Deck, Marquee, Weave, Ticket, Monogram, Aperture
-XLV), 37 work-page drafts, 4 loaders, 3 recognition drafts, 13 mosaic-bed
-drafts and 5 conveyor-size drafts. **Ask before deleting any of it.** The shared preview components are
-`_pv-*` in `src/components/`, and `_pv-mosaic.ts` in `src/lib/`.
+### The preview library was DELETED on 2026-09-05
+71 pages, the 10 shared `_pv-*` components and `_pv-mosaic.ts`, on Ugam's
+instruction. **The standing rule before that was to ask first, and it still
+is** — he asked for it explicitly. It is all in git; a single draft comes back
+with `git checkout cdaf71e^ -- src/pages/preview/<name>.astro`.
 
-Note the five one-page drafts import `src/data/about.ts` and
-`src/data/contact.ts`, and `ContactForm.astro` is mounted by the home page and
-by five of them — none of that went with the two deleted pages.
+What survived and why: `src/lib/cards.ts`, `bed.ts`, `frames.ts`, `awards.ts`
+and `assets.ts` were split out so drafts could share the live tables, but the
+real pages read them too. Their comments no longer claim a draft is the reason
+they are split.
+
+**One capability went with it.** `/preview/loading-a-leader` was the only place
+the countdown could be watched, since on the home page it runs once per
+session. `Opening.astro` now carries the console recipe that replaces it,
+including how to hold a single count still given the animations drop off the
+timeline when they finish.
 
 ### Awaiting a decision — nothing applied
 - **Mosaic bed:** drafts A–I and L are unapplied. A–C predate the "same
@@ -882,11 +900,12 @@ by five of them — none of that went with the two deleted pages.
   is live on the six citation works.
 - **Loading screen:** Gate, Contact, Scope and Slats are unapplied alternates;
   **Leader** is live. Each is drop-in — one import in `index.astro`.
-- **Conveyor card size:** **E · Draw is applied.** A · Lift, B · Balance,
-  D · Rise and C · Column are unapplied. Each draft names its own mode, so
-  `works-size-e` now RECORDS the live site rather than proposing anything — the
-  way `mosaic-j` and `mosaic-m` do — while the other four still propose.
-  Switching is one word in `index.astro`.
+- **Conveyor card size:** **E · Draw is applied.** Every mode is still in
+  `src/lib/cards.ts` and switching is one word in `index.astro`; the five
+  draft PAGES are gone with the rest of the library.
+- **The opening film's width on work pages.** Three drafts on Aasha —
+  `/preview/aasha-film-a|b|c` — proposing 920px, flush with the page margins,
+  and edge to edge. **Nothing applied.**
 
 ### Settled on 2026-09-05 — do NOT re-raise these
 All four of the questions this section used to hold have been answered. Two
