@@ -594,18 +594,24 @@ it resolves to the block's width rather than to `.sc`'s.
 
 ---
 
-**A work page is labelled once, and the credits are a colophon.** Four
-headings are gone — "The work" (or "Listen"), "The score", "Recognition" and
-"Credits". **"Stills" is the only one left**, because it is the only one naming
-something a reader cannot infer: a grid of frames could be production photos, a
-gallery, or the film's own stills. The others sat over a video, a paragraph,
-three figures carrying their own nouns ("7 Official Selections"), and a list of
-labelled values.
+**A work page carries NO visible section label at all, and the credits are a
+colophon.** Five headings are gone — "The work" (or "Listen"), "The score",
+"Recognition", "Credits" and, on 2026-09-05, **"Stills"**. The parts are told
+apart by their content and by the space between them.
 
-THE DRAWN RULES WENT WITH THEM. `.blk__lbl` carries `.rl`, the hairline that
-scales in as a section arrives, so removing a label removes a rule. One is
-left, and it now reads as a mark rather than as furniture — which is what the
-"no rules" note in this section always wanted.
+THE DRAWN RULES WENT WITH THEM, and so did their machinery. Each label carried
+the hairline that scaled in as its section arrived, so removing the last label
+removed the last rule: `.blk__lbl` and `.rl` are gone, and so is the
+`[data-rl]` query in the scroll handler, which would otherwise collect an empty
+list for ever. **The handler still runs** — it drives the word-by-word reading
+light off `[data-w]`, which is untouched.
+
+THAT READING LIGHT IS OPACITY, NOT COLOUR, on a work page: `.w` is
+`opacity: calc(0.12 + var(--v) * 0.88)` with a `transform` alongside it. /about
+uses colour for the same idea, so a check written for one measures nothing on
+the other and reports a dead effect that is working perfectly. Verified after
+the Stills removal: three distinct opacities across a straddling paragraph,
+0.12 to 0.27, matching the formula exactly.
 
 NOTHING IS LOST TO ASSISTIVE TECH. Every section keeps its `aria-label`, so the
 document still announces Watch, Credits, Listen and the rest. The headings were
