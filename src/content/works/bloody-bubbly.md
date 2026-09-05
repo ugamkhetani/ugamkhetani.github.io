@@ -25,6 +25,13 @@ ratio: "9:16"
 role: "Sound Design"
 credits:
   client: "Bloody Bubbly"
+# ← WRITTEN HERE, NOT TAKEN FROM UGAM'S DOCUMENTS. The other twelve
+# quotes came from the source PDFs; these four works had none, and one was
+# asked for on 2026-09-06. Drawn from this file's own description ("Designed
+# for this cut rather than selected from a catalogue") and from the confirmed
+# Sound Design role — it claims nothing the role does not carry. Replace it
+# with his own line and delete this comment.
+quote: "Sound design is written to the cut, not laid over it."
 description: >
   Sound design for the campaign film. Designed for this cut rather than
   selected from a catalogue.

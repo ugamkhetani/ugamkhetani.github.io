@@ -7,6 +7,12 @@ ratio: "4:5"
 role: "Music / Sound / Voice Over"
 credits:
   client: "Aladdin Dates"
+# ← WRITTEN HERE, NOT TAKEN FROM UGAM'S DOCUMENTS — see bloody-bubbly.md for
+# the full note. Drawn from the 4-part rollout in `media.films` and this
+# file's own "authored as one creative pass". Deliberately NOT a brand-sound
+# line, because Dinshaw's already carries that. Replace with his own line and
+# delete this comment.
+quote: "Four parts have to sound like one campaign."
 description: >
   Four-part campaign rollout with music, sound and voice authored as one
   creative pass. Original music written for the work rather than selected
