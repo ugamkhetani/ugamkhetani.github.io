@@ -48,7 +48,6 @@ import Base from '../../layouts/Base.astro';
 import OpNav from '../../components/OpNav.astro';
 import VideoFacade from '../../components/VideoFacade.astro';
 import FilmPlayer from '../../components/FilmPlayer.astro';
-import ExternalWatch from '../../components/ExternalWatch.astro';
 import AudioPlayer from '../../components/AudioPlayer.astro';
 import NextWork from '../../components/NextWork.astro';
 import Colophon from '../../components/Colophon.astro';
@@ -150,15 +149,40 @@ const creditLinks = d.links.filter((l) => l.url !== d.external?.url);
    button, and the image is given the film's width to match. That is Taskaree
    and Special Ops.
 
-   The songs are left exactly as they were. Their opening is `audio`, so they
-   render a cover and a player rather than a still, and "Listen on Spotify"
-   under a record sleeve is already the right shape. */
+   THE SONGS WERE THE EXCEPTION AND ARE NOT ANY MORE, on 2026-09-06. Their
+   opening is `audio`, so they render a sleeve and a player rather than a
+   still, and "Listen on Spotify" filed underneath was judged the right shape
+   for a record. Ugam asked for the sleeve to carry the button the way a still
+   does, and for the link to appear in the credits as well — so it is now in
+   both places on those two pages, and the .ext block that used to hold it is
+   gone. Nothing else reached that block; the songs were its only users.
+
+   `hasWindow` used to live here — isVideo || hasFilms — and is gone with the
+   rule that used it: the songs now take the credits link without having a
+   window, so the question that const asked is no longer the one being
+   decided. */
 const isStill = !isVideo && !hasFilms && !isAudio;
-const hasWindow = isVideo || hasFilms;
+/* WHERE THE OUTSIDE LINK IS FILED, on 2026-09-06.
+
+   Every one of the five works that has an `external` also lists that same URL
+   in `links`, so `creditLinks` is empty for all five and the fallback below is
+   what actually fires. The test used to be `hasWindow` — does the page have
+   something you can press to play the work — which put the link in the credits
+   for Diwali and nowhere for the songs, because an audio opening is not a
+   window in that sense.
+
+   The songs now carry it in BOTH places on Ugam's instruction: on the sleeve
+   and again in the credits. So the test is no longer about windows. It is:
+   the credits carry the outside link unless the page is a BARE STILL, where
+   the button sits on the frame and the credits follow close enough underneath
+   that repeating it would be the same link twice with nothing in between.
+
+   Taskaree and Special Ops are the bare stills and are unchanged. Aladdin has
+   no external at all. Diwali is unchanged. */
 const watchLinks =
   creditLinks.length > 0
     ? creditLinks
-    : hasWindow && d.external
+    : d.external && !isStill
       ? [{ label: d.external.label, url: d.external.url }]
       : [];
 
@@ -274,7 +298,21 @@ const FACTS: { k: string; v: string }[] = [
 
       {isAudio && (
         <div class="cover">
-          <Image src={poster} alt={d.alt} widths={[400, 700, 1000]} sizes="(max-width: 640px) 70vw, 34vw" loading="eager" decoding="async" />
+          {/* SIZES IS DELIBERATELY THE CEILING, NOT THE TYPICAL WIDTH. The sleeve
+            renders 576px at 1280x800 and 778 at 1920x1080, and both sources are
+            square and small — Ve Maahi 1024, Mere Ho 1254 — so on a 2x display
+            the largest candidate is the only one that is not a visible upscale.
+            Declared at 720 the browser picked the 720 candidate and rendered a
+            576px box at 1.6x; declared at the ceiling it picks 1024 and the
+            worst case is 1.13x. It costs one 1024px square on a page that
+            already streams audio. */}
+          <Image src={poster} alt={d.alt} widths={[512, 768, 1024]} sizes="(max-width: 640px) 92vw, 1024px" loading="eager" decoding="async" />
+          {d.external && (
+            <a class="still__go" href={d.external.url} target="_blank" rel="noopener noreferrer">
+              <span class="mono">{d.external.label}</span>
+              <span class="still__arw" aria-hidden="true">&nearr;</span>
+            </a>
+          )}
         </div>
       )}
       {isAudio && d.media.audio.map((a) => <AudioPlayer slug={work.id} src={a.src} title={a.title} />)}
@@ -291,11 +329,6 @@ const FACTS: { k: string; v: string }[] = [
         </div>
       )}
 
-      {d.external && !hasWindow && !isStill && (
-        <div class="ext">
-          <ExternalWatch platform={d.external.platform} label={d.external.label} url={d.external.url} />
-        </div>
-      )}
     </section>
 
     {/* ── 02 · THE WRITING, ASSEMBLED ─────────────────────────── */}
@@ -671,10 +704,31 @@ const FACTS: { k: string; v: string }[] = [
     grid-template-columns: repeat(auto-fill, minmax(min(var(--fw, 300px), 100%), 1fr));
     gap: clamp(16px, 2.2vw, 34px);
   }
-  .cover { width: clamp(220px, 34vw, 380px); margin-inline: auto; }
+  /* THE SLEEVE IS SIZED LIKE A FILM, CAPPED BY THE WINDOW'S HEIGHT.
+
+     It was clamp(220px, 34vw, 380px) — 380 on a 1280 desktop and 220 on a
+     phone, an illustration beside the prose rather than the thing the page is
+     about, which is the same fault the bare stills had.
+
+     It takes --film, the SAME width the facade and the stills take, so all
+     three kinds of opening share one edge. But a song is 1:1, and --film is
+     1016px at 1280 wide, so matching the film exactly would make a block 1016
+     TALL in a window 800 tall — the one page where you could not see the
+     opening. Hence the 72vh cap, which is on the height because the height is
+     the constraint a square has and the 16:9 openings do not.
+
+     THE SOURCES ARE THE OTHER CEILING, and they are why the cap is not looser.
+     Ve Maahi's sleeve is 1024x1024 and Mere Ho's 1254x1254, so on a 2x display
+     a CSS width over 512 is already an upscale for Ve Maahi. 72vh keeps it
+     mild — 576px at 800 tall is 1.13x, invisible — where matching --film would
+     ask 1016 CSS px of a 1024 source and render it a visibly soft 2x.
+
+     Measured: 1280x800 -> 576 (was 380), 1440x900 -> 648, 1920x1080 -> 778,
+     and 375 wide -> 327, the full measure, where --film wins over 72vh and the
+     sleeve lands exactly where a still lands. */
+  .cover { position: relative; width: min(var(--film), 72vh); margin-inline: auto; }
   .cover :global(img), .still :global(img) { width: 100%; height: auto; display: block; }
   .still { overflow: hidden; background: var(--ground-lift); }
-  .ext { margin-top: clamp(24px, 4vh, 48px); }
 
   /* ══ THE OPENING FILM IS WIDER THAN THE MEASURE ═══════════════════
      D · Inset, chosen from five built as real pages on Aasha and judged in
