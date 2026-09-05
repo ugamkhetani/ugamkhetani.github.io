@@ -1025,16 +1025,22 @@ timeline when they finish.
 - **The opening film's width on work pages: D · Inset is APPLIED** — 1050x590
   at 1280x800 against a 760px measure. The five drafts it was chosen from were
   deleted on Ugam's instruction; they are in the history.
-- **The two labels that are left.** Three drafts on Diwali Ke Shor Mein at
-  `/preview/diwali-lbl-a|b|c`, which takes the CITATION branch of recognition
-  and has no credit link. All three put the **Recognition heading back** — on
-  both the tally and the citation branches, so the treatment holds for all
-  eight awarded works — and restyle **Stills** in the same system, because a
-  page with two labels in two treatments reads as an oversight. **A · Tick** a
-  24px mark above the word instead of a full-measure rule. **B · Margin** the
-  label leaves the column for the white space beside it. **C · Span** the rule
-  moves from under the word to beside it, running to the measure's right edge.
-  **Nothing applied.**
+- **The order of a work page's sections.** Three drafts on Aasha at
+  `/preview/aasha-order-a|b|c`, all putting the **credits straight after the
+  film window, with the score following**. As it stands the one block of hard
+  fact is the last thing reached, after two blocks of prose and a grid.
+
+  | | order |
+  | --- | --- |
+  | A · Direct | film, credits, score, stills, watch — nothing else moved |
+  | B · Paired | film, **watch**, credits, score, stills — the watch link is the film's action, so it stays with it; the page then ends on pictures |
+  | C · Split | film, credits **+ recognition**, score, stills, watch — record filed with record, leaving the score as pure prose |
+
+  **Nothing applied.** The cost is the same in all three and worth weighing:
+  the writing about the score no longer follows the film directly.
+
+  The 42 label and layout drafts that were here before were deleted on Ugam's
+  instruction; they are in the history.
 - **A more minimal, more editorial work page: D · Colophon is APPLIED** to all
   sixteen. The nine drafts stay at `/preview/aasha-edit-a..i` as the record;
   `aasha-edit-d` now reflects the live page. The other eight drop the "The work", "The score" and

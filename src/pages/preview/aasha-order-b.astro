@@ -57,12 +57,13 @@ import { parseAwards } from '../../lib/awards';
 import { listFilms } from '../../lib/assets';
 import { order, numberFor, total, RATIO_NUM } from '../../data/composition';
 
-/* PREVIEW ONLY — pinned to Diwali Ke Shor Mein (citation branch, no credit link). */
+/* PREVIEW ONLY — the real page is a dynamic route; this one is pinned to
+   Aasha so the three orders can be compared on the same work. */
 const works = await getCollection('works');
 const bySlug = new Map(works.map((w) => [w.id, w]));
 const sequence = order.filter((s) => bySlug.has(s));
-const idx = sequence.indexOf('diwali-ke-shor-mein');
-const work = bySlug.get('diwali-ke-shor-mein')!;
+const idx = sequence.indexOf('aasha');
+const work = bySlug.get('aasha')!;
 const next = bySlug.get(sequence[(idx + 1) % sequence.length])!;
 const d = work.data;
 
@@ -186,7 +187,7 @@ const FACTS: { k: string; v: string }[] = [
 ];
 ---
 
-<Base title={`X · Frame — ${d.title}`} description={d.description}>
+<Base title={`B · Paired — ${d.title}`} description={d.description}>
   <OpNav variant="bracket" base="/" />
 
   <article class="sc" data-sc style={[`--ar:${AR}`, cropFor(work.id)].filter(Boolean).join(';')}>
@@ -256,67 +257,6 @@ const FACTS: { k: string; v: string }[] = [
       )}
     </section>
 
-    {/* ── 02 · THE WRITING, ASSEMBLED ─────────────────────────── */}
-    <section class="blk" aria-label="About the work">
-      <p class="body">{BW.map((w, i) => (<><span class="w" data-w>{w}</span>{i < BW.length - 1 ? ' ' : ''}</>))}</p>
-
-      {/* Eight of sixteen works carry a record — two as counts, six as citations. */}
-      {HAS_AWARDS && (TALLY ? (
-        <div class="tally" aria-label="Recognition" data-reveal>
-          <p class="lbl" style={`--img:url('${encodeURI(poster.src)}')`}><span class="visually-hidden">Recognition</span><span class="lbl__fill" aria-hidden="true">Recognition</span></p>
-          <dl class="tally__row">
-            {TALLY.map((t) => (
-              <div class="tally__cell">
-                <dt class="tally__n">{t.n}</dt>
-                <dd class="mono tally__k">{t.k}</dd>
-              </div>
-            ))}
-          </dl>
-        </div>
-      ) : (
-        <div class="rec" aria-label="Recognition" data-reveal>
-          <p class="lbl" style={`--img:url('${encodeURI(poster.src)}')`}><span class="visually-hidden">Recognition</span><span class="lbl__fill" aria-hidden="true">Recognition</span></p>
-          <ol class="rec__list">
-            {CITES.map((c, i) => (
-              <li class="rec__row">
-                <span class="mono rec__n">{String(i + 1).padStart(2, '0')}</span>
-                <span class="rec__body">
-                  <span class="mono rec__cit">
-                    {c.star && <span class="rec__star" aria-hidden="true">★</span>}
-                    {c.citation}
-                  </span>
-                  {c.body && <span class="rec__where display">{c.body}</span>}
-                </span>
-              </li>
-            ))}
-          </ol>
-        </div>
-      ))}
-    </section>
-
-    {/* ── 03 · THE FRAMES ─────────────────────────────────────── */}
-    <section class="blk" aria-label="Stills">
-      <p class="lbl" style={`--img:url('${encodeURI(poster.src)}')`}><span class="visually-hidden">Stills</span><span class="lbl__fill" aria-hidden="true">Stills</span></p>
-      <div class="grid" style={`--sw:${STILL_TRACK}`}>
-        {images.map((img, i) => (
-          <figure class="cel" data-reveal style={`--i:${i % 3}`}>
-            <span class="cel__win">
-              <Image
-                src={img}
-                alt={i === 0 ? d.alt : ''}
-                aria-hidden={i === 0 ? undefined : 'true'}
-                widths={[420, 700, 1100]}
-                sizes="(max-width: 720px) 46vw, 30vw"
-                loading={i < 3 ? 'eager' : 'lazy'}
-                decoding="async"
-              />
-            </span>
-            <figcaption class="mono cel__no">{String(i + 1).padStart(2, '0')}</figcaption>
-          </figure>
-        ))}
-      </div>
-    </section>
-
     {/* ── 04 · WATCH — lifted out of the credits ──────────────────
         It was a `.tbl__links` paragraph at the foot of the credits table, so
         the one action on the page sat inside a block of reference data. It is
@@ -347,6 +287,65 @@ const FACTS: { k: string; v: string }[] = [
           </div>
         ))}
       </dl>
+    </section>
+
+    {/* ── 02 · THE WRITING, ASSEMBLED ─────────────────────────── */}
+    <section class="blk" aria-label="About the work">
+      <p class="body">{BW.map((w, i) => (<><span class="w" data-w>{w}</span>{i < BW.length - 1 ? ' ' : ''}</>))}</p>
+
+      {/* Eight of sixteen works carry a record — two as counts, six as citations. */}
+      {HAS_AWARDS && (TALLY ? (
+        <div class="tally" aria-label="Recognition" data-reveal>
+          <dl class="tally__row">
+            {TALLY.map((t) => (
+              <div class="tally__cell">
+                <dt class="tally__n">{t.n}</dt>
+                <dd class="mono tally__k">{t.k}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      ) : (
+        <div class="rec" aria-label="Recognition" data-reveal>
+          <ol class="rec__list">
+            {CITES.map((c, i) => (
+              <li class="rec__row">
+                <span class="mono rec__n">{String(i + 1).padStart(2, '0')}</span>
+                <span class="rec__body">
+                  <span class="mono rec__cit">
+                    {c.star && <span class="rec__star" aria-hidden="true">★</span>}
+                    {c.citation}
+                  </span>
+                  {c.body && <span class="rec__where display">{c.body}</span>}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      ))}
+    </section>
+
+    {/* ── 03 · THE FRAMES ─────────────────────────────────────── */}
+    <section class="blk" aria-label="Stills">
+      <p class="mono blk__lbl"><span class="rl" data-rl></span>Stills</p>
+      <div class="grid" style={`--sw:${STILL_TRACK}`}>
+        {images.map((img, i) => (
+          <figure class="cel" data-reveal style={`--i:${i % 3}`}>
+            <span class="cel__win">
+              <Image
+                src={img}
+                alt={i === 0 ? d.alt : ''}
+                aria-hidden={i === 0 ? undefined : 'true'}
+                widths={[420, 700, 1100]}
+                sizes="(max-width: 720px) 46vw, 30vw"
+                loading={i < 3 ? 'eager' : 'lazy'}
+                decoding="async"
+              />
+            </span>
+            <figcaption class="mono cel__no">{String(i + 1).padStart(2, '0')}</figcaption>
+          </figure>
+        ))}
+      </div>
     </section>
   </article>
 
@@ -780,50 +779,33 @@ const FACTS: { k: string; v: string }[] = [
   .wt__a:hover .wt__arw { color: var(--bone); transform: translate(3px, -3px); }
   .wt__a:hover .wt__t { text-decoration: underline; text-underline-offset: 6px; }
 
-  /* ══ PREVIEW: THE HEADING, PUSHED HARD ════════════════════════════
-     A–I restyled the label, J–O tried to make it vanish, P–U made it loud
-     with objects from film and music. These go further: each one changes what
-     KIND of thing the heading is — a mechanism, a picture, a texture, or a
-     member of the grid it introduces — rather than how it is set.
+  /* ══ PREVIEW: THE CREDITS MOVE UP, BEHIND THE FILM ════════════════
+     The brief: the credits come straight after the film window, and the score
+     follows them. Everything else moves as little as possible.
 
-     Recognition is restored on both branches and Stills is treated the same
-     way, so the page keeps one system. `.rl` is dropped throughout.
+     WHY IT READS DIFFERENTLY. As it stands the page is film, then the writing
+     about it, then the stills, then the credits at the very bottom — so the
+     one block of hard fact on the page is the last thing reached, after two
+     blocks of prose and a grid. Moving it up puts NAMES against the work
+     while the work is still on screen, which is how a title card behaves and
+     how a reader looking for "who did this" actually scans.
 
-     X · FRAME. The heading is FILLED WITH THE WORK'S OWN STILL. The letters
-     are a window cut into the picture, on a site whose whole idea is that a
-     frame's shape tells you what kind of work it is.
+     The cost, and it is real: the writing no longer follows the film
+     directly, so the sentence about the score is read after a table rather
+     than beside the thing it describes.
 
-     background-clip: text CLIPS EVERY BACKGROUND ON ITS BOX (HANDOFF §6), so
-     the fill is on a span of its own with nothing else painted on it — putting
-     it on the <p> would destroy anything that element ever carried.
+     B · PAIRED. The credits move up AND the watch link comes with the film.
 
-     THE HONEST PROBLEM WITH THIS ONE. Text filled with a photograph has no
-     contrast figure: it is whatever the picture happens to be behind each
-     letter, and it changes per work. It is set large — where 3:1 is the bar
-     rather than 4.5:1 — and the word is written twice so a screen reader has a
-     plain one, but a sighted reader on a dark still gets a heading that is
-     genuinely hard to read. That is a real cost and it is not designed away
-     here; it is the reason this may be the wrong idea however good it looks.
-     A colour underlay behind the image would fix it and would also make the
-     picture pointless.
+     The argument is that "Watch on YouTube" is the FILM'S action, not the
+     page's: it belongs beside the thing it plays, the way a caption belongs
+     to its plate. At the foot of the page it is a general exit; directly
+     under the window it is the second half of the film block — press play
+     here, or go and see it there.
 
-     THE URL IS QUOTED AND ENCODED, AND THAT IS NOT TIDINESS. In a build the
-     poster resolves to /_astro/01.HASH.jpeg and anything works. In DEV it
-     resolves to /@fs/ plus the absolute path — and this project lives under
-     "Website Design/Website Draft 3", which contains SPACES. An unquoted
-     url() with a space in it is invalid CSS, so the custom property is
-     invalid at computed-value time and background-image falls back to none:
-     the heading renders as nothing at all locally while being perfect in the
-     build. Quotes make it parse and encodeURI makes it fetch. */
-  .lbl { margin: 0 0 clamp(18px, 3vh, 32px); }
-  .lbl__fill {
-    display: inline-block;
-    font-family: var(--display); font-weight: 500;
-    font-size: clamp(2.6rem, 8vw, 5.4rem); line-height: 0.94; letter-spacing: -0.04em;
-    background-image: var(--img); background-size: cover; background-position: center;
-    -webkit-background-clip: text; background-clip: text;
-    color: transparent;
-  }
+     That leaves the stills last, which is a real change of ending: the page
+     now closes on pictures rather than on a link. For a portfolio that is
+     arguably the better final note, and it is the reason this is a separate
+     draft rather than a detail of A. */
 </style>
 
 <script>

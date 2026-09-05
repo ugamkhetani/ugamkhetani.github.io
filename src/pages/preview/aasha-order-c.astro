@@ -57,12 +57,13 @@ import { parseAwards } from '../../lib/awards';
 import { listFilms } from '../../lib/assets';
 import { order, numberFor, total, RATIO_NUM } from '../../data/composition';
 
-/* PREVIEW ONLY — pinned to Diwali Ke Shor Mein (citation branch, no credit link). */
+/* PREVIEW ONLY — the real page is a dynamic route; this one is pinned to
+   Aasha so the three orders can be compared on the same work. */
 const works = await getCollection('works');
 const bySlug = new Map(works.map((w) => [w.id, w]));
 const sequence = order.filter((s) => bySlug.has(s));
-const idx = sequence.indexOf('diwali-ke-shor-mein');
-const work = bySlug.get('diwali-ke-shor-mein')!;
+const idx = sequence.indexOf('aasha');
+const work = bySlug.get('aasha')!;
 const next = bySlug.get(sequence[(idx + 1) % sequence.length])!;
 const d = work.data;
 
@@ -186,7 +187,7 @@ const FACTS: { k: string; v: string }[] = [
 ];
 ---
 
-<Base title={`AC · Baseline — ${d.title}`} description={d.description}>
+<Base title={`C · Split — ${d.title}`} description={d.description}>
   <OpNav variant="bracket" base="/" />
 
   <article class="sc" data-sc style={[`--ar:${AR}`, cropFor(work.id)].filter(Boolean).join(';')}>
@@ -256,14 +257,22 @@ const FACTS: { k: string; v: string }[] = [
       )}
     </section>
 
-    {/* ── 02 · THE WRITING, ASSEMBLED ─────────────────────────── */}
-    <section class="blk" aria-label="About the work">
-      <p class="body">{BW.map((w, i) => (<><span class="w" data-w>{w}</span>{i < BW.length - 1 ? ' ' : ''}</>))}</p>
-
+    {/* ── 05 · CREDITS, as a colophon ─────────────────────────────
+        No heading. The dl is kept and set inline rather than swapped for a
+        <p>, so the markup still says "these are pairs" to a screen reader
+        while reading as prose. */}
+    <section class="blk cr" aria-label="Credits" data-reveal>
+      <dl class="cr__list">
+        {FACTS.map((f) => (
+          <div class="cr__row">
+            <dt class="mono cr__k">{f.k}</dt>
+            <dd class="cr__v">{f.v}</dd>
+          </div>
+        ))}
+      </dl>
       {/* Eight of sixteen works carry a record — two as counts, six as citations. */}
       {HAS_AWARDS && (TALLY ? (
         <div class="tally" aria-label="Recognition" data-reveal>
-          <p class="mono lbl">Recognition</p>
           <dl class="tally__row">
             {TALLY.map((t) => (
               <div class="tally__cell">
@@ -275,7 +284,6 @@ const FACTS: { k: string; v: string }[] = [
         </div>
       ) : (
         <div class="rec" aria-label="Recognition" data-reveal>
-          <p class="mono lbl">Recognition</p>
           <ol class="rec__list">
             {CITES.map((c, i) => (
               <li class="rec__row">
@@ -294,9 +302,15 @@ const FACTS: { k: string; v: string }[] = [
       ))}
     </section>
 
+    {/* ── 02 · THE WRITING, ASSEMBLED ─────────────────────────── */}
+    <section class="blk" aria-label="About the work">
+      <p class="body">{BW.map((w, i) => (<><span class="w" data-w>{w}</span>{i < BW.length - 1 ? ' ' : ''}</>))}</p>
+
+    </section>
+
     {/* ── 03 · THE FRAMES ─────────────────────────────────────── */}
     <section class="blk" aria-label="Stills">
-      <p class="mono lbl">Stills</p>
+      <p class="mono blk__lbl"><span class="rl" data-rl></span>Stills</p>
       <div class="grid" style={`--sw:${STILL_TRACK}`}>
         {images.map((img, i) => (
           <figure class="cel" data-reveal style={`--i:${i % 3}`}>
@@ -333,21 +347,6 @@ const FACTS: { k: string; v: string }[] = [
         ))}
       </section>
     )}
-
-    {/* ── 05 · CREDITS, as a colophon ─────────────────────────────
-        No heading. The dl is kept and set inline rather than swapped for a
-        <p>, so the markup still says "these are pairs" to a screen reader
-        while reading as prose. */}
-    <section class="blk cr" aria-label="Credits" data-reveal>
-      <dl class="cr__list">
-        {FACTS.map((f) => (
-          <div class="cr__row">
-            <dt class="mono cr__k">{f.k}</dt>
-            <dd class="cr__v">{f.v}</dd>
-          </div>
-        ))}
-      </dl>
-    </section>
   </article>
 
   <NextWork
@@ -780,51 +779,38 @@ const FACTS: { k: string; v: string }[] = [
   .wt__a:hover .wt__arw { color: var(--bone); transform: translate(3px, -3px); }
   .wt__a:hover .wt__t { text-decoration: underline; text-underline-offset: 6px; }
 
-  /* ══ PREVIEW: THE LEFT BAND ═══════════════════════════════════════
-     All six put the label in the empty space to the LEFT of the measure and
-     keep it quiet. Measured at 1280: the page's content box runs 77 to 1203
-     and the 760 measure sits 260 to 1020, so there is a band 183px wide
-     between the page margin and the column, doing nothing.
+  /* ══ PREVIEW: THE CREDITS MOVE UP, BEHIND THE FILM ════════════════
+     The brief: the credits come straight after the film window, and the score
+     follows them. Everything else moves as little as possible.
 
-     THE OFFSET IS NEVER TYPED. From inside the block, `right: 100%` puts the
-     label's right edge on the column's left edge, and a margin backs it off —
-     so it hugs the measure at every width with no figure to keep in step, and
-     no media query recomputing it.
+     WHY IT READS DIFFERENTLY. As it stands the page is film, then the writing
+     about it, then the stills, then the credits at the very bottom — so the
+     one block of hard fact on the page is the last thing reached, after two
+     blocks of prose and a grid. Moving it up puts NAMES against the work
+     while the work is still on screen, which is how a title card behaves and
+     how a reader looking for "who did this" actually scans.
 
-     `.blk` NEEDS position: relative, and it was made static on purpose when
-     the ghost folios were removed: the folio was the only thing that needed a
-     positioned ancestor. Re-adding it is a real change — if one of these is
-     taken, that note in §5 has to be updated with it.
+     The cost, and it is real: the writing no longer follows the film
+     directly, so the sentence about the score is read after a table rather
+     than beside the thing it describes.
 
-     Below 1100px the band is gone, so every one of these returns the label to
-     the top of its block and reads as an ordinary heading. A label that
-     narrows into the gutter is worse than one that gives up.
+     C · SPLIT. The credits move up and the RECOGNITION BLOCK COMES WITH THEM,
+     out of the score section it currently sits inside.
 
-     AC · BASELINE. The label is dropped by 0.42em so its x-height sits with
-     the top of the content rather than its box edge — the difference between a
-     note BESIDE the block and a heading that has merely been moved sideways.
+     The argument is that recognition is not writing, it is record — the same
+     kind of material as the credits, and currently the only part of the page
+     where a hard fact is filed under a paragraph. Read together, "Composer,
+     Sameer Talawdekar, 2025" and "7 Official Selections, 10 Nominations,
+     6 Wins" are one block answering one question. Split as they are now, the
+     reader meets the honours in the middle of the prose and the credits four
+     screens later.
 
-     IT IS AN OPTICAL DROP, NOT TRUE BASELINE ALIGNMENT, and the distinction
-     matters if this is taken further. Two of the four blocks open with a GRID,
-     which has no first baseline to align to, so there is nothing to lock onto
-     even in principle; measured, the label lands 10px above the first still's
-     top edge. On the citation list, which does have text, the same 0.42em is
-     close to right. Expressed in em of the label so it tracks the label's own
-     size rather than a pixel figure that would drift with it. */
+     It also leaves the score section as PURE PROSE — one paragraph and
+     nothing else — which is the tidiest that block has ever been.
 
-  .blk, .rec, .tally { position: relative; }
-  .lbl {
-    position: absolute; right: 100%; top: 0.42em; margin: 0 clamp(20px, 2.4vw, 38px) 0 0;
-    width: max-content; max-width: 150px; text-align: right;
-    font-size: var(--t-micro); letter-spacing: 0.16em;
-    text-transform: uppercase; color: var(--dim);
-  }
-  @media (max-width: 1100px) {
-    .lbl {
-      position: static; max-width: none; text-align: left;
-      margin: 0 0 clamp(16px, 2.6vh, 28px); color: var(--bone-dim);
-    }
-  }
+     This is the largest of the three departures from the brief's "slightly",
+     and it is offered because the brief's own logic points at it: if the
+     credits belong behind the film, so does the record. */
 </style>
 
 <script>
