@@ -134,6 +134,34 @@ const OPEN_LABEL = isAudio ? 'Listen' : 'The work';
    repeating it under the credits would be the same link twice on one page. */
 const creditLinks = d.links.filter((l) => l.url !== d.external?.url);
 
+/* WHERE THE EXTERNAL LINK GOES DEPENDS ON WHETHER THE PAGE CAN PLAY THE WORK.
+   Five works carry one: Diwali (IMDb), Taskaree (Netflix), Special Ops
+   (Hotstar) and the two songs (Spotify).
+
+   A page with a facade or a set of films already OFFERS the work — there is
+   something to press — so the outside link is a second route and belongs with
+   the credits, in the same section Aasha's YouTube link sits in. That is
+   Diwali, whose Vimeo trailer gives it a window even though its opening is
+   declared `still`.
+
+   A page whose opening is a bare STILL has no window at all: that frame is the
+   work as far as the page is concerned, and the outside link is the only way
+   to watch it. So it goes ON the image, where the facade puts its own Watch
+   button, and the image is given the film's width to match. That is Taskaree
+   and Special Ops.
+
+   The songs are left exactly as they were. Their opening is `audio`, so they
+   render a cover and a player rather than a still, and "Listen on Spotify"
+   under a record sleeve is already the right shape. */
+const isStill = !isVideo && !hasFilms && !isAudio;
+const hasWindow = isVideo || hasFilms;
+const watchLinks =
+  creditLinks.length > 0
+    ? creditLinks
+    : hasWindow && d.external
+      ? [{ label: d.external.label, url: d.external.url }]
+      : [];
+
 /* Split on spaces only. The words keep their own punctuation, so nothing has
    to be re-inserted and the joined text is identical to the source. */
 const QW = (d.quote ?? '').split(' ').filter(Boolean);
@@ -254,10 +282,16 @@ const FACTS: { k: string; v: string }[] = [
       {!isVideo && !hasFilms && !isAudio && (
         <div class="still">
           <Image src={poster} alt={d.alt} widths={[800, 1400, 2000]} sizes="(max-width: 900px) 100vw, 78vw" loading="eager" decoding="async" />
+          {d.external && (
+            <a class="still__go" href={d.external.url} target="_blank" rel="noopener noreferrer">
+              <span class="mono">{d.external.label}</span>
+              <span class="still__arw" aria-hidden="true">&nearr;</span>
+            </a>
+          )}
         </div>
       )}
 
-      {d.external && (
+      {d.external && !hasWindow && !isStill && (
         <div class="ext">
           <ExternalWatch platform={d.external.platform} label={d.external.label} url={d.external.url} />
         </div>
@@ -328,9 +362,9 @@ const FACTS: { k: string; v: string }[] = [
         its own section now, above the credits and set at title scale.
         Seven of sixteen works carry one; the guard means the other nine
         render nothing here rather than an empty band. */}
-    {creditLinks.length > 0 && (
+    {watchLinks.length > 0 && (
       <section class="blk wt" aria-label="Watch" data-reveal>
-        {creditLinks.map((l) => (
+        {watchLinks.map((l) => (
           <a class="wt__a" href={l.url} target="_blank" rel="noopener">
             <span class="wt__t display">{l.label}</span>
             <span class="wt__arw" aria-hidden="true">&nearr;</span>
@@ -777,6 +811,43 @@ const FACTS: { k: string; v: string }[] = [
   .wt__arw { font-size: var(--t-md); color: var(--dim); transition: transform var(--d-micro) var(--ease), color var(--d-micro) var(--ease); }
   .wt__a:hover .wt__arw { color: var(--bone); transform: translate(3px, -3px); }
   .wt__a:hover .wt__t { text-decoration: underline; text-underline-offset: 6px; }
+
+  /* THE BARE STILL IS A WINDOW, so it is given the film's width and the film's
+     button. On Taskaree and Special Ops the page has nothing to play: the
+     frame is the work, and the only way to watch is elsewhere. Sized at 760
+     with the link filed below it, that frame read as an illustration beside
+     the prose rather than as the thing the page is about.
+
+     It takes the SAME --film as the facade — not a second number — so the two
+     kinds of opening share an edge, and a change to one moves the other.
+
+     The button copies .facade__play: same inset from the corner, same border,
+     ground and blur, so a still that links out and a video that plays look
+     like the same control doing two jobs. It is an anchor rather than a
+     button because it leaves the site, and it carries the arrow the rest of
+     the page uses for that. */
+  .still { position: relative; }
+  .blk :global(.still) {
+    width: var(--film);
+    margin-inline: calc((100% - var(--film)) / 2);
+  }
+  .still__go {
+    position: absolute; left: var(--margin); bottom: var(--margin);
+    display: inline-flex; align-items: center; gap: 11px;
+    padding: 11px 18px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: rgba(10, 9, 8, 0.35);
+    backdrop-filter: blur(6px);
+    color: var(--bone); text-decoration: none;
+    transition: border-color var(--d-micro) var(--ease), background var(--d-micro) var(--ease);
+  }
+  .still__go .mono { color: inherit; }
+  .still__go:hover { border-color: var(--accent); background: rgba(10, 9, 8, 0.6); }
+  .still__arw { transition: transform var(--d-micro) var(--ease); }
+  .still__go:hover .still__arw { transform: translate(2px, -2px); }
+  @media (max-width: 900px) {
+    .still__go { left: var(--s-3); bottom: var(--s-3); padding: 9px 14px; }
+  }
 </style>
 
 <script>

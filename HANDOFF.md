@@ -641,6 +641,32 @@ ids normalised: 16/16 identical.
 
 ---
 
+**Where a work's external link sits depends on whether the page can play the
+work.** Five works carry one: Diwali (IMDb), Taskaree (Netflix), Special Ops
+(Hotstar) and the two songs (Spotify).
+
+- A page with a **facade or films** already offers the work — there is
+  something to press — so the outside link is a second route and goes to the
+  **Watch section above the credits**, the same place Aasha's YouTube link sits.
+  That is Diwali, whose Vimeo trailer gives it a window even though its opening
+  is declared `still`.
+- A page whose opening is a **bare still** has no window at all: that frame is
+  the work as far as the page is concerned, and the outside link is the only
+  way to watch. So it goes **on the image**, where the facade puts its own
+  Watch button, and the image takes the film's width. That is Taskaree and
+  Special Ops — measured 1050px, 1.5 margins in, identical to a facade.
+- The **songs are untouched**. Their opening is `audio`, so they render a cover
+  and a player rather than a still, and "Listen on Spotify" under a sleeve is
+  already the right shape. `.ext` now renders only for them.
+
+THE STILL TAKES THE SAME `--film` AS THE FACADE, not a second number, so the
+two kinds of opening share an edge and a change to one moves the other. Its
+button copies `.facade__play` — same inset, border, ground and blur — so a
+still that links out and a video that plays read as one control doing two
+jobs. It is an anchor rather than a button because it leaves the site.
+
+---
+
 ## 6 · Traps — every one of these cost real time
 
 **Astro scopes component CSS with a `data-astro-cid-*` attribute, and
