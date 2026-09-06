@@ -9,7 +9,7 @@ role: "Additional Composer"
 credits:
   director: "Neeraj Pandey · Raghav Jairath · B. A. Fida"
   with: "Composed with Advait Nemlekar"
-quote: "A series score has to hold a world together, not just a scene."
+quote: "A series score has to breathe beyond the scene."
 description: >
   Score and additional production for a flagship Indian streaming series,
   working with Advait Nemlekar. Long-form work demands continuity. A cue has

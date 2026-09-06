@@ -10,7 +10,7 @@ credits:
   studio: "Chivitra"
 awards:
   - text: "Top 100 Storytellers · TVF Shorts League"
-quote: "Vertical is not a smaller canvas. It asks for different decisions."
+quote: "Vertical isn't shorter film. It's its own grammar."
 description: >
   Six original cues across a six-episode vertical micro-drama built for
   sound-on mobile viewing. With less than a minute to establish character,
