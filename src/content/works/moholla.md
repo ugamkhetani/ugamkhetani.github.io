@@ -18,7 +18,7 @@ awards:
 # designed together rather than layered afterwards". Deliberately NOT about
 # AI, because the other two AI films already carry that angle (My Red Crayon,
 # Mumbai Standard Time). Replace with his own line and delete this comment.
-quote: "What happens when AI stops looking like AI?"
+quote: "Technology can create the image. Storytelling gives it meaning."
 description: >
   An experimental AI-native film exploring what happens when artificial
   intelligence becomes a storytelling medium rather than simply a production
