@@ -1,0 +1,170 @@
+---
+/**
+ * MUMBAI STANDARD TIME · SUBHEADING DRAFT J3 — Under
+ *
+ * A VARIATION ON J, asked for on 2026-09-06. J's separator is kept exactly:
+ * the roles are divided by a drawn 7px hairline and there is no slash
+ * anywhere. Two things change, and they change in all three of J1, J2 and J3:
+ *
+ *   THE FOLIO IS GONE. "001 / 16" no longer sets.
+ *   THE CATEGORY AND YEAR MOVE. Where they land is the whole variation.
+ *
+ * Nothing above the title at all. Both facts move below it, craft first at
+ * 10px and the filing under it at 9px — the only one of the three with a
+ * clear top edge.
+ *
+ * Nothing here is on the live site.
+ *
+ * THE SLASH IS REMOVED IN THE RENDERING, NOT IN THE DATA — the markdown still
+ * says "Music / Sound / Voice Over", because the same string is set on
+ * /contents and in this page's own credits list. The split is on "/" only, so
+ * a role written with a middot sets unchanged.
+ *
+ * NOTHING IS INVENTED. Every word is read from
+ * src/content/works/mumbai-standard-time.md.
+ */
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import OpNav from '../../components/OpNav.astro';
+import VideoFacade from '../../components/VideoFacade.astro';
+import { framesFor } from '../../lib/frames';
+
+const works = await getCollection('works');
+const work = works.find((w) => w.id === 'mumbai-standard-time')!;
+const d = work.data;
+const poster = framesFor(work.id, d.frames)[0];
+const AR = d.ratio.replace(':', ' / ');
+
+/* numberFor and total are NOT imported any more. The folio was the only thing
+   on this page that used them, and an import kept for a deleted element is
+   how a page ends up carrying a data dependency nobody can find a reason for. */
+const ROLES = d.role.split('/').map((r) => r.trim()).filter(Boolean);
+
+/* The J family only. The twelve A-L live on their own row; putting fifteen
+   two-character buttons in one line wraps into a block that is harder to read
+   than the drafts it links to. */
+const FAM = ['j', 'j1', 'j2', 'j3'];
+const HERE = 'j3';
+---
+
+<Base title={`${d.title} — subheading J3`} description={d.description}>
+  <OpNav variant="bracket" base="/" />
+
+  <article class="sc" style={`--ar:${AR}`}>
+    <header class="hd">
+      <h1 class="hd__t">{d.title}</h1>
+      <div class="meta meta--stackj">
+        <p class="meta--j">
+          <span class="meta__roles">
+          {ROLES.map((r, i) => (<>{i > 0 && <i class="meta__bar" aria-hidden="true"></i>}<span>{r}</span></>))}
+        </span>
+        </p>
+        <p class="meta__file">{d.category} &middot; {d.year}</p>
+      </div>
+    </header>
+
+    <section class="q" aria-label="Statement">
+      <p class="q__t">{d.quote}</p>
+    </section>
+
+    <section class="blk" aria-label="The work">
+      <VideoFacade youtube={d.media.youtube} title={d.title} poster={poster} alt={d.alt} eager />
+    </section>
+
+    <nav class="mono flip" aria-label="Drafts">
+      {FAM.map((l) => (
+        <a class={l === HERE ? 'flip__a is-here' : 'flip__a'} href={`/preview/mst-sub-${l}`}>{l.toUpperCase()}</a>
+      ))}
+      <a class="flip__all" href="/preview/">All drafts &rarr;</a>
+    </nav>
+  </article>
+</Base>
+
+<style>
+  /* ── THE PAGE'S OWN TYPE, COPIED FROM src/pages/work/[slug].astro ──
+     Copied rather than imported so a draft can differ from the live page
+     without a shared file forcing them to agree. These rules set the scale the
+     subheading is judged against and must not drift from the live template. */
+  .sc { --measure: min(760px, 100%); padding: clamp(96px, 15vh, 190px) var(--margin) 0; }
+  .sc { --film: max(var(--measure), calc(100vw - 3 * var(--margin))); }
+  .q, .blk { max-width: var(--measure); }
+  /* THE HEAD IS THE FULL 1180 HERE, NOT THE 760 MEASURE, so J2 has a field to
+     hang in; its children are pulled back to the measure individually. At any
+     width where the field has closed up the two are the same box, so this
+     changes nothing for J1 and J3. */
+  .hd { max-width: 1180px; margin-inline: auto; text-align: center; }
+  .hd > * { max-width: var(--measure); margin-inline: auto; }
+  .hd__t {
+    margin: 0;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(2.6rem, 10vw, 7.25rem);
+    line-height: 0.86; letter-spacing: -0.05em;
+    text-transform: uppercase; color: var(--bone);
+  }
+  .q { max-width: 1180px; margin: clamp(80px, 14vh, 180px) auto; text-align: center; }
+  .q__t {
+    margin: 0 auto; max-width: 20ch;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.9rem, 5.4vw, 4.4rem);
+    line-height: 1.02; letter-spacing: -0.045em;
+    color: var(--bone);
+  }
+  .blk { margin: 0 auto clamp(72px, 12vh, 160px); }
+  .blk :global(.facade) {
+    width: var(--film);
+    margin-inline: calc((100% - var(--film)) / 2);
+  }
+
+  /* ── THE DRAFT ──────────────────────────────────────────────── */
+  /* J'S OWN DEVICE, UNCHANGED IN ALL THREE: the roles are separated by a
+     DRAWN 7px hairline, not by a slash. It has no baseline, no weight to
+     match the letters and cannot be read as a character, which is the whole
+     argument against "/" — that one is a keystroke doing a typographer's job.
+     Only the placement of the category and year moves between J1, J2 and J3. */
+  .meta__roles { display: inline-flex; align-items: center; }
+  .meta__bar {
+    display: inline-block; width: 1px; height: 7px;
+    margin-inline: clamp(10px, 1.8vw, 16px);
+    background: var(--rule);
+  }
+
+  /* J3 · UNDER. Nothing at all above the title — the folio goes and nothing
+     replaces it, so the page opens on the work's name and on nothing else.
+
+     BOTH FACTS MOVE BELOW, IN THE ORDER THEY MATTER. The craft leads at 10px
+     and the category and year follow at 9px, dimmer, because on a composer's
+     page the disciplines are the subject and the genre and the date are the
+     filing. It is the same argument I is making, made with J's hairlines.
+
+     THIS IS THE ONLY ONE OF THE THREE WITH A CLEAR TOP EDGE, and that is the
+     point of it: the title has nothing above it but the menu, so it starts
+     the page rather than continuing something. */
+  .meta--stackj { margin: clamp(28px, 4.6vh, 50px) 0 0; font-family: var(--mono); text-transform: uppercase; }
+  .meta--j {
+    display: flex; justify-content: center; align-items: center; flex-wrap: wrap;
+    gap: 10px; margin: 0;
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    color: var(--muted);
+  }
+  .meta__file {
+    margin: clamp(12px, 2vh, 17px) 0 0;
+    font-size: 0.5625rem; letter-spacing: 0.22em; text-indent: 0.22em;
+    color: var(--dim); font-variant-numeric: tabular-nums;
+  }
+
+  /* ── FLIPPING WITHIN THE J FAMILY ───────────────────────────── */
+  .flip {
+    display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px;
+    margin: 0 auto clamp(60px, 10vh, 120px);
+    font-size: var(--t-micro); letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .flip__a {
+    display: grid; place-items: center;
+    min-width: 30px; height: 30px; padding-inline: 8px;
+    border: 1px solid var(--rule); color: var(--dim); text-decoration: none;
+  }
+  .flip__a:hover { border-color: var(--bone-dim); color: var(--bone); }
+  .flip__a.is-here { border-color: var(--accent); color: var(--accent); }
+  .flip__all { margin-left: 14px; color: var(--dim); text-decoration: none; }
+  .flip__all:hover { color: var(--bone); }
+</style>

@@ -77,6 +77,18 @@ const HERE = 'j';
       ))}
       <a class="flip__all" href="/preview/">All drafts &rarr;</a>
     </nav>
+
+    {/* J's OWN VARIATIONS, on their own row. J1, J2 and J3 keep this
+        draft's hairline separator and move the category and year; the folio
+        is gone in all three. Kept off the A-L row above because fifteen
+        two-character buttons wrap into a block harder to read than the
+        drafts it links to. */}
+    <nav class="mono flip flip--fam" aria-label="Variations on J">
+      <span class="flip__lbl">Variations</span>
+      {['j1', 'j2', 'j3'].map((l) => (
+        <a class="flip__a" href={`/preview/mst-sub-${l}`}>{l.toUpperCase()}</a>
+      ))}
+    </nav>
   </article>
 </Base>
 
@@ -150,9 +162,12 @@ const HERE = 'j';
     font-size: var(--t-micro); letter-spacing: 0.14em; text-transform: uppercase;
   }
   .flip__a {
-    display: grid; place-items: center; width: 30px; height: 30px;
+    display: grid; place-items: center;
+    min-width: 30px; height: 30px; padding-inline: 8px;
     border: 1px solid var(--rule); color: var(--dim); text-decoration: none;
   }
+  .flip--fam { margin-top: calc(clamp(60px, 10vh, 120px) * -1 + 14px); }
+  .flip__lbl { margin-right: 6px; color: var(--dim); }
   .flip__a:hover { border-color: var(--bone-dim); color: var(--bone); }
   .flip__a.is-here { border-color: var(--accent); color: var(--accent); }
   .flip__all { margin-left: 14px; color: var(--dim); text-decoration: none; }
