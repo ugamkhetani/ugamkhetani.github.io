@@ -11,7 +11,7 @@ credits:
   # work" — a description of the work, not a studio — which was harmless only
   # while credits never rendered. That phrase moved to "Use case" below.
   studio: "Kalpnk AI"
-quote: "When the image is impossible, sound is what makes you believe it."
+quote: "Scale is seen. Believability is heard."
 description: >
   Full audio for a concept trailer created as pitch work. The visual world
   spans ancient civilisations, mountains, armies and mythic scale, all
