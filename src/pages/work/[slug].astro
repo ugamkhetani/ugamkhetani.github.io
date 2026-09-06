@@ -951,19 +951,40 @@ const FACTS: { k: string; v: string }[] = [
      joining them. inline-block keeps every pair whole and wraps between
      pairs, which is the only place a colophon should ever break. */
   .cr__list { margin: 0; display: block; max-width: 62ch; }
-  /* max-width is the guard inline-block needs. A shrink-wrapped box takes its
+  /* THE GAP IS TIGHTENED, AND BOTH GAPS HAD TO MOVE. Measured at 1280 before
+     this change: 44px between one pair and the next, against 19px between a
+     label and its own value — a ratio of 2.3, which is what made the pairs
+     read as pairs once the dot between them was removed.
+
+     So the between-pair gap could not simply be cut. Space is the only thing
+     separating one credit from the next now, and taking it to 24px against a
+     19px inner gap would have been a ratio of 1.26 — near enough to even that
+     "Composer" and "Director" would read as one run.
+
+     THE INNER GAP THEREFORE COMES DOWN WITH IT. The label carried TWO no-break
+     spaces after it and now carries one. Both numbers drop by about half and
+     the ratio holds, so the pairs still group while the whole block closes up.
+     Read off the rendered page at 1280 rather than predicted — I had guessed
+     11px and 2.2, and it is 12 and 2.0:
+
+                        was    now
+       between pairs    44     24
+       label to value   19     12
+       ratio           2.3    2.0
+
+     max-width is the guard inline-block needs. A shrink-wrapped box takes its
      content's width, so a value longer than the column would push the page
      wide rather than wrap — the one failure a narrow page must never have.
      Measured at 375, where the list is 327: the widest row in the catalogue
      is Taskaree's three directors at 305, so nothing needs it today. It is
      here so that the next long credit wraps instead of breaking the page. */
-  .cr__row { display: inline-block; max-width: 100%; margin-right: clamp(22px, 3.4vw, 48px); }
+  .cr__row { display: inline-block; max-width: 100%; margin-right: clamp(14px, 1.9vw, 26px); }
   .cr__row:last-child { margin-right: 0; }
   .cr__k {
     display: inline; margin: 0; font-size: var(--t-micro); letter-spacing: 0.14em;
     text-transform: uppercase; color: var(--dim);
   }
-  .cr__k::after { content: '\00a0\00a0'; }
+  .cr__k::after { content: '\00a0'; }
   .cr__v { display: inline; margin: 0; font-size: var(--t-md); color: var(--bone); }
 
   /* The watch link: right-aligned, at title scale, with no rule at all. The
