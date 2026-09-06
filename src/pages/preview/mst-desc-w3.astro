@@ -200,12 +200,21 @@ const HERE = 'w3';
      lit. So it cannot look like an effect applied to type; it looks like the
      type is being read unevenly, which is how reading actually goes.
 
-     --vs IS THE SHIFTED CLOCK, clamped so it can neither start before 0 nor
-     finish after 1. Without the clamp a word with a negative nudge would hold
-     a --v above 1 and sit at more than full opacity, which is not a state the
-     rest of the page has. */
+     THE NUDGE IS A START DELAY, NOT AN OFFSET, and the difference is the whole
+     correctness of the draft. This was first written as
+     `clamp(0, --v + (--s - 0.5) * 0.4, 1)`, an offset either way — which
+     means a word with a negative nudge never REACHES 1. Measured at a --v of
+     1: forty-one different resting states, the worst of them sitting at
+     0.824 opacity and 2.2px low, permanently. The seed must decide WHEN a
+     word starts, never WHETHER it arrives.
+
+     Delaying and then renormalising over the remaining travel fixes it by
+     construction: (v - d) / (1 - d) is 0 at v = d and exactly 1 at v = 1, for
+     every d. So the spread lives entirely in the middle and every word lands
+     on the live page's own settled values. */
   .body--w3 .w {
-    --vs: clamp(0, calc(var(--v, 1) + (var(--s, 0.5) - 0.5) * 0.4), 1);
+    --d: calc(var(--s, 0.5) * 0.3);
+    --vs: clamp(0, calc((var(--v, 1) - var(--d)) / (1 - var(--d))), 1);
     opacity: calc(0.12 + var(--vs) * 0.88);
     transform: translateY(calc((1 - var(--vs)) * 0.32em));
   }

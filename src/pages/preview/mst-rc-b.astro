@@ -7,12 +7,24 @@
  * Hard edges rather than fades: the festival name rises out of a mask and
  * each credit pair is uncovered left to right.
  *
- * THESE TWO SECTIONS HAVE NO MOTION AT ALL TODAY, which is worth knowing
- * before judging the drafts. Both already carry a `data-reveal` attribute in
- * the live template, but the only CSS that ever reads it is `.cel[data-reveal]`
- * on the stills — so on Recognition and Credits the attribute is inert markup
- * and the sections simply appear. The description above them, by contrast,
- * has run a per-word reading light for months.
+ * WHAT THESE SECTIONS DO TODAY, corrected 2026-09-07. I first wrote here that
+ * they have no motion at all and that `data-reveal` is inert on them. THAT IS
+ * WRONG. src/scripts/main.ts runs on every page through Base.astro, watches
+ * every `[data-reveal]` with an IntersectionObserver and adds `.is-in`; and
+ * base.css gives `[data-reveal].is-in` a `reveal-rise` animation, a 14px
+ * translateY over --d-reveal. So Recognition and Credits already rise as they
+ * come into view.
+ *
+ * WHAT THEY ACTUALLY LACK is what the description has: that reveal is ONE
+ * SHOT — the observer unobserves on first intersection, so it never plays
+ * again and never reverses — it is BLOCK LEVEL, so the whole section arrives
+ * as one thing rather than row by row, and it is NOT SCROLL LINKED, so its
+ * timing has nothing to do with where the reader is. Every draft here
+ * replaces it with a per-row reveal driven by the same clock the description
+ * uses, which reverses on the way back up.
+ *
+ * These drafts therefore drop `data-reveal` from both sections rather than
+ * layering on top of it — two reveals on one element would fight.
  *
  * THE PAGE BELOW THE FILM IS THE LIVE ONE. Head, statement, film, description
  * with W · Assemble as applied, recognition, watch and credits, in the live
