@@ -36,6 +36,16 @@ const NOTES: Record<string, [string, string, string]> = {
   'mst-desc-w': ['Mumbai Standard Time \u00b7 A\u2019s layout, with movement', 'W \u00b7 Assemble', 'The live lift kept to the decimal, plus a sideways component and a slight scale seeded per word \u2014 the paragraph gathers itself rather than rising as a block.'],
   'mst-desc-x': ['Mumbai Standard Time \u00b7 A\u2019s layout, with movement', 'X \u00b7 Hold', 'Point at the description and every word comes up to full; take the pointer away and the scroll light has it back. It answers a reader who has stopped to read.'],
   'mst-desc-y': ['Mumbai Standard Time \u00b7 A\u2019s layout, with movement', 'Y \u00b7 Proximity', 'A light travels with the pointer and the nearest words come up to white. Word positions are cached once, so a move costs no layout at all.'],
+  'mst-desc-w2': ['Mumbai Standard Time \u00b7 A\u2019s layout, with movement', 'W2 \u00b7 Depth', 'W\u2019s family with the scale carrying the variation: every word rises the live 0.32em, but each starts at its own distance, 0.90 to 1.00.'],
+  'mst-desc-w3': ['Mumbai Standard Time \u00b7 A\u2019s layout, with movement', 'W3 \u00b7 Stagger', 'The only one that changes WHEN rather than where. Identical path for every word, each clock nudged up to a fifth of the reveal, so words do not arrive in reading order.'],
+  'mst-desc-w4': ['Mumbai Standard Time \u00b7 A\u2019s layout, with movement', 'W4 \u00b7 Tilt', 'Each word settles out of its own rotation of up to 2.4 degrees, pivoting near the baseline so it tips into place rather than wobbling.'],
+  'mst-desc-w5': ['Mumbai Standard Time \u00b7 A\u2019s layout, with movement', 'W5 \u00b7 Ink', 'No geometry at all beyond the live rise. The words darken in at their own rates, the way a page comes up in a developing tray. The cheapest of the five.'],
+  'mst-desc-m': ['Mumbai Standard Time \u00b7 restored, own layout, now scrollable', 'M \u00b7 Cascade', 'Each sentence rises out of its own slot, masked rather than faded. Sets the description as sentence blocks, so the layout is not the live one.'],
+  'mst-desc-n': ['Mumbai Standard Time \u00b7 restored, own layout, now scrollable', 'N \u00b7 Focus pull', 'Sentences arrive out of focus and sharpen. Blur is per sentence, not per word, because blur is the one filter with no cheap composite path.'],
+  'mst-desc-o': ['Mumbai Standard Time \u00b7 restored, own layout, now scrollable', 'O \u00b7 Weight', 'Words thicken as they are read, on Inter\u2019s wght axis. NOTE: weight changes glyph widths, so this one reflows \u2014 it cannot keep the live line breaks.'],
+  'mst-desc-p': ['Mumbai Standard Time \u00b7 restored, own layout, now scrollable', 'P \u00b7 Trace', 'A hairline draws itself between standfirst and paragraph and the prose comes up behind it. The closest of the six to the live setting.'],
+  'mst-desc-q': ['Mumbai Standard Time \u00b7 restored, own layout, now scrollable', 'Q \u00b7 Drift', 'W\u2019s ancestor: every word arrives from its own hashed direction. Same concept as W, on its own single-paragraph layout rather than the live one.'],
+  'mst-desc-r': ['Mumbai Standard Time \u00b7 restored, own layout, now scrollable', 'R \u00b7 Aperture', 'The block opens from its centre line outward, the way an iris opens. One clip-path on one element.'],
 };
 
 const pretty = (s: string) =>
