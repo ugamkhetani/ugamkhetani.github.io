@@ -31,7 +31,7 @@ credits:
 # for this cut rather than selected from a catalogue") and from the confirmed
 # Sound Design role — it claims nothing the role does not carry. Replace it
 # with his own line and delete this comment.
-quote: "Tension begins long before anything happens."
+quote: "Sometimes all a moment needs is a little unease."
 description: >
   Sound design for a short-form Halloween campaign built around
   psychological tension. The idea was to create unease within a format with
