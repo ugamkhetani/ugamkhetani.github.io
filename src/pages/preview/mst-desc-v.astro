@@ -87,6 +87,29 @@ const HERE = 'v';
       </div>
     </section>
 
+    {/* SCROLL ROOM, AND IT IS A PREVIEW FIX RATHER THAN A DESIGN ELEMENT.
+
+        The clock lights a word when its top rises past a line two thirds down
+        the window, and it is fully lit a third of a screen above that — so a
+        word must reach the top third of the viewport to finish. On the LIVE
+        page that is never a problem: measured at 1280x800 there are 2686px of
+        recognition, stills, credits and the next work below the last word, so
+        it ends at a --v of 1 with room to spare.
+
+        THIS DRAFT ENDS AT THE DESCRIPTION, and that broke the effect rather
+        than merely shortening it. Measured before this was added: at the
+        bottom of the page the last word's top was still at 568px and needed
+        to be at 261px or above, so its --v maxed out at ZERO — the closing
+        words never lit at all, and the animation appeared to stall halfway
+        through the paragraph.
+
+        85vh is sized from the rule, not guessed: the requirement is roughly
+        0.673 of a screen below the last word, and the draft already had about
+        230px, so anything over 0.6vh clears it at any window height. The
+        surplus is deliberate — it lets the finished paragraph sit still for a
+        beat instead of hitting the end of the document the moment it lands. */}
+    <div class="tail" aria-hidden="true"></div>
+
     <nav class="mono flip" aria-label="Drafts">
       {FAM.map((l) => (
         <a class={l === HERE ? 'flip__a is-here' : 'flip__a'} href={`/preview/mst-desc-${l}`}>{l.toUpperCase()}</a>
@@ -197,6 +220,9 @@ const HERE = 'v';
       transform: none !important; filter: none !important; opacity: 1 !important;
     }
   }
+
+  /* See the note in the markup: preview scroll room, not a design element. */
+  .tail { min-height: 85vh; }
 
   /* ── FLIPPING BETWEEN THE DRAFTS ────────────────────────────── */
   .flip {
