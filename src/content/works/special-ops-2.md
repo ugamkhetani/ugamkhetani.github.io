@@ -7,7 +7,10 @@ ratio: "16:9"
 # Spelled out on 2026-09-06. It was "Asst. Composer"; the head sets the role
 # in 10px caps where an abbreviated word reads as a truncation rather than as
 # a credit, and /contents reads the same string.
-role: "Assistant Composer / Additional Production"
+# Swapped on 2026-09-06: Additional Production leads. The order in this one
+# string is the order in three places at once — the hairline pair under the
+# title, the Role row in the colophon, and /contents.
+role: "Additional Production / Assistant Composer"
 credits:
   director: "Neeraj Pandey · Shivam Nair"
   with: "Composed with Advait Nemlekar"
