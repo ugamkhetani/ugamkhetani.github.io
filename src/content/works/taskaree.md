@@ -9,11 +9,14 @@ role: "Additional Composer"
 credits:
   director: "Neeraj Pandey · Raghav Jairath · B. A. Fida"
   with: "Composed with Advait Nemlekar"
-quote: "Cue work that breathes across episodes, not scenes."
+quote: "A series score has to hold a world together, not just a scene."
 description: >
-  Score and production work across a flagship Indian streaming series.
-  Episodic cues tightly synced to picture lock and delivered to platform
-  spec on demanding timelines.
+  Score and additional production for a flagship Indian streaming series,
+  working with Advait Nemlekar. Long-form work demands continuity. A cue has
+  to serve the scene in front of it while belonging to a larger musical
+  language that can sustain itself across episodes. The work was developed
+  directly against picture and delivered to platform specifications within
+  demanding production timelines.
 meta:
   - { label: "Platform", value: "Netflix" }
   - { label: "Format", value: "Long-form · Episodic" }

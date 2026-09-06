@@ -10,11 +10,14 @@ credits:
   # work" — a description of the work, not a studio — which was harmless only
   # while credits never rendered. That phrase moved to "Use case" below.
   studio: "Kalpnk AI"
-quote: "The score sounds like your film, not like the last score I wrote."
+quote: "The image can suggest a world. Sound has to convince you it is real."
 description: >
-  Concept trailer audio built end to end. A palette assembled for this
-  piece alone: hybrid acoustic and electronic, processed instruments,
-  found sound recorded and recontextualised.
+  Full audio for a concept trailer developed as pitch work. The film moves
+  through dense jungle environments, danger, family and survival within an
+  AI-generated visual world. What mattered was physical credibility. Hybrid
+  acoustic and electronic scoring, processed instruments, granular textures
+  and found sound were shaped into a palette that gives the environments
+  weight, distance, movement and tension.
 meta:
   - { label: "Scope", value: "Full audio" }
   - { label: "Use case", value: "Concept trailer · Pitch work" }

@@ -18,11 +18,15 @@ awards:
 # designed together rather than layered afterwards". Deliberately NOT about
 # AI, because the other two AI films already carry that angle (My Red Crayon,
 # Mumbai Standard Time). Replace with his own line and delete this comment.
-quote: "Music and sound are one decision, not two passes."
+quote: "What happens when AI stops looking like AI?"
 description: >
-  Score and sound design for an AI-native short film. Music and sound
-  designed together rather than layered afterwards, built specifically
-  for the edit.
+  An experimental AI-native film exploring what happens when artificial
+  intelligence becomes a storytelling medium rather than simply a production
+  tool. The ambition was cinematic realism, which places a particular demand
+  on sound. Performances need to feel grounded, environments need to feel
+  inhabited and the emotional world needs to remain believable. Music and
+  sound were developed around those questions, supporting a world that feels
+  observed rather than generated.
 meta:
   - { label: "Scope", value: "Music · Sound" }
   - { label: "Recognition", value: "Official Selection · Waves / IFFI" }

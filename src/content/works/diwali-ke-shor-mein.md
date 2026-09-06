@@ -20,9 +20,13 @@ awards:
   - text: "Official Selection · Toulouse Indian Film Festival"
 quote: "Great scores become memory."
 description: >
-  Debut theatrical feature. Original score developed from concept to final
-  mix and delivered in-house. Each cue built from texture first and melody
-  second, so colour and atmosphere lead the score before the theme arrives.
+  Original score for a theatrical feature unfolding entirely over one Diwali
+  day, as a middle-class family gradually becomes entangled in a crime. The
+  music had to evolve with the film's shifting emotional centre without
+  dictating what the audience should feel. The score was built from the
+  world outward, with texture, harmony and instrumentation establishing the
+  atmosphere before melodic ideas emerge. The theme grows from the world
+  rather than sitting above it.
 meta:
   - { label: "Format", value: "Theatrical feature" }
   - { label: "Direction", value: "Rohan Bakshi" }

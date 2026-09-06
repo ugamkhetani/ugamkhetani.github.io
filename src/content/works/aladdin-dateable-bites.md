@@ -12,11 +12,14 @@ credits:
 # file's own "authored as one creative pass". Deliberately NOT a brand-sound
 # line, because Dinshaw's already carries that. Replace with his own line and
 # delete this comment.
-quote: "Four parts have to sound like one campaign."
+quote: "Four films should still feel like one idea."
 description: >
-  Four-part campaign rollout with music, sound and voice authored as one
-  creative pass. Original music written for the work rather than selected
-  from a catalogue.
+  A four-part social campaign built around product clarity, pace and
+  personality. Each reel needed to communicate quickly while retaining a
+  premium feel, and still sound unmistakably part of the same campaign.
+  Upbeat jazz-inflected music, crisp sound design and naturalistic voice
+  direction were developed together, giving each reel its own rhythm while
+  maintaining a consistent sonic character.
 meta:
   - { label: "Scope", value: "End-to-end" }
   - { label: "Channels", value: "Social-first" }

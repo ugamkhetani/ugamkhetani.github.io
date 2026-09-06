@@ -11,11 +11,14 @@ credits:
   # work" — a description of the work, not a studio — which was harmless only
   # while credits never rendered. That phrase moved to "Use case" below.
   studio: "Kalpnk AI"
-quote: "Pitch work is where audio earns its seat at the creative table."
+quote: "When the image is impossible, sound is what makes you believe it."
 description: >
-  Full-scale trailer audio created for high-impact pitch work. Score,
-  sound design and voice authored together and shaped through cinematic
-  tension, pacing and movement.
+  Full audio for a concept trailer created as pitch work. The visual world
+  spans ancient civilisations, mountains, armies and mythic scale, all
+  generated through AI. The task was to make it feel physically believable.
+  Score, sound design and voice direction were developed as one system,
+  giving weight to environments, scale to action and credibility to
+  performance while carrying the story from mystery to revelation to war.
 meta:
   - { label: "Scope", value: "Full audio" }
   - { label: "Use case", value: "Concept trailer · Pitch work" }

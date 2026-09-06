@@ -14,7 +14,11 @@ credits:
 # own line and delete this comment.
 quote: "A producer's job is to serve the song, not sign it."
 description: >
-  Independent record, produced artist-led from first session to master.
+  An artist-led record built around a live band performance. Trumpet, drums,
+  electric guitars, bass, piano, vocals and synths were recorded with the
+  musicians in the room. The focus was on preserving the feeling of people
+  playing together, allowing interaction, timing and small imperfections to
+  remain part of the record.
 meta:
   - { label: "Scope", value: "Production" }
   - { label: "Approach", value: "Artist-led" }

@@ -10,10 +10,14 @@ credits:
   studio: "Chivitra"
 awards:
   - text: "Top 100 Storytellers · TVF Shorts League"
-quote: "Vertical isn't shorter film, it's its own grammar."
+quote: "Vertical is not a smaller canvas. It asks for different decisions."
 description: >
-  Six tightly-scored episodes designed for vertical, sound-on viewing,
-  where every cue has to earn its place in under sixty seconds.
+  Six original cues across a six-episode vertical micro-drama built for
+  sound-on mobile viewing. With less than a minute to establish character,
+  mood and momentum, every musical idea had to arrive quickly without
+  feeling rushed. Rhythm, density and transitions were shaped around the
+  format itself, allowing the score to move naturally with the pace of
+  vertical storytelling.
 meta:
   - { label: "Format", value: "Vertical · Sound-on" }
   - { label: "Output", value: "6 episodes · 6 original cues" }

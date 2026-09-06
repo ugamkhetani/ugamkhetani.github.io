@@ -9,10 +9,14 @@ credits:
   client: "Dinshaw's"
 awards:
   - text: "India's First AI Rap Battle"
-quote: "A brand without a sound is a brand half-finished."
+quote: "Real performance makes even the strangest idea believable."
 description: >
-  End-to-end audio direction for campaign work. Music, sound and voice
-  authored in a single pass, built around the brand's intent and tone.
+  An AI-assisted rap campaign built around real performances recorded,
+  manipulated and precisely synced to picture. The key was making every
+  word, gesture and visual movement feel like the same performance. Voice
+  direction, vocal manipulation and editorial timing were treated as one
+  problem across the campaign. The work reached 67.10M+ views, 24.82M+ reach
+  and 173.4K+ engagement, with 3+ organic features.
 meta:
   - { label: "Scope", value: "End-to-end" }
   - { label: "Channels", value: "Social-first" }

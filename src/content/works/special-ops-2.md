@@ -14,11 +14,14 @@ role: "Additional Production / Assistant Composer"
 credits:
   director: "Neeraj Pandey · Shivam Nair"
   with: "Composed with Advait Nemlekar"
-quote: "The strongest scoring decision is often the one where the score doesn't play."
+quote: "When the score is always moving, the challenge is keeping it alive."
 description: >
-  Score and additional production across a long-running Indian streaming
-  series. Cues developed directly against the cut and delivered to platform
-  spec across the run.
+  Score and additional production for a flagship streaming series, composed
+  with Advait Nemlekar. The series relies heavily on music, often moving
+  from cue to cue with very little space between them. The challenge was to
+  sustain that momentum without allowing the score to become predictable.
+  Variation, pacing and contrast became as important as the themes
+  themselves, with the work shaped directly to picture.
 meta:
   - { label: "Platform", value: "Hotstar" }
   - { label: "Format", value: "Long-form · Episodic" }

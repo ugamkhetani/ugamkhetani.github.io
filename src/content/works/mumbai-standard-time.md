@@ -13,9 +13,13 @@ awards:
     text: "Best AI Film · MIFF 2026"
 quote: "Technology scales execution. Taste remains scarce."
 description: >
-  Original score, sound design and voice, authored end to end against a
-  relentless 48-hour deadline. Script to screen in two days, with one
-  author across every sound in the film.
+  A complete film made in 48 hours, from idea and script to final image and
+  sound. The task was to make an AI-native film feel immediate, human and
+  musically coherent under extreme time pressure. Voice direction led to an
+  unusually expressive, natural performance, while the score moves at the
+  film's pace without becoming mechanical. One recurring theme appears
+  through distinct instrumental variations, each shaped around the world on
+  screen.
 meta:
   - { label: "Scope", value: "Full stack audio" }
   - { label: "Recognition", value: "Best AI Film · MIFF 2026" }

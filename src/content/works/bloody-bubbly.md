@@ -31,10 +31,13 @@ credits:
 # for this cut rather than selected from a catalogue") and from the confirmed
 # Sound Design role — it claims nothing the role does not carry. Replace it
 # with his own line and delete this comment.
-quote: "Sound design is written to the cut, not laid over it."
+quote: "Tension begins long before anything happens."
 description: >
-  Sound design for the campaign film. Designed for this cut rather than
-  selected from a catalogue.
+  Sound design for a short-form Halloween campaign built around
+  psychological tension. The idea was to create unease within a format with
+  very little time to establish it. Space, proximity, pauses and small
+  shifts in sound do much of the work, allowing tension to accumulate
+  quietly before the image gives anything away.
 meta:
   - { label: "Channels", value: "Social-first" }
   - { label: "Format", value: "Vertical, short form" }

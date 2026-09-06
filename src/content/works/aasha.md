@@ -9,11 +9,14 @@ credits:
   director: "Sameer Talawdekar"
 awards:
   - text: "7 Official Selections · 10 Nominations · 6 Wins"
-quote: "A score begins before the theme arrives."
+quote: "Sometimes the score is not there to tell you what is right."
 description: >
-  Original score for independent short film. The world of the score built
-  first: harmonic environment, textural palette, the sense of space the
-  film lives in. The theme emerges from inside it.
+  Original score for an independent short about a 15-year-old boy whose
+  search for a new pair of sandals leads him into construction work and a
+  series of moral choices. The film lives in ambiguity. Arvind is neither
+  simply innocent nor corrupted, so the score could not resolve his conflict
+  for him. Instead, harmonic colour, texture and space gradually shift with
+  his circumstances, allowing the audience to inhabit his uncertainty.
 meta:
   - { label: "Scope", value: "Original score" }
   - { label: "Approach", value: "Director-led" }

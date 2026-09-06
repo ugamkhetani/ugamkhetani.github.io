@@ -9,11 +9,13 @@ credits:
   director: "Rohan Bakshi"
 awards:
   - text: "7 Official Selections · 1 Nomination · 1 Win"
-quote: "Less time to land emotion, more time to think about how."
+quote: "The harder emotion to score is the one that has no clean answer."
 description: >
-  Original score for independent short film. Cue-driven storytelling
-  developed in close collaboration with the director and shaped around
-  tone, pacing and restraint.
+  Original score for an independent short following a teenager as a
+  discovery begins to unravel his understanding of family, trust and
+  adulthood. The film moves between shock, anger, loyalty and confusion. The
+  score was shaped around that instability, using restraint as much as
+  escalation and leaving space when the image was already carrying enough.
 meta:
   - { label: "Scope", value: "Original score" }
   - { label: "Approach", value: "Director-led" }

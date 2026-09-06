@@ -7,10 +7,14 @@ ratio: "1:1"
 role: "Producer / Composer / Mix"
 credits:
   artist: "with Raag Suri"
-quote: "Every sound must have a reason to exist."
+quote: "Indian musical language can travel a long way."
 description: >
-  Independent record produced from the ground up. A sonic foundation
-  that carries into score and brand work.
+  An electronic production bringing together Indian music, hip-hop, drill
+  and R&B. The idea was to retain the character of Indian melodic language
+  without treating it as a genre constraint. Bansuri, alaaps and Indian
+  vocal textures were woven into a contemporary electronic framework,
+  allowing the track to move between worlds without settling neatly into
+  one.
 meta:
   - { label: "Scope", value: "Production · Composition · Mix" }
   - { label: "Approach", value: "Artist-led" }
