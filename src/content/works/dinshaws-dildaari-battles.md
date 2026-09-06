@@ -9,7 +9,7 @@ credits:
   client: "Dinshaw's"
 awards:
   - text: "India's First AI Rap Battle"
-quote: "Real performance makes even the strangest idea believable."
+quote: "Making a real performance feel native to an artificial world."
 description: >
   An AI-assisted rap campaign built around real performances recorded,
   manipulated and precisely synced to picture. The key was making every
