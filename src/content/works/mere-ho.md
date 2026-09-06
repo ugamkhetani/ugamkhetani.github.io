@@ -7,7 +7,7 @@ ratio: "1:1"
 role: "Producer"
 credits:
   artist: "with Heeya Tikku"
-quote: "A live performance brings its own kind of detail."
+quote: "A song changes when the players can hear each other."
 description: >
   An artist-led record built around a live band performance. Trumpet, drums,
   electric guitars, bass, piano, vocals and synths were recorded with the
