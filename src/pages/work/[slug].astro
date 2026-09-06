@@ -200,7 +200,25 @@ const watchLinks =
 /* Split on spaces only. The words keep their own punctuation, so nothing has
    to be re-inserted and the joined text is identical to the source. */
 const QW = (d.quote ?? '').split(' ').filter(Boolean);
-const BW = d.description.trim().split(/\s+/).filter(Boolean);
+/* A · STANDFIRST, applied 2026-09-07. The first sentence is the standfirst
+   and the rest is the paragraph, so both halves have to be split out of the
+   one string — and both are then split again into WORDS, because the reading
+   light writes a --v per word and it must keep running over both.
+
+   THE SPLIT IS ON A FULL STOP FOLLOWED BY WHITESPACE. It would also split an
+   abbreviation, and no description in the catalogue contains one — checked
+   across all sixteen, which give between three and four sentences each. If a
+   description ever opens "Dir. Rohan Bakshi shot..." this is the line that
+   breaks, and it fails softly: the lede would simply be short.
+
+   THE ONE-SENTENCE CASE IS HANDLED rather than assumed away. LEDE falls back
+   to the whole description and REST comes out empty, in which case the second
+   paragraph is not rendered at all rather than rendered blank. */
+const SENT = d.description.trim().split(/(?<=\.)\s+/).filter(Boolean);
+const LEDE = SENT[0] ?? d.description.trim();
+const REST = SENT.slice(1).join(' ');
+const LW = LEDE.split(/\s+/).filter(Boolean);
+const RW = REST ? REST.split(/\s+/).filter(Boolean) : [];
 
 /* THE FIELD TAKES TWO SHAPES AND THEY ARE SET DIFFERENTLY.
    Counts — "7 Official Selections · 10 Nominations · 6 Wins" — are figures, and
@@ -389,7 +407,18 @@ const FACTS: { k: string; v: string }[] = [
 
     {/* ── 02 · THE WRITING, ASSEMBLED ─────────────────────────── */}
     <section class="blk" aria-label="About the work">
-      <p class="body">{BW.map((w, i) => (<><span class="w" data-w>{w}</span>{i < BW.length - 1 ? ' ' : ''}</>))}</p>
+      <div class="body">
+        {/* --n is the standfirst's own length in characters. Everything about
+            how it sets is derived from that number; see the CSS. */}
+        <p class="body__lede" style={`--n:${LEDE.length}`}>
+          {LW.map((w, i) => (<><span class="w" data-w>{w}</span>{i < LW.length - 1 ? ' ' : ''}</>))}
+        </p>
+        {RW.length > 0 && (
+          <p class="body__rest">
+            {RW.map((w, i) => (<><span class="w" data-w>{w}</span>{i < RW.length - 1 ? ' ' : ''}</>))}
+          </p>
+        )}
+      </div>
 
       {/* Eight of sixteen works carry a record — two as counts, six as citations. */}
       {HAS_AWARDS && (TALLY ? (
@@ -579,10 +608,51 @@ const FACTS: { k: string; v: string }[] = [
   /* The rule draws itself across the measure as the section arrives — scaled
      from the left on one transform, so it composites rather than reflowing. */
 
-  .body {
-    margin: 0; max-width: 60ch;
-    font-size: clamp(1.15rem, 1.9vw, 1.6rem);
-    line-height: 1.42; letter-spacing: -0.012em;
+  .body { margin: 0; }
+
+  /* THE STANDFIRST, AND WHY ITS SIZE IS DERIVED RATHER THAN SET.
+     The draft was drawn against Mumbai Standard Time, whose first sentence is
+     80 characters. Across the catalogue they run 55 to 166 — The Shiva
+     Trilogy's shortest, Aasha's longest — a spread of three to one. At the
+     draft's fixed 2.2rem over 24ch, Aasha's would have set SEVEN lines of
+     35px display type, which is not a standfirst but a slab. A fixed size
+     cannot serve both ends of that spread, so both the size and the measure
+     are computed from --n, the sentence's own character count.
+
+     THE MEASURE targets about three lines: n/3 characters wide, held between
+     20ch so a short one cannot become a narrow ribbon and 44ch so a long one
+     cannot outrun the reading width.
+
+     THE SIZE eases down as the sentence lengthens, 0.007rem per character
+     past 55, so a long first sentence reads as an emphasised opening rather
+     than as a wall. The clamp floor of 1.2rem keeps it clearly above the
+     paragraph beneath it at every length.
+
+     AND IT IS CAPPED BY THE VIEWPORT AS WELL, which the first version of this
+     rule forgot. The draft's size was 3vw and shrank on a phone; a rule
+     derived only from character count does not, so at 375 The Shiva Trilogy's
+     55-character standfirst still set 35px and ran to four lines in a 327px
+     column. The min() against 1.05rem + 2.1vw binds on narrow screens and is
+     inert on wide ones, where the length rule governs alone.
+
+     Both are one expression each. There is no per-work table and no slug
+     named anywhere: a work whose description is rewritten re-sets itself. */
+  .body__lede {
+    margin: 0 0 clamp(22px, 3.4vh, 40px);
+    max-width: clamp(20ch, calc(var(--n, 90) / 3 * 1ch), 44ch);
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(
+      1.2rem,
+      min(calc(2.35rem - (var(--n, 90) - 55) * 0.007rem), calc(1.05rem + 2.1vw)),
+      2.2rem
+    );
+    line-height: 1.12; letter-spacing: -0.025em;
+    color: var(--bone); text-wrap: balance;
+  }
+  .body__rest {
+    margin: 0; max-width: 54ch;
+    font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+    line-height: 1.62; letter-spacing: -0.006em;
     color: var(--bone-dim); text-wrap: pretty;
   }
   /* ── RECOGNITION — X's band ─────────────────────────────────── */
@@ -779,6 +849,8 @@ const FACTS: { k: string; v: string }[] = [
      viewport is still wide. */
   .sc { --measure: min(760px, 100%); }
   .hd, .q, .blk { max-width: var(--measure); }
+  /* The one-measure pass gave .body its own width; it is a wrapper now and
+     its two paragraphs carry their own, so there is nothing left to release. */
   .body { max-width: none; }
 </style>
 
