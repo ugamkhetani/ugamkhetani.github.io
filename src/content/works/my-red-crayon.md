@@ -10,7 +10,7 @@ credits:
 awards:
   - star: true
     text: "Best AI Film · Waves Film Bazaar 2025 · IFFI Goa"
-quote: "AI changed the tools. It did not change the reason to make the film."
+quote: "AI changed the tools. It didn't change why we make things."
 description: >
   Score and sound design for an AI-native short created without a
   conventional client brief. The film looks back at childhood friendship
