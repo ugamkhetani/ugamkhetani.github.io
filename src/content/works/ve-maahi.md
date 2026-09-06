@@ -7,7 +7,7 @@ ratio: "1:1"
 role: "Producer / Composer / Mix"
 credits:
   artist: "with Raag Suri"
-quote: "Indian musical language can travel a long way."
+quote: "Indian at its core. Contemporary by design."
 description: >
   An electronic production bringing together Indian music, hip-hop, drill
   and R&B. The idea was to retain the character of Indian melodic language
