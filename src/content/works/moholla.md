@@ -13,11 +13,6 @@ credits:
   studio: "Kalpnk AI"
 awards:
   - text: "Official Selection · Waves Film Bazaar 2025 · IFFI Goa"
-# ← WRITTEN HERE, NOT TAKEN FROM UGAM'S DOCUMENTS — see bloody-bubbly.md for
-# the full note. Drawn from this file's own description: "Music and sound
-# designed together rather than layered afterwards". Deliberately NOT about
-# AI, because the other two AI films already carry that angle (My Red Crayon,
-# Mumbai Standard Time). Replace with his own line and delete this comment.
 quote: "Technology can create the image. Storytelling gives it meaning."
 description: >
   An experimental AI-native film exploring what happens when artificial

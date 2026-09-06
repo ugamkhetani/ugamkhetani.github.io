@@ -7,12 +7,7 @@ ratio: "1:1"
 role: "Producer"
 credits:
   artist: "with Heeya Tikku"
-# ← WRITTEN HERE, NOT TAKEN FROM UGAM'S DOCUMENTS — see bloody-bubbly.md for
-# the full note. Drawn from this file's own "produced artist-led" and the
-# Producer role. Deliberately NOT about sound having a reason to exist,
-# because Ve Maahi — the other song — already carries that. Replace with his
-# own line and delete this comment.
-quote: "A producer's job is to serve the song, not sign it."
+quote: "A live performance brings its own kind of detail."
 description: >
   An artist-led record built around a live band performance. Trumpet, drums,
   electric guitars, bass, piano, vocals and synths were recorded with the

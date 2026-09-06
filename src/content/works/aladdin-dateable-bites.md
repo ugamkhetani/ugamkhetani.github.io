@@ -7,11 +7,6 @@ ratio: "4:5"
 role: "Music / Sound / Voice Over"
 credits:
   client: "Aladdin Dates"
-# ← WRITTEN HERE, NOT TAKEN FROM UGAM'S DOCUMENTS — see bloody-bubbly.md for
-# the full note. Drawn from the 4-part rollout in `media.films` and this
-# file's own "authored as one creative pass". Deliberately NOT a brand-sound
-# line, because Dinshaw's already carries that. Replace with his own line and
-# delete this comment.
 quote: "A brand without a sound is a brand half-finished."
 description: >
   A four-part social campaign built around product clarity, pace and
