@@ -28,24 +28,12 @@ const pages = Object.keys(import.meta.glob('./*.astro', { eager: false }))
 
 /** slug → [group, title, note]. Anything missing falls back to its filename. */
 const NOTES: Record<string, [string, string, string]> = {
-  'aasha-order-a': ['Work page \u00b7 section order', 'A \u00b7 Direct', 'The smallest change: credits move from last to second. Film, credits, score, stills, watch \u2014 nothing else touched.'],
-  'aasha-order-b': ['Work page \u00b7 section order', 'B \u00b7 Paired', 'Credits move up and the watch link comes with the film, since it is the film\u2019s action. The page then ends on the stills.'],
-  'aasha-order-c': ['Work page \u00b7 section order', 'C \u00b7 Split', 'Credits move up and recognition comes with them \u2014 record filed with record, leaving the score as pure prose.'],
-  'mst-sub-a': ['Mumbai Standard Time \u00b7 subheading', 'A \u00b7 Dateline', 'The rule carries the width so the type does not have to. Still 10px, but three short marks hung on a drawn edge instead of one long bar of text.'],
-  'mst-sub-b': ['Mumbai Standard Time \u00b7 subheading', 'B \u00b7 Column', 'Narrow and tall instead of wide and thin. The only draft that shrinks the type \u2014 9px \u2014 which it can afford because each line is short.'],
-  'mst-sub-c': ['Mumbai Standard Time \u00b7 subheading', 'C \u00b7 Index', 'The colophon treatment from the foot of the page brought to the head, so the two rhyme. Labels are the schema\u2019s own field names, not new words.'],
-  'mst-sub-d': ['Mumbai Standard Time \u00b7 subheading', 'D \u00b7 Punched rule', 'Same words, same size, same dots \u2014 but a hairline runs the measure through them and the type sits in a gap punched in it.'],
-  'mst-sub-e': ['Mumbai Standard Time \u00b7 subheading', 'E \u00b7 Hairlines', 'Middots become drawn 1px verticals and the tracking opens to 0.3em. A dot joins the words into one bar; a hairline cuts them into three marks.'],
-  'mst-sub-f': ['Mumbai Standard Time \u00b7 subheading', 'F \u00b7 Split', 'The shortest line of the six: the year leaves it and goes up beside the folio, where a magazine puts its date. Discipline only, in two tones.'],
-  'mst-sub-g': ['Mumbai Standard Time \u00b7 subheading, no slash', 'G \u00b7 Serial', 'Space divides the three facts, a comma divides the three roles \u2014 two levels of separation, not one glyph spent on either.'],
-  'mst-sub-h': ['Mumbai Standard Time \u00b7 subheading, no slash', 'H \u00b7 Credit block', 'The separator is the line break. It also settles what makes a slash tempting: \u201cVoice Over\u201d is two words, and on its own line it cannot be misread.'],
-  'mst-sub-i': ['Mumbai Standard Time \u00b7 subheading, no slash', 'I \u00b7 Ampersand', 'The serial form \u2014 commas, then an ampersand \u2014 the one separator that tells you the list has ended. Hierarchy inverted: craft up, filing down.'],
-  'mst-sub-j': ['Mumbai Standard Time \u00b7 subheading, no slash', 'J \u00b7 Hairline roles', 'The drawn hairline moves to where the slash was. A 7px rule has no baseline and no weight, so it cannot be read as a character.'],
-  'mst-sub-k': ['Mumbai Standard Time \u00b7 subheading, no slash', 'K \u00b7 Register', 'The separator is the typeface. Filing stays mono caps; the craft moves to Fraunces italic in sentence case, where a comma is just how a list is written.'],
-  'mst-sub-l': ['Mumbai Standard Time \u00b7 subheading, no slash', 'L \u00b7 Bracket', 'The separator is the enclosure \u2014 the site\u2019s own bracket, the mark the menu sets around \u201c( Ugam Khetani )\u201d. Inside it a middot is enough.'],
-  'mst-sub-j1': ['Mumbai Standard Time \u00b7 J, folio removed', 'J1 \u00b7 Overhead', 'Category and year take the slot the folio just vacated, so the head loses a line rather than gaining one. Context above, craft below.'],
-  'mst-sub-j2': ['Mumbai Standard Time \u00b7 J, folio removed', 'J2 \u00b7 Left mark', 'They leave the centre column and hang in the empty field to its left, aligned with the top of the title \u2014 a magazine\u2019s issue line. 183px of that field is sitting unused at 1280.'],
-  'mst-sub-j3': ['Mumbai Standard Time \u00b7 J, folio removed', 'J3 \u00b7 Under', 'Nothing above the title at all. Both facts move below it, craft first at 10px and the filing under it at 9px. The only one with a clear top edge.'],
+  'mst-desc-a': ['Mumbai Standard Time \u00b7 description', 'A \u00b7 Standfirst', 'The first sentence set large, the rest at reading size. The oldest move in magazine setting \u2014 and the only one of the six that survives a description of any length.'],
+  'mst-desc-b': ['Mumbai Standard Time \u00b7 description', 'B \u00b7 Columns', 'Poured into two columns at the film\u2019s width, so the prose sits on the same edge as the film above it. Two short ribbons rather than one long one.'],
+  'mst-desc-c': ['Mumbai Standard Time \u00b7 description', 'C \u00b7 Cue sheet', 'Four sentences as four ruled, numbered entries. A cue sheet is the native document of the work this page is about, so the form comes from the subject rather than from publishing.'],
+  'mst-desc-d': ['Mumbai Standard Time \u00b7 description', 'D \u00b7 Taper', 'Each sentence steps down in size and brightness, so the block tapers and the type does the pacing. Every value derived from the sentence\u2019s index, none hand-set.'],
+  'mst-desc-e': ['Mumbai Standard Time \u00b7 description', 'E \u00b7 Field notes', 'The prose keeps the measure; three keys lifted from its own sentences hang in the empty 183px field to its left, where a scholarly edition puts its marginalia.'],
+  'mst-desc-f': ['Mumbai Standard Time \u00b7 description', 'F \u00b7 Stanza', 'Every sentence begins on a new line with the runover indented under it \u2014 prose set the way verse is set. Nothing added, nothing taken away.'],
 };
 
 const pretty = (s: string) =>

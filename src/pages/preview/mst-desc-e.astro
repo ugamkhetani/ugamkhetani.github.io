@@ -1,0 +1,183 @@
+---
+/**
+ * MUMBAI STANDARD TIME · DESCRIPTION DRAFT E — Field notes
+ *
+ * ONE OF SIX asked for on 2026-09-07. Only the description changes; the head,
+ * the statement and the film are the live page's. Nothing here is on the live
+ * site.
+ *
+ * The prose keeps the measure; three keys lifted from its own sentences
+ * hang in the empty field to its left, where a scholarly edition puts its
+ * marginalia.
+ *
+ * THE TEXT IS NOT TOUCHED. Every draft sets the same 442 characters, read
+ * from src/content/works/mumbai-standard-time.md, and the ones that work in
+ * sentences split the string rather than storing a second copy of it — so
+ * there is no version of this paragraph anywhere that can drift from the one
+ * the live page shows.
+ *
+ * THE SPLIT IS ON A FULL STOP FOLLOWED BY SPACE, which gives four sentences
+ * here. It would also split an abbreviation, and this description has none;
+ * a draft that goes live would want a real check rather than this one.
+ */
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import OpNav from '../../components/OpNav.astro';
+import VideoFacade from '../../components/VideoFacade.astro';
+import { framesFor } from '../../lib/frames';
+
+const works = await getCollection('works');
+const work = works.find((w) => w.id === 'mumbai-standard-time')!;
+const d = work.data;
+const poster = framesFor(work.id, d.frames)[0];
+const AR = d.ratio.replace(':', ' / ');
+const ROLES = d.role.split('/').map((r) => r.trim()).filter(Boolean);
+
+/** The description's own sentences, in order. */
+const S = d.description.trim().split(/(?<=\.)\s+/).filter(Boolean);
+
+const FAM = ['a', 'b', 'c', 'd', 'e', 'f'];
+const HERE = 'e';
+---
+
+<Base title={`${d.title} — description E`} description={d.description}>
+  <OpNav variant="bracket" base="/" />
+
+  <article class="sc" style={`--ar:${AR}`}>
+    <header class="hd">
+      <p class="mono hd__over">{d.category} · {d.overline ?? d.year}</p>
+      <h1 class="hd__t">{d.title}</h1>
+      <p class="mono hd__meta">
+        <span class="hd__roles">
+          {ROLES.map((r, i) => (<>{i > 0 && <i class="hd__bar" aria-hidden="true"></i>}<span>{r}</span></>))}
+        </span>
+      </p>
+    </header>
+
+    <section class="q" aria-label="Statement">
+      <p class="q__t">{d.quote}</p>
+    </section>
+
+    <section class="blk" aria-label="The work">
+      <VideoFacade youtube={d.media.youtube} title={d.title} poster={poster} alt={d.alt} eager />
+    </section>
+
+    {/* ── THE DRAFT ──────────────────────────────────────────── */}
+    <section class="blk blk--ds" aria-label="Description">
+      <div class="ds ds--e">
+        <p class="mono ds__keys" aria-hidden="true">
+          <span>48 hours</span>
+          <span>Idea to sound</span>
+          <span>One theme</span>
+        </p>
+        <p class="ds__body">{d.description}</p>
+      </div>
+    </section>
+
+    <nav class="mono flip" aria-label="Drafts">
+      {FAM.map((l) => (
+        <a class={l === HERE ? 'flip__a is-here' : 'flip__a'} href={`/preview/mst-desc-${l}`}>{l.toUpperCase()}</a>
+      ))}
+      <a class="flip__all" href="/preview/">All drafts &rarr;</a>
+    </nav>
+  </article>
+</Base>
+
+<style>
+  /* ── THE LIVE PAGE'S OWN TYPE, copied from src/pages/work/[slug].astro so a
+     draft can differ from it without a shared file forcing them to agree.
+     These set the scale the description is judged against. */
+  .sc { --measure: min(760px, 100%); padding: clamp(96px, 15vh, 190px) var(--margin) 0; }
+  .sc { --film: max(var(--measure), calc(100vw - 3 * var(--margin))); }
+  .hd, .q, .blk { max-width: var(--measure); }
+  .hd { margin-inline: auto; text-align: center; }
+  .hd__over {
+    margin: 0 0 clamp(24px, 4vh, 48px);
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--dim);
+    font-variant-numeric: tabular-nums;
+  }
+  .hd__t {
+    margin: 0;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(2.6rem, 10vw, 7.25rem);
+    line-height: 0.86; letter-spacing: -0.05em;
+    text-transform: uppercase; color: var(--bone);
+  }
+  .hd__meta {
+    display: flex; justify-content: center; flex-wrap: wrap;
+    margin: clamp(28px, 4.6vh, 50px) 0 0;
+    font-family: var(--mono);
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--dim);
+  }
+  .hd__roles { display: inline-flex; align-items: center; flex-wrap: wrap; justify-content: center; row-gap: 8px; }
+  .hd__bar { display: inline-block; width: 1px; height: 7px; margin-inline: clamp(10px, 1.8vw, 16px); background: var(--rule); }
+  .q { max-width: 1180px; margin: clamp(80px, 14vh, 180px) auto; text-align: center; }
+  .q__t {
+    margin: 0 auto; max-width: 20ch;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.9rem, 5.4vw, 4.4rem);
+    line-height: 1.02; letter-spacing: -0.045em;
+    color: var(--bone);
+  }
+  .blk { margin: 0 auto clamp(72px, 12vh, 160px); }
+  .blk :global(.facade) { width: var(--film); margin-inline: calc((100% - var(--film)) / 2); }
+  /* The description block is given the full 1180 so a draft may use the field
+     either side of the measure; every draft pulls itself back in. */
+  .blk--ds { max-width: 1180px; }
+
+  /* ── THE DRAFT ──────────────────────────────────────────────── */
+  /* E · FIELD NOTES. The paragraph keeps the measure and reads as prose; three
+     keys hang in the empty field to its LEFT, where a scholarly edition puts
+     its marginalia.
+
+     THE KEYS ARE LIFTED FROM THE SENTENCE, NOT WRITTEN. "48 hours", "idea and
+     script to final image and sound", "one recurring theme" are all in the
+     paragraph already, so the margin asserts nothing the prose does not. They
+     are aria-hidden for exactly that reason: to a screen reader they would be
+     the same three facts read twice.
+
+     THE FIELD IS ALREADY THERE. At 1280 the article's content box is 1126
+     inside the 77px margins and the measure is 760, leaving 183px each side
+     doing nothing. The keys are absolutely positioned, so the paragraph does
+     not move by a pixel.
+
+     BELOW 1100px THEY FOLD ABOVE THE PARAGRAPH as a single row, because the
+     field has closed up by then. Same breakpoint and same reasoning as the
+     left-hung dateline drafted earlier. */
+  .ds--e { position: relative; max-width: 1180px; margin-inline: auto; }
+  .ds--e .ds__body {
+    max-width: var(--measure); margin: 0 auto;
+    font-size: clamp(1.05rem, 1.6vw, 1.28rem);
+    line-height: 1.62; color: var(--bone-dim); text-wrap: pretty;
+  }
+  .ds__keys {
+    position: absolute; left: 0; top: 0.5em;
+    display: grid; gap: 9px; justify-items: start; margin: 0;
+    font-size: 0.5625rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--dim);
+  }
+  @media (max-width: 1100px) {
+    .ds__keys {
+      position: static; grid-auto-flow: column; justify-content: center;
+      gap: clamp(14px, 3vw, 28px); margin: 0 0 clamp(22px, 3.4vh, 34px);
+    }
+  }
+
+  /* ── FLIPPING BETWEEN THE SIX ───────────────────────────────── */
+  .flip {
+    display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px;
+    margin: clamp(60px, 10vh, 120px) auto;
+    font-size: var(--t-micro); letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .flip__a {
+    display: grid; place-items: center;
+    min-width: 30px; height: 30px; padding-inline: 8px;
+    border: 1px solid var(--rule); color: var(--dim); text-decoration: none;
+  }
+  .flip__a:hover { border-color: var(--bone-dim); color: var(--bone); }
+  .flip__a.is-here { border-color: var(--accent); color: var(--accent); }
+  .flip__all { margin-left: 14px; color: var(--dim); text-decoration: none; }
+  .flip__all:hover { color: var(--bone); }
+</style>

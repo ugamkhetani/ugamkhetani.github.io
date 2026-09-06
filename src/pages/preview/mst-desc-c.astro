@@ -1,0 +1,175 @@
+---
+/**
+ * MUMBAI STANDARD TIME · DESCRIPTION DRAFT C — Cue sheet
+ *
+ * ONE OF SIX asked for on 2026-09-07. Only the description changes; the head,
+ * the statement and the film are the live page's. Nothing here is on the live
+ * site.
+ *
+ * Four sentences as four ruled, numbered entries. A cue sheet is the
+ * native document of the work this page is about, so the form comes from
+ * the subject.
+ *
+ * THE TEXT IS NOT TOUCHED. Every draft sets the same 442 characters, read
+ * from src/content/works/mumbai-standard-time.md, and the ones that work in
+ * sentences split the string rather than storing a second copy of it — so
+ * there is no version of this paragraph anywhere that can drift from the one
+ * the live page shows.
+ *
+ * THE SPLIT IS ON A FULL STOP FOLLOWED BY SPACE, which gives four sentences
+ * here. It would also split an abbreviation, and this description has none;
+ * a draft that goes live would want a real check rather than this one.
+ */
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import OpNav from '../../components/OpNav.astro';
+import VideoFacade from '../../components/VideoFacade.astro';
+import { framesFor } from '../../lib/frames';
+
+const works = await getCollection('works');
+const work = works.find((w) => w.id === 'mumbai-standard-time')!;
+const d = work.data;
+const poster = framesFor(work.id, d.frames)[0];
+const AR = d.ratio.replace(':', ' / ');
+const ROLES = d.role.split('/').map((r) => r.trim()).filter(Boolean);
+
+/** The description's own sentences, in order. */
+const S = d.description.trim().split(/(?<=\.)\s+/).filter(Boolean);
+
+const FAM = ['a', 'b', 'c', 'd', 'e', 'f'];
+const HERE = 'c';
+---
+
+<Base title={`${d.title} — description C`} description={d.description}>
+  <OpNav variant="bracket" base="/" />
+
+  <article class="sc" style={`--ar:${AR}`}>
+    <header class="hd">
+      <p class="mono hd__over">{d.category} · {d.overline ?? d.year}</p>
+      <h1 class="hd__t">{d.title}</h1>
+      <p class="mono hd__meta">
+        <span class="hd__roles">
+          {ROLES.map((r, i) => (<>{i > 0 && <i class="hd__bar" aria-hidden="true"></i>}<span>{r}</span></>))}
+        </span>
+      </p>
+    </header>
+
+    <section class="q" aria-label="Statement">
+      <p class="q__t">{d.quote}</p>
+    </section>
+
+    <section class="blk" aria-label="The work">
+      <VideoFacade youtube={d.media.youtube} title={d.title} poster={poster} alt={d.alt} eager />
+    </section>
+
+    {/* ── THE DRAFT ──────────────────────────────────────────── */}
+    <section class="blk blk--ds" aria-label="Description">
+      <ol class="ds ds--c">
+        {S.map((line) => <li class="ds__cue">{line}</li>)}
+      </ol>
+    </section>
+
+    <nav class="mono flip" aria-label="Drafts">
+      {FAM.map((l) => (
+        <a class={l === HERE ? 'flip__a is-here' : 'flip__a'} href={`/preview/mst-desc-${l}`}>{l.toUpperCase()}</a>
+      ))}
+      <a class="flip__all" href="/preview/">All drafts &rarr;</a>
+    </nav>
+  </article>
+</Base>
+
+<style>
+  /* ── THE LIVE PAGE'S OWN TYPE, copied from src/pages/work/[slug].astro so a
+     draft can differ from it without a shared file forcing them to agree.
+     These set the scale the description is judged against. */
+  .sc { --measure: min(760px, 100%); padding: clamp(96px, 15vh, 190px) var(--margin) 0; }
+  .sc { --film: max(var(--measure), calc(100vw - 3 * var(--margin))); }
+  .hd, .q, .blk { max-width: var(--measure); }
+  .hd { margin-inline: auto; text-align: center; }
+  .hd__over {
+    margin: 0 0 clamp(24px, 4vh, 48px);
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--dim);
+    font-variant-numeric: tabular-nums;
+  }
+  .hd__t {
+    margin: 0;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(2.6rem, 10vw, 7.25rem);
+    line-height: 0.86; letter-spacing: -0.05em;
+    text-transform: uppercase; color: var(--bone);
+  }
+  .hd__meta {
+    display: flex; justify-content: center; flex-wrap: wrap;
+    margin: clamp(28px, 4.6vh, 50px) 0 0;
+    font-family: var(--mono);
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--dim);
+  }
+  .hd__roles { display: inline-flex; align-items: center; flex-wrap: wrap; justify-content: center; row-gap: 8px; }
+  .hd__bar { display: inline-block; width: 1px; height: 7px; margin-inline: clamp(10px, 1.8vw, 16px); background: var(--rule); }
+  .q { max-width: 1180px; margin: clamp(80px, 14vh, 180px) auto; text-align: center; }
+  .q__t {
+    margin: 0 auto; max-width: 20ch;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.9rem, 5.4vw, 4.4rem);
+    line-height: 1.02; letter-spacing: -0.045em;
+    color: var(--bone);
+  }
+  .blk { margin: 0 auto clamp(72px, 12vh, 160px); }
+  .blk :global(.facade) { width: var(--film); margin-inline: calc((100% - var(--film)) / 2); }
+  /* The description block is given the full 1180 so a draft may use the field
+     either side of the measure; every draft pulls itself back in. */
+  .blk--ds { max-width: 1180px; }
+
+  /* ── THE DRAFT ──────────────────────────────────────────────── */
+  /* C · CUE SHEET. Four sentences, four ruled entries, each numbered in the
+     margin. A cue sheet is the native document of the work this page is
+     about, so the form is borrowed from the subject rather than from
+     publishing — which is the only kind of borrowing that does not look
+     like a template.
+
+     THE NUMBERS ARE A CSS COUNTER, not typed. So they cannot fall out of
+     step with the sentences, and a description that gains a fifth sentence
+     numbers itself.
+
+     THE RULE IS ON THE ENTRY, NOT BETWEEN THEM, and the last one keeps it:
+     the block closes on a line rather than trailing off, which is what makes
+     a list of four look finished rather than truncated. */
+  .ds--c {
+    list-style: none; counter-reset: cue;
+    margin: 0 auto; padding: 0; max-width: var(--measure);
+  }
+  .ds__cue {
+    counter-increment: cue;
+    position: relative;
+    padding: clamp(16px, 2.4vh, 24px) 0 clamp(16px, 2.4vh, 24px) clamp(42px, 6vw, 76px);
+    border-bottom: 1px solid var(--rule);
+    font-size: clamp(1rem, 1.45vw, 1.18rem);
+    line-height: 1.58; color: var(--bone-dim); text-wrap: pretty;
+  }
+  .ds__cue:first-child { border-top: 1px solid var(--rule); }
+  .ds__cue::before {
+    content: '0' counter(cue);
+    position: absolute; left: 0; top: calc(clamp(16px, 2.4vh, 24px) + 0.42em);
+    font-family: var(--mono); font-size: var(--t-micro);
+    letter-spacing: 0.14em; color: var(--dim);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── FLIPPING BETWEEN THE SIX ───────────────────────────────── */
+  .flip {
+    display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px;
+    margin: clamp(60px, 10vh, 120px) auto;
+    font-size: var(--t-micro); letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .flip__a {
+    display: grid; place-items: center;
+    min-width: 30px; height: 30px; padding-inline: 8px;
+    border: 1px solid var(--rule); color: var(--dim); text-decoration: none;
+  }
+  .flip__a:hover { border-color: var(--bone-dim); color: var(--bone); }
+  .flip__a.is-here { border-color: var(--accent); color: var(--accent); }
+  .flip__all { margin-left: 14px; color: var(--dim); text-decoration: none; }
+  .flip__all:hover { color: var(--bone); }
+</style>
