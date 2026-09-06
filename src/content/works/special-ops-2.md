@@ -16,12 +16,12 @@ credits:
   with: "Composed with Advait Nemlekar"
 quote: "When the score is always moving, the challenge is keeping it alive."
 description: >
-  Score and additional production for a flagship streaming series, composed
-  with Advait Nemlekar. The series relies heavily on music, often moving
-  from cue to cue with very little space between them. The challenge was to
-  sustain that momentum without allowing the score to become predictable.
-  Variation, pacing and contrast became as important as the themes
-  themselves, with the work shaped directly to picture.
+  Score and additional production for a flagship Indian streaming series,
+  composed with Advait Nemlekar. The work called for a musical language that
+  could remain coherent across a long-running narrative while still adapting
+  to the shifting tension, pace and emotional perspective of each sequence.
+  Cues were developed directly against picture, balancing continuity with
+  enough variation to keep the score evolving across the series.
 meta:
   - { label: "Platform", value: "Hotstar" }
   - { label: "Format", value: "Long-form · Episodic" }
