@@ -10,7 +10,7 @@ credits:
   # work" — a description of the work, not a studio — which was harmless only
   # while credits never rendered. That phrase moved to "Use case" below.
   studio: "Kalpnk AI"
-quote: "The image can suggest a world. Sound has to convince you it is real."
+quote: "When the image is synthetic, every human detail matters more."
 description: >
   Full audio for a concept trailer developed as pitch work. The film moves
   through dense jungle environments, danger, family and survival within an
