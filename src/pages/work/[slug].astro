@@ -54,7 +54,7 @@ import Colophon from '../../components/Colophon.astro';
 import { framesFor, cropFor } from '../../lib/frames';
 import { parseAwards } from '../../lib/awards';
 import { listFilms } from '../../lib/assets';
-import { order, numberFor, total, RATIO_NUM } from '../../data/composition';
+import { order, RATIO_NUM } from '../../data/composition';
 
 export async function getStaticPaths() {
   const works = await getCollection('works');
@@ -75,8 +75,19 @@ const d = work.data;
 
 const images = framesFor(work.id, d.frames);
 const poster = images[0];
-const num = numberFor(work.id);
 const AR = d.ratio.replace(':', ' / ');
+
+/* THE ROLE'S PARTS, FROM THE ONE STRING. Split on "/" only, so a role that
+   carries a qualifier behind a middot — "Composer · All six episodes" on Book
+   My Yamraj, "Composer · Sole composer, theatrical" on Diwali — comes through
+   as ONE part and keeps its own punctuation. That is the point: those middots
+   join a role to its scope, they do not divide two roles, and a rule that
+   split on them would set "Composer" and "All six episodes" as if they were
+   equal credits.
+
+   filter(Boolean) so a trailing slash in some future markdown cannot produce
+   an empty part and a hairline with nothing after it. */
+const ROLES = d.role.split('/').map((r) => r.trim()).filter(Boolean);
 
 /* Films listed in the markdown win; otherwise take whatever is in the folder. */
 const films = d.media.films.length ? d.media.films : listFilms(work.id);
@@ -252,13 +263,37 @@ const FACTS: { k: string; v: string }[] = [
   <article class="sc" data-sc style={[`--ar:${AR}`, cropFor(work.id)].filter(Boolean).join(';')}>
     {/* ── HEAD ────────────────────────────────────────────────── */}
     <header class="hd">
-      <p class="mono hd__folio">{num} / {String(total).padStart(2, '0')}</p>
+      {/* J1 · OVERHEAD, applied 2026-09-06. What the work IS goes above the
+          title; what UGAM DID goes below it. The single line that used to
+          carry both — "Short Film · 2025 · Composer · Dir. Sameer
+          Talawdekar" — filed his credit among the work's facts as though it
+          were one more of them.
+
+          THE DIRECTOR SITS ON THE TOP LINE, with the category and the year,
+          because it is a fact about the work rather than about Ugam. Putting
+          it on the lower line beside his roles, separated by the same
+          hairline, would read as though he had directed. Six works carry one
+          and two of those name several — Taskaree names three — so the top
+          line is the longest thing here; it still fits the 760 measure, which
+          is why the director did not need a line of its own and the head
+          stays two lines on all sixteen pages.
+
+          THE FOLIO IS GONE. "001 / 16" was the one element that admitted the
+          other fifteen works existed; without it each work is a page unto
+          itself. numberFor() and total are no longer imported here — an
+          import kept for a deleted element is how a page ends up with a data
+          dependency nobody can explain — and /contents still uses both. */}
+      <p class="mono hd__over">
+        {d.category} · {d.year}
+        {d.credits.director && <> · Dir. {d.credits.director}</>}
+      </p>
       <h1 class="hd__t" data-reveal>
         <span class="line"><span class="line__in">{d.title}</span></span>
       </h1>
       <p class="mono hd__meta">
-        {d.category} · {d.year} · {d.role}
-        {d.credits.director && <> · Dir. {d.credits.director}</>}
+        <span class="hd__roles">
+          {ROLES.map((r, i) => (<>{i > 0 && <i class="hd__bar" aria-hidden="true"></i>}<span>{r}</span></>))}
+        </span>
       </p>
     </header>
 
@@ -438,7 +473,10 @@ const FACTS: { k: string; v: string }[] = [
 
   /* ── HEAD ───────────────────────────────────────────────────── */
   .hd { max-width: 1180px; margin-inline: auto; text-align: center; }
-  .hd__folio {
+  /* The line above the title. It keeps the folio's exact position and size —
+     only what it says has changed — so the distance from the menu to the
+     title is what it always was. */
+  .hd__over {
     margin: 0 0 clamp(24px, 4vh, 48px);
     font-size: var(--t-micro); letter-spacing: 0.16em;
     text-transform: uppercase; color: var(--dim);
@@ -458,10 +496,37 @@ const FACTS: { k: string; v: string }[] = [
     line-height: 0.86; letter-spacing: -0.05em;
     text-transform: uppercase; color: var(--bone);
   }
+  /* THE ROLES, DIVIDED BY A DRAWN HAIRLINE RATHER THAN BY A SLASH. A "/" is
+     shorthand — it means "or", or it means a path — and neither is true of a
+     credit; these are things that were all done, which in English is a list.
+     A 7px rule has no baseline, no weight to match the letters and cannot be
+     read as a character, which is what a separator should be.
+
+     THE SLASH IS GONE FROM THE RENDERING, NOT FROM THE DATA. The markdown
+     still says "Music / Sound / Voice Over" and must: the same string is set
+     on /contents and in this page's own credits list below, so editing it
+     would move three places at once.
+
+     --dim, not --muted. Both lines around the title now sit at the same
+     weight, so neither is the caption of the other. */
   .hd__meta {
-    margin: clamp(24px, 4vh, 44px) 0 0;
+    display: flex; justify-content: center; flex-wrap: wrap;
+    margin: clamp(28px, 4.6vh, 50px) 0 0;
     font-size: var(--t-micro); letter-spacing: 0.16em;
-    text-transform: uppercase; color: var(--muted);
+    text-transform: uppercase; color: var(--dim);
+  }
+  /* THE WRAP IS INSURANCE, NOT A FIX FOR ANYTHING IN THE CATALOGUE TODAY.
+     Measured at 375, where the measure is 327: the longest role list is
+     Special Ops' "Asst. Composer | Additional Production" and it inks at 287,
+     so it fits on one line with 40px to spare. Nothing in the sixteen wraps.
+     It is allowed to break so that a longer role added later breaks instead
+     of pushing the page wide — the failure it prevents is horizontal scroll,
+     which is the one thing a narrow page must never do. */
+  .hd__roles { display: inline-flex; align-items: center; flex-wrap: wrap; justify-content: center; row-gap: 8px; }
+  .hd__bar {
+    display: inline-block; width: 1px; height: 7px;
+    margin-inline: clamp(10px, 1.8vw, 16px);
+    background: var(--rule);
   }
 
   /* ── THE ASSEMBLING WORD ────────────────────────────────────── */
@@ -660,8 +725,13 @@ const FACTS: { k: string; v: string }[] = [
      Removed on request. Its `.blk { position: relative }` and the
      `.blk > :not(.fol)` layering went with it: the only thing that needed a
      positioned ancestor was the folio itself, and `.rl` anchors to
-     the label it hung on, which carried its own. The sections are numbered where
-     it matters — `hd__folio` at the top of the page still reads "007 / 16". */
+     the label it hung on, which carried its own.
+
+     THE HEAD'S FOLIO IS ALSO GONE NOW. This used to end by saying the
+     sections were still numbered where it mattered, because the line at the
+     top of the page read "007 / 16". It does not: J1 replaced it with the
+     category and year on 2026-09-06, so there is no number anywhere on a work
+     page any more. /contents is where the catalogue is counted. */
 
   /* ══ ONE MEASURE ══════════════════════════════════════════════════
      Borrowed from preview XXII "Measure". Every block sits on the same
