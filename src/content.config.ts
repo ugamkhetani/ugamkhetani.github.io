@@ -33,6 +33,21 @@ const works = defineCollection({
 
     role: z.string(),
 
+    /**
+     * REPLACES THE YEAR on the line above the title — "Feature Film ·
+     * Theatrical" rather than "Feature Film · 2026". Nothing else uses it and
+     * nothing else should: it exists because one work's release matters more
+     * than its date, and a page whose head said both would be saying the
+     * category twice over.
+     *
+     * ONLY DIWALI KE SHOR MEIN SETS ONE, added 2026-09-06 on Ugam's
+     * instruction. The year is not lost when it does — that work carries a
+     * "Year" row in `meta`, which sets in the credits like every other fact.
+     * A work that sets this WITHOUT such a row would drop its year from the
+     * page entirely, so check before adding a second.
+     */
+    overline: z.string().optional(),
+
     credits: z
       .object({
         director: z.string().optional(),

@@ -247,13 +247,31 @@ const CREDIT_ORDER: [keyof typeof d.credits, string][] = [
   ['with', 'Collaboration'],
 ];
 
+/* NO SLASH IN THE COLOPHON EITHER, from 2026-09-06. Every "/" in a VALUE
+   becomes a middot, which is the mark the catalogue already uses inside a
+   single credit — "Neeraj Pandey · Shivam Nair", "Original score · In-house
+   mix". So the rule the page now follows end to end is: a middot separates
+   ITEMS WITHIN one category, and nothing but space separates one category
+   from the next.
+
+   IT IS A RULE OVER VALUES, NOT A LIST OF WORKS, so it also catches the two
+   Recognition rows that carry one — "Best AI Film · Waves / IFFI" on My Red
+   Crayon and "Official Selection · Waves / IFFI" on Moholla — which a rule
+   written only for `role` would have missed. Eleven values in the catalogue
+   contain a slash and all eleven are lists.
+
+   WHAT WOULD BREAK IT: a value where "/" is not a separator — a date written
+   9/16, a ratio, a fraction. There is none today, and this is the note to
+   read if one is added. The markdown is untouched, as always. */
+const dots = (v: string) => v.split('/').map((p) => p.trim()).filter(Boolean).join(' · ');
+
 const FACTS: { k: string; v: string }[] = [
-  { k: 'Role', v: d.role },
+  { k: 'Role', v: dots(d.role) },
   ...CREDIT_ORDER.filter(([key]) => d.credits[key]).map(([key, label]) => ({
     k: label,
-    v: d.credits[key]!,
+    v: dots(d.credits[key]!),
   })),
-  ...d.meta.map((m) => ({ k: m.label, v: m.value })),
+  ...d.meta.map((m) => ({ k: m.label, v: dots(m.value) })),
 ];
 ---
 
@@ -269,24 +287,27 @@ const FACTS: { k: string; v: string }[] = [
           Talawdekar" — filed his credit among the work's facts as though it
           were one more of them.
 
-          THE DIRECTOR SITS ON THE TOP LINE, with the category and the year,
-          because it is a fact about the work rather than about Ugam. Putting
-          it on the lower line beside his roles, separated by the same
-          hairline, would read as though he had directed. Six works carry one
-          and two of those name several — Taskaree names three — so the top
-          line is the longest thing here; it still fits the 760 measure, which
-          is why the director did not need a line of its own and the head
-          stays two lines on all sixteen pages.
+          THE DIRECTOR IS NOT ON THIS LINE ANY MORE, removed 2026-09-06. It
+          sat here for one day. Six works carried one and two named several —
+          Taskaree names three, which made its top line 517px of ink — so the
+          line that was meant to say what the work IS was mostly saying who
+          else made it. THE CREDIT IS NOT LOST: `director` is the first row of
+          the colophon below, on all six, and Diwali names Rohan Bakshi twice
+          there because its markdown also carries a Direction row in `meta`.
+
+          THE YEAR CAN BE REPLACED, and on exactly one work it is. Diwali sets
+          `overline: "Theatrical"` and reads "Feature Film · Theatrical",
+          because that film's release matters more than its date. Its year is
+          still on the page — a Year row in `meta`, set in the colophon — and
+          content.config.ts warns that a work setting an overline WITHOUT such
+          a row would lose its year altogether.
 
           THE FOLIO IS GONE. "001 / 16" was the one element that admitted the
           other fifteen works existed; without it each work is a page unto
           itself. numberFor() and total are no longer imported here — an
           import kept for a deleted element is how a page ends up with a data
           dependency nobody can explain — and /contents still uses both. */}
-      <p class="mono hd__over">
-        {d.category} · {d.year}
-        {d.credits.director && <> · Dir. {d.credits.director}</>}
-      </p>
+      <p class="mono hd__over">{d.category} · {d.overline ?? d.year}</p>
       <h1 class="hd__t" data-reveal>
         <span class="line"><span class="line__in">{d.title}</span></span>
       </h1>
@@ -916,9 +937,28 @@ const FACTS: { k: string; v: string }[] = [
      first. `.blk.cr` is (0,3,0) and cannot be reordered out of winning.
      HANDOFF §6. */
   .blk.cr { margin-top: clamp(40px, 7vh, 90px); }
+  /* THE DOT BETWEEN CATEGORIES IS GONE, 2026-09-06, and space does the
+     dividing instead. It used to set " · " between every pair, which put the
+     same mark between "Role" and "Director" as the one inside "Neeraj Pandey
+     · Shivam Nair" — so the page drew no distinction between a break between
+     two credits and a break between two people sharing one. Now the middot
+     means one thing only: another item in the SAME category.
+
+     THE ROW BECOMES inline-block RATHER THAN inline, which is what makes the
+     gap possible and also fixes something the dots were hiding: an inline row
+     could break between its label and its value at the end of a line, so
+     "Director" and "Rohan Bakshi" could land on different lines with nothing
+     joining them. inline-block keeps every pair whole and wraps between
+     pairs, which is the only place a colophon should ever break. */
   .cr__list { margin: 0; display: block; max-width: 62ch; }
-  .cr__row { display: inline; }
-  .cr__row:not(:last-child)::after { content: ' · '; color: var(--dim); }
+  /* max-width is the guard inline-block needs. A shrink-wrapped box takes its
+     content's width, so a value longer than the column would push the page
+     wide rather than wrap — the one failure a narrow page must never have.
+     Measured at 375, where the list is 327: the widest row in the catalogue
+     is Taskaree's three directors at 305, so nothing needs it today. It is
+     here so that the next long credit wraps instead of breaking the page. */
+  .cr__row { display: inline-block; max-width: 100%; margin-right: clamp(22px, 3.4vw, 48px); }
+  .cr__row:last-child { margin-right: 0; }
   .cr__k {
     display: inline; margin: 0; font-size: var(--t-micro); letter-spacing: 0.14em;
     text-transform: uppercase; color: var(--dim);

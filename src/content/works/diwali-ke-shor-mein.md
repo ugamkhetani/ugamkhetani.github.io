@@ -2,10 +2,17 @@
 title: "Diwali Ke Shor Mein"
 year: 2026
 category: "Feature Film"
+# Sets above the title in place of the year: "Feature Film · Theatrical".
+overline: "Theatrical"
 lead: true
 opening: still
 ratio: "16:9"
-role: "Composer · Sole composer, theatrical"
+# "Sole composer, theatrical" was dropped from the role on 2026-09-06 and
+# the theatrical fact moved to `overline` below, where it sets beside the
+# category instead of beside the credit. Nothing is lost: "Theatrical" is
+# above the title, "Theatrical feature" is still the Format row in meta, and
+# being the sole composer is what a single Composer credit already says.
+role: "Composer"
 credits:
   director: "Rohan Bakshi"
 awards:

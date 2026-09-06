@@ -4,7 +4,10 @@ year: 2025
 category: "Web Series"
 opening: still
 ratio: "16:9"
-role: "Asst. Composer / Additional Production"
+# Spelled out on 2026-09-06. It was "Asst. Composer"; the head sets the role
+# in 10px caps where an abbreviated word reads as a truncation rather than as
+# a credit, and /contents reads the same string.
+role: "Assistant Composer / Additional Production"
 credits:
   director: "Neeraj Pandey · Shivam Nair"
   with: "Composed with Advait Nemlekar"
