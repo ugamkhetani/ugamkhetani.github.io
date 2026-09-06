@@ -220,6 +220,20 @@ const REST = SENT.slice(1).join(' ');
 const LW = LEDE.split(/\s+/).filter(Boolean);
 const RW = REST ? REST.split(/\s+/).filter(Boolean) : [];
 
+/* W · ASSEMBLE'S SEED. The fractional part of sin(i * 12.9898) * 43758.5453,
+   the oldest hash in shader code, giving each word a stable number in [0, 1)
+   from its position alone.
+
+   DETERMINISTIC ON PURPOSE. It runs at BUILD time, so a word drifts the same
+   way on every load, on every machine and in every screenshot. Math.random()
+   would give a page that never looks the same twice, which cannot be reviewed
+   against itself and cannot be regression-tested at all.
+
+   THE REST'S WORDS CONTINUE THE LEDE'S COUNT rather than restarting at zero,
+   so the two paragraphs do not share a sequence of offsets. It is not visible
+   either way at this scale; it is one argument instead of a coincidence. */
+const seed = (i: number) => (((Math.sin(i * 12.9898) * 43758.5453) % 1) + 1) % 1;
+
 /* THE FIELD TAKES TWO SHAPES AND THEY ARE SET DIFFERENTLY.
    Counts — "7 Official Selections · 10 Nominations · 6 Wins" — are figures, and
    Aasha and Broken Reflections keep the ruled band of big numerals below. Every
@@ -411,11 +425,11 @@ const FACTS: { k: string; v: string }[] = [
         {/* --n is the standfirst's own length in characters. Everything about
             how it sets is derived from that number; see the CSS. */}
         <p class="body__lede" style={`--n:${LEDE.length}`}>
-          {LW.map((w, i) => (<><span class="w" data-w>{w}</span>{i < LW.length - 1 ? ' ' : ''}</>))}
+          {LW.map((w, i) => (<><span class="w" data-w style={`--s:${seed(i)}`}>{w}</span>{i < LW.length - 1 ? ' ' : ''}</>))}
         </p>
         {RW.length > 0 && (
           <p class="body__rest">
-            {RW.map((w, i) => (<><span class="w" data-w>{w}</span>{i < RW.length - 1 ? ' ' : ''}</>))}
+            {RW.map((w, i) => (<><span class="w" data-w style={`--s:${seed(i + LW.length)}`}>{w}</span>{i < RW.length - 1 ? ' ' : ''}</>))}
           </p>
         )}
       </div>
@@ -588,6 +602,45 @@ const FACTS: { k: string; v: string }[] = [
     opacity: calc(0.12 + var(--v, 1) * 0.88);
     transform: translateY(calc((1 - var(--v, 1)) * 0.32em));
     will-change: opacity, transform;
+  }
+
+  /* W · ASSEMBLE, applied 2026-09-07. The rise above is untouched; each word
+     also arrives from its own side and from very slightly behind, so the
+     paragraph gathers itself rather than lifting as one plane.
+
+     IT IS THE SAME MECHANISM, TURNED UP. No new element, no new listener, no
+     second clock: the words already carry --v, and this is two more terms in
+     the transform they already have. The vertical term is the 0.32em above,
+     to the decimal.
+
+     NOTHING REFLOWS. transform never participates in layout, so a line breaks
+     in exactly the place it broke before this was added, at every moment of
+     the animation. That is why the effect is a transform and not the obvious
+     alternative — a weight or size ramp would relayout the paragraph under
+     the reader, and the standfirst's size is already derived from its own
+     character count.
+
+     THE HORIZONTAL IS CENTRED ON ZERO — (--s - 0.5) — so words converge from
+     both sides rather than all sliding in from the left, and it is capped at
+     18px, which is under a word's width at this size. Past that they read as
+     scattered rather than as settling.
+
+     THE SCALE FLOOR IS 0.972 AND THE CEILING IS EXACTLY 1, so a settled word
+     is at scale(1) and translate(0, 0) — the identity matrix, which is what
+     the page rendered before this rule existed. The finished state is
+     unchanged rather than approximately unchanged.
+
+     THE STATEMENT IS DELIBERATELY LEFT OUT. It uses the same .w spans, so
+     `.body .w` rather than `.w` is what scopes this to the description. A
+     quote is 20ch of display type at up to 70px; an 18px sideways offset that
+     reads as a settle in 20px body copy reads as a lurch there. */
+  .body .w {
+    transform:
+      translate(
+        calc((1 - var(--v, 1)) * (var(--s, 0.5) - 0.5) * 18px),
+        calc((1 - var(--v, 1)) * 0.32em)
+      )
+      scale(calc(0.972 + var(--v, 1) * 0.028));
   }
 
   .q {
