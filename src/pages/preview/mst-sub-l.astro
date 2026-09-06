@@ -1,0 +1,166 @@
+---
+/**
+ * MUMBAI STANDARD TIME · SUBHEADING DRAFT L — Bracket
+ *
+ * ONE OF SIX ASKED FOR ON 2026-09-06, in a second round whose brief was that
+ * the SLASH HAS TO GO: "music / sound / voice over" reads as a keystroke
+ * rather than as a credit. Nothing here is on the live site.
+ *
+ * The separator is the enclosure. The roles are wrapped in the site’s own
+ * bracket — the mark the menu already sets around “( Ugam Khetani )” — so
+ * the mark inside can be the quietest available.
+ *
+ * THE SLASH IS REMOVED IN THE RENDERING, NOT IN THE DATA. The markdown still
+ * says "Music / Sound / Voice Over" and must, because the same string is also
+ * set on /contents and in this page's own credits list — a change there would
+ * move three places at once and quietly restyle works that were never being
+ * discussed. So the string is SPLIT on the slash here and rejoined with
+ * whatever this draft uses. Applying one of these to the live template is
+ * therefore a display rule, and the markdown stays canonical.
+ *
+ * The split is on "/" only. Roles written with a middot in the catalogue —
+ * "Composer · All six episodes" — come through as one part and set unchanged,
+ * so no work is damaged by a rule written for this one.
+ *
+ * NOTHING IS INVENTED. Every word is read from
+ * src/content/works/mumbai-standard-time.md.
+ */
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import OpNav from '../../components/OpNav.astro';
+import VideoFacade from '../../components/VideoFacade.astro';
+import { framesFor } from '../../lib/frames';
+import { numberFor, total } from '../../data/composition';
+
+const works = await getCollection('works');
+const work = works.find((w) => w.id === 'mumbai-standard-time')!;
+const d = work.data;
+const poster = framesFor(work.id, d.frames)[0];
+const num = numberFor(work.id);
+const AR = d.ratio.replace(':', ' / ');
+
+/* The role's parts, from the one string. filter(Boolean) so a trailing slash
+   in some future markdown cannot produce an empty item. */
+const ROLES = d.role.split('/').map((r) => r.trim()).filter(Boolean);
+
+const LETTERS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l'];
+const HERE = 'l';
+---
+
+<Base title={`${d.title} — subheading L`} description={d.description}>
+  <OpNav variant="bracket" base="/" />
+
+  <article class="sc" style={`--ar:${AR}`}>
+    <header class="hd">
+      <p class="mono hd__folio">{num} / {String(total).padStart(2, '0')}</p>
+      <h1 class="hd__t">{d.title}</h1>
+      <div class="meta meta--l">
+        <p class="meta__date">{d.category} &middot; {d.year}</p>
+        <p class="meta__role">
+          <span class="meta__br" aria-hidden="true">(</span>
+          {ROLES.map((r, i) => (<>{i > 0 && <span class="meta__dot" aria-hidden="true">&middot;</span>}<span>{r}</span></>))}
+          <span class="meta__br" aria-hidden="true">)</span>
+        </p>
+      </div>
+    </header>
+
+    <section class="q" aria-label="Statement">
+      <p class="q__t">{d.quote}</p>
+    </section>
+
+    <section class="blk" aria-label="The work">
+      <VideoFacade youtube={d.media.youtube} title={d.title} poster={poster} alt={d.alt} eager />
+    </section>
+
+    <nav class="mono flip" aria-label="Drafts">
+      {LETTERS.map((l) => (
+        <a class={l === HERE ? 'flip__a is-here' : 'flip__a'} href={`/preview/mst-sub-${l}`}>{l.toUpperCase()}</a>
+      ))}
+      <a class="flip__all" href="/preview/">All drafts &rarr;</a>
+    </nav>
+  </article>
+</Base>
+
+<style>
+  /* ── THE PAGE'S OWN TYPE, COPIED FROM src/pages/work/[slug].astro ──
+     Copied rather than imported because a draft has to be able to differ from
+     the live page without a shared file forcing them to agree. These rules
+     set the scale the subheading is judged against, so they are the ones that
+     must NOT drift: if the title's clamp changes on the live page, change it
+     here too or the comparison stops being honest. */
+  .sc { --measure: min(760px, 100%); padding: clamp(96px, 15vh, 190px) var(--margin) 0; }
+  .sc { --film: max(var(--measure), calc(100vw - 3 * var(--margin))); }
+  .hd, .q, .blk { max-width: var(--measure); }
+  .hd { margin-inline: auto; text-align: center; }
+  .hd__folio {
+    margin: 0 0 clamp(24px, 4vh, 48px);
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--dim);
+    font-variant-numeric: tabular-nums;
+  }
+  .hd__t {
+    margin: 0;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(2.6rem, 10vw, 7.25rem);
+    line-height: 0.86; letter-spacing: -0.05em;
+    text-transform: uppercase; color: var(--bone);
+  }
+  .q { max-width: 1180px; margin: clamp(80px, 14vh, 180px) auto; text-align: center; }
+  .q__t {
+    margin: 0 auto; max-width: 20ch;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.9rem, 5.4vw, 4.4rem);
+    line-height: 1.02; letter-spacing: -0.045em;
+    color: var(--bone);
+  }
+  .blk { margin: 0 auto clamp(72px, 12vh, 160px); }
+  .blk :global(.facade) {
+    width: var(--film);
+    margin-inline: calc((100% - var(--film)) / 2);
+  }
+
+  /* ── THE DRAFT ──────────────────────────────────────────────── */
+  /* L · BRACKET. THE SEPARATOR IS THE ENCLOSURE. The three roles are wrapped
+     in the site's own bracket — the mark the menu already sets around
+     "( Ugam Khetani )" and the one OpNav is mounted in as variant="bracket" —
+     so the subheading stops inventing a device and borrows the one the site
+     already speaks in.
+
+     Once the group is bracketed the mark INSIDE it can be the quietest
+     available, because the brackets are already saying "these belong
+     together". A middot at 40% opacity is enough; a slash would be shouting
+     over an enclosure that has done the work.
+
+     The brackets are aria-hidden and so are the dots: a screen reader gets
+     "Music Sound Voice Over" as three plain words, which is what they are. */
+  .meta--l { margin-top: clamp(26px, 4.4vh, 48px); font-family: var(--mono); text-transform: uppercase; }
+  .meta--l .meta__date {
+    margin: 0 0 clamp(12px, 2vh, 18px);
+    font-size: 0.5625rem; letter-spacing: 0.22em; text-indent: 0.22em;
+    color: var(--dim); font-variant-numeric: tabular-nums;
+  }
+  .meta--l .meta__role {
+    display: flex; justify-content: center; align-items: baseline; flex-wrap: wrap;
+    gap: 0 clamp(9px, 1.6vw, 14px);
+    margin: 0;
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    color: var(--muted);
+  }
+  .meta--l .meta__br { color: var(--dim); }
+  .meta--l .meta__dot { color: color-mix(in srgb, var(--dim) 55%, transparent); }
+
+  /* ── FLIPPING BETWEEN THE TWELVE ────────────────────────────── */
+  .flip {
+    display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px;
+    margin: 0 auto clamp(60px, 10vh, 120px);
+    font-size: var(--t-micro); letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .flip__a {
+    display: grid; place-items: center; width: 30px; height: 30px;
+    border: 1px solid var(--rule); color: var(--dim); text-decoration: none;
+  }
+  .flip__a:hover { border-color: var(--bone-dim); color: var(--bone); }
+  .flip__a.is-here { border-color: var(--accent); color: var(--accent); }
+  .flip__all { margin-left: 14px; color: var(--dim); text-decoration: none; }
+  .flip__all:hover { color: var(--bone); }
+</style>

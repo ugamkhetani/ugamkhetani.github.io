@@ -36,7 +36,7 @@ const AR = d.ratio.replace(':', ' / ');
 /* The six in order, so one can be flipped to the next without going back to
    the index. Built from the letters rather than written out, so adding a
    seventh is one character. */
-const LETTERS = ['a', 'b', 'c', 'd', 'e', 'f'];
+const LETTERS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l'];
 const HERE = 'c';
 ---
 
@@ -147,9 +147,9 @@ const HERE = 'c';
     color: var(--muted); font-variant-numeric: tabular-nums;
   }
 
-  /* ── FLIPPING BETWEEN THE SIX ───────────────────────────────── */
+  /* ── FLIPPING BETWEEN THE TWELVE ───────────────────────────────── */
   .flip {
-    display: flex; justify-content: center; align-items: center; gap: 10px;
+    display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px;
     margin: 0 auto clamp(60px, 10vh, 120px);
     font-size: var(--t-micro); letter-spacing: 0.14em; text-transform: uppercase;
   }
