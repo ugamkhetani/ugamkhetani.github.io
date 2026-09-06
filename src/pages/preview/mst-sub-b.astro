@@ -1,0 +1,145 @@
+---
+/**
+ * MUMBAI STANDARD TIME · SUBHEADING DRAFT B — Column
+ *
+ * ONE OF SIX, asked for on 2026-09-06. Only the line under the title changes.
+ * Nothing here is on the live site.
+ *
+ * Narrow and tall instead of wide and thin. The only draft that actually
+ * shrinks the type — 9px — which it can afford because each line is short.
+ *
+ * THE PAGE AROUND IT IS DELIBERATELY CUT DOWN to the folio, the title, the
+ * subheading, the statement and the film. That is not laziness: the thing
+ * being judged is a 10px line against a 116px title, so the draft carries
+ * exactly the type that sets that scale and nothing that would distract from
+ * it. The six are generated from one scaffold, so the only difference between
+ * any two of these files is the head block and its CSS.
+ *
+ * NOTHING IS INVENTED. Every word on the page is read from
+ * src/content/works/mumbai-standard-time.md.
+ */
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import OpNav from '../../components/OpNav.astro';
+import VideoFacade from '../../components/VideoFacade.astro';
+import { framesFor } from '../../lib/frames';
+import { numberFor, total } from '../../data/composition';
+
+const works = await getCollection('works');
+const work = works.find((w) => w.id === 'mumbai-standard-time')!;
+const d = work.data;
+const poster = framesFor(work.id, d.frames)[0];
+const num = numberFor(work.id);
+const AR = d.ratio.replace(':', ' / ');
+
+/* The six in order, so one can be flipped to the next without going back to
+   the index. Built from the letters rather than written out, so adding a
+   seventh is one character. */
+const LETTERS = ['a', 'b', 'c', 'd', 'e', 'f'];
+const HERE = 'b';
+---
+
+<Base title={`${d.title} — subheading B`} description={d.description}>
+  <OpNav variant="bracket" base="/" />
+
+  <article class="sc" style={`--ar:${AR}`}>
+    <header class="hd">
+      <p class="mono hd__folio">{num} / {String(total).padStart(2, '0')}</p>
+      <h1 class="hd__t">{d.title}</h1>
+      <div class="meta meta--b">
+        <span>{d.category}</span>
+        <span class="meta__yr">{d.year}</span>
+        <span>{d.role}</span>
+      </div>
+    </header>
+
+    <section class="q" aria-label="Statement">
+      <p class="q__t">{d.quote}</p>
+    </section>
+
+    <section class="blk" aria-label="The work">
+      <VideoFacade youtube={d.media.youtube} title={d.title} poster={poster} alt={d.alt} eager />
+    </section>
+
+    <nav class="mono flip" aria-label="Drafts">
+      {LETTERS.map((l) => (
+        <a class={l === HERE ? 'flip__a is-here' : 'flip__a'} href={`/preview/mst-sub-${l}`}>{l.toUpperCase()}</a>
+      ))}
+      <a class="flip__all" href="/preview/">All drafts &rarr;</a>
+    </nav>
+  </article>
+</Base>
+
+<style>
+  /* ── THE PAGE'S OWN TYPE, COPIED FROM src/pages/work/[slug].astro ──
+     Copied rather than imported because a draft has to be able to differ from
+     the live page without a shared file forcing them to agree. These three
+     rules are what set the scale the subheading is judged against, so they
+     are the ones that must NOT drift: if the title's clamp changes on the live
+     page, change it here too or the comparison stops being honest. */
+  .sc { --measure: min(760px, 100%); padding: clamp(96px, 15vh, 190px) var(--margin) 0; }
+  .sc { --film: max(var(--measure), calc(100vw - 3 * var(--margin))); }
+  .hd, .q, .blk { max-width: var(--measure); }
+  .hd { margin-inline: auto; text-align: center; }
+  .hd__folio {
+    margin: 0 0 clamp(24px, 4vh, 48px);
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--dim);
+    font-variant-numeric: tabular-nums;
+  }
+  .hd__t {
+    margin: 0;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(2.6rem, 10vw, 7.25rem);
+    line-height: 0.86; letter-spacing: -0.05em;
+    text-transform: uppercase; color: var(--bone);
+  }
+  .q { max-width: 1180px; margin: clamp(80px, 14vh, 180px) auto; text-align: center; }
+  .q__t {
+    margin: 0 auto; max-width: 20ch;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.9rem, 5.4vw, 4.4rem);
+    line-height: 1.02; letter-spacing: -0.045em;
+    color: var(--bone);
+  }
+  .blk { margin: 0 auto clamp(72px, 12vh, 160px); }
+  .blk :global(.facade) {
+    width: var(--film);
+    margin-inline: calc((100% - var(--film)) / 2);
+  }
+
+  /* ── THE DRAFT ──────────────────────────────────────────────── */
+  /* B · COLUMN. The footprint gets narrow and tall instead of wide and thin.
+     A long horizontal line reads as a band; three short centred lines read as
+     a mark. THIS IS THE ONLY ONE THAT ACTUALLY SHRINKS THE TYPE — 9px against
+     the site's 10px floor — and it can afford to because each line is short
+     enough to take 0.28em of tracking without running anywhere. */
+  .meta--b {
+    display: grid;
+    justify-items: center;
+    gap: 9px;
+    margin-top: clamp(28px, 4.6vh, 50px);
+    font-family: var(--mono);
+    font-size: 0.5625rem;
+    letter-spacing: 0.28em;
+    text-indent: 0.28em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+  .meta--b .meta__yr { color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  /* ── FLIPPING BETWEEN THE SIX ───────────────────────────────── */
+  .flip {
+    display: flex; justify-content: center; align-items: center; gap: 10px;
+    margin: 0 auto clamp(60px, 10vh, 120px);
+    font-size: var(--t-micro); letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .flip__a {
+    display: grid; place-items: center; width: 30px; height: 30px;
+    border: 1px solid var(--rule); color: var(--dim); text-decoration: none;
+  }
+  .flip__a:hover { border-color: var(--bone-dim); color: var(--bone); }
+  .flip__a.is-here { border-color: var(--accent); color: var(--accent); }
+  .flip__all { margin-left: 14px; color: var(--dim); text-decoration: none; }
+  .flip__all:hover { color: var(--bone); }
+</style>
