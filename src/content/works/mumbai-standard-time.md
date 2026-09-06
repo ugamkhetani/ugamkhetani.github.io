@@ -14,7 +14,7 @@ awards:
 quote: "Technology scales execution. Taste remains scarce."
 description: >
   A complete film made in 48 hours, from idea and script to final image and
-  sound. The task was to make an AI-native film feel immediate, human and
+  sound. The idea was to make an AI-native film feel immediate, human and
   musically coherent under extreme time pressure. Voice direction led to an
   unusually expressive, natural performance, while the score moves at the
   film's pace without becoming mechanical. One recurring theme appears
