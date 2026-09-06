@@ -15,9 +15,9 @@ quote: "Scale is seen. Believability is heard."
 description: >
   Full audio for a concept trailer created as pitch work. The visual world
   spans ancient civilisations, mountains, armies and mythic scale, all
-  generated through AI. The task was to make it feel physically believable.
-  Score, sound design and voice direction were developed as one system,
-  giving weight to environments, scale to action and credibility to
+  generated through AI. The challenge was to make it feel physically
+  believable. Score, sound design and voice direction were developed as one
+  system, giving weight to environments, scale to action and credibility to
   performance while carrying the story from mystery to revelation to war.
 meta:
   - { label: "Scope", value: "Full audio" }
