@@ -1,0 +1,217 @@
+---
+/**
+ * MUMBAI STANDARD TIME · DESCRIPTION DRAFT O — Weight   [motion]
+ *
+ * ONE OF NINE asked for on 2026-09-07: six that give the description movement
+ * and three that make it interactive. Nothing here is on the live site, which
+ * currently runs draft A.
+ *
+ * The words thicken as they are read and thin again behind you. Nothing
+ * moves and nothing fades; only the weight axis of the typeface changes.
+ *
+ * IT STILL SURVIVES A DESCRIPTION OF ANY LENGTH, which was the standing brief
+ * from the round before and is not relaxed here. Nothing counts sentences to
+ * decide a layout; the drafts that work in sentences map over however many
+ * there are, and the ones that work in words map over however many there are.
+ *
+ * THE TEXT IS NEVER COPIED. Every draft reads the same string from
+ * src/content/works/mumbai-standard-time.md.
+ *
+ * MOTION IS OPTIONAL, ALWAYS. Every default in the CSS is the FINISHED state —
+ * var(--v, 1), not var(--v, 0) — so a reader on prefers-reduced-motion, or one
+ * whose JavaScript never runs, gets the settled paragraph rather than an empty
+ * box. That is the difference between an enhancement and a dependency, and it
+ * is the one rule none of these nine is allowed to break.
+ */
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import OpNav from '../../components/OpNav.astro';
+import VideoFacade from '../../components/VideoFacade.astro';
+import { framesFor } from '../../lib/frames';
+
+const works = await getCollection('works');
+const work = works.find((w) => w.id === 'mumbai-standard-time')!;
+const d = work.data;
+const poster = framesFor(work.id, d.frames)[0];
+const AR = d.ratio.replace(':', ' / ');
+const ROLES = d.role.split('/').map((r) => r.trim()).filter(Boolean);
+
+const SENT = d.description.trim().split(/(?<=\.)\s+/).filter(Boolean);
+const W = d.description.trim().split(/\s+/).filter(Boolean);
+
+const FAM = ['a', 'b', 'g', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u'];
+const HERE = 'o';
+---
+
+<Base title={`${d.title} — description O`} description={d.description}>
+  <OpNav variant="bracket" base="/" />
+
+  <article class="sc" data-sc-ds style={`--ar:${AR}`}>
+    <header class="hd">
+      <p class="mono hd__over">{d.category} · {d.overline ?? d.year}</p>
+      <h1 class="hd__t">{d.title}</h1>
+      <p class="mono hd__meta">
+        <span class="hd__roles">
+          {ROLES.map((r, i) => (<>{i > 0 && <i class="hd__bar" aria-hidden="true"></i>}<span>{r}</span></>))}
+        </span>
+      </p>
+    </header>
+
+    <section class="q" aria-label="Statement">
+      <p class="q__t">{d.quote}</p>
+    </section>
+
+    <section class="blk" aria-label="The work">
+      <VideoFacade youtube={d.media.youtube} title={d.title} poster={poster} alt={d.alt} eager />
+    </section>
+
+    {/* ── THE DRAFT ──────────────────────────────────────────── */}
+    <section class="blk blk--ds" aria-label="Description">
+      <p class="ds ds--o">
+        {W.map((w, i) => (<><span class="wd" data-v>{w}</span>{i < W.length - 1 ? ' ' : ''}</>))}
+      </p>
+    </section>
+
+    <nav class="mono flip" aria-label="Drafts">
+      {FAM.map((l) => (
+        <a class={l === HERE ? 'flip__a is-here' : 'flip__a'} href={`/preview/mst-desc-${l}`}>{l.toUpperCase()}</a>
+      ))}
+      <a class="flip__all" href="/preview/">All drafts &rarr;</a>
+    </nav>
+  </article>
+</Base>
+
+<style>
+  /* ── THE LIVE PAGE'S OWN TYPE, copied so a draft can differ from it. */
+  .sc { --measure: min(760px, 100%); padding: clamp(96px, 15vh, 190px) var(--margin) 0; }
+  .sc { --film: max(var(--measure), calc(100vw - 3 * var(--margin))); }
+  .hd, .q, .blk { max-width: var(--measure); }
+  .hd { margin-inline: auto; text-align: center; }
+  .hd__over {
+    margin: 0 0 clamp(24px, 4vh, 48px);
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--dim);
+    font-variant-numeric: tabular-nums;
+  }
+  .hd__t {
+    margin: 0;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(2.6rem, 10vw, 7.25rem);
+    line-height: 0.86; letter-spacing: -0.05em;
+    text-transform: uppercase; color: var(--bone);
+  }
+  .hd__meta {
+    display: flex; justify-content: center; flex-wrap: wrap;
+    margin: clamp(28px, 4.6vh, 50px) 0 0;
+    font-family: var(--mono);
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--dim);
+  }
+  .hd__roles { display: inline-flex; align-items: center; flex-wrap: wrap; justify-content: center; row-gap: 8px; }
+  .hd__bar { display: inline-block; width: 1px; height: 7px; margin-inline: clamp(10px, 1.8vw, 16px); background: var(--rule); }
+  .q { max-width: 1180px; margin: clamp(80px, 14vh, 180px) auto; text-align: center; }
+  .q__t {
+    margin: 0 auto; max-width: 20ch;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.9rem, 5.4vw, 4.4rem);
+    line-height: 1.02; letter-spacing: -0.045em;
+    color: var(--bone);
+  }
+  .blk { margin: 0 auto clamp(72px, 12vh, 160px); }
+  .blk :global(.facade) { width: var(--film); margin-inline: calc((100% - var(--film)) / 2); }
+  .blk--ds { max-width: 1180px; }
+
+  /* ── THE DRAFT ──────────────────────────────────────────────── */
+  /* O · WEIGHT. The words thicken as they are read and thin again behind you.
+     Nothing moves and nothing fades: the only thing that changes is the
+     weight axis of the typeface.
+
+     IT COSTS NOTHING EXTRA TO LOAD. Inter Variable is already the body face
+     and Base.astro already imports its wght axis, so this is asking the font
+     for something it can already do rather than adding a second file.
+
+     340 TO 620, WHICH IS NARROWER THAN IT SOUNDS. Below about 300 Inter goes
+     spindly at this size and above about 650 a whole paragraph starts to
+     read as a heading. The range is chosen so the DIFFERENCE is legible while
+     no single state looks like a mistake — a reader who stops mid-scroll must
+     still see a paragraph, not a half-bolded one.
+
+     font-variation-settings, NOT font-weight, because font-weight snaps to
+     the named instances on some engines and the whole effect depends on the
+     axis being continuous. */
+  .ds--o {
+    margin: 0 auto; max-width: 58ch;
+    font-size: clamp(1.05rem, 1.6vw, 1.28rem);
+    line-height: 1.62; color: var(--bone-dim); text-wrap: pretty;
+  }
+  .wd {
+    display: inline-block;
+    font-variation-settings: 'wght' calc(340 + var(--v, 1) * 280);
+    color: color-mix(in srgb, var(--bone-dim) calc((1 - var(--v, 1)) * 100%), var(--bone));
+  }
+
+  /* Motion is the enhancement; the settled paragraph is the baseline. */
+  @media (prefers-reduced-motion: reduce) {
+    .blk--ds * {
+      transition: none !important; animation: none !important;
+      transform: none !important; filter: none !important;
+      opacity: 1 !important; clip-path: none !important;
+    }
+  }
+
+  /* ── FLIPPING BETWEEN THE DRAFTS ────────────────────────────── */
+  .flip {
+    display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px;
+    margin: clamp(60px, 10vh, 120px) auto;
+    font-size: var(--t-micro); letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .flip__a {
+    display: grid; place-items: center;
+    min-width: 30px; height: 30px; padding-inline: 8px;
+    border: 1px solid var(--rule); color: var(--dim); text-decoration: none;
+  }
+  .flip__a:hover { border-color: var(--bone-dim); color: var(--bone); }
+  .flip__a.is-here { border-color: var(--accent); color: var(--accent); }
+  .flip__all { margin-left: 14px; color: var(--dim); text-decoration: none; }
+  .flip__all:hover { color: var(--bone); }
+</style>
+
+<script>
+  /* THE SAME CLOCK THE LIVE PAGE RUNS, cut down to this draft.
+
+     A --v is how far an element's top has risen past a line two thirds down
+     the window, normalised over a third of a screen. Everything visual is
+     derived from that one number, so nothing can be half-lifted and fully lit
+     at once, and scrolling back up reverses it exactly.
+
+     A value is only written when it changes by enough to see. Reduced motion
+     opts out entirely and leaves every default of 1 in place, which is the
+     finished state rather than the empty one. */
+  function initDs() {
+    const root = document.querySelector('[data-sc-ds]');
+    if (!root || root.dataset.bound) return;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    root.dataset.bound = '1';
+    const items = Array.from(root.querySelectorAll('[data-v]'));
+    if (!items.length) return;
+    const last = new WeakMap();
+    let raf = 0;
+    const paint = () => {
+      raf = 0;
+      const line = innerHeight * 0.66, span = innerHeight / 3;
+      for (const el of items) {
+        const v = Math.min(1, Math.max(0, (line - el.getBoundingClientRect().top) / span));
+        const prev = last.get(el);
+        if (prev !== undefined && Math.abs(prev - v) < 0.02) continue;
+        last.set(el, v);
+        el.style.setProperty('--v', v.toFixed(3));
+      }
+    };
+    const tick = () => { if (!raf) raf = requestAnimationFrame(paint); };
+    paint();
+    addEventListener('scroll', tick, { passive: true });
+    addEventListener('resize', tick, { passive: true });
+  }
+  initDs();
+  document.addEventListener('astro:page-load', initDs);
+</script>
