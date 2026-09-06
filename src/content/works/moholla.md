@@ -23,7 +23,7 @@ description: >
   An experimental AI-native film exploring what happens when artificial
   intelligence becomes a storytelling medium rather than simply a production
   tool. The ambition was cinematic realism, which places a particular demand
-  on sound. Performances need to feel grounded, environments need to feel
+  on sound. Voices need to feel grounded, environments need to feel
   inhabited and the emotional world needs to remain believable. Music and
   sound were developed around those questions, supporting a world that feels
   observed rather than generated.
