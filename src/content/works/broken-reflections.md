@@ -9,7 +9,7 @@ credits:
   director: "Rohan Bakshi"
 awards:
   - text: "7 Official Selections · 1 Nomination · 1 Win"
-quote: "The harder emotion to score is the one that has no clean answer."
+quote: "Emotion is easy to score. Contradiction is harder."
 description: >
   Original score for an independent short following a teenager as a
   discovery begins to unravel his understanding of family, trust and
