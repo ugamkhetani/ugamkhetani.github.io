@@ -13,7 +13,7 @@ credits:
   studio: "Kalpnk AI"
 quote: "Pitch work is where audio earns its seat at the creative table."
 description: >
-  Full-scale trailer audio created for high-impact pitch work — score,
+  Full-scale trailer audio created for high-impact pitch work. Score,
   sound design and voice authored together and shaped through cinematic
   tension, pacing and movement.
 meta:

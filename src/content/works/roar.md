@@ -13,7 +13,7 @@ credits:
 quote: "The score sounds like your film, not like the last score I wrote."
 description: >
   Concept trailer audio built end to end. A palette assembled for this
-  piece alone — hybrid acoustic and electronic, processed instruments,
+  piece alone: hybrid acoustic and electronic, processed instruments,
   found sound recorded and recontextualised.
 meta:
   - { label: "Scope", value: "Full audio" }

@@ -9,7 +9,7 @@ credits:
   artist: "with Raag Suri"
 quote: "Every sound must have a reason to exist."
 description: >
-  Independent record produced from the ground up — a sonic foundation
+  Independent record produced from the ground up. A sonic foundation
   that carries into score and brand work.
 meta:
   - { label: "Scope", value: "Production · Composition · Mix" }

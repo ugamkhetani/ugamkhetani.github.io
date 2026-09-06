@@ -12,8 +12,8 @@ awards:
 quote: "A score begins before the theme arrives."
 description: >
   Original score for independent short film. The world of the score built
-  first — harmonic environment, textural palette, the sense of space the
-  film lives in — with the theme emerging from inside it.
+  first: harmonic environment, textural palette, the sense of space the
+  film lives in. The theme emerges from inside it.
 meta:
   - { label: "Scope", value: "Original score" }
   - { label: "Approach", value: "Director-led" }
