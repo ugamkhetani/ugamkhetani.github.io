@@ -12,7 +12,7 @@ credits:
 # file's own "authored as one creative pass". Deliberately NOT a brand-sound
 # line, because Dinshaw's already carries that. Replace with his own line and
 # delete this comment.
-quote: "Four films should still feel like one idea."
+quote: "A brand without a sound is a brand half-finished."
 description: >
   A four-part social campaign built around product clarity, pace and
   personality. Each reel needed to communicate quickly while retaining a
