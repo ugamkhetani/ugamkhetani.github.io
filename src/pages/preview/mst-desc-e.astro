@@ -36,7 +36,7 @@ const ROLES = d.role.split('/').map((r) => r.trim()).filter(Boolean);
 /** The description's own sentences, in order. */
 const S = d.description.trim().split(/(?<=\.)\s+/).filter(Boolean);
 
-const FAM = ['a', 'b', 'c', 'd', 'e', 'f'];
+const FAM = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l'];
 const HERE = 'e';
 ---
 
@@ -165,7 +165,7 @@ const HERE = 'e';
     }
   }
 
-  /* ── FLIPPING BETWEEN THE SIX ───────────────────────────────── */
+  /* ── FLIPPING BETWEEN THE TWELVE ───────────────────────────────── */
   .flip {
     display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px;
     margin: clamp(60px, 10vh, 120px) auto;

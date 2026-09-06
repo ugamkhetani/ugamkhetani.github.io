@@ -1,0 +1,169 @@
+---
+/**
+ * MUMBAI STANDARD TIME · DESCRIPTION DRAFT H — Outdent
+ *
+ * ONE OF SIX asked for on 2026-09-07, in a round whose brief was that every
+ * option MUST SURVIVE A DESCRIPTION OF ANY LENGTH. Nothing here is on the
+ * live site.
+ *
+ * The paragraph holds the measure and its first line hangs out to the left
+ * of it. Nothing added; the only change is where one line begins.
+ *
+ * HOW THAT BRIEF WAS MET, since it is the constraint the six were designed
+ * against rather than a box ticked afterwards. None of these splits the
+ * description into sentences. G, H, J and L are one declaration on one
+ * paragraph and count nothing at all; I slices the first three WORDS, which
+ * every description has and which Array.slice cannot overrun; K ramps colour
+ * over word index and clamps with min(), so it is finished by the twelfth
+ * word however many follow.
+ *
+ * The round before this one did not all pass that test: E hand-wrote three
+ * margin keys for THIS work's sentences and would have had to be rewritten
+ * for every other page.
+ *
+ * THE TEXT IS NEVER COPIED. Every draft reads the same string from
+ * src/content/works/mumbai-standard-time.md.
+ */
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import OpNav from '../../components/OpNav.astro';
+import VideoFacade from '../../components/VideoFacade.astro';
+import { framesFor } from '../../lib/frames';
+
+const works = await getCollection('works');
+const work = works.find((w) => w.id === 'mumbai-standard-time')!;
+const d = work.data;
+const poster = framesFor(work.id, d.frames)[0];
+const AR = d.ratio.replace(':', ' / ');
+const ROLES = d.role.split('/').map((r) => r.trim()).filter(Boolean);
+
+/** Words, for the drafts that ramp or mark by word position. */
+const W = d.description.trim().split(/\s+/).filter(Boolean);
+/** The first three words and everything after them, for the lead-in draft. */
+const LEAD = W.slice(0, 3).join(' ');
+const TAIL = W.slice(3).join(' ');
+
+const FAM = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l'];
+const HERE = 'h';
+---
+
+<Base title={`${d.title} — description H`} description={d.description}>
+  <OpNav variant="bracket" base="/" />
+
+  <article class="sc" style={`--ar:${AR}`}>
+    <header class="hd">
+      <p class="mono hd__over">{d.category} · {d.overline ?? d.year}</p>
+      <h1 class="hd__t">{d.title}</h1>
+      <p class="mono hd__meta">
+        <span class="hd__roles">
+          {ROLES.map((r, i) => (<>{i > 0 && <i class="hd__bar" aria-hidden="true"></i>}<span>{r}</span></>))}
+        </span>
+      </p>
+    </header>
+
+    <section class="q" aria-label="Statement">
+      <p class="q__t">{d.quote}</p>
+    </section>
+
+    <section class="blk" aria-label="The work">
+      <VideoFacade youtube={d.media.youtube} title={d.title} poster={poster} alt={d.alt} eager />
+    </section>
+
+    {/* ── THE DRAFT ──────────────────────────────────────────── */}
+    <section class="blk blk--ds" aria-label="Description">
+      <p class="ds ds--h">{d.description}</p>
+    </section>
+
+    <nav class="mono flip" aria-label="Drafts">
+      {FAM.map((l) => (
+        <a class={l === HERE ? 'flip__a is-here' : 'flip__a'} href={`/preview/mst-desc-${l}`}>{l.toUpperCase()}</a>
+      ))}
+      <a class="flip__all" href="/preview/">All drafts &rarr;</a>
+    </nav>
+  </article>
+</Base>
+
+<style>
+  /* ── THE LIVE PAGE'S OWN TYPE, copied from src/pages/work/[slug].astro so a
+     draft can differ from it without a shared file forcing them to agree. */
+  .sc { --measure: min(760px, 100%); padding: clamp(96px, 15vh, 190px) var(--margin) 0; }
+  .sc { --film: max(var(--measure), calc(100vw - 3 * var(--margin))); }
+  .hd, .q, .blk { max-width: var(--measure); }
+  .hd { margin-inline: auto; text-align: center; }
+  .hd__over {
+    margin: 0 0 clamp(24px, 4vh, 48px);
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--dim);
+    font-variant-numeric: tabular-nums;
+  }
+  .hd__t {
+    margin: 0;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(2.6rem, 10vw, 7.25rem);
+    line-height: 0.86; letter-spacing: -0.05em;
+    text-transform: uppercase; color: var(--bone);
+  }
+  .hd__meta {
+    display: flex; justify-content: center; flex-wrap: wrap;
+    margin: clamp(28px, 4.6vh, 50px) 0 0;
+    font-family: var(--mono);
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--dim);
+  }
+  .hd__roles { display: inline-flex; align-items: center; flex-wrap: wrap; justify-content: center; row-gap: 8px; }
+  .hd__bar { display: inline-block; width: 1px; height: 7px; margin-inline: clamp(10px, 1.8vw, 16px); background: var(--rule); }
+  .q { max-width: 1180px; margin: clamp(80px, 14vh, 180px) auto; text-align: center; }
+  .q__t {
+    margin: 0 auto; max-width: 20ch;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.9rem, 5.4vw, 4.4rem);
+    line-height: 1.02; letter-spacing: -0.045em;
+    color: var(--bone);
+  }
+  .blk { margin: 0 auto clamp(72px, 12vh, 160px); }
+  .blk :global(.facade) { width: var(--film); margin-inline: calc((100% - var(--film)) / 2); }
+  .blk--ds { max-width: 1180px; }
+
+  /* ── THE DRAFT ──────────────────────────────────────────────── */
+  /* H · OUTDENT. The paragraph holds the measure and its FIRST LINE hangs
+     out to the left of it, into the field the page is not using.
+
+     It is the quietest way to make a block of prose look set rather than
+     poured. Nothing is added — no rule, no capital, no second size — and the
+     only thing that changes is where one line begins. A reader who never
+     notices it still reads a paragraph that starts before the column does,
+     which is exactly the effect a hanging indent has in a book index.
+
+     THE OUTDENT IS A NEGATIVE text-indent, so it applies to the first line
+     and to nothing else, at any length. It is clamped in vw and folds to 0
+     below 1100px, where the field has closed up and the line would hang off
+     the screen instead of into a margin. */
+  /* 56ch, not the 60 this was drawn at. Measured on the rendered page, 60ch
+     is 775px here — wider than the 760 measure every other block on a work
+     page sits in, so the draft would have looked right in this preview (whose
+     description block is given the full 1180) and then narrowed when applied.
+     56ch measures 723 and sits inside the measure at every width. */
+  .ds--h {
+    margin: 0 auto; max-width: 56ch;
+    text-indent: calc(clamp(0px, 7vw, 132px) * -1);
+    font-size: clamp(1.05rem, 1.6vw, 1.28rem);
+    line-height: 1.62; color: var(--bone-dim); text-wrap: pretty;
+  }
+  @media (max-width: 1100px) { .ds--h { text-indent: 0; } }
+
+  /* ── FLIPPING BETWEEN THE TWELVE ────────────────────────────── */
+  .flip {
+    display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px;
+    margin: clamp(60px, 10vh, 120px) auto;
+    font-size: var(--t-micro); letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .flip__a {
+    display: grid; place-items: center;
+    min-width: 30px; height: 30px; padding-inline: 8px;
+    border: 1px solid var(--rule); color: var(--dim); text-decoration: none;
+  }
+  .flip__a:hover { border-color: var(--bone-dim); color: var(--bone); }
+  .flip__a.is-here { border-color: var(--accent); color: var(--accent); }
+  .flip__all { margin-left: 14px; color: var(--dim); text-decoration: none; }
+  .flip__all:hover { color: var(--bone); }
+</style>
