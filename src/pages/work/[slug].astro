@@ -286,6 +286,14 @@ const CREDIT_ORDER: [keyof typeof d.credits, string][] = [
    read if one is added. The markdown is untouched, as always. */
 const dots = (v: string) => v.split('/').map((p) => p.trim()).filter(Boolean).join(' · ');
 
+/* A CREDIT VALUE IS SET IN WORDS, for B · Overshoot below. Splitting on
+   whitespace and wrapping each word in its own inline-block is what lets a
+   word take a transform at all — and wrapping the WORD rather than the
+   character is what keeps the line breaking where it already breaks, since a
+   value like "First Prize, CinemAI Hackathon · Best AI Film, IFFI Goa" wraps
+   and inline-block characters would let a break fall inside a word. */
+const words = (v: string) => v.split(/\s+/).filter(Boolean);
+
 const FACTS: { k: string; v: string }[] = [
   { k: 'Role', v: dots(d.role) },
   ...CREDIT_ORDER.filter(([key]) => d.credits[key]).map(([key, label]) => ({
@@ -501,12 +509,14 @@ const FACTS: { k: string; v: string }[] = [
         No heading. The dl is kept and set inline rather than swapped for a
         <p>, so the markup still says "these are pairs" to a screen reader
         while reading as prose. */}
-    <section class="blk cr" aria-label="Credits" data-reveal>
+    <section class="blk cr" aria-label="Credits">
       <dl class="cr__list">
         {FACTS.map((f) => (
-          <div class="cr__row">
+          <div class="cr__row" data-v>
             <dt class="mono cr__k">{f.k}</dt>
-            <dd class="cr__v">{f.v}</dd>
+            <dd class="cr__v">
+              {words(f.v).map((w, i) => (<><span class="cr__w">{w}</span>{i < words(f.v).length - 1 ? ' ' : ''}</>))}
+            </dd>
           </div>
         ))}
       </dl>
@@ -884,6 +894,7 @@ const FACTS: { k: string; v: string }[] = [
     .rec__n, .rec__cit, .rec__where { opacity: 1; transform: none; will-change: auto; }
     .body__lede, .body__rest { opacity: 1; transform: none; will-change: auto; }
     .wt__t, .wt__arw { opacity: 1; transform: none; will-change: auto; }
+    .cr__k, .cr__w { opacity: 1; transform: none; will-change: auto; }
   }
 
   /* ══ XXIV · NO RULES ══════════════════════════════════════════════
@@ -1150,6 +1161,52 @@ const FACTS: { k: string; v: string }[] = [
   }
   .cr__k::after { content: '\00a0'; }
   .cr__v { display: inline; margin: 0; font-size: var(--t-md); color: var(--bone); }
+
+  /* B · OVERSHOOT, applied 2026-09-07. Each word of a credit value comes in
+     from the left, travels slightly PAST where it belongs, and settles back
+     onto it. Each pair carries its own --v, so the six arrive in turn.
+
+     AN OVERSHOOT IS WHAT MAKES MOTION FEEL PHYSICAL, and nothing else on this
+     site has one: every other reveal here approaches its resting state from
+     one side and stops, which is correct and slightly bloodless. A word that
+     goes a few pixels too far and comes back reads as a thing with weight
+     being put down.
+
+     IT IS TWO TERMS, NOT AN ANIMATION. A linear approach from -18px, plus a
+     triangle of amplitude 14 that peaks halfway through and is zero at both
+     ends. Their sum crosses zero at a --v of about 0.36, stands +5px past it
+     at 0.5, and returns to exactly 0. Scroll back up and it overshoots in
+     reverse — a keyframed spring cannot do that, because it does not know
+     where the reader is.
+
+     THE TRIANGLE IS 2 * min(v, 1 - v), NOT 1 - abs(2v - 1). They are
+     identical at every value; the draft used abs(), which only reached
+     Chrome in 2025, and min() has been safe since 2020. An unsupported abs()
+     would make the whole declaration invalid at computed-value time and the
+     words would simply never move — a silent loss rather than a visible one.
+
+     AND THE NUMBERS HAD TO BE DERIVED, NOT PICKED. With a -20px approach and
+     a 5px triangle the path measured -20, -15.5, -11, -5, -3, -1.5, 0:
+     monotonic, never once past zero. On the back half the triangle is
+     2k(1 - v) against an approach of 20(1 - v), so k must exceed 10 to win,
+     and 5 is a quarter of it. It read as an overshoot in the source and was
+     an ease-out on the page.
+
+     THE LABEL DOES NOT OVERSHOOT. It is 10px mono, and the wobble would read
+     as a rendering fault at that size rather than as weight.
+
+     inline-block ON THE WORD IS LOAD-BEARING: a transform does not apply to a
+     non-replaced inline element, and .cr__v is display: inline. The row
+     widths are unchanged by it — measured against the live page before this
+     was applied at 271, 137, 181, 553, 169 and 86 by 29. */
+  .cr__k { display: inline-block; opacity: calc(0.25 + var(--v, 1) * 0.75); }
+  .cr__w {
+    --flare: calc(2 * min(var(--v, 1), 1 - var(--v, 1)));
+    display: inline-block;
+    opacity: calc(0.1 + var(--v, 1) * 0.9);
+    transform: translateX(calc((1 - var(--v, 1)) * -18px + var(--flare) * 14px));
+    will-change: transform, opacity;
+  }
 
   /* The watch link: right-aligned, at title scale, with no rule at all. The
      separation from the credits is a full section of air and the fact that one
