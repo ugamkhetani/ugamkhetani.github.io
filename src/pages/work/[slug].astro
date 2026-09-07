@@ -604,43 +604,45 @@ const FACTS: { k: string; v: string }[] = [
     will-change: opacity, transform;
   }
 
-  /* W · ASSEMBLE, applied 2026-09-07. The rise above is untouched; each word
-     also arrives from its own side and from very slightly behind, so the
-     paragraph gathers itself rather than lifting as one plane.
+  /* W3 · STAGGER, applied 2026-09-07, replacing W · Assemble the same day.
 
-     IT IS THE SAME MECHANISM, TURNED UP. No new element, no new listener, no
-     second clock: the words already carry --v, and this is two more terms in
-     the transform they already have. The vertical term is the 0.32em above,
-     to the decimal.
+     THE PATH IS THE STATEMENT'S, EXACTLY. Every word rises the same 0.32em
+     and fades from the same 0.12 floor as the quote above it — no sideways
+     term, no scale, nothing added to the geometry. What varies per word is
+     WHEN it starts: each one is held back by up to three tenths of the
+     reveal, so words within a line do not arrive in reading order.
 
-     NOTHING REFLOWS. transform never participates in layout, so a line breaks
-     in exactly the place it broke before this was added, at every moment of
-     the animation. That is why the effect is a transform and not the obvious
-     alternative — a weight or size ramp would relayout the paragraph under
-     the reader, and the standfirst's size is already derived from its own
-     character count.
+     WHICH IS WHY IT IS HARD TO ARGUE WITH. At any frozen moment the
+     paragraph IS the paragraph, with a different set of words lit. It cannot
+     look like an effect applied to type, because nothing is applied to the
+     type; it looks like type being read unevenly, which is how reading goes.
+     W · Assemble moved words sideways to achieve something similar and had to
+     defend an 18px offset to do it.
 
-     THE HORIZONTAL IS CENTRED ON ZERO — (--s - 0.5) — so words converge from
-     both sides rather than all sliding in from the left, and it is capped at
-     18px, which is under a word's width at this size. Past that they read as
-     scattered rather than as settling.
+     THE DELAY IS RENORMALISED, AND THAT IS THE WHOLE CORRECTNESS OF IT. The
+     draft was first written as an offset either way — --v + (--s - 0.5) * 0.4
+     — which means a word with a negative nudge NEVER REACHES 1. Measured at a
+     --v of 1: forty-one different resting states, the worst sitting
+     permanently at 0.824 opacity and 2.2px low. The seed must decide WHEN a
+     word starts, never WHETHER it arrives. (v - d) / (1 - d) is 0 at v = d
+     and exactly 1 at v = 1 for every d, so the spread lives entirely in the
+     middle and every word lands on the same settled values.
 
-     THE SCALE FLOOR IS 0.972 AND THE CEILING IS EXACTLY 1, so a settled word
-     is at scale(1) and translate(0, 0) — the identity matrix, which is what
-     the page rendered before this rule existed. The finished state is
-     unchanged rather than approximately unchanged.
+     NOTHING REFLOWS: opacity and transform, neither of which participates in
+     layout, so a line breaks where it broke before this existed at every
+     moment of the animation.
 
-     THE STATEMENT IS DELIBERATELY LEFT OUT. It uses the same .w spans, so
-     `.body .w` rather than `.w` is what scopes this to the description. A
-     quote is 20ch of display type at up to 70px; an 18px sideways offset that
-     reads as a settle in 20px body copy reads as a lurch there. */
+     THE STATEMENT IS DELIBERATELY LEFT OUT and shares the same .w spans, so
+     `.body .w` rather than `.w` is what scopes this to the description. The
+     quote is six words; there is nothing there for a stagger to scatter.
+
+     --s IS STILL THE HASH W INTRODUCED and is unchanged — the seed simply
+     drives a delay now instead of a distance. */
   .body .w {
-    transform:
-      translate(
-        calc((1 - var(--v, 1)) * (var(--s, 0.5) - 0.5) * 18px),
-        calc((1 - var(--v, 1)) * 0.32em)
-      )
-      scale(calc(0.972 + var(--v, 1) * 0.028));
+    --d: calc(var(--s, 0.5) * 0.3);
+    --vs: clamp(0, calc((var(--v, 1) - var(--d)) / (1 - var(--d))), 1);
+    opacity: calc(0.12 + var(--vs) * 0.88);
+    transform: translateY(calc((1 - var(--vs)) * 0.32em));
   }
 
   .q {
