@@ -18,6 +18,10 @@ credits:
 awards:
   - text: "Official Selection · Indian Film Festival of Melbourne"
   - text: "Official Selection · Toulouse Indian Film Festival"
+  # Added 2026-09-07, appended rather than inserted: the three carry no dates
+  # and no ranking, so the file's order is the page's order and there is
+  # nothing to sort them by. Say the word if they should run differently.
+  - text: "Official Selection · Chicago South Asian Film Festival"
 quote: "Great scores become memory."
 description: >
   Original score for a theatrical feature unfolding entirely over one Diwali
