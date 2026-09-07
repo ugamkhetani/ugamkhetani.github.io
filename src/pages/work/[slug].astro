@@ -482,11 +482,16 @@ const FACTS: { k: string; v: string }[] = [
         Seven of sixteen works carry one; the guard means the other nine
         render nothing here rather than an empty band. */}
     {watchLinks.length > 0 && (
-      <section class="blk wt" aria-label="Watch" data-reveal>
+      <section class="blk wt" aria-label="Watch">
         {watchLinks.map((l) => (
-          <a class="wt__a" href={l.url} target="_blank" rel="noopener">
+          <a class="wt__a" href={l.url} target="_blank" rel="noopener" data-v>
             <span class="wt__t display">{l.label}</span>
-            <span class="wt__arw" aria-hidden="true">&nearr;</span>
+            {/* TWO BOXES FOR THE ARROW, AND THE REASON IS THE TRANSITION. The
+                outer one carries the scroll-driven transform and must NOT be
+                transitioned, or it chases the scroll 240ms behind. The inner
+                one carries the hover nudge, which must be. One property on
+                two elements rather than two behaviours fighting over one. */}
+            <span class="wt__arw" aria-hidden="true"><span class="wt__arw-i">&nearr;</span></span>
           </a>
         ))}
       </section>
@@ -878,6 +883,7 @@ const FACTS: { k: string; v: string }[] = [
     .cel[data-reveal] { opacity: 1; transform: none; transition: none; }
     .rec__n, .rec__cit, .rec__where { opacity: 1; transform: none; will-change: auto; }
     .body__lede, .body__rest { opacity: 1; transform: none; will-change: auto; }
+    .wt__t, .wt__arw { opacity: 1; transform: none; will-change: auto; }
   }
 
   /* ══ XXIV · NO RULES ══════════════════════════════════════════════
@@ -1151,8 +1157,36 @@ const FACTS: { k: string; v: string }[] = [
   .blk.wt { margin-bottom: clamp(64px, 11vh, 150px); text-align: right; }
   .wt__a { display: inline-flex; align-items: baseline; gap: 14px; text-decoration: none; color: var(--bone); }
   .wt__t { font-size: clamp(1.6rem, 4.2vw, 2.6rem); line-height: 1.05; letter-spacing: -0.02em; }
-  .wt__arw { font-size: var(--t-md); color: var(--dim); transition: transform var(--d-micro) var(--ease), color var(--d-micro) var(--ease); }
-  .wt__a:hover .wt__arw { color: var(--bone); transform: translate(3px, -3px); }
+  /* A · LEDGER ON THE WATCH LINK, applied 2026-09-07. The label rides the
+     page's own --v and the arrow lags on --v SQUARED — the same relationship
+     a recognition row has between its figure and the festival, and the
+     description between its standfirst and its paragraph.
+
+     THE ARROW ARRIVES ALONG ITS OWN DIAGONAL, up and to the right: the
+     direction the glyph points and the direction it already travels on
+     hover. So the entry and the hover are one gesture at two sizes rather
+     than two ideas sharing a control.
+
+     THE TRANSITION IS ON THE INNER BOX ONLY. --d-micro is 240ms, which is
+     long enough that a transition on the scroll-driven transform would drag
+     the arrow visibly behind the scroll. The outer span takes the scroll and
+     is untransitioned; the inner one takes the hover and is. */
+  .wt__a { --v2: calc(var(--v, 1) * var(--v, 1)); }
+  .wt__t {
+    opacity: calc(0.12 + var(--v, 1) * 0.88);
+    transform: translateY(calc((1 - var(--v, 1)) * 0.28em));
+    will-change: opacity, transform;
+  }
+  .wt__arw {
+    font-size: var(--t-md); color: var(--dim);
+    transition: color var(--d-micro) var(--ease);
+    opacity: calc(0.05 + var(--v2, 1) * 0.95);
+    transform: translate(calc((1 - var(--v2, 1)) * -14px), calc((1 - var(--v2, 1)) * 14px));
+    will-change: opacity, transform;
+  }
+  .wt__arw-i { display: inline-block; transition: transform var(--d-micro) var(--ease); }
+  .wt__a:hover .wt__arw { color: var(--bone); }
+  .wt__a:hover .wt__arw-i { transform: translate(3px, -3px); }
   .wt__a:hover .wt__t { text-decoration: underline; text-underline-offset: 6px; }
 
   /* THE BARE STILL IS A WINDOW, so it is given the film's width and the film's
