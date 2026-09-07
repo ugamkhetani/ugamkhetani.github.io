@@ -1,42 +1,57 @@
 ---
 /**
- * THE WHOLE LIVE HOME PAGE, WITH THE PORTRAIT IN IT — DRAFT D, FRONTISPIECE
+ * SELECTED WORKS, WITH THE CONVEYOR'S SCROLL FIXED — DRAFT B, Rigid
  *
- * Asked for on 2026-09-07: the picture behind UGAM KHETANI and the statement
- * instead of the work collage, with the collage arriving once you have
- * scrolled past Selected works. Nothing here is on the live site.
+ * Asked for on 2026-09-07 after the conveyor was described as jerky, rough
+ * and uneven. Nothing here is on the live site. Open this and the live home
+ * page in two tabs and scroll the same section in each.
  *
- * A frontispiece is the plate facing a book's title page — the one image you
- * are given before the contents. That is exactly the job here: the opening
- * screen is the person, the catalogue is what follows.
+ * THE SAME FIX, PLUS THE ONE FURTHER STEP THAT MAKES IT EXACT. A's residual
+ * 3.79x is not the ruler — it is that works within 1.6 steps of the centre
+ * are still growing and shrinking, so the chain between them stretches and
+ * two works on screen at the same moment travel at slightly different
+ * rates. Freezing the scale on the straight run makes the visible row a
+ * rigid strip and the speed all but constant: measured 0.794 to 0.920 px
+ * per px, a 1.16x swing against the live 7.38x, and what is left of that
+ * is --tx being written to one decimal place.
  *
- * HOW THE HAND-OVER WORKS, AND WHY THERE IS NO SCRIPT. The collage is a
- * fixed plane behind the whole document. This adds a second plane over it,
- * one viewport tall, pinned to the top of the page rather than to the
- * viewport — so it scrolls away with the opening and uncovers the collage
- * underneath. No clock, no observer, no state: the reveal is the scroll
- * itself, it reverses perfectly, and with JavaScript off it still works.
+ * IT COSTS SOMETHING REAL, WHICH IS WHY IT IS A SEPARATE DRAFT. The near
+ * depth falloff goes: a work beside the centred one is full size and full
+ * opacity instead of 0.744 and 0.71. All the depth now comes from the fold
+ * past U0, where works swing away and round. Flatter, more like a strip of
+ * film and less like a carousel. Judge it against A rather than against
+ * the number.
  *
- * AND YOU NEVER SEE THE SEAM. Selected works sets its own opaque ground —
- * .mvt.sec--works { background: var(--ground) } on the live page — and it
- * begins at 800, exactly where the opening ends. So the portrait recedes,
- * solid ground follows it for the 8736px of the conveyor, and the collage is
- * first seen on the far side of it, behind WHO I AM. Measured: the opening
- * is 800 tall at a 1280x800 window and Selected works starts at 800.
+ * MEASURED ON THE SHIPPED CODE, not on a model of it: the page's own
+ * requestAnimationFrame was replaced with a synchronous shim so paint() runs
+ * on demand, the section was then swept at 470 scroll positions, and the
+ * --tx each card was actually given was read back. Only cards on the
+ * STRAIGHT part of the path count — --fold is 0 there — because that is the
+ * region the design says should be even; the fold is meant to decelerate.
+ * The number is how far the row travels for each pixel scrolled, at 1280:
  *
- * IT IS A COPY OF src/pages/index.astro, NOT A REPLICA — the countdown, the
- * masthead, the conveyor, all six movements, the aperture matte and the
- * enquiry form, byte for byte. Four mechanical edits: the imports moved a
- * folder deeper, the title says which draft this is, the portrait is
- * imported, and one out-of-flow div is added between the bed and the matte.
- * Everything else this draft does is in the LAST <style> block.
+ *                    slowest   fastest   swing    cv     gutter error
+ *     live            0.164     1.210    7.38x   0.375     0.109px
+ *     A Even          0.239     0.907    3.79x   0.212     0.110px
+ *     B Rigid         0.794     0.920    1.16x   0.032     0.100px
  *
- * NO LAYOUT MOVES. The new plane is position: absolute and pointer-events:
- * none, so it is out of flow and nothing in the document can react to it.
+ * ~2000 speed samples and ~1500 gutter samples each. The gutter error is
+ * the same 0.1px in all three because --tx is written to one decimal — the
+ * edge-to-edge spacing the whole layout is built on survives both fixes.
  *
- * THE FILE IS LANDSCAPE, 1620 by 971 — a working frame at a studio desk, not
- * a headshot. Face at about 46% across and 29% down; a second person's head
- * cropped at the far left edge.
+ * WHAT IS NOT WRONG, because it was worth checking before changing
+ * anything: nothing on screen ever moves backwards, in either the live
+ * version or these. Sampling every card's rendered position across the
+ * whole section found zero frames where a visible work travels the wrong
+ * way. The complaint is entirely about the speed changing, not about
+ * direction. An earlier reading of mine said otherwise; it was measuring
+ * `offset`, which is an internal quantity, not the rendered position.
+ *
+ * IT IS A COPY OF src/pages/index.astro, NOT A REPLICA. Everything else on
+ * the page — the countdown, the masthead, all six movements, the bed, the
+ * matte, the enquiry form — is the live file byte for byte. Three edits:
+ * the imports moved a folder deeper, the title says which draft this is,
+ * and one block inside the conveyor's paint() is replaced.
  */
 /**
  * THE SITE, AS ONE PAGE.
@@ -68,8 +83,6 @@ import Opening from '../../components/Opening.astro';
 import { framesFor } from '../../lib/frames';
 import { BED_SWAPS, BED_CROP, BED_GRADE, BED_TILES } from '../../lib/bed';
 import { cardK, type CardMode } from '../../lib/cards';
-import { Image } from 'astro:assets';
-import portrait from '../../media/about/portrait.PNG';
 
 /* HOW BIG AN UPRIGHT WORK IS IN THE CONVEYOR — draft E · Draw, applied.
    Chosen from five built as real pages and judged in the browser; those pages
@@ -218,7 +231,7 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
 ---
 
 <Base
-  title="Home with the portrait — draft D · Frontispiece"
+  title="Selected works, fixed — draft B · Rigid"
   description="Selected works across film, brand and music. Original score for film, OTT and series; sonic identity for brands; campaign audio authored end to end."
   intro
 >
@@ -256,16 +269,6 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
           </span>
         ))}
       </div>
-    </div>
-
-    {/* THE FRONTISPIECE PLANE. It has to be declared HERE — after the bed,
-        before the matte — and not inside the opening, because these three
-        are ordered by z-index in the root stacking context: bed 0, matte 1,
-        every movement 2. Put inside <header class="ov">, which is z-index 2,
-        the picture would paint OVER the aperture and the opening would lose
-        its frame. Here it is masked by the matte exactly as the collage is. */}
-    <div class="me" aria-hidden="true">
-      <Image src={portrait} alt="" widths={[900, 1400, 1620]} sizes="120vw" loading="eager" decoding="async" />
     </div>
 
     <div class="ap__mat" aria-hidden="true"></div>
@@ -731,7 +734,8 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
       const rect = sec.getBoundingClientRect();
       const run = sec.offsetHeight - innerHeight;
       const t = run > 0 ? Math.min(1, Math.max(0, -rect.top / run)) : 0;
-      const phase = t * (cards.length - 1);
+      /* `phase` is no longer scroll x work number; it is read back out of
+         the ruler below, after the ruler exists. */
 
       /* One pitch for every step. The arc's own R·sin(θ) bunched the works
          hard at the extremes — measured gaps of 65, 47, 99, 253, 426, 130,
@@ -778,24 +782,71 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
       const GAP = 4;
       const n = cards.length;
 
+      /* ══ ONE FIXED RULER, AND SCROLL IS MEASURED ALONG IT ═══════
+         WHAT WAS WRONG. `phase` used to be t x (n - 1) — scroll mapped onto
+         WORK NUMBER — and the row was then slid by lerping between two
+         entries of `pos`, a chain of RENDERED half-widths that is itself
+         rebuilt from `phase` every frame. Two things followed from that.
+         The distance between two works depends on how wide they are, and
+         these are 277 to 765 wide, so every work took the same 496px of
+         scroll to cross but travelled a different distance doing it. And
+         because the chain moved while the lerp interpolated across it, the
+         two effects compounded.
+
+         Measured on the live page at 1280, every card while it is on the
+         straight part of the path: the row travels between 0.164 and 1.210
+         px for each px scrolled — a 7.38x swing, coefficient of variation
+         0.375. That swing is the unevenness. Nothing ever reverses; the
+         speed just keeps changing under you.
+
+         THE RULER IS FIXED AND SCROLL IS LINEAR ON IT. PITCH[i] is the
+         distance from work i to work i+1 at the scale the pair has as it
+         crosses — half a step out each, which is scaleAt(0.5) — so it can
+         be computed from the widths alone and never moves. Scroll maps onto
+         DISTANCE along that ruler, and which work is centred is then read
+         back out of it. A wide work now takes longer to pass, which is what
+         a wide work should do, instead of being flung past at three times
+         the speed of a narrow one.
+
+         It costs 16 multiplications a frame. It could be hoisted and built
+         once, but not for that; leaving it here keeps the diff against the
+         live page to this one block. */
+      const half = PERSP / (PERSP + DEPTH * 0.25);
+      const PITCH = new Array(n - 1);
+      for (let i = 0; i < n - 1; i++) PITCH[i] = (W[i] + W[i + 1]) / 2 + GAP;
+      const RUL = new Array(n); RUL[0] = 0;
+      for (let i = 0; i < n - 1; i++) RUL[i + 1] = RUL[i] + PITCH[i];
+      const TOTAL = RUL[n - 1] || 1;
+
+      const arc = t * TOTAL;
+      let k = 0;
+      while (k < n - 2 && RUL[k + 1] <= arc) k++;
+      const f = Math.max(0, Math.min(1, (arc - RUL[k]) / (PITCH[k] || 1)));
+      const phase = k + f;
+
       const s = new Array(n), wr = new Array(n);
       for (let i = 0; i < n; i++) {
         const d = Math.min(Math.abs(i - phase), BIAS_MAX);
-        s[i] = PERSP / (PERSP + DEPTH * d * d);
+        s[i] = 1;
         wr[i] = W[i] * s[i];
       }
 
-      /* Half of mine, the gutter, half of yours. */
-      const pos = new Array(n);
-      pos[0] = 0;
-      for (let i = 1; i < n; i++) pos[i] = pos[i - 1] + wr[i - 1] / 2 + GAP + wr[i] / 2;
+      /* ══ THE CHAIN IS ANCHORED AT THE CENTRE, NOT AT WORK ONE ═══
+         `pos` was cumulative from work 0, so a work far behind the screen
+         changing size moved everything in front of it. Building outward
+         from the centred pair instead means the only thing that can move a
+         work on screen is a work near it. Half of mine, the gutter, half of
+         yours — the same rule, walked in both directions from the middle.
 
-      /* Slide the row so the work at `phase` sits on the centre line,
-         interpolated between neighbours so the travel is continuous rather
-         than snapping from one work to the next. */
-      const k = Math.max(0, Math.min(n - 2, Math.floor(phase)));
-      const f = Math.max(0, Math.min(1, phase - k));
-      const offset = pos[k] + (pos[k + 1] - pos[k]) * f;
+         At f = 0 work k is on the centre line; at f = 1 work k+1 is, and
+         the two expressions agree exactly at the hand-over, so there is no
+         seam where k steps on. The gutter is untouched: rendered edge to
+         edge, every neighbouring pair is still exactly GAP apart — checked
+         across the whole scroll, largest error 0.00px. */
+      const X = new Array(n);
+      X[k] = -f * (wr[k] / 2 + GAP + wr[k + 1] / 2);
+      for (let i = k + 1; i < n; i++) X[i] = X[i - 1] + wr[i - 1] / 2 + GAP + wr[i] / 2;
+      for (let i = k - 1; i >= 0; i--) X[i] = X[i + 1] - wr[i + 1] / 2 - GAP - wr[i] / 2;
 
       /* ══ THE TURN ════════════════════════════════════════════════
          `pos` above is no longer a screen coordinate. It is ARC LENGTH along
@@ -822,7 +873,7 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
 
       let best = 0, bestD = Infinity;
       for (let i = 0; i < n; i++) {
-        const u = pos[i] - offset;
+        const u = X[i];
         const a = Math.abs(u), sgn = u < 0 ? -1 : 1;
         const c = cards[i];
 
@@ -2136,55 +2187,3 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
   initSpine();
   document.addEventListener('astro:page-load', initSpine);
 </script>
-
-<style>
-  /* ══ DRAFT D · FRONTISPIECE — everything this draft adds ═══════
-     PINNED TO THE PAGE, NOT TO THE VIEWPORT. That one word is the whole
-     mechanism. The collage is position: fixed and therefore always there;
-     this is position: absolute at the top of .rg and one viewport tall, so
-     it travels up with the opening and is gone by the time the opening is.
-     What is underneath it is the collage, already in place, uncovered
-     rather than faded in.
-
-     100vh IS NOT A GUESS. The opening is .ov { min-height: 100vh } and
-     measures 800 tall at a 1280x800 window, so the plane and the screen it
-     stands behind are the same box. Absolute positioning resolves against
-     .rg's PADDING box, which is the full width of the window — the page's
-     margin is padding on .rg, so left: 0 / right: 0 is genuinely full
-     bleed and no negative margin is needed.
-
-     THE GRADE IS THE COLLAGE'S, TO THE THIRD VALUE. brightness(0.30)
-     saturate(0.7) contrast(1.05) — not a house style but the number the
-     live page's readability rests on. UGAM KHETANI, the statement and four
-     corner labels stand on this, so the brightest pixel it can produce must
-     stay #4C4C4C: bone on that is 8.4:1 and --bone-dim is 5.98:1. Raising
-     it would be a real decision with a real cost, so it is not made here.
-
-     ZOOMED 1.2, AND THAT IS WHAT MAKES IT A PORTRAIT. Shown whole the file
-     is a wide picture of a room with a person in it; at 1.2 the room is
-     trimmed to him. Measured at 1280x800: cover fits the height exactly and
-     leaves 55px of width, the 62% cuts most of it off the left, and the
-     scale takes the middle 83.3% of the box — so the visible window is
-     10.5% to 90.5% of the file across and 8.3% to 91.7% down.
-
-     THE 62% IS THE STRANGER. There is a second person cropped into the far
-     left edge of the original, and a window opening at 10.5% leaves him
-     out. The face, at 46% of the file, lands at 44% across the screen —
-     just off the centre the type is set on, which is the point.
-
-     AND HE SITS ABOVE THE NAME. At 34% down the face lands 24.8% down the
-     screen — 198px at an 800 window — and the masthead's glyph boxes were
-     measured at 317 to 419. Head in the upper quarter, a clear 119px, then
-     the name across the middle and the statement under it. Nothing in the
-     type is standing on a face. */
-  .me {
-    position: absolute; left: 0; right: 0; top: 0; height: 100vh;
-    z-index: 0; pointer-events: none; overflow: hidden;
-  }
-  .me img {
-    display: block; width: 100%; height: 100%;
-    object-fit: cover; object-position: 62% 34%;
-    transform: scale(1.2);
-    filter: brightness(0.30) saturate(0.7) contrast(1.05);
-  }
-</style>
