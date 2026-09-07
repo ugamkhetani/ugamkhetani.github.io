@@ -217,22 +217,11 @@ const QW = (d.quote ?? '').split(' ').filter(Boolean);
 const SENT = d.description.trim().split(/(?<=\.)\s+/).filter(Boolean);
 const LEDE = SENT[0] ?? d.description.trim();
 const REST = SENT.slice(1).join(' ');
-const LW = LEDE.split(/\s+/).filter(Boolean);
-const RW = REST ? REST.split(/\s+/).filter(Boolean) : [];
+/* NO WORD ARRAYS ANY MORE. A1 · Lead and lag animates the two BLOCKS, so the
+   description is no longer split into words, no longer wrapped in 69 spans,
+   and no longer carries a per-word seed in an inline style. The statement
+   above still is and still does — its rule is unchanged. */
 
-/* W · ASSEMBLE'S SEED. The fractional part of sin(i * 12.9898) * 43758.5453,
-   the oldest hash in shader code, giving each word a stable number in [0, 1)
-   from its position alone.
-
-   DETERMINISTIC ON PURPOSE. It runs at BUILD time, so a word drifts the same
-   way on every load, on every machine and in every screenshot. Math.random()
-   would give a page that never looks the same twice, which cannot be reviewed
-   against itself and cannot be regression-tested at all.
-
-   THE REST'S WORDS CONTINUE THE LEDE'S COUNT rather than restarting at zero,
-   so the two paragraphs do not share a sequence of offsets. It is not visible
-   either way at this scale; it is one argument instead of a coincidence. */
-const seed = (i: number) => (((Math.sin(i * 12.9898) * 43758.5453) % 1) + 1) % 1;
 
 /* THE FIELD TAKES TWO SHAPES AND THEY ARE SET DIFFERENTLY.
    Counts — "7 Official Selections · 10 Nominations · 6 Wins" — are figures, and
@@ -421,17 +410,15 @@ const FACTS: { k: string; v: string }[] = [
 
     {/* ── 02 · THE WRITING, ASSEMBLED ─────────────────────────── */}
     <section class="blk" aria-label="About the work">
-      <div class="body">
+      {/* ONE CLOCK ON THE WRAPPER, not one per block and not one per word.
+          A1 fixes the relationship between the standfirst and the paragraph,
+          so both have to read the same --v; a [data-v] on each block would
+          make the lag depend on where each happened to sit. */}
+      <div class="body" data-v>
         {/* --n is the standfirst's own length in characters. Everything about
             how it sets is derived from that number; see the CSS. */}
-        <p class="body__lede" style={`--n:${LEDE.length}`}>
-          {LW.map((w, i) => (<><span class="w" data-w style={`--s:${seed(i)}`}>{w}</span>{i < LW.length - 1 ? ' ' : ''}</>))}
-        </p>
-        {RW.length > 0 && (
-          <p class="body__rest">
-            {RW.map((w, i) => (<><span class="w" data-w style={`--s:${seed(i + LW.length)}`}>{w}</span>{i < RW.length - 1 ? ' ' : ''}</>))}
-          </p>
-        )}
+        <p class="body__lede" style={`--n:${LEDE.length}`}>{LEDE}</p>
+        {REST && <p class="body__rest">{REST}</p>}
       </div>
 
       {/* Eight of sixteen works carry a record — two as counts, six as citations. */}
@@ -604,45 +591,43 @@ const FACTS: { k: string; v: string }[] = [
     will-change: opacity, transform;
   }
 
-  /* W3 · STAGGER, applied 2026-09-07, replacing W · Assemble the same day.
+  /* A1 · LEAD AND LAG, applied 2026-09-07, replacing W3 · Stagger the same
+     day. The standfirst rides the page's own --v and the paragraph lags on
+     --v SQUARED, so the opening line is readable while the body is still
+     coming up.
 
-     THE PATH IS THE STATEMENT'S, EXACTLY. Every word rises the same 0.32em
-     and fades from the same 0.12 floor as the quote above it — no sideways
-     term, no scale, nothing added to the geometry. What varies per word is
-     WHEN it starts: each one is held back by up to three tenths of the
-     reveal, so words within a line do not arrive in reading order.
+     IT IS THE PAGE'S OWN DEVICE, SAID TWICE. A recognition row already
+     separates its figure from the festival that gave it exactly this way.
+     Applying it here is not a new idea; it is the same idea at another
+     scale, which is the cheapest coherence a page can buy.
 
-     WHICH IS WHY IT IS HARD TO ARGUE WITH. At any frozen moment the
-     paragraph IS the paragraph, with a different set of words lit. It cannot
-     look like an effect applied to type, because nothing is applied to the
-     type; it looks like type being read unevenly, which is how reading goes.
-     W · Assemble moved words sideways to achieve something similar and had to
-     defend an 18px offset to do it.
+     A LAG IS A SQUARE, NOT A DELAY. v * v trails v everywhere except at 0 and
+     1, where both are exact — so the two blocks separate through the middle
+     and land together, with no timer, nothing to keep in step, and a clean
+     reverse on the way back up.
 
-     THE DELAY IS RENORMALISED, AND THAT IS THE WHOLE CORRECTNESS OF IT. The
-     draft was first written as an offset either way — --v + (--s - 0.5) * 0.4
-     — which means a word with a negative nudge NEVER REACHES 1. Measured at a
-     --v of 1: forty-one different resting states, the worst sitting
-     permanently at 0.824 opacity and 2.2px low. The seed must decide WHEN a
-     word starts, never WHETHER it arrives. (v - d) / (1 - d) is 0 at v = d
-     and exactly 1 at v = 1 for every d, so the spread lives entirely in the
-     middle and every word lands on the same settled values.
+     THE DESCRIPTION IS NO LONGER SET WORD BY WORD, and that is a real
+     simplification rather than a side effect: 49 to 71 spans per page, each
+     with an inline custom property, are gone from every work page. The
+     statement above still assembles word by word — .w and its rule are
+     untouched — so the page still has a per-word moment; it now has one
+     rather than two.
 
-     NOTHING REFLOWS: opacity and transform, neither of which participates in
-     layout, so a line breaks where it broke before this existed at every
-     moment of the animation.
-
-     THE STATEMENT IS DELIBERATELY LEFT OUT and shares the same .w spans, so
-     `.body .w` rather than `.w` is what scopes this to the description. The
-     quote is six words; there is nothing there for a stagger to scatter.
-
-     --s IS STILL THE HASH W INTRODUCED and is unchanged — the seed simply
-     drives a delay now instead of a distance. */
-  .body .w {
-    --d: calc(var(--s, 0.5) * 0.3);
-    --vs: clamp(0, calc((var(--v, 1) - var(--d)) / (1 - var(--d))), 1);
-    opacity: calc(0.12 + var(--vs) * 0.88);
-    transform: translateY(calc((1 - var(--vs)) * 0.32em));
+     THE PARAGRAPH TRAVELS FURTHER THAN THE STANDFIRST, 0.5em against 0.32,
+     because it is smaller type: an em is relative to the element, so equal
+     em values would have made the body move less in pixels as well as later.
+     Measured at a --v of 0.5, the standfirst sits 5.568px low at 0.56 opacity
+     and the paragraph 7.5px low at 0.325. */
+  .body { --v2: calc(var(--v, 1) * var(--v, 1)); }
+  .body__lede {
+    opacity: calc(0.12 + var(--v, 1) * 0.88);
+    transform: translateY(calc((1 - var(--v, 1)) * 0.32em));
+    will-change: opacity, transform;
+  }
+  .body__rest {
+    opacity: calc(0.1 + var(--v2, 1) * 0.9);
+    transform: translateY(calc((1 - var(--v2, 1)) * 0.5em));
+    will-change: opacity, transform;
   }
 
   .q {
@@ -892,6 +877,7 @@ const FACTS: { k: string; v: string }[] = [
     .w { opacity: 1; transform: none; will-change: auto; }
     .cel[data-reveal] { opacity: 1; transform: none; transition: none; }
     .rec__n, .rec__cit, .rec__where { opacity: 1; transform: none; will-change: auto; }
+    .body__lede, .body__rest { opacity: 1; transform: none; will-change: auto; }
   }
 
   /* ══ XXIV · NO RULES ══════════════════════════════════════════════
