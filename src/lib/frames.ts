@@ -115,9 +115,10 @@ export function sizesFor(span: number): string {
  * 128px off the top and 127px off the bottom. A shift here would only move
  * the loss to one end; it was tried at 32.4% and made the bottom lose 172px.
  * Nothing in this table can help it. Removing the crop altogether would mean
- * declaring a ratio the enum does not have, and the ratio is shown to readers
- * on Contents, so that is a question about how the work is described rather
- * than a bug to fix here.
+ * declaring a ratio the enum does not have. That was a question about how
+ * the work is described while Contents showed the ratio to readers; Contents
+ * was removed on 2026-09-07, so today it is only a question about the crop
+ * this table takes. Either way it is not a bug to fix here.
  *
  * BROKEN REFLECTIONS IS ABSENT ON PURPOSE. Its bars are 115 top and bottom of
  * 1080, symmetric, and its declared 2.35 crops exactly 21.3% — the window

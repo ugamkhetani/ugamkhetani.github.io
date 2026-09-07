@@ -17,6 +17,12 @@ export default defineConfig({
   redirects: {
     '/about': '/#about',
     '/contact': '/#contact',
+    /* /contents was the catalogue read as an end-credit roll. Removed on
+       2026-09-07 because it was not being used. Same argument as the two
+       above: the URL existed, so it lands on the home page rather than
+       404ing. The page itself is in git history if the roll is ever
+       wanted back. */
+    '/contents': '/',
   },
   build: { inlineStylesheets: 'auto' },
   image: {

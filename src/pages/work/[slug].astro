@@ -327,7 +327,10 @@ const FACTS: { k: string; v: string }[] = [
           other fifteen works existed; without it each work is a page unto
           itself. numberFor() and total are no longer imported here — an
           import kept for a deleted element is how a page ends up with a data
-          dependency nobody can explain — and /contents still uses both. */}
+          dependency nobody can explain. numberFor() and total are still
+          exported from composition.ts; /contents was their last reader and
+          it was removed on 2026-09-07, so nothing on the site calls them
+          today. */}
       <p class="mono hd__over">{d.category} · {d.overline ?? d.year}</p>
       <h1 class="hd__t" data-reveal>
         <span class="line"><span class="line__in">{d.title}</span></span>
@@ -564,9 +567,9 @@ const FACTS: { k: string; v: string }[] = [
      read as a character, which is what a separator should be.
 
      THE SLASH IS GONE FROM THE RENDERING, NOT FROM THE DATA. The markdown
-     still says "Music / Sound / Voice Over" and must: the same string is set
-     on /contents and in this page's own credits list below, so editing it
-     would move three places at once.
+     still says "Music / Sound / Voice Over" and must: the same string is
+     set in this page's own credits list below, so editing it would move two
+     places at once. It was three until /contents was removed on 2026-09-07.
 
      --dim, not --muted. Both lines around the title now sit at the same
      weight, so neither is the caption of the other. */
@@ -920,7 +923,8 @@ const FACTS: { k: string; v: string }[] = [
      sections were still numbered where it mattered, because the line at the
      top of the page read "007 / 16". It does not: J1 replaced it with the
      category and year on 2026-09-06, so there is no number anywhere on a work
-     page any more. /contents is where the catalogue is counted. */
+     page any more, and since /contents was removed on 2026-09-07 the
+     catalogue is not counted anywhere on the site. */
 
   /* ══ ONE MEASURE ══════════════════════════════════════════════════
      Borrowed from preview XXII "Measure". Every block sits on the same

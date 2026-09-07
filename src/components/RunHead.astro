@@ -12,30 +12,38 @@
  * label lives on the control's aria-label, so nothing is read out letter
  * by letter.
  */
-/* All four are pages now. Contents was the last overlay in the site and
-   outgrew it the same way About and Contact did: at title scale over sixteen
-   works it wants the height of a document and a URL you can send someone.
-   The `overlay` branch below is kept — it costs one ternary and it is the
-   only thing that would have to be rewritten to put a view back in an
-   overlay — but nothing uses it today. */
+/* THREE ITEMS NOW. Contents was removed from the site on 2026-09-07 — it was
+   not being used — and its entry went with it rather than being left pointing
+   at a 404. astro.config.mjs redirects /contents to the home page, the same
+   courtesy /about and /contact were given when they became sections.
+
+   WHICH LEAVES THIS HEADER RENDERING NOWHERE. It was only ever visible ON
+   /contents: the home page and every work page hide it with
+   `.runhead { display: none !important }` and mount OpNav instead, and those
+   are the only page types left. Base.astro still mounts it, so it costs a
+   little markup on every page and shows on none. Removing it is a decision
+   about whether a future page wants this header back, not a tidy-up, so it
+   is left standing and written down here instead.
+
+   The `overlay` branch below is kept for the same reason — it costs one
+   ternary and is the only thing that would have to be rewritten to put a
+   view back in an overlay — but nothing uses it today. */
 const ITEMS: { label: string; href?: string; overlay?: string; home?: boolean }[] = [
   { label: 'Works', href: '/', home: true },
-  // Was an overlay until the roll; see src/pages/contents.astro.
-  { label: 'Contents', href: '/contents' },
   /* SECTIONS OF THE HOME PAGE, NOT PAGES. Both were standalone pages, and
      both were duplicates once the home page took them on as movements — the
      same words at two addresses. The pages are deleted; these point at the
      sections instead, and astro.config.mjs redirects the old URLs there so a
      link someone was given still lands in the right place.
 
-     They are absolute ("/#about", not "#about") because this header is only
-     ever seen on /contents now — it is hidden on the home page and on work
-     pages, which mount OpNav instead — so a bare fragment would look for an
-     id on the roll and find nothing.
+     They are absolute ("/#about", not "#about") and stay that way. This
+     header is hidden on every page that exists today, but if it is ever
+     shown on a page that is not the home page, a bare fragment would look
+     for an id on THAT page and find nothing.
 
      markCurrent() needs no change: it matches data-path against
-     location.pathname, and "/#about" is not a pathname, so neither item is
-     ever marked current on /contents. That is right — you are on the roll. */
+     location.pathname, and "/#about" is not a pathname, so neither item can
+     be marked current. */
   { label: 'About', href: '/#about' },
   { label: 'Contact', href: '/#contact' },
 ];
