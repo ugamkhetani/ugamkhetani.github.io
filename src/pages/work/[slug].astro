@@ -447,10 +447,10 @@ const FACTS: { k: string; v: string }[] = [
           </dl>
         </div>
       ) : (
-        <div class="rec" aria-label="Recognition" data-reveal>
+        <div class="rec" aria-label="Recognition">
           <ol class="rec__list">
             {CITES.map((c, i) => (
-              <li class="rec__row">
+              <li class="rec__row" data-v>
                 <span class="mono rec__n">{String(i + 1).padStart(2, '0')}</span>
                 <span class="rec__body">
                   <span class="mono rec__cit">
@@ -775,6 +775,50 @@ const FACTS: { k: string; v: string }[] = [
     text-transform: uppercase; color: var(--accent);
   }
   .rec__star { margin-right: 0.5em; color: var(--accent); }
+
+  /* B · PARALLAX ON RECOGNITION, applied 2026-09-07.
+
+     THE TWO HALVES OF A ROW ARRIVE AT DIFFERENT RATES. The figure and the
+     honour ride at the page's own --v; the festival that gave it lags on --v
+     SQUARED. So the small mono key is already legible while the thing it
+     names is still coming up, which is the order a row is read in.
+
+     A LAG IS A SQUARE, NOT A DELAY. v * v is behind v everywhere except at
+     the two ends, where both are exactly 0 and exactly 1 — the halves
+     separate through the middle and land together, with no timer, nothing to
+     keep in step, and a clean reverse on the way back up.
+
+     EACH ROW HAS ITS OWN --v, so Diwali's three selections cascade as they
+     cross the reading line rather than arriving as a block. That is the whole
+     reason `data-reveal` came OFF this section: the site's global reveal adds
+     `.is-in` once, on first intersection, and gives the whole block a 14px
+     rise that never plays again and never reverses. Two reveals on one
+     element fight; this one replaces it.
+
+     NO display DECLARATION IS NEEDED and none is written. .rec__row is a grid
+     and .rec__body is a grid, so every part named here is already a grid item
+     and therefore blockified — a transform applies without help. Adding
+     `display: inline-block` would have been a line that does nothing, which
+     is worse than no line at all.
+
+     THE TALLY WORKS ARE UNTOUCHED. Aasha and Broken Reflections set their
+     record as three big figures on a ruled band rather than as citations;
+     that is a different element with a different shape and this rule does not
+     reach it. Six works get this: Book My Yamraj, Dinshaw's, Diwali, Moholla,
+     Mumbai Standard Time and My Red Crayon. */
+  .rec__row {
+    --v2: calc(var(--v, 1) * var(--v, 1));
+  }
+  .rec__n, .rec__cit {
+    opacity: calc(0.14 + var(--v, 1) * 0.86);
+    transform: translateY(calc((1 - var(--v, 1)) * 0.34em));
+    will-change: opacity, transform;
+  }
+  .rec__where {
+    opacity: calc(0.08 + var(--v2, 1) * 0.92);
+    transform: translateY(calc((1 - var(--v2, 1)) * 0.6em));
+    will-change: opacity, transform;
+  }
   /* The one thing on the row that differs from the row above it, so the one
      thing set at size. */
   .rec__where {
@@ -847,6 +891,7 @@ const FACTS: { k: string; v: string }[] = [
   @media (prefers-reduced-motion: reduce) {
     .w { opacity: 1; transform: none; will-change: auto; }
     .cel[data-reveal] { opacity: 1; transform: none; transition: none; }
+    .rec__n, .rec__cit, .rec__where { opacity: 1; transform: none; will-change: auto; }
   }
 
   /* ══ XXIV · NO RULES ══════════════════════════════════════════════
@@ -1187,7 +1232,10 @@ const FACTS: { k: string; v: string }[] = [
        under each section's heading from the same number. The headings are
        gone — Stills was the last — so there are no rules left to drive, and
        the query goes rather than sit there returning an empty list. */
-    const items = Array.from(root.querySelectorAll<HTMLElement>('[data-w]'));
+    /* [data-w] is a word of prose. [data-v] is anything else that wants its
+       own progress — today, a recognition row. Same number, same formula, so
+       there is one clock on the page rather than two. */
+    const items = Array.from(root.querySelectorAll<HTMLElement>('[data-w], [data-v]'));
     if (!items.length) return;
 
     const last = new WeakMap<HTMLElement, number>();
