@@ -28,6 +28,9 @@ const pages = Object.keys(import.meta.glob('./*.astro', { eager: false }))
 
 /** slug → [group, title, note]. Anything missing falls back to its filename. */
 const NOTES: Record<string, [string, string, string]> = {
+  'home-por-a': ['Home · the whole live page, with the portrait', 'A · Plate', 'Three of the bed’s thirty tiles become him. He is not introduced anywhere — he is in the wall behind the whole page, at the same size and under the same grade as the works, filed with everything else.'],
+  'home-por-b': ['Home · the whole live page, with the portrait', 'B · Presence', 'For one movement the catalogue steps back and the person steps forward: as WHO I AM reaches the middle of the screen the wall of work fades down and the face fades up through it, then they trade back.'],
+  'home-por-c': ['Home · the whole live page, with the portrait', 'C · Masthead', 'The name is set in the photograph. UGAM KHETANI is already the biggest thing on the site; this fills the letterforms with the picture instead of with white. Type untouched — only what paints inside the strokes changes.'],
   'portrait-a': ['Home · About, with the portrait', 'A · Spread', 'The panel becomes two columns and the photograph takes the left one — the opening spread of a magazine profile. The only one of the six that need not crop a landscape file at all.'],
   'portrait-b': ['Home · About, with the portrait', 'B · Band', 'The picture runs the full film width above the panel, the same escape a work page gives a video facade — so the person sits at the scale of the work. Cropped 21:9 with the face held in frame.'],
   'portrait-c': ['Home · About, with the portrait', 'C · Column', 'The landscape cropped to a 4:5 upright and set narrow beside the prose — the portrait the layout was designed for, made from the picture that exists. The crop also removes the stranger at the left edge.'],
