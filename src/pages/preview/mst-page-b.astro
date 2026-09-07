@@ -1,0 +1,449 @@
+---
+/**
+ * MUMBAI STANDARD TIME · WHOLE PAGE, THE STATEMENT'S LANGUAGE — ONE VOICE
+ *
+ * ONE OF THREE asked for on 2026-09-07: the whole live page animated in the
+ * language of its own statement. Head, statement, film, description,
+ * recognition, stills, watch, credits and the next-work card, in the live
+ * order and with the live type. Nothing here is on the live site.
+ *
+ * The description drops W’s sideways drift and takes the statement’s rule
+ * too, so the page is one declaration repeated
+ *
+ * WHAT THESE SECTIONS DO TODAY, corrected 2026-09-07. I first wrote here that
+ * they have no motion at all and that `data-reveal` is inert on them. THAT IS
+ * WRONG. src/scripts/main.ts runs on every page through Base.astro, watches
+ * every `[data-reveal]` with an IntersectionObserver and adds `.is-in`; and
+ * base.css gives `[data-reveal].is-in` a `reveal-rise` animation, a 14px
+ * translateY over --d-reveal. So Recognition and Credits already rise as they
+ * come into view.
+ *
+ * WHAT THEY ACTUALLY LACK is what the description has: that reveal is ONE
+ * SHOT — the observer unobserves on first intersection, so it never plays
+ * again and never reverses — it is BLOCK LEVEL, so the whole section arrives
+ * as one thing rather than row by row, and it is NOT SCROLL LINKED, so its
+ * timing has nothing to do with where the reader is. Every draft here
+ * replaces it with a per-row reveal driven by the same clock the description
+ * uses, which reverses on the way back up.
+ *
+ * These drafts therefore drop `data-reveal` from both sections rather than
+ * layering on top of it — two reveals on one element would fight.
+ *
+ * THE PAGE BELOW THE FILM IS THE LIVE ONE. Head, statement, film, description
+ * with W · Assemble as applied, recognition, watch and credits, in the live
+ * order and with the live type. Only the four rules at the bottom of the
+ * style block differ between these drafts.
+ *
+ * THE LAYOUT IS UNTOUCHED IN ALL FOUR. Every effect is opacity, transform,
+ * clip-path or colour; none participates in layout, so nothing reflows at any
+ * point of any animation.
+ *
+ * MUMBAI STANDARD TIME HAS ONE RECOGNITION ROW, and that is a limit of this
+ * page rather than of the drafts. A per-row cascade cannot show itself
+ * against a single row; Taskaree and Diwali carry two and Broken Reflections
+ * four, so whichever is chosen should be looked at on one of those before it
+ * is applied.
+ *
+ * NOTHING IS INVENTED: every field is read from the work's own markdown.
+ */
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import OpNav from '../../components/OpNav.astro';
+import VideoFacade from '../../components/VideoFacade.astro';
+import { framesFor } from '../../lib/frames';
+import NextWork from '../../components/NextWork.astro';
+import { parseAwards } from '../../lib/awards';
+import { order, RATIO_NUM } from '../../data/composition';
+
+const works = await getCollection('works');
+const work = works.find((w) => w.id === 'mumbai-standard-time')!;
+const d = work.data;
+const images = framesFor(work.id, d.frames);
+const poster = images[0];
+
+/* The live page's own next-work link and still track, so the foot of the page
+   is the foot of the page rather than an approximation of it. */
+const bySlug = new Map(works.map((w) => [w.id, w]));
+const sequence = order.filter((sl) => bySlug.has(sl));
+const next = bySlug.get(sequence[(sequence.indexOf(work.id) + 1) % sequence.length])!;
+const STILL_TRACK = `${Math.round(Math.min(340, Math.max(160, 300 * (RATIO_NUM[d.ratio] ?? 1.6))))}px`;
+const AR = d.ratio.replace(':', ' / ');
+const ROLES = d.role.split('/').map((r) => r.trim()).filter(Boolean);
+
+/* The statement's words. Split on spaces only, so each word keeps its own
+   punctuation and the joined text is identical to the source. */
+const QW = (d.quote ?? '').split(' ').filter(Boolean);
+
+const SENT = d.description.trim().split(/(?<=\.)\s+/).filter(Boolean);
+const LEDE = SENT[0] ?? d.description.trim();
+const REST = SENT.slice(1).join(' ');
+const LW = LEDE.split(/\s+/).filter(Boolean);
+const RW = REST ? REST.split(/\s+/).filter(Boolean) : [];
+const seed = (i: number) => (((Math.sin(i * 12.9898) * 43758.5453) % 1) + 1) % 1;
+
+const CITES = parseAwards(d.awards);
+
+/* The live FACTS list and its slash-to-middot rule, copied so the colophon
+   here says exactly what the colophon there says. */
+const dots = (v: string) => v.split('/').map((p) => p.trim()).filter(Boolean).join(' · ');
+const CREDIT_ORDER: [keyof typeof d.credits, string][] = [
+  ['director', 'Director'], ['client', 'Client'], ['studio', 'Studio'],
+  ['production', 'Production'], ['artist', 'Artist'], ['with', 'Collaboration'],
+];
+const FACTS: { k: string; v: string }[] = [
+  { k: 'Role', v: dots(d.role) },
+  ...CREDIT_ORDER.filter(([key]) => d.credits[key]).map(([key, label]) => ({ k: label, v: dots(d.credits[key]!) })),
+  ...d.meta.map((m) => ({ k: m.label, v: dots(m.value) })),
+];
+
+const FAM = ['a', 'b', 'c'];
+const HERE = 'b';
+---
+
+<Base title={`${d.title} — whole page, One voice`} description={d.description}>
+  <OpNav variant="bracket" base="/" />
+
+  <article class="sc" data-sc-rc style={`--ar:${AR}`}>
+    <header class="hd">
+      <p class="mono hd__over">{d.category} · {d.overline ?? d.year}</p>
+      <h1 class="hd__t">{d.title}</h1>
+      <p class="mono hd__meta">
+        <span class="hd__roles">
+          {ROLES.map((r, i) => (<>{i > 0 && <i class="hd__bar" aria-hidden="true"></i>}<span>{r}</span></>))}
+        </span>
+      </p>
+    </header>
+
+    <section class="q" aria-label="Statement">
+      <p class="q__t">{QW.map((w, i) => (<><span class="w" data-w>{w}</span>{i < QW.length - 1 ? ' ' : ''}</>))}</p>
+    </section>
+
+    <section class="blk" aria-label="The work">
+      <VideoFacade youtube={d.media.youtube} title={d.title} poster={poster} alt={d.alt} eager />
+
+      <div class="body">
+        <p class="body__lede" style={`--n:${LEDE.length}`}>
+          {LW.map((w, i) => (<><span class="w" data-w style={`--s:${seed(i)}`}>{w}</span>{i < LW.length - 1 ? ' ' : ''}</>))}
+        </p>
+        {RW.length > 0 && (
+          <p class="body__rest">
+            {RW.map((w, i) => (<><span class="w" data-w style={`--s:${seed(i + LW.length)}`}>{w}</span>{i < RW.length - 1 ? ' ' : ''}</>))}
+          </p>
+        )}
+      </div>
+
+      {/* ── RECOGNITION ─────────────────────────────────────── */}
+      <div class="rec" aria-label="Recognition">
+        <ol class="rec__list">
+          {CITES.map((c, i) => (
+            <li class="rec__row" data-v>
+              <span class="mono rec__n">{String(i + 1).padStart(2, '0')}</span>
+              <span class="rec__body">
+                <span class="mono rec__cit">
+                  {c.star && <span class="rec__star" aria-hidden="true">★</span>}
+                  {c.citation}
+                </span>
+                {c.body && <span class="rec__where display">{c.body}</span>}
+              </span>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    {/* ── STILLS ────────────────────────────────────────────── */}
+    <section class="blk" aria-label="Stills">
+      <div class="grid" style={`--sw:${STILL_TRACK}`}>
+        {images.map((img, i) => (
+          <figure class="cel" data-v>
+            <span class="cel__win">
+              <Image
+                src={img}
+                alt={i === 0 ? d.alt : ''}
+                aria-hidden={i === 0 ? undefined : 'true'}
+                widths={[420, 700, 1100]}
+                sizes="(max-width: 720px) 46vw, 30vw"
+                loading={i < 3 ? 'eager' : 'lazy'}
+                decoding="async"
+              />
+            </span>
+            <figcaption class="mono cel__no">{String(i + 1).padStart(2, '0')}</figcaption>
+          </figure>
+        ))}
+      </div>
+    </section>
+
+    <section class="blk wt" aria-label="Watch">
+      {d.links.map((l) => (
+        <a class="wt__a" data-v href={l.url} target="_blank" rel="noopener">
+          <span class="wt__t display">{l.label}</span>
+          <span class="wt__arw" aria-hidden="true">&nearr;</span>
+        </a>
+      ))}
+    </section>
+
+    {/* ── CREDITS ───────────────────────────────────────────── */}
+    <section class="blk cr" aria-label="Credits" data-vc>
+      <dl class="cr__list">
+        {FACTS.map((f) => (
+          <div class="cr__row" data-v>
+            <dt class="mono cr__k">{f.k}</dt>
+            <dd class="cr__v">{f.v}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+
+    {/* NO SCROLL ROOM IS ADDED HERE and none is needed: this draft carries
+        the real foot of the page, so the stills, the watch link, the credits
+        and the next-work card supply the 0.673 of a screen the clock wants
+        below its last tracked element — exactly as the live page does. */}
+
+    <nav class="mono flip" aria-label="Drafts">
+      {FAM.map((l) => (
+        <a class={l === HERE ? 'flip__a is-here' : 'flip__a'} href={`/preview/mst-page-${l}`}>{l.toUpperCase()}</a>
+      ))}
+      <a class="flip__all" href="/preview/">All drafts &rarr;</a>
+    </nav>
+  </article>
+
+  <NextWork
+    slug={next.id}
+    title={next.data.title}
+    year={next.data.year}
+    category={next.data.category}
+    frames={next.data.frames}
+    alt={next.data.alt}
+  />
+</Base>
+
+<style>
+  /* ── THE LIVE PAGE'S TYPE, copied from src/pages/work/[slug].astro. */
+  .sc { --measure: min(760px, 100%); padding: clamp(96px, 15vh, 190px) var(--margin) 0; }
+  .sc { --film: max(var(--measure), calc(100vw - 3 * var(--margin))); }
+  .hd, .q, .blk { max-width: var(--measure); }
+  .hd { margin-inline: auto; text-align: center; }
+  .hd__over {
+    margin: 0 0 clamp(24px, 4vh, 48px);
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--dim); font-variant-numeric: tabular-nums;
+  }
+  .hd__t {
+    margin: 0; font-family: var(--display); font-weight: 500;
+    font-size: clamp(2.6rem, 10vw, 7.25rem);
+    line-height: 0.86; letter-spacing: -0.05em;
+    text-transform: uppercase; color: var(--bone);
+  }
+  .hd__meta {
+    display: flex; justify-content: center; flex-wrap: wrap;
+    margin: clamp(28px, 4.6vh, 50px) 0 0;
+    font-family: var(--mono); font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--dim);
+  }
+  .hd__roles { display: inline-flex; align-items: center; flex-wrap: wrap; justify-content: center; row-gap: 8px; }
+  .hd__bar { display: inline-block; width: 1px; height: 7px; margin-inline: clamp(10px, 1.8vw, 16px); background: var(--rule); }
+  .q { max-width: 1180px; margin: clamp(80px, 14vh, 180px) auto; text-align: center; }
+  .q__t {
+    margin: 0 auto; max-width: 20ch;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.9rem, 5.4vw, 4.4rem);
+    line-height: 1.02; letter-spacing: -0.045em; color: var(--bone);
+  }
+  .blk { margin: 0 auto clamp(72px, 12vh, 160px); }
+  .blk :global(.facade) { width: var(--film); margin-inline: calc((100% - var(--film)) / 2); }
+
+  .body { margin: 0; }
+  .body__lede {
+    margin: 0 0 clamp(22px, 3.4vh, 40px);
+    max-width: clamp(20ch, calc(var(--n, 90) / 3 * 1ch), 44ch);
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.2rem, min(calc(2.35rem - (var(--n, 90) - 55) * 0.007rem), calc(1.05rem + 2.1vw)), 2.2rem);
+    line-height: 1.12; letter-spacing: -0.025em; color: var(--bone); text-wrap: balance;
+  }
+  .body__rest {
+    margin: 0; max-width: 54ch;
+    font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+    line-height: 1.62; letter-spacing: -0.006em; color: var(--bone-dim); text-wrap: pretty;
+  }
+  .w {
+    display: inline-block;
+    opacity: calc(0.12 + var(--v, 1) * 0.88);
+    transform: translateY(calc((1 - var(--v, 1)) * 0.32em));
+    will-change: opacity, transform;
+  }
+  .body .w {
+    transform:
+      translate(calc((1 - var(--v, 1)) * (var(--s, 0.5) - 0.5) * 18px), calc((1 - var(--v, 1)) * 0.32em))
+      scale(calc(0.972 + var(--v, 1) * 0.028));
+  }
+
+  .rec { margin: clamp(56px, 9vh, 110px) 0 0; }
+  .rec__list { margin: 0; padding: 0; list-style: none; display: grid; gap: clamp(22px, 3.4vh, 40px); }
+  .rec__row {
+    display: grid;
+    grid-template-columns: clamp(44px, 5vw, 68px) minmax(0, 1fr);
+    align-items: baseline; gap: clamp(10px, 2vw, 24px);
+  }
+  .rec__n { font-size: var(--t-micro); letter-spacing: var(--track-mono); color: var(--dim); font-variant-numeric: tabular-nums; }
+  .rec__body { display: grid; gap: clamp(6px, 1vh, 11px); }
+  .rec__cit { font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); }
+  .rec__star { margin-right: 0.5em; color: var(--accent); }
+  .rec__where {
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.3rem, 3vw, 2.35rem);
+    line-height: 1.06; letter-spacing: -0.035em; color: var(--bone); text-wrap: balance;
+  }
+
+  /* The live stills grid, copied. --sw is the work's own track. */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(var(--sw, 340px), 100%), 1fr));
+    gap: clamp(20px, 2.6vw, 46px);
+  }
+  .cel { margin: 0; }
+  .cel__win { display: block; aspect-ratio: var(--ar); overflow: hidden; background: var(--ground-lift); }
+  .cel__win :global(img) {
+    width: 100%; height: 100%; object-fit: cover;
+    object-position: 50% var(--fcy, 50%);
+    filter: saturate(0.94) contrast(1.02);
+    transform: scale(1.001);
+    transition: filter var(--d-micro) var(--ease), transform 1100ms var(--ease);
+  }
+  .cel:hover .cel__win :global(img) { filter: saturate(1) contrast(1.06) brightness(1.04); transform: scale(1.035); }
+  .cel__no {
+    display: block; margin-top: 8px;
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    color: var(--dim); font-variant-numeric: tabular-nums;
+  }
+  @media (max-width: 720px) { .grid { --sw: min(46vw, 220px); } }
+
+  .blk.wt { margin-bottom: clamp(64px, 11vh, 150px); text-align: right; }
+  .wt__a { display: inline-flex; align-items: baseline; gap: 14px; text-decoration: none; color: var(--bone); }
+  .wt__t { font-size: clamp(1.6rem, 4.2vw, 2.6rem); line-height: 1.05; letter-spacing: -0.02em; }
+  .wt__arw { font-size: var(--t-md); color: var(--dim); }
+
+  .blk.cr { margin-top: clamp(40px, 7vh, 90px); }
+  .cr__list { margin: 0; display: block; max-width: 62ch; }
+  .cr__row { display: inline-block; max-width: 100%; margin-right: clamp(14px, 1.9vw, 26px); }
+  .cr__row:last-child { margin-right: 0; }
+  .cr__k {
+    display: inline; margin: 0; font-size: var(--t-micro); letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--dim);
+  }
+  .cr__k::after { content: '\00a0'; }
+  .cr__v { display: inline; margin: 0; font-size: var(--t-md); color: var(--bone); }
+
+  /* ── WHAT THIS DRAFT ADDS ───────────────────────────────────── */
+  /* THE STATEMENT'S OWN RULE, AND IT IS ALREADY ON THE PAGE.
+     "Technology scales execution. Taste remains scarce." arrives word by word
+     under exactly two declarations:
+
+       opacity:   calc(0.12 + var(--v) * 0.88)
+       transform: translateY(calc((1 - var(--v)) * 0.32em))
+
+     That is the whole vocabulary this page now speaks. Nothing else is
+     introduced anywhere below — no blur, no clip, no scale, no rotation, no
+     colour ramp, no second duration. Every section is the same two lines
+     against a different element.
+
+     WHY IT TRAVELS IN em RATHER THAN px. 0.32em is a third of the element's
+     own type size, so the statement at 70px moves 22px and a 10px credit
+     label moves 3.2 — each thing moves a third of itself. A single pixel
+     value would be a shove on the small type and a twitch on the large, and
+     the page would need a table of exceptions instead of one rule.
+
+     WHY THE FLOOR IS 0.12 AND NOT 0. Opacity 0 holds an element invisible for
+     as long as the animation is pending — a background tab, a throttled
+     renderer, a dropped frame — and a page that stalls loses its content
+     rather than its motion. At 0.12 the worst case is a paragraph that is
+     merely faint. It is the same argument base.css already makes for the
+     site's own reveal, in the same words.
+
+     THE HEAD IS LEFT ALONE, deliberately. It is above the fold on every
+     screen, so a scroll-linked reveal there either never runs or runs before
+     the reader has scrolled — which is why the live page gives the title a
+     one-shot reveal rather than this one.
+
+     THIS DRAFT PUTS THE SAME RULE ON THE DESCRIPTION AS WELL, so the page is
+     one declaration repeated from the statement to the last credit. W ·
+     Assemble's sideways drift and scale are removed — not softened — and the
+     description's words rise exactly as the statement's words rise.
+
+     IT IS THE PUREST READING OF THE BRIEF and the one worth judging first: if
+     a page can be animated with two lines of CSS and still feel alive, the
+     other drafts have to earn their extra terms. */
+  .body .w {
+    transform: translateY(calc((1 - var(--v, 1)) * 0.32em));
+  }
+  .rec__row, .cel, .wt__a, .cr__row {
+    display: inline-block;
+    opacity: calc(0.12 + var(--v, 1) * 0.88);
+    transform: translateY(calc((1 - var(--v, 1)) * 0.32em));
+    will-change: opacity, transform;
+  }
+  .rec__row { display: grid; }
+  .cel { display: block; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rec *, .cr *, .rec, .cr, .cel, .cel * {
+      transition: none !important; transform: none !important;
+      opacity: 1 !important; clip-path: none !important;
+    }
+  }
+
+  /* ── FLIPPING BETWEEN THE FOUR ──────────────────────────────── */
+  .flip {
+    display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px;
+    margin: clamp(60px, 10vh, 120px) auto;
+    font-size: var(--t-micro); letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .flip__a {
+    display: grid; place-items: center;
+    min-width: 30px; height: 30px; padding-inline: 8px;
+    border: 1px solid var(--rule); color: var(--dim); text-decoration: none;
+  }
+  .flip__a:hover { border-color: var(--bone-dim); color: var(--bone); }
+  .flip__a.is-here { border-color: var(--accent); color: var(--accent); }
+  .flip__all { margin-left: 14px; color: var(--dim); text-decoration: none; }
+  .flip__all:hover { color: var(--bone); }
+</style>
+
+<script>
+  /* THE LIVE CLOCK, extended to the two new section families.
+
+     [data-w] is the description's per-word light, unchanged. [data-v] is any
+     element that wants its own progress — here a recognition row or a credit
+     pair. [data-vc] writes --vc for the credits' drawn rule.
+
+     One observer, one number per element, and everything visual derived from
+     it: scrolling back up reverses all of it exactly. Reduced motion opts out
+     and leaves every default of 1 in place, which is the finished state. */
+  function initRc() {
+    const root = document.querySelector('[data-sc-rc]');
+    if (!root || root.dataset.bound) return;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    root.dataset.bound = '1';
+    const items = Array.from(root.querySelectorAll('[data-w], [data-v], [data-vc]'));
+    if (!items.length) return;
+    const last = new WeakMap();
+    let raf = 0;
+    const paint = () => {
+      raf = 0;
+      const line = innerHeight * 0.66, span = innerHeight / 3;
+      for (const el of items) {
+        const v = Math.min(1, Math.max(0, (line - el.getBoundingClientRect().top) / span));
+        const prev = last.get(el);
+        if (prev !== undefined && Math.abs(prev - v) < 0.02) continue;
+        last.set(el, v);
+        el.style.setProperty(el.hasAttribute('data-vc') ? '--vc' : '--v', v.toFixed(3));
+      }
+    };
+    const tick = () => { if (!raf) raf = requestAnimationFrame(paint); };
+    paint();
+    addEventListener('scroll', tick, { passive: true });
+    addEventListener('resize', tick, { passive: true });
+  }
+  initRc();
+  document.addEventListener('astro:page-load', initRc);
+</script>
