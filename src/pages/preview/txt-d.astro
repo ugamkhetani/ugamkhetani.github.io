@@ -1,62 +1,75 @@
 ---
 /**
- * THE WHOLE LIVE HOME PAGE — DRAFT D, BLOOM
+ * THE WHOLE LIVE HOME PAGE, TOLD IN TYPE — DRAFT D, HANDOVER
  *
- * Built on 2026-09-08 from the reference film Ugam sent
- * (cosmos_1909389443.mp4, 18s, 1080x1350, 30fps). Nothing here is on the
- * live site.
+ * Built 2026-09-09 from the reference film (cosmos_1909389443.mp4, 18s,
+ * 1080x1350, 30fps), this time reading it for what it does to TEXT.
+ * Nothing here is on the live site.
  *
- * ══ WHAT IS ACTUALLY IN THE REFERENCE ══════════════════════════════
- * Sixteen frames pulled across the full 18 seconds, then ten more across
- * the 4.6–7.6s passage, because that is where its signature move lives.
- * What it does, in order:
+ * ══ WHAT THE REFERENCE DOES TO TYPE ════════════════════════════════
+ * Frames pulled through AVFoundation at 4.0–5.4s and 7.6–9.4s, where its
+ * headlines change state. Six things, and they are all about text:
  *
- *   0.0–4.5s   rounded image cards of wildly different sizes floating over
- *              a giant outlined wordmark — some passing IN FRONT of the
- *              letterforms, some behind. One card grows steadily from a
- *              thumbnail to the largest thing on screen.
- *   4.6–7.6s   a train of overlapping rounded cards travels across the
- *              screen and passes OVER a huge sentence-case headline,
- *              swallowing whole words as it goes. The headline itself is
- *              lit left to right — white leading, grey trailing.
- *   8–18s      a full-bleed wall of cards fills the window, rows sliding
- *              horizontally in alternating directions, never stopping,
- *              with a fixed headline over it and a heavy vignette below.
+ *   · THE HEADLINE IS THREE STACKED LINES, sentence case, enormous, and
+ *     the middle line is ITALIC where the others are roman. Revolution /
+ *     Product / Visualization.
+ *   · IT RE-SETS BETWEEN STATES. At 5s it is one giant line running off
+ *     both edges; by 8s it has shrunk and re-wrapped into three. The type
+ *     is not revealed, it is re-typeset.
+ *   · IT IS LIT LEFT TO RIGHT. White leading, grey trailing, the boundary
+ *     travelling through the word — not a fade, a light crossing it.
+ *   · CARDS PASS IN FRONT OF IT and swallow whole words, then give them
+ *     back. The type is occluded rather than hidden.
+ *   · OUTGOING TEXT LIFTS AND LEAVES upward while the next state arrives
+ *     underneath — at 8.6s the previous paragraph is halfway off the top.
+ *   · SMALL MONO LABELS HOLD STILL throughout, in clusters, as the one
+ *     thing that never moves.
  *
- * ITS WHOLE VOCABULARY IS ONE OBJECT: a rounded rectangle with a picture
- * in it, at every scale from thumbnail to full bleed, at several depths,
- * always moving. Colour is near-black and warm. Type is huge, tight and
- * sentence case.
+ * ══ WHY THESE SIX ══════════════════════════════════════════════════
+ * Every draft before this animated headings and left the running text
+ * alone — the body has never moved on this page. All six below animate it,
+ * and each takes one of the six behaviours above as its whole idea.
  *
- * ══ WHY THAT LANDS ON THIS SITE ════════════════════════════════════
- * This page already owns both card systems the reference is built from:
- * thirty frames of the catalogue fixed behind the whole document, and a
- * horizontal conveyor of sixteen works. The reference is close to what is
- * already here, played much louder. So none of these six invent a new
- * object — they take the two that exist and give them the reference's
- * behaviour.
+ * TEXT LEAVES AS WELL AS ARRIVES. Every heading and every paragraph lifts and
+ * goes on up the screen as its movement passes, while the next one is
+ * already coming in underneath — so the page is a continuous relay rather
+ * than six separate entrances.
  *
- * THE REFERENCE'S OPENING, WHERE ONE CARD GROWS. Over its first four
- * seconds a single thumbnail swells until it is the largest thing on the
- * screen, while everything around it holds still.
+ * It is the thing the reference does at 8.6 seconds that no draft here has
+ * ever done: the previous paragraph is halfway off the top of the frame
+ * while the new state is landing. Every one of the eighteen animated
+ * arrivals and left departures alone, which is why the page has always
+ * felt like a series of moments rather than one movement.
  *
- * Here the whole wall blooms as each movement arrives: it comes forward,
- * fills more of the window, and settles back as you read. One gesture,
- * once per section, and nothing else on the page moves at all.
+ * ══ HOW THE BODY IS ANIMATED WITHOUT TOUCHING THE MARKUP ═══════════
+ * The paragraphs are already 242 word spans, and animating 242 elements is
+ * how you undo a day spent making this page smooth. So the body is lit by
+ * a gradient painted behind the paragraph and clipped to its letterforms —
+ * one element, one property, and the words light individually because the
+ * gradient crosses them one at a time.
+ *
+ * BOTH ENDS STAY READABLE. Every sweep runs between --bone-dim, the site's
+ * own body colour at 14:1 on this ground, and --bone at 19:1. There is no
+ * point in any of these where the running text is harder to read than it
+ * is on the live page — which the reference cannot say, since its grey
+ * tail sits at roughly half the contrast of its white head.
+ *
+ * AND THE TRAVEL IS ALWAYS 0 TO 100 PER CENT. A gradient at 300 per cent
+ * with background-repeat: no-repeat slides off the block outside that
+ * range, and text clipped to a background that is not there is text that
+ * is not there — invisible on the way past and fine at rest, which is the
+ * kind of bug a screenshot never catches.
  *
  * ══ THE RULES ══════════════════════════════════════════════════════
- * NO CONTENT AND NO LAYOUT CHANGES. Not a word of copy, not a box, not a
- * size. Only transform, opacity, filter, clip-path and background-position
- * are animated. Verified: document height 15948 and all six movement
- * offsets identical to the live page, fonts settled.
+ * No content, no layout. Only transform, opacity, clip-path and
+ * background-position. Verified: document height 15948 and all six
+ * movement offsets identical to the live page, fonts settled.
+ * Zero JavaScript — scroll-driven CSS on view() timelines, run on the
+ * compositor rather than the main thread.
+ * Everything inside @supports and prefers-reduced-motion.
  *
- * ZERO JAVASCRIPT. Scroll-driven CSS on view() and scroll() timelines, run
- * on the compositor rather than the main thread.
- *
- * IT DEGRADES TO TODAY, inside @supports and prefers-reduced-motion.
- *
- * A COPY OF src/pages/index.astro, NOT A REPLICA — byte for byte as of
- * f9cfc0e, with two mechanical edits and one appended <style> block.
+ * A copy of src/pages/index.astro byte for byte as of f9cfc0e, with two
+ * mechanical edits and one appended <style> block.
  */
 /**
  * THE SITE, AS ONE PAGE.
@@ -236,7 +249,7 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
 ---
 
 <Base
-  title="Home, from the reference — draft D · Bloom"
+  title="Home in type — draft D · Handover"
   description="Selected works across film, brand and music. Original score for film, OTT and series; sonic identity for brands; campaign audio authored end to end."
   intro
 >
@@ -2229,51 +2242,69 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
 </script>
 
 <style>
-  /* ══ D · BLOOM ══════════════════════════════════════════════════
-     IT BLOOMS ONCE, ON THE CATALOGUE, NOT SIX TIMES. The first version
-     put the timeline on every .mvt and had the bed read the name — which
-     cannot work, because the bed lives in .ms__ground, a sibling of the
-     sections and not a descendant, so the name was never in scope and the
-     animation never advanced. Measured: scale pinned at the bed's resting
-     1.06 at every scroll position. It now reads the works section's
-     timeline through timeline-scope on .rg, which is the same wiring C
-     uses and is verified.
+  /* ══ D · HANDOVER ═══════════════════════════════════════════════
+     THE CLOCK IS THE MOVEMENT'S, NOT EACH ELEMENT'S OWN, AND THE FIRST
+     VERSION OF THIS GOT IT WRONG. It used animation-timeline: view(), which
+     gives every element a timeline from its own passage across the screen —
+     and the title sits above the paragraph, so its passage starts and ends
+     earlier. Measured at one scroll position: the paragraph was held at
+     translateY 0 and full opacity while the title was already 46px gone at
+     0.17. A relay in which the runners never share a track.
 
-     One bloom is also the better idea. Six says every movement is an
-     event; one says the catalogue is, which is true.
+     .mvt declares --t-relay and all four read it, so the whole movement
+     runs on one clock. That also makes the percentages below mean what they
+     say: they are fractions of the SECTION's passage, which is the thing
+     the reader is actually moving through.
 
-     THE WHOLE WALL, NOT ONE TILE, AND THAT IS A DECISION. Growing a single
-     tile means picking one — and a tile is a work, so picking one is an
-     editorial claim the page has no business making six times on the way
-     down. Blooming the whole bed says the same thing about the catalogue
-     without ranking it.
+     ONE ANIMATION ACROSS THE WHOLE PASSAGE, NOT TWO. cover 0 to 100 with
+     the arrival in the first third and the departure in the last, so one
+     clock owns both halves and they cannot drift apart. Two animations with
+     two ranges would leave a seam in the middle where neither is in
+     charge.
 
-     1.06 TO 1.30. The bed sits at 1.06 already; 1.30 is the largest it can
-     go before the -10% overhang runs out at the corners and a hard edge
-     appears inside the window. Measured against the inset rather than
-     chosen — anything past it and the wall shows its own boundary.
+     IT LEAVES FURTHER THAN IT ARRIVES — 26px in, 52px out. Symmetry reads
+     as the text bouncing; a longer exit reads as it being carried away by
+     the same scroll that brought it, which is what is actually happening.
 
-     IT PEAKS EARLY AND LEAVES SLOWLY: full at 30% of the passage, back
-     down by 100%. A symmetric bloom reads as a pulse, which is a
-     heartbeat and belongs to no idea here. An asymmetric one — arrive,
-     hold, recede — reads as something approaching and passing.
+     IT HOLDS STILL FROM 32 TO 66 PER CENT, and that middle third is the
+     whole design. It is exactly the window in which the movement is
+     centred and being read, and nothing moves during it. Every draft that
+     has ever felt fidgety failed this test.
 
-     THE --prog DRIFT IS CARRIED THROUGH EVERY KEYFRAME, so the bed's own
-     parallax against the page survives the bloom instead of being
-     overwritten by it. */
-  @supports (animation-timeline: view()) {
+     THE BODY LIGHT RUNS ON THE SAME CLOCK and is fully lit through the
+     same still middle, so the paragraph is at its most readable at the
+     moment it is most read, and dims again only once it is leaving. */
+  @supports (animation-timeline: view()) and ((-webkit-background-clip: text) or (background-clip: text)) {
     @media (prefers-reduced-motion: no-preference) {
-      .rg { timeline-scope: --t-bloom; }
-      .sec--works { view-timeline: --t-bloom block; }
-      .ms__bed {
-        animation: bloom linear both;
-        animation-timeline: --t-bloom;
+      .mvt { view-timeline: --t-relay block; }
+      .fr__t, .s__stmt, .s__p, .s__lede {
+        animation: relay linear both;
+        animation-timeline: --t-relay;
         animation-range: cover 0% cover 100%;
       }
-      @keyframes bloom {
-        0%   { transform: translate3d(0, calc(var(--prog, 0) * -8%), 0) scale(1.06); }
-        30%  { transform: translate3d(0, calc(var(--prog, 0) * -8%), 0) scale(1.30); }
-        100% { transform: translate3d(0, calc(var(--prog, 0) * -8%), 0) scale(1.06); }
+      @keyframes relay {
+        0%   { transform: translateY(26px);  opacity: 0.08; }
+        32%  { transform: translateY(0);     opacity: 1; }
+        66%  { transform: translateY(0);     opacity: 1; }
+        100% { transform: translateY(-52px); opacity: 0.06; }
+      }
+
+      /* THE RUNNING TEXT, LIT BY A GRADIENT CLIPPED TO ITSELF. */
+      .s__p p, .s__lede p {
+        background-image: linear-gradient(180deg, var(--bone-dim) 0%, var(--bone) 46%, var(--bone) 54%, var(--bone-dim) 100%);
+        background-size: 100% 300%;
+        background-repeat: no-repeat;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: bodylight linear both;
+        animation-timeline: view();
+        animation-range: cover 0% cover 100%;
+      }
+      .s__p p .w { color: inherit; -webkit-text-fill-color: inherit; }
+      @keyframes bodylight {
+        from { background-position: 0% 0%; }
+        to   { background-position: 0% 100%; }
       }
     }
   }

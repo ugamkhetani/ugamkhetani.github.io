@@ -1,63 +1,75 @@
 ---
 /**
- * THE WHOLE LIVE HOME PAGE — DRAFT E, LIGHT
+ * THE WHOLE LIVE HOME PAGE, TOLD IN TYPE — DRAFT F, COUNTER
  *
- * Built on 2026-09-08 from the reference film Ugam sent
- * (cosmos_1909389443.mp4, 18s, 1080x1350, 30fps). Nothing here is on the
- * live site.
+ * Built 2026-09-09 from the reference film (cosmos_1909389443.mp4, 18s,
+ * 1080x1350, 30fps), this time reading it for what it does to TEXT.
+ * Nothing here is on the live site.
  *
- * ══ WHAT IS ACTUALLY IN THE REFERENCE ══════════════════════════════
- * Sixteen frames pulled across the full 18 seconds, then ten more across
- * the 4.6–7.6s passage, because that is where its signature move lives.
- * What it does, in order:
+ * ══ WHAT THE REFERENCE DOES TO TYPE ════════════════════════════════
+ * Frames pulled through AVFoundation at 4.0–5.4s and 7.6–9.4s, where its
+ * headlines change state. Six things, and they are all about text:
  *
- *   0.0–4.5s   rounded image cards of wildly different sizes floating over
- *              a giant outlined wordmark — some passing IN FRONT of the
- *              letterforms, some behind. One card grows steadily from a
- *              thumbnail to the largest thing on screen.
- *   4.6–7.6s   a train of overlapping rounded cards travels across the
- *              screen and passes OVER a huge sentence-case headline,
- *              swallowing whole words as it goes. The headline itself is
- *              lit left to right — white leading, grey trailing.
- *   8–18s      a full-bleed wall of cards fills the window, rows sliding
- *              horizontally in alternating directions, never stopping,
- *              with a fixed headline over it and a heavy vignette below.
+ *   · THE HEADLINE IS THREE STACKED LINES, sentence case, enormous, and
+ *     the middle line is ITALIC where the others are roman. Revolution /
+ *     Product / Visualization.
+ *   · IT RE-SETS BETWEEN STATES. At 5s it is one giant line running off
+ *     both edges; by 8s it has shrunk and re-wrapped into three. The type
+ *     is not revealed, it is re-typeset.
+ *   · IT IS LIT LEFT TO RIGHT. White leading, grey trailing, the boundary
+ *     travelling through the word — not a fade, a light crossing it.
+ *   · CARDS PASS IN FRONT OF IT and swallow whole words, then give them
+ *     back. The type is occluded rather than hidden.
+ *   · OUTGOING TEXT LIFTS AND LEAVES upward while the next state arrives
+ *     underneath — at 8.6s the previous paragraph is halfway off the top.
+ *   · SMALL MONO LABELS HOLD STILL throughout, in clusters, as the one
+ *     thing that never moves.
  *
- * ITS WHOLE VOCABULARY IS ONE OBJECT: a rounded rectangle with a picture
- * in it, at every scale from thumbnail to full bleed, at several depths,
- * always moving. Colour is near-black and warm. Type is huge, tight and
- * sentence case.
+ * ══ WHY THESE SIX ══════════════════════════════════════════════════
+ * Every draft before this animated headings and left the running text
+ * alone — the body has never moved on this page. All six below animate it,
+ * and each takes one of the six behaviours above as its whole idea.
  *
- * ══ WHY THAT LANDS ON THIS SITE ════════════════════════════════════
- * This page already owns both card systems the reference is built from:
- * thirty frames of the catalogue fixed behind the whole document, and a
- * horizontal conveyor of sixteen works. The reference is close to what is
- * already here, played much louder. So none of these six invent a new
- * object — they take the two that exist and give them the reference's
- * behaviour.
+ * THE HEADING AND THE WRITING COME FROM OPPOSITE SIDES AND MEET. The movement
+ * title slides in from the left while its paragraph slides in from the
+ * right, and both arrive at true together — the two halves of a spread
+ * closing.
  *
- * THE REFERENCE'S HEADLINE TREATMENT. Look at the word Revolutionizing at
- * five seconds: the first half is white and the tail is grey, and the
- * boundary travels through the word as it arrives. The type is lit left to
- * right rather than faded in.
+ * It is the reference's wall read at the scale of a sentence: its rows run
+ * in alternating directions, and that opposition is what stops the wall
+ * reading as one sheet sliding. Applied to type it does the same thing — a
+ * page whose parts arrive from different places reads as assembled rather
+ * than as delivered.
  *
- * This page already lights its body copy word by word as you read. This is
- * that idea moved up to the titles, continuously instead of in steps —
- * the one treatment in the reference that costs no geometry at all.
+ * ══ HOW THE BODY IS ANIMATED WITHOUT TOUCHING THE MARKUP ═══════════
+ * The paragraphs are already 242 word spans, and animating 242 elements is
+ * how you undo a day spent making this page smooth. So the body is lit by
+ * a gradient painted behind the paragraph and clipped to its letterforms —
+ * one element, one property, and the words light individually because the
+ * gradient crosses them one at a time.
+ *
+ * BOTH ENDS STAY READABLE. Every sweep runs between --bone-dim, the site's
+ * own body colour at 14:1 on this ground, and --bone at 19:1. There is no
+ * point in any of these where the running text is harder to read than it
+ * is on the live page — which the reference cannot say, since its grey
+ * tail sits at roughly half the contrast of its white head.
+ *
+ * AND THE TRAVEL IS ALWAYS 0 TO 100 PER CENT. A gradient at 300 per cent
+ * with background-repeat: no-repeat slides off the block outside that
+ * range, and text clipped to a background that is not there is text that
+ * is not there — invisible on the way past and fine at rest, which is the
+ * kind of bug a screenshot never catches.
  *
  * ══ THE RULES ══════════════════════════════════════════════════════
- * NO CONTENT AND NO LAYOUT CHANGES. Not a word of copy, not a box, not a
- * size. Only transform, opacity, filter, clip-path and background-position
- * are animated. Verified: document height 15948 and all six movement
- * offsets identical to the live page, fonts settled.
+ * No content, no layout. Only transform, opacity, clip-path and
+ * background-position. Verified: document height 15948 and all six
+ * movement offsets identical to the live page, fonts settled.
+ * Zero JavaScript — scroll-driven CSS on view() timelines, run on the
+ * compositor rather than the main thread.
+ * Everything inside @supports and prefers-reduced-motion.
  *
- * ZERO JAVASCRIPT. Scroll-driven CSS on view() and scroll() timelines, run
- * on the compositor rather than the main thread.
- *
- * IT DEGRADES TO TODAY, inside @supports and prefers-reduced-motion.
- *
- * A COPY OF src/pages/index.astro, NOT A REPLICA — byte for byte as of
- * f9cfc0e, with two mechanical edits and one appended <style> block.
+ * A copy of src/pages/index.astro byte for byte as of f9cfc0e, with two
+ * mechanical edits and one appended <style> block.
  */
 /**
  * THE SITE, AS ONE PAGE.
@@ -237,7 +249,7 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
 ---
 
 <Base
-  title="Home, from the reference — draft E · Light"
+  title="Home in type — draft F · Counter"
   description="Selected works across film, brand and music. Original score for film, OTT and series; sonic identity for brands; campaign audio authored end to end."
   intro
 >
@@ -2230,44 +2242,63 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
 </script>
 
 <style>
-  /* ══ E · LIGHT ══════════════════════════════════════════════════
-     THE TYPE IS ITS OWN MASK. A three-stop gradient is painted behind each
-     title and clipped to the letterforms, then slid through as the title
-     crosses the screen. Nothing moves; only what is inside the strokes.
+  /* ══ F · COUNTER ════════════════════════════════════════════════
+     34px AND 34px, OPPOSITE SIGNS. Equal distances matter more than the
+     distance: unequal travel makes one side look like the subject and the
+     other like a straggler, and the whole image here is two things of
+     equal weight closing on each other.
 
-     0% TO 100%, WHICH IS THE ONLY SAFE TRAVEL. The gradient is 300% wide
-     with background-repeat: no-repeat, so outside that range it slides off
-     the box and the glyphs have nothing behind them — clipped to a
-     background that is not there, the title would simply be invisible on
-     the way past. Between 0 and 100 the offset runs from 0 to -2x the box
-     width and the box is always covered.
+     SIDEWAYS ONLY, NO VERTICAL COMPONENT. Horizontal travel on a
+     left-aligned column is the one direction that cannot be confused with
+     scrolling — everything on this page already moves up. It also means
+     the first line of the paragraph stays on its own baseline the whole
+     way in, so nothing appears to jump lines.
 
-     BOTH ENDS ARE READABLE. The trailing stop is --bone-dim at 14:1 on
-     this ground and the leading stop is --bone at 19:1. There is no point
-     in the sweep where a title is harder to read than it is on the live
-     page — which the reference cannot claim, since its grey tail sits at
-     about half the contrast of its white head.
+     THE STATEMENT IS LEFT OUT ON PURPOSE. It sits between the title and
+     the body and would have to pick a side; giving it either makes the
+     trio read as two against one. It arrives on the light alone, which
+     makes it the still point the other two close around.
 
-     THE STATEMENT TAKES THE SAME SWEEP A BEAT LATER, so the movement's two
-     largest pieces of type are lit in sequence rather than together. */
+     THE BODY LIGHT SWEEPS RIGHT TO LEFT, against the paragraph's own
+     travel, so the light crosses the words as they arrive rather than
+     riding along with them. */
   @supports (animation-timeline: view()) and ((-webkit-background-clip: text) or (background-clip: text)) {
     @media (prefers-reduced-motion: no-preference) {
-      .fr__t, .s__stmt {
-        background-image: linear-gradient(90deg, var(--bone) 0%, var(--bone) 34%, var(--bone-dim) 62%, var(--bone-dim) 100%);
+      .fr__t {
+        animation: from-left linear both;
+        animation-timeline: view();
+        animation-range: cover 2% cover 34%;
+      }
+      @keyframes from-left {
+        from { transform: translateX(-34px); opacity: 0.1; }
+        to   { transform: translateX(0);     opacity: 1; }
+      }
+      .s__p, .s__lede {
+        animation: from-right linear both;
+        animation-timeline: view();
+        animation-range: cover 12% cover 46%;
+      }
+      @keyframes from-right {
+        from { transform: translateX(34px); opacity: 0.1; }
+        to   { transform: translateX(0);    opacity: 1; }
+      }
+
+      /* THE RUNNING TEXT, LIT BY A GRADIENT CLIPPED TO ITSELF. */
+      .s__p p, .s__lede p {
+        background-image: linear-gradient(90deg, var(--bone-dim) 0%, var(--bone) 46%, var(--bone) 54%, var(--bone-dim) 100%);
         background-size: 300% 100%;
         background-repeat: no-repeat;
         -webkit-background-clip: text;
         background-clip: text;
         -webkit-text-fill-color: transparent;
-        animation: relight linear both;
+        animation: bodylight linear both;
         animation-timeline: view();
+        animation-range: cover 14% cover 50%;
       }
-      .fr__t   { animation-range: cover 0% cover 34%; }
-      .s__stmt { animation-range: cover 8% cover 44%; }
-      .s__stmt .s__mark { -webkit-text-fill-color: inherit; }
-      @keyframes relight {
-        from { background-position: 100% 0%; }
-        to   { background-position: 0% 0%; }
+      .s__p p .w { color: inherit; -webkit-text-fill-color: inherit; }
+      @keyframes bodylight {
+        from { background-position: 0% 0%; }
+        to   { background-position: 100% 0%; }
       }
     }
   }

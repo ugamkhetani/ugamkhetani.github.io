@@ -1,64 +1,74 @@
 ---
 /**
- * THE WHOLE LIVE HOME PAGE — DRAFT C, TRAIN
+ * THE WHOLE LIVE HOME PAGE, TOLD IN TYPE — DRAFT B, UNCOVER
  *
- * Built on 2026-09-08 from the reference film Ugam sent
- * (cosmos_1909389443.mp4, 18s, 1080x1350, 30fps). Nothing here is on the
- * live site.
+ * Built 2026-09-09 from the reference film (cosmos_1909389443.mp4, 18s,
+ * 1080x1350, 30fps), this time reading it for what it does to TEXT.
+ * Nothing here is on the live site.
  *
- * ══ WHAT IS ACTUALLY IN THE REFERENCE ══════════════════════════════
- * Sixteen frames pulled across the full 18 seconds, then ten more across
- * the 4.6–7.6s passage, because that is where its signature move lives.
- * What it does, in order:
+ * ══ WHAT THE REFERENCE DOES TO TYPE ════════════════════════════════
+ * Frames pulled through AVFoundation at 4.0–5.4s and 7.6–9.4s, where its
+ * headlines change state. Six things, and they are all about text:
  *
- *   0.0–4.5s   rounded image cards of wildly different sizes floating over
- *              a giant outlined wordmark — some passing IN FRONT of the
- *              letterforms, some behind. One card grows steadily from a
- *              thumbnail to the largest thing on screen.
- *   4.6–7.6s   a train of overlapping rounded cards travels across the
- *              screen and passes OVER a huge sentence-case headline,
- *              swallowing whole words as it goes. The headline itself is
- *              lit left to right — white leading, grey trailing.
- *   8–18s      a full-bleed wall of cards fills the window, rows sliding
- *              horizontally in alternating directions, never stopping,
- *              with a fixed headline over it and a heavy vignette below.
+ *   · THE HEADLINE IS THREE STACKED LINES, sentence case, enormous, and
+ *     the middle line is ITALIC where the others are roman. Revolution /
+ *     Product / Visualization.
+ *   · IT RE-SETS BETWEEN STATES. At 5s it is one giant line running off
+ *     both edges; by 8s it has shrunk and re-wrapped into three. The type
+ *     is not revealed, it is re-typeset.
+ *   · IT IS LIT LEFT TO RIGHT. White leading, grey trailing, the boundary
+ *     travelling through the word — not a fade, a light crossing it.
+ *   · CARDS PASS IN FRONT OF IT and swallow whole words, then give them
+ *     back. The type is occluded rather than hidden.
+ *   · OUTGOING TEXT LIFTS AND LEAVES upward while the next state arrives
+ *     underneath — at 8.6s the previous paragraph is halfway off the top.
+ *   · SMALL MONO LABELS HOLD STILL throughout, in clusters, as the one
+ *     thing that never moves.
  *
- * ITS WHOLE VOCABULARY IS ONE OBJECT: a rounded rectangle with a picture
- * in it, at every scale from thumbnail to full bleed, at several depths,
- * always moving. Colour is near-black and warm. Type is huge, tight and
- * sentence case.
+ * ══ WHY THESE SIX ══════════════════════════════════════════════════
+ * Every draft before this animated headings and left the running text
+ * alone — the body has never moved on this page. All six below animate it,
+ * and each takes one of the six behaviours above as its whole idea.
  *
- * ══ WHY THAT LANDS ON THIS SITE ════════════════════════════════════
- * This page already owns both card systems the reference is built from:
- * thirty frames of the catalogue fixed behind the whole document, and a
- * horizontal conveyor of sixteen works. The reference is close to what is
- * already here, played much louder. So none of these six invent a new
- * object — they take the two that exist and give them the reference's
- * behaviour.
+ * THE TEXT IS UNCOVERED BY THE WALL, NOT REVEALED BY A WIPE. The thirty
+ * frames behind the document come forward, cross in front of the type, and
+ * the words are simply there in their wake — headline first, then the
+ * paragraph as the last cards clear it.
  *
- * THE REFERENCE'S SIGNATURE MOVE, AT 4.6 TO 7.6 SECONDS. A train of
- * overlapping cards travels across the screen and passes IN FRONT OF a
- * huge headline, swallowing whole words as it goes, then clears and gives
- * them back.
+ * This is the reference's signature passage at 4.6 to 7.6 seconds, where a
+ * train of cards swallows whole words and gives them back. Nothing else in
+ * eighteen drafts has let one part of the page hide another; here the
+ * catalogue is what draws the curtain on the writing.
  *
- * The conveyor is already a horizontal train of sixteen cards. What it has
- * never done is leave its own band and cross the type — and that occlusion
- * is the entire effect in the reference. It is the boldest of the six by a
- * distance, and the only one that changes what is in front of what.
+ * ══ HOW THE BODY IS ANIMATED WITHOUT TOUCHING THE MARKUP ═══════════
+ * The paragraphs are already 242 word spans, and animating 242 elements is
+ * how you undo a day spent making this page smooth. So the body is lit by
+ * a gradient painted behind the paragraph and clipped to its letterforms —
+ * one element, one property, and the words light individually because the
+ * gradient crosses them one at a time.
+ *
+ * BOTH ENDS STAY READABLE. Every sweep runs between --bone-dim, the site's
+ * own body colour at 14:1 on this ground, and --bone at 19:1. There is no
+ * point in any of these where the running text is harder to read than it
+ * is on the live page — which the reference cannot say, since its grey
+ * tail sits at roughly half the contrast of its white head.
+ *
+ * AND THE TRAVEL IS ALWAYS 0 TO 100 PER CENT. A gradient at 300 per cent
+ * with background-repeat: no-repeat slides off the block outside that
+ * range, and text clipped to a background that is not there is text that
+ * is not there — invisible on the way past and fine at rest, which is the
+ * kind of bug a screenshot never catches.
  *
  * ══ THE RULES ══════════════════════════════════════════════════════
- * NO CONTENT AND NO LAYOUT CHANGES. Not a word of copy, not a box, not a
- * size. Only transform, opacity, filter, clip-path and background-position
- * are animated. Verified: document height 15948 and all six movement
- * offsets identical to the live page, fonts settled.
+ * No content, no layout. Only transform, opacity, clip-path and
+ * background-position. Verified: document height 15948 and all six
+ * movement offsets identical to the live page, fonts settled.
+ * Zero JavaScript — scroll-driven CSS on view() timelines, run on the
+ * compositor rather than the main thread.
+ * Everything inside @supports and prefers-reduced-motion.
  *
- * ZERO JAVASCRIPT. Scroll-driven CSS on view() and scroll() timelines, run
- * on the compositor rather than the main thread.
- *
- * IT DEGRADES TO TODAY, inside @supports and prefers-reduced-motion.
- *
- * A COPY OF src/pages/index.astro, NOT A REPLICA — byte for byte as of
- * f9cfc0e, with two mechanical edits and one appended <style> block.
+ * A copy of src/pages/index.astro byte for byte as of f9cfc0e, with two
+ * mechanical edits and one appended <style> block.
  */
 /**
  * THE SITE, AS ONE PAGE.
@@ -238,7 +248,7 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
 ---
 
 <Base
-  title="Home, from the reference — draft C · Train"
+  title="Home in type — draft B · Uncover"
   description="Selected works across film, brand and music. Original score for film, OTT and series; sonic identity for brands; campaign audio authored end to end."
   intro
 >
@@ -2231,47 +2241,71 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
 </script>
 
 <style>
-  /* ══ C · TRAIN ══════════════════════════════════════════════════
-     THE BED IS LIFTED IN FRONT OF THE PAGE AS A MOVEMENT ARRIVES, and put
-     back. That is the whole mechanism, and it is one property: the wall
-     goes from z-index 0 to z-index 3, above the movements at 2, for the
-     window in which a section is landing.
+  /* ══ B · UNCOVER ════════════════════════════════════════════════
+     THE WALL IS LIFTED IN FRONT OF THE PAGE AND PUT BACK. One property:
+     .ms__ground goes from z-index 0 to 3, above the movements at 2, for
+     the window in which a section lands. Stepped, not interpolated — a
+     card is either in front of the type or behind it, and the reference
+     has no halfway either.
 
-     z-index IS STEPPED, NOT INTERPOLATED, and that is correct rather than
-     a compromise. A card is either in front of the type or behind it;
-     there is no halfway, and the reference has no halfway either. The
-     steps() timing makes the change land on a single frame.
+     THE TYPE IS BEHIND IT AND ARRIVES ANYWAY. The heading and the body
+     both run their own clip in the same window, so as the last cards
+     leave the frame the words are already whole underneath. The wall does
+     not reveal them mechanically; it just happens to be what was in the
+     way.
 
-     IT PASSES, IT DOES NOT PARK. The lift lasts a fifth of the section's
-     passage and the wall slides 22% while it is up, so the cards cross
-     the headline and are gone. A wall that came forward and stayed would
-     simply be a page with its background in front of its text.
-
-     WHAT PROTECTS THE READING. The lift ends at 26% of the range, long
-     before the panel is centred and read; the tiles keep brightness(0.30),
-     so even at their brightest the type over them is at 8.4:1 while they
-     pass; and it is only ever the TITLE that is crossed, never the running
-     text, because the panel sits below the band the bed occupies. */
-  @supports (animation-timeline: view()) {
+     BRIGHTNESS IS UNTOUCHED, so while the wall is in front of the type it
+     is still capped at brightness(0.30) and the corner labels over it are
+     still at 5.98:1. A curtain you cannot read through would be a
+     different and worse idea. */
+  @supports (animation-timeline: view()) and ((-webkit-background-clip: text) or (background-clip: text)) {
     @media (prefers-reduced-motion: no-preference) {
-      .rg { timeline-scope: --t-cross; }
-      .mvt--a2:nth-of-type(2) { view-timeline: --t-cross block; }
+      .rg { timeline-scope: --t-pass; }
+      .mvt--a2:nth-of-type(2) { view-timeline: --t-pass block; }
 
       .ms__ground {
-        animation: lift steps(1, end) both;
-        animation-timeline: --t-cross;
-        animation-range: cover 6% cover 26%;
+        animation: infront steps(1, end) both;
+        animation-timeline: --t-pass;
+        animation-range: cover 4% cover 30%;
       }
-      @keyframes lift { from { z-index: 3; } to { z-index: 0; } }
+      @keyframes infront { from { z-index: 3; } to { z-index: 0; } }
 
       .ms__bed {
-        animation: cross linear both;
-        animation-timeline: --t-cross;
-        animation-range: cover 0% cover 34%;
+        animation: sweepby linear both;
+        animation-timeline: --t-pass;
+        animation-range: cover 0% cover 38%;
       }
-      @keyframes cross {
+      @keyframes sweepby {
         from { transform: translate3d(-11%, calc(var(--prog, 0) * -8%), 0) scale(1.06); }
         to   { transform: translate3d(11%, calc(var(--prog, 0) * -8%), 0) scale(1.06); }
+      }
+
+      .fr__t {
+        animation: behind linear both;
+        animation-timeline: view();
+        animation-range: cover 6% cover 30%;
+      }
+      @keyframes behind {
+        from { clip-path: inset(0 100% 0 0); }
+        to   { clip-path: inset(0 0 0 0); }
+      }
+
+      /* THE RUNNING TEXT, LIT BY A GRADIENT CLIPPED TO ITSELF. */
+      .s__p p, .s__lede p {
+        background-image: linear-gradient(90deg, var(--bone-dim) 0%, var(--bone) 46%, var(--bone) 54%, var(--bone-dim) 100%);
+        background-size: 300% 100%;
+        background-repeat: no-repeat;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: bodylight linear both;
+        animation-timeline: view();
+        animation-range: cover 18% cover 52%;
+      }
+      .s__p p .w { color: inherit; -webkit-text-fill-color: inherit; }
+      @keyframes bodylight {
+        from { background-position: 100% 0%; }
+        to   { background-position: 0% 0%; }
       }
     }
   }

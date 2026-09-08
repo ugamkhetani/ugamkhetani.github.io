@@ -1,67 +1,74 @@
 ---
 /**
- * THE WHOLE LIVE HOME PAGE — DRAFT B, FLOAT
+ * THE WHOLE LIVE HOME PAGE, TOLD IN TYPE — DRAFT A, TYPESET
  *
- * Built on 2026-09-08 from the reference film Ugam sent
- * (cosmos_1909389443.mp4, 18s, 1080x1350, 30fps). Nothing here is on the
- * live site.
+ * Built 2026-09-09 from the reference film (cosmos_1909389443.mp4, 18s,
+ * 1080x1350, 30fps), this time reading it for what it does to TEXT.
+ * Nothing here is on the live site.
  *
- * ══ WHAT IS ACTUALLY IN THE REFERENCE ══════════════════════════════
- * Sixteen frames pulled across the full 18 seconds, then ten more across
- * the 4.6–7.6s passage, because that is where its signature move lives.
- * What it does, in order:
+ * ══ WHAT THE REFERENCE DOES TO TYPE ════════════════════════════════
+ * Frames pulled through AVFoundation at 4.0–5.4s and 7.6–9.4s, where its
+ * headlines change state. Six things, and they are all about text:
  *
- *   0.0–4.5s   rounded image cards of wildly different sizes floating over
- *              a giant outlined wordmark — some passing IN FRONT of the
- *              letterforms, some behind. One card grows steadily from a
- *              thumbnail to the largest thing on screen.
- *   4.6–7.6s   a train of overlapping rounded cards travels across the
- *              screen and passes OVER a huge sentence-case headline,
- *              swallowing whole words as it goes. The headline itself is
- *              lit left to right — white leading, grey trailing.
- *   8–18s      a full-bleed wall of cards fills the window, rows sliding
- *              horizontally in alternating directions, never stopping,
- *              with a fixed headline over it and a heavy vignette below.
+ *   · THE HEADLINE IS THREE STACKED LINES, sentence case, enormous, and
+ *     the middle line is ITALIC where the others are roman. Revolution /
+ *     Product / Visualization.
+ *   · IT RE-SETS BETWEEN STATES. At 5s it is one giant line running off
+ *     both edges; by 8s it has shrunk and re-wrapped into three. The type
+ *     is not revealed, it is re-typeset.
+ *   · IT IS LIT LEFT TO RIGHT. White leading, grey trailing, the boundary
+ *     travelling through the word — not a fade, a light crossing it.
+ *   · CARDS PASS IN FRONT OF IT and swallow whole words, then give them
+ *     back. The type is occluded rather than hidden.
+ *   · OUTGOING TEXT LIFTS AND LEAVES upward while the next state arrives
+ *     underneath — at 8.6s the previous paragraph is halfway off the top.
+ *   · SMALL MONO LABELS HOLD STILL throughout, in clusters, as the one
+ *     thing that never moves.
  *
- * ITS WHOLE VOCABULARY IS ONE OBJECT: a rounded rectangle with a picture
- * in it, at every scale from thumbnail to full bleed, at several depths,
- * always moving. Colour is near-black and warm. Type is huge, tight and
- * sentence case.
+ * ══ WHY THESE SIX ══════════════════════════════════════════════════
+ * Every draft before this animated headings and left the running text
+ * alone — the body has never moved on this page. All six below animate it,
+ * and each takes one of the six behaviours above as its whole idea.
  *
- * ══ WHY THAT LANDS ON THIS SITE ════════════════════════════════════
- * This page already owns both card systems the reference is built from:
- * thirty frames of the catalogue fixed behind the whole document, and a
- * horizontal conveyor of sixteen works. The reference is close to what is
- * already here, played much louder. So none of these six invent a new
- * object — they take the two that exist and give them the reference's
- * behaviour.
+ * THE PAGE SETS ITSELF, LINE BY LINE. Every heading line rises out of its own
+ * slot in sequence, and the paragraph beneath it is then lit from the top
+ * down, one line of words at a time — the whole movement composed in front
+ * of you rather than faded in.
  *
- * THE REFERENCE'S FIRST FIVE SECONDS. Cards at wildly different sizes drift
- * over a giant wordmark at what read as different distances from the
- * camera — one large and close, one small and far, none of them agreeing
- * with each other.
+ * It is the reference's stacked headline read as an instruction: three
+ * lines that arrive as three lines, not as one block. The body then
+ * continues the same sentence instead of appearing all at once, which is
+ * what turns an arrival into something unfolding.
  *
- * The bed today is a grid: thirty tiles, one size, one plane. This gives
- * every tile its own scale, its own drift and its own clock, so the same
- * thirty frames stop reading as a grid and start reading as a room with
- * things floating in it.
+ * ══ HOW THE BODY IS ANIMATED WITHOUT TOUCHING THE MARKUP ═══════════
+ * The paragraphs are already 242 word spans, and animating 242 elements is
+ * how you undo a day spent making this page smooth. So the body is lit by
+ * a gradient painted behind the paragraph and clipped to its letterforms —
+ * one element, one property, and the words light individually because the
+ * gradient crosses them one at a time.
+ *
+ * BOTH ENDS STAY READABLE. Every sweep runs between --bone-dim, the site's
+ * own body colour at 14:1 on this ground, and --bone at 19:1. There is no
+ * point in any of these where the running text is harder to read than it
+ * is on the live page — which the reference cannot say, since its grey
+ * tail sits at roughly half the contrast of its white head.
+ *
+ * AND THE TRAVEL IS ALWAYS 0 TO 100 PER CENT. A gradient at 300 per cent
+ * with background-repeat: no-repeat slides off the block outside that
+ * range, and text clipped to a background that is not there is text that
+ * is not there — invisible on the way past and fine at rest, which is the
+ * kind of bug a screenshot never catches.
  *
  * ══ THE RULES ══════════════════════════════════════════════════════
- * NO CONTENT AND NO LAYOUT CHANGES. Not a word of copy, not a box, not a
- * size. Only transform, opacity, filter, clip-path and background-position
- * are animated. Verified: document height 15948 and all six movement
- * offsets identical to the live page, fonts settled.
+ * No content, no layout. Only transform, opacity, clip-path and
+ * background-position. Verified: document height 15948 and all six
+ * movement offsets identical to the live page, fonts settled.
+ * Zero JavaScript — scroll-driven CSS on view() timelines, run on the
+ * compositor rather than the main thread.
+ * Everything inside @supports and prefers-reduced-motion.
  *
- * ZERO JAVASCRIPT, AND IT NEVER STOPS — which is the point, because the
- * reference never stops either. It is transform and opacity only, which
- * Chrome keeps entirely on the compositor: no main-thread cost at any
- * scroll speed. It does cost GPU while the tab is open, which is a
- * battery question rather than a smoothness one.
- *
- * IT DEGRADES TO TODAY, inside @supports and prefers-reduced-motion.
- *
- * A COPY OF src/pages/index.astro, NOT A REPLICA — byte for byte as of
- * f9cfc0e, with two mechanical edits and one appended <style> block.
+ * A copy of src/pages/index.astro byte for byte as of f9cfc0e, with two
+ * mechanical edits and one appended <style> block.
  */
 /**
  * THE SITE, AS ONE PAGE.
@@ -241,7 +248,7 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
 ---
 
 <Base
-  title="Home, from the reference — draft B · Float"
+  title="Home in type — draft A · Typeset"
   description="Selected works across film, brand and music. Original score for film, OTT and series; sonic identity for brands; campaign audio authored end to end."
   intro
 >
@@ -2234,37 +2241,63 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
 </script>
 
 <style>
-  /* ══ B · FLOAT ══════════════════════════════════════════════════
-     FIVE CLASSES OF TILE, ASSIGNED BY nth-child(5n+k), ACROSS SIX COLUMNS.
-     Five into six never lines up, so the classes land on a diagonal and no
-     two neighbours in a row share a scale — which is what stops the grid
-     re-forming. It is the cheapest possible way to get an irregular field
-     out of a regular one: five rules, no per-element markup.
+  /* ══ A · TYPESET ════════════════════════════════════════════════
+     THE MASKS ARE ALREADY IN THE MARKUP. Every heading here is a .line box
+     with overflow hidden and a .line__in inside it — the opening already
+     uses them and the rest of the page never has. The travel is 100 per
+     cent, so a line is entirely behind its own edge and then entirely
+     past it: no half-drawn type at any point.
 
-     SCALES 1.04 TO 1.16, NOT 0.6 TO 1.4. The reference can put a thumbnail
-     next to a full-bleed card because its cards are the content. Here they
-     are the ground behind running text, and a tile that shrinks opens a
-     gap in the wall — the bed has a gap of clamp(5px, 0.8vw, 13px) and
-     nothing behind it. So every tile grows, none shrinks, and the range is
-     the widest that keeps the gutters closed.
+     EACH STAGE RUNS ON ITS OWN PASSAGE, WHICH IS THE POINT HERE AND WOULD
+     BE A BUG IN D. view() gives every element a timeline from its own
+     crossing of the screen, and since the title sits above the statement
+     which sits above the body, the three are already offset in the right
+     order by where they are on the page. The ranges — 0–26 per cent,
+     14–40, 26–58 — then bias each one further down its own passage, so
+     the sequence is the sum of position and range rather than a queue
+     timed from one clock. Setting, not scheduling.
 
-     THE DRIFT IS VERTICAL AND SMALL. Sideways drift at these scales opens
-     the same gaps; up and down, with the bed's own -10% overhang, does
-     not. 10 to 30px over 17 to 33 seconds — slow enough that you never
-     catch a tile moving, only notice the wall is not where it was. */
-  @media (prefers-reduced-motion: no-preference) {
-    .ms__tile {
-      animation: drift 21s ease-in-out infinite alternate;
-      will-change: transform;
-    }
-    .ms__tile:nth-child(5n + 1) { animation-duration: 17s; animation-delay: -0s; --lift: 10px; --grow: 1.10; }
-    .ms__tile:nth-child(5n + 2) { animation-duration: 21s; animation-delay: -3s; --lift: 15px; --grow: 1.04; }
-    .ms__tile:nth-child(5n + 3) { animation-duration: 25s; animation-delay: -6s; --lift: 20px; --grow: 1.16; }
-    .ms__tile:nth-child(5n + 4) { animation-duration: 29s; animation-delay: -9s; --lift: 25px; --grow: 1.07; }
-    .ms__tile:nth-child(5n + 5) { animation-duration: 33s; animation-delay: -12s; --lift: 30px; --grow: 1.13; }
-    @keyframes drift {
-      from { transform: translate3d(0, 0, 0) scale(1); }
-      to   { transform: translate3d(0, calc(var(--lift, 16px) * -1), 0) scale(var(--grow, 1.08)); }
+     THE BODY IS LIT TOP TO BOTTOM, not left to right, because it is a
+     column of short lines rather than one long one — a vertical band
+     crosses four lines at once and reads as a paragraph filling in, where
+     a horizontal one would light the same word on every line
+     simultaneously and read as a glitch. */
+  @supports (animation-timeline: view()) and ((-webkit-background-clip: text) or (background-clip: text)) {
+    @media (prefers-reduced-motion: no-preference) {
+      .mvt .line__in {
+        animation: setline linear both;
+        animation-timeline: view();
+        animation-range: cover 0% cover 26%;
+      }
+      @keyframes setline { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+      .s__stmt {
+        animation: setblock linear both;
+        animation-timeline: view();
+        animation-range: cover 14% cover 40%;
+      }
+      @keyframes setblock {
+        from { clip-path: inset(0 0 100% 0); transform: translateY(18px); }
+        to   { clip-path: inset(0 0 0 0);    transform: translateY(0); }
+      }
+
+      /* THE RUNNING TEXT, LIT BY A GRADIENT CLIPPED TO ITSELF. */
+      .s__p p, .s__lede p {
+        background-image: linear-gradient(180deg, var(--bone-dim) 0%, var(--bone) 46%, var(--bone) 54%, var(--bone-dim) 100%);
+        background-size: 100% 300%;
+        background-repeat: no-repeat;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: bodylight linear both;
+        animation-timeline: view();
+        animation-range: cover 26% cover 58%;
+      }
+      .s__p p .w { color: inherit; -webkit-text-fill-color: inherit; }
+      @keyframes bodylight {
+        from { background-position: 0% 0%; }
+        to   { background-position: 0% 100%; }
+      }
     }
   }
 </style>
