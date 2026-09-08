@@ -1,52 +1,64 @@
 ---
 /**
- * THE WHOLE LIVE HOME PAGE — DRAFT B, SWEEP
+ * THE WHOLE LIVE HOME PAGE — DRAFT F, CORNERS
  *
- * A third batch, asked for on 2026-09-08: start again, go further. Same rule
- * as the first two — movement only, not a word of copy, not a box, not a
- * size. Nothing here is on the live site.
+ * Built on 2026-09-08 from the reference film Ugam sent
+ * (cosmos_1909389443.mp4, 18s, 1080x1350, 30fps). Nothing here is on the
+ * live site.
  *
- * ══ WHY THESE ARE NOT MORE OF THE SAME ═════════════════════════════
- * The first twelve drafts all did the same kind of thing: take a panel or a
- * title and give it a property to travel on — focus, depth, scale, colour,
- * shear. Twelve variations on one idea.
+ * ══ WHAT IS ACTUALLY IN THE REFERENCE ══════════════════════════════
+ * Sixteen frames pulled across the full 18 seconds, then ten more across
+ * the 4.6–7.6s passage, because that is where its signature move lives.
+ * What it does, in order:
  *
- * These six start somewhere else. Two of them come from how SOUND behaves,
- * which is the one vocabulary this site has every right to and has never
- * used: an envelope with a real attack and overshoot, and a sidechain duck
- * where the arriving thing pushes everything else down. One comes from
- * PRESS: two plates out of register, converging. And three of them act on
- * the surfaces the other twelve ignored — the thirty-tile wall behind the
- * whole document, and the running text itself — instead of on five panels.
+ *   0.0–4.5s   rounded image cards of wildly different sizes floating over
+ *              a giant outlined wordmark — some passing IN FRONT of the
+ *              letterforms, some behind. One card grows steadily from a
+ *              thumbnail to the largest thing on screen.
+ *   4.6–7.6s   a train of overlapping rounded cards travels across the
+ *              screen and passes OVER a huge sentence-case headline,
+ *              swallowing whole words as it goes. The headline itself is
+ *              lit left to right — white leading, grey trailing.
+ *   8–18s      a full-bleed wall of cards fills the window, rows sliding
+ *              horizontally in alternating directions, never stopping,
+ *              with a fixed headline over it and a heavy vignette below.
  *
- * A BAND OF LIGHT TRAVELS THROUGH THE WRITING. Not word by word — a soft
- * edge moving down each paragraph, brightest at its centre, so the text
- * lights the way a beam crosses a page rather than the way a cursor moves
- * along it.
+ * ITS WHOLE VOCABULARY IS ONE OBJECT: a rounded rectangle with a picture
+ * in it, at every scale from thumbnail to full bleed, at several depths,
+ * always moving. Colour is near-black and warm. Type is huge, tight and
+ * sentence case.
  *
- * The page already has a reading light that switches words from dim to lit
- * one at a time. This replaces a switch with a gradient: the same idea,
- * continuous instead of stepped, and it is the only draft that treats the
- * body copy — the largest single surface of type on the site — as
- * something that can move at all.
+ * ══ WHY THAT LANDS ON THIS SITE ════════════════════════════════════
+ * This page already owns both card systems the reference is built from:
+ * thirty frames of the catalogue fixed behind the whole document, and a
+ * horizontal conveyor of sixteen works. The reference is close to what is
+ * already here, played much louder. So none of these six invent a new
+ * object — they take the two that exist and give them the reference's
+ * behaviour.
  *
- * ══ THE RULES THEY STILL OBEY ══════════════════════════════════════
- * NOTHING TOUCHES LAYOUT. Only transform, opacity, filter, clip-path,
- * text-shadow and background-position. Verified: document height 15948 and
- * all six movement offsets identical to the live page, fonts settled.
+ * THE REFERENCE'S ONE UNCHANGING DETAIL, MADE INTO A MOVE. Every picture in
+ * that film is a rounded rectangle — thumbnail, hero, wall tile, all of
+ * them, at a radius far larger than anything on this site. It is the thing
+ * that makes the whole reference read as one object at many sizes.
  *
- * ZERO JAVASCRIPT. Scroll-driven CSS on view() and scroll() timelines, which
- * the browser runs on the compositor rather than the main thread.
+ * So this animates the radius itself. Every frame on the page arrives as a
+ * soft-cornered card and squares up as it settles — the picture hardening
+ * into a frame. It is the only one of the six that animates a property
+ * none of the previous eighteen drafts touched.
  *
- * IT ENDS BEFORE YOU READ. Every range closes before its element reaches
- * the middle of the screen. Motion still resolving while you read is motion
- * you are fighting.
+ * ══ THE RULES ══════════════════════════════════════════════════════
+ * NO CONTENT AND NO LAYOUT CHANGES. Not a word of copy, not a box, not a
+ * size. Only transform, opacity, filter, clip-path and background-position
+ * are animated. Verified: document height 15948 and all six movement
+ * offsets identical to the live page, fonts settled.
  *
- * AND IT DEGRADES TO TODAY, inside @supports and prefers-reduced-motion.
+ * ZERO JAVASCRIPT. Scroll-driven CSS on view() and scroll() timelines, run
+ * on the compositor rather than the main thread.
  *
- * A COPY OF src/pages/index.astro, NOT A REPLICA — countdown, masthead,
- * conveyor, all six movements, bed, matte and enquiry form, byte for byte
- * as of f9cfc0e. Two mechanical edits and one appended <style> block.
+ * IT DEGRADES TO TODAY, inside @supports and prefers-reduced-motion.
+ *
+ * A COPY OF src/pages/index.astro, NOT A REPLICA — byte for byte as of
+ * f9cfc0e, with two mechanical edits and one appended <style> block.
  */
 /**
  * THE SITE, AS ONE PAGE.
@@ -226,7 +238,7 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
 ---
 
 <Base
-  title="Home, rebuilt — draft B · Sweep"
+  title="Home, from the reference — draft F · Corners"
   description="Selected works across film, brand and music. Original score for film, OTT and series; sonic identity for brands; campaign audio authored end to end."
   intro
 >
@@ -2219,63 +2231,62 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
 </script>
 
 <style>
-  /* ══ B · SWEEP ══════════════════════════════════════════════════
-     THE TEXT IS ITS OWN MASK. A three-stop gradient is painted behind each
-     paragraph and clipped to the letterforms, then the gradient is slid
-     through as the paragraph crosses the screen. Nothing moves; only what
-     is inside the strokes changes.
+  /* ══ F · CORNERS ════════════════════════════════════════════════
+     border-radius IS NOT A LAYOUT PROPERTY, which is the only reason this
+     is allowed. It changes what is painted inside the border box and never
+     the box itself, so nothing reflows and nothing moves — measured, the
+     document is the same height with it on and off.
 
-     BOTH ENDS ARE READABLE, WHICH IS THE WHOLE CONSTRAINT. The dim stop is
-     --bone-dim, the site's own body colour at 14:1 on this ground, and the
-     bright stop is --bone at 19:1. There is no state anywhere in the sweep
-     where the type is harder to read than it is on the live page today —
-     which is exactly the trap the reading light was built to avoid and the
-     reason it adds brightness rather than subtracting it.
+     THE END VALUE IS A VARIABLE, NOT `inherit`, AND THE FIRST VERSION OF
+     THIS USED inherit AND WAS WRONG. In a keyframe, inherit means the
+     PARENT's value — not the element's own resting one — so a panel would
+     have hardened to whatever its section's radius happens to be, which is
+     nothing. Each element now declares --r0 as the radius it actually has
+     and the keyframe lands on that.
 
-     THE .w SPANS HAVE TO HAND BACK THEIR COLOUR. The reading light sets
-     color on each word; a fill clipped to the paragraph cannot show
-     through a child that paints its own. Inheriting both properties lets
-     the gradient own the glyphs. It does mean this draft replaces the
-     word-by-word light rather than layering over it — two reading lights
-     on one paragraph is one too many.
+     IT ALSO STOPPED TARGETING .cel__win, WHICH DOES NOT EXIST HERE. That
+     is the stills grid on the WORK pages; the home page's card windows are
+     the conveyor's .st__win. Written down because a selector that matches
+     nothing fails silently and looks like a working draft.
 
-     300% TALL, AND THE TRAVEL IS 0% TO 100% — WHICH IS THE ONLY SAFE
-     RANGE, and the first version of this did not use it. It swept from
-     120% to -80% to get a longer throw, and with background-repeat:
-     no-repeat that pushes the gradient clean off the paragraph at both
-     ends: at 120% the bottom 40% of the block has no background behind the
-     glyphs, and at -80% none of it does. Text clipped to a background that
-     is not there is text that is not there. Nobody would have seen it in a
-     screenshot of the settled state — it fails at the START and END of the
-     range, on the way past.
+     AND THE CONVEYOR'S OWN RADIUS IS 5.5%, NOT A PIXEL VALUE. The live
+     rule says so, with a note that it was "measured off the reference" —
+     so that card was already built from a film like this one. Landing the
+     animation on 5.5% keeps it there.
 
-     Between 0% and 100% the gradient always covers the box: the offset
-     runs from 0 to -2x the block height and the band, which sits at the
-     middle of a 300% image, crosses the paragraph exactly at the halfway
-     point of the range. About a third of the block is lit at any moment
-     and both edges are soft rather than a line crossing the text. */
-  @supports (animation-timeline: view()) and ((-webkit-background-clip: text) or (background-clip: text)) {
+     28px TO THE FRAME'S OWN RADIUS. The reference sits somewhere near a
+     fifth of a card's width; on a 340px still that would be about 68px,
+     which on this site reads as a phone icon rather than a frame. 28 is
+     the largest radius that still says card rather than app, and it
+     resolves to clamp(6px, 0.7vw, 12px) on the bed and
+     clamp(10px, 1.2vw, 20px) on the panels — each element's own resting
+     value, so nothing is given a shape it does not already have.
+
+     THE SCALE UNDER IT IS 0.94, SMALL ON PURPOSE. The radius is the
+     subject; a large scale would make this a zoom with rounded corners.
+     Six per cent is enough to sell the card arriving and not enough to
+     compete with it.
+
+     THE PANELS GET IT TOO, not just the pictures. In the reference every
+     surface is the same object — that is the point of it — so a block of
+     writing arrives as a card exactly as a photograph does. */
+  @supports (animation-timeline: view()) {
     @media (prefers-reduced-motion: no-preference) {
-      .s__p p, .s__lede p {
-        background-image: linear-gradient(
-          180deg,
-          var(--bone-dim) 0%,
-          var(--bone) 50%,
-          var(--bone-dim) 100%
-        );
-        background-size: 100% 300%;
-        background-repeat: no-repeat;
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        animation: sweep linear both;
+      .ms__panel {
+        --r0: clamp(10px, 1.2vw, 20px);
+        animation: harden linear both;
         animation-timeline: view();
-        animation-range: cover 0% cover 100%;
+        animation-range: cover 2% cover 36%;
       }
-      .s__p p .w { color: inherit; -webkit-text-fill-color: inherit; }
-      @keyframes sweep {
-        from { background-position: 0% 0%; }
-        to   { background-position: 0% 100%; }
+      .is-live .wcard :global(.st__win) {
+        --r0: 5.5%;
+        animation: harden linear both;
+        animation-timeline: view();
+        animation-range: cover 6% cover 44%;
+      }
+      @keyframes harden {
+        from { border-radius: 28px; transform: scale(0.94); opacity: 0.4; }
+        to   { border-radius: var(--r0, 0px); transform: scale(1); opacity: 1; }
       }
     }
   }

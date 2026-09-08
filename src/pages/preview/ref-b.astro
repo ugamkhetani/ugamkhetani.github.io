@@ -1,49 +1,67 @@
 ---
 /**
- * THE WHOLE LIVE HOME PAGE, TOLD AS A SEQUENCE — DRAFT D, STRATA
+ * THE WHOLE LIVE HOME PAGE — DRAFT B, FLOAT
  *
- * One of six asked for on 2026-09-08: more movement, nothing else changed.
- * Not a word of copy, not a box, not a size. Nothing here is on the live
- * site.
+ * Built on 2026-09-08 from the reference film Ugam sent
+ * (cosmos_1909389443.mp4, 18s, 1080x1350, 30fps). Nothing here is on the
+ * live site.
  *
- * THREE DEPTHS, THREE SPEEDS. The wall of work sits furthest back and moves
- * least, the panels of writing sit in front of it, and the movement titles
- * sit closest and move most. Scroll and the page separates into layers
- * instead of sliding as one sheet.
+ * ══ WHAT IS ACTUALLY IN THE REFERENCE ══════════════════════════════
+ * Sixteen frames pulled across the full 18 seconds, then ten more across
+ * the 4.6–7.6s passage, because that is where its signature move lives.
+ * What it does, in order:
  *
- * The bed already drifts against the page; this is that one relationship
- * extended to everything, so the depth the opening implies is true for the
- * whole document rather than for one layer of it.
+ *   0.0–4.5s   rounded image cards of wildly different sizes floating over
+ *              a giant outlined wordmark — some passing IN FRONT of the
+ *              letterforms, some behind. One card grows steadily from a
+ *              thumbnail to the largest thing on screen.
+ *   4.6–7.6s   a train of overlapping rounded cards travels across the
+ *              screen and passes OVER a huge sentence-case headline,
+ *              swallowing whole words as it goes. The headline itself is
+ *              lit left to right — white leading, grey trailing.
+ *   8–18s      a full-bleed wall of cards fills the window, rows sliding
+ *              horizontally in alternating directions, never stopping,
+ *              with a fixed headline over it and a heavy vignette below.
  *
- * ══ THE RULE ALL SIX ARE BUILT UNDER ═══════════════════════════════
- * This page was stuttering four hours ago and the fix was to stop asking
- * the main thread to do work every frame. So none of these six may put it
- * back. Measured on the live page while writing them:
+ * ITS WHOLE VOCABULARY IS ONE OBJECT: a rounded rectangle with a picture
+ * in it, at every scale from thumbnail to full bleed, at several depths,
+ * always moving. Colour is near-black and warm. Type is huge, tight and
+ * sentence case.
  *
- *     one variable written on .ms__bed              0.3ms a frame
- *     one variable written on documentElement       2.6ms a frame
- *     --x written on the seven sections             2.1ms a frame
+ * ══ WHY THAT LANDS ON THIS SITE ════════════════════════════════════
+ * This page already owns both card systems the reference is built from:
+ * thirty frames of the catalogue fixed behind the whole document, and a
+ * horizontal conveyor of sixteen works. The reference is close to what is
+ * already here, played much louder. So none of these six invent a new
+ * object — they take the two that exist and give them the reference's
+ * behaviour.
  *
- * A custom property inherits, so writing one high in the tree recomputes
- * style for everything under it. That is the whole reason the page was
- * slow. ZERO JAVASCRIPT HERE. Every movement below is a scroll-driven CSS
- * animation on a view() timeline, which the browser runs on the compositor,
- * off the main thread entirely. The cost to a frame is nothing.
+ * THE REFERENCE'S FIRST FIVE SECONDS. Cards at wildly different sizes drift
+ * over a giant wordmark at what read as different distances from the
+ * camera — one large and close, one small and far, none of them agreeing
+ * with each other.
  *
- * NOTHING ANIMATED HERE TOUCHES LAYOUT. Only transform, opacity, filter and
- * clip-path — the four a browser can change without re-measuring the page.
- * Verified per draft: document height and all six movement offsets are
- * identical to the live page.
+ * The bed today is a grid: thirty tiles, one size, one plane. This gives
+ * every tile its own scale, its own drift and its own clock, so the same
+ * thirty frames stop reading as a grid and start reading as a room with
+ * things floating in it.
  *
- * AND IT DEGRADES TO TODAY. Everything is inside @supports and a
- * prefers-reduced-motion guard, so a browser without scroll-driven
- * animations, or a visitor who has asked for less movement, gets the live
- * page exactly as it is now.
+ * ══ THE RULES ══════════════════════════════════════════════════════
+ * NO CONTENT AND NO LAYOUT CHANGES. Not a word of copy, not a box, not a
+ * size. Only transform, opacity, filter, clip-path and background-position
+ * are animated. Verified: document height 15948 and all six movement
+ * offsets identical to the live page, fonts settled.
  *
- * IT IS A COPY OF src/pages/index.astro, NOT A REPLICA — countdown,
- * masthead, conveyor, all six movements, bed, matte and enquiry form, byte
- * for byte as of f9cfc0e. Two mechanical edits (imports a folder deeper, a
- * title that says which draft this is) and one appended <style> block.
+ * ZERO JAVASCRIPT, AND IT NEVER STOPS — which is the point, because the
+ * reference never stops either. It is transform and opacity only, which
+ * Chrome keeps entirely on the compositor: no main-thread cost at any
+ * scroll speed. It does cost GPU while the tab is open, which is a
+ * battery question rather than a smoothness one.
+ *
+ * IT DEGRADES TO TODAY, inside @supports and prefers-reduced-motion.
+ *
+ * A COPY OF src/pages/index.astro, NOT A REPLICA — byte for byte as of
+ * f9cfc0e, with two mechanical edits and one appended <style> block.
  */
 /**
  * THE SITE, AS ONE PAGE.
@@ -223,7 +241,7 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
 ---
 
 <Base
-  title="Home as a sequence — draft D · Strata"
+  title="Home, from the reference — draft B · Float"
   description="Selected works across film, brand and music. Original score for film, OTT and series; sonic identity for brands; campaign audio authored end to end."
   intro
 >
@@ -2216,37 +2234,37 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
 </script>
 
 <style>
-  /* ══ D · STRATA ═════════════════════════════════════════════════
-     Rates are 1 : 2.4 : 4. The bed keeps its own -8% drift untouched; the
-     panel travels 18px against the page and the title 44px, both across
-     the section's whole passage. Chosen by ratio rather than picked: a
-     parallax under about 2x reads as drift and over about 6x reads as a
-     mistake, and the title has to be the fastest because it is the thing
-     the eye is tracking.
+  /* ══ B · FLOAT ══════════════════════════════════════════════════
+     FIVE CLASSES OF TILE, ASSIGNED BY nth-child(5n+k), ACROSS SIX COLUMNS.
+     Five into six never lines up, so the classes land on a diagonal and no
+     two neighbours in a row share a scale — which is what stops the grid
+     re-forming. It is the cheapest possible way to get an irregular field
+     out of a regular one: five rules, no per-element markup.
 
-     TRAVEL IS SYMMETRIC ABOUT ZERO — from +x to -x rather than from x to
-     0 — so a layer is in its laid-out position exactly when the section is
-     centred. Anything else would mean the page is only ever correct at one
-     end of the scroll.
+     SCALES 1.04 TO 1.16, NOT 0.6 TO 1.4. The reference can put a thumbnail
+     next to a full-bleed card because its cards are the content. Here they
+     are the ground behind running text, and a tile that shrinks opens a
+     gap in the wall — the bed has a gap of clamp(5px, 0.8vw, 13px) and
+     nothing behind it. So every tile grows, none shrinks, and the range is
+     the widest that keeps the gutters closed.
 
-     NOTHING MOVES SIDEWAYS. A horizontal component was tried and fights
-     the conveyor, which is the one part of this page that genuinely
-     travels on X. */
-  @supports (animation-timeline: view()) {
-    @media (prefers-reduced-motion: no-preference) {
-      .ms__panel {
-        animation: strata-mid linear both;
-        animation-timeline: view();
-        animation-range: cover 0% cover 100%;
-      }
-      @keyframes strata-mid { from { transform: translate3d(0, 18px, 0); } to { transform: translate3d(0, -18px, 0); } }
-
-      .fr__t {
-        animation: strata-near linear both;
-        animation-timeline: view();
-        animation-range: cover 0% cover 100%;
-      }
-      @keyframes strata-near { from { transform: translate3d(0, 44px, 0); } to { transform: translate3d(0, -44px, 0); } }
+     THE DRIFT IS VERTICAL AND SMALL. Sideways drift at these scales opens
+     the same gaps; up and down, with the bed's own -10% overhang, does
+     not. 10 to 30px over 17 to 33 seconds — slow enough that you never
+     catch a tile moving, only notice the wall is not where it was. */
+  @media (prefers-reduced-motion: no-preference) {
+    .ms__tile {
+      animation: drift 21s ease-in-out infinite alternate;
+      will-change: transform;
+    }
+    .ms__tile:nth-child(5n + 1) { animation-duration: 17s; animation-delay: -0s; --lift: 10px; --grow: 1.10; }
+    .ms__tile:nth-child(5n + 2) { animation-duration: 21s; animation-delay: -3s; --lift: 15px; --grow: 1.04; }
+    .ms__tile:nth-child(5n + 3) { animation-duration: 25s; animation-delay: -6s; --lift: 20px; --grow: 1.16; }
+    .ms__tile:nth-child(5n + 4) { animation-duration: 29s; animation-delay: -9s; --lift: 25px; --grow: 1.07; }
+    .ms__tile:nth-child(5n + 5) { animation-duration: 33s; animation-delay: -12s; --lift: 30px; --grow: 1.13; }
+    @keyframes drift {
+      from { transform: translate3d(0, 0, 0) scale(1); }
+      to   { transform: translate3d(0, calc(var(--lift, 16px) * -1), 0) scale(var(--grow, 1.08)); }
     }
   }
 </style>

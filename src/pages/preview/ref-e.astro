@@ -1,51 +1,63 @@
 ---
 /**
- * THE WHOLE LIVE HOME PAGE, TOLD AS A SEQUENCE — DRAFT F, CASCADE
+ * THE WHOLE LIVE HOME PAGE — DRAFT E, LIGHT
  *
- * One of six asked for on 2026-09-08: more movement, nothing else changed.
- * Not a word of copy, not a box, not a size. Nothing here is on the live
- * site.
+ * Built on 2026-09-08 from the reference film Ugam sent
+ * (cosmos_1909389443.mp4, 18s, 1080x1350, 30fps). Nothing here is on the
+ * live site.
  *
- * THE HOME PAGE LEARNS THE WORK PAGES' LANGUAGE. Every work page already
- * says one thing with its motion: the label leads and the thing it names
- * follows, one lagging behind the other on the square of the same clock.
- * This is that sentence, spoken by the home page — title first, statement
- * a beat later, body last.
+ * ══ WHAT IS ACTUALLY IN THE REFERENCE ══════════════════════════════
+ * Sixteen frames pulled across the full 18 seconds, then ten more across
+ * the 4.6–7.6s passage, because that is where its signature move lives.
+ * What it does, in order:
  *
- * The case for it is coherence. Six movements and sixteen work pages
- * currently arrive in two different accents; after this the whole site
- * moves the same way, and a visitor who scrolls from the home page into a
- * work never crosses a seam.
+ *   0.0–4.5s   rounded image cards of wildly different sizes floating over
+ *              a giant outlined wordmark — some passing IN FRONT of the
+ *              letterforms, some behind. One card grows steadily from a
+ *              thumbnail to the largest thing on screen.
+ *   4.6–7.6s   a train of overlapping rounded cards travels across the
+ *              screen and passes OVER a huge sentence-case headline,
+ *              swallowing whole words as it goes. The headline itself is
+ *              lit left to right — white leading, grey trailing.
+ *   8–18s      a full-bleed wall of cards fills the window, rows sliding
+ *              horizontally in alternating directions, never stopping,
+ *              with a fixed headline over it and a heavy vignette below.
  *
- * ══ THE RULE ALL SIX ARE BUILT UNDER ═══════════════════════════════
- * This page was stuttering four hours ago and the fix was to stop asking
- * the main thread to do work every frame. So none of these six may put it
- * back. Measured on the live page while writing them:
+ * ITS WHOLE VOCABULARY IS ONE OBJECT: a rounded rectangle with a picture
+ * in it, at every scale from thumbnail to full bleed, at several depths,
+ * always moving. Colour is near-black and warm. Type is huge, tight and
+ * sentence case.
  *
- *     one variable written on .ms__bed              0.3ms a frame
- *     one variable written on documentElement       2.6ms a frame
- *     --x written on the seven sections             2.1ms a frame
+ * ══ WHY THAT LANDS ON THIS SITE ════════════════════════════════════
+ * This page already owns both card systems the reference is built from:
+ * thirty frames of the catalogue fixed behind the whole document, and a
+ * horizontal conveyor of sixteen works. The reference is close to what is
+ * already here, played much louder. So none of these six invent a new
+ * object — they take the two that exist and give them the reference's
+ * behaviour.
  *
- * A custom property inherits, so writing one high in the tree recomputes
- * style for everything under it. That is the whole reason the page was
- * slow. ZERO JAVASCRIPT HERE. Every movement below is a scroll-driven CSS
- * animation on a view() timeline, which the browser runs on the compositor,
- * off the main thread entirely. The cost to a frame is nothing.
+ * THE REFERENCE'S HEADLINE TREATMENT. Look at the word Revolutionizing at
+ * five seconds: the first half is white and the tail is grey, and the
+ * boundary travels through the word as it arrives. The type is lit left to
+ * right rather than faded in.
  *
- * NOTHING ANIMATED HERE TOUCHES LAYOUT. Only transform, opacity, filter and
- * clip-path — the four a browser can change without re-measuring the page.
- * Verified per draft: document height and all six movement offsets are
- * identical to the live page.
+ * This page already lights its body copy word by word as you read. This is
+ * that idea moved up to the titles, continuously instead of in steps —
+ * the one treatment in the reference that costs no geometry at all.
  *
- * AND IT DEGRADES TO TODAY. Everything is inside @supports and a
- * prefers-reduced-motion guard, so a browser without scroll-driven
- * animations, or a visitor who has asked for less movement, gets the live
- * page exactly as it is now.
+ * ══ THE RULES ══════════════════════════════════════════════════════
+ * NO CONTENT AND NO LAYOUT CHANGES. Not a word of copy, not a box, not a
+ * size. Only transform, opacity, filter, clip-path and background-position
+ * are animated. Verified: document height 15948 and all six movement
+ * offsets identical to the live page, fonts settled.
  *
- * IT IS A COPY OF src/pages/index.astro, NOT A REPLICA — countdown,
- * masthead, conveyor, all six movements, bed, matte and enquiry form, byte
- * for byte as of f9cfc0e. Two mechanical edits (imports a folder deeper, a
- * title that says which draft this is) and one appended <style> block.
+ * ZERO JAVASCRIPT. Scroll-driven CSS on view() and scroll() timelines, run
+ * on the compositor rather than the main thread.
+ *
+ * IT DEGRADES TO TODAY, inside @supports and prefers-reduced-motion.
+ *
+ * A COPY OF src/pages/index.astro, NOT A REPLICA — byte for byte as of
+ * f9cfc0e, with two mechanical edits and one appended <style> block.
  */
 /**
  * THE SITE, AS ONE PAGE.
@@ -225,7 +237,7 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
 ---
 
 <Base
-  title="Home as a sequence — draft F · Cascade"
+  title="Home, from the reference — draft E · Light"
   description="Selected works across film, brand and music. Original score for film, OTT and series; sonic identity for brands; campaign audio authored end to end."
   intro
 >
@@ -2218,45 +2230,45 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
 </script>
 
 <style>
-  /* ══ F · CASCADE ════════════════════════════════════════════════
-     Three elements, three ranges, one relationship. The title is on the
-     clock, the statement starts a fifth later, the body a fifth later
-     again — and each has the same distance to travel, so what separates
-     them is WHEN they move and not how far. That is the work pages'
-     A1 rule exactly: lead and lag, never lead and leap.
+  /* ══ E · LIGHT ══════════════════════════════════════════════════
+     THE TYPE IS ITS OWN MASK. A three-stop gradient is painted behind each
+     title and clipped to the letterforms, then slid through as the title
+     crosses the screen. Nothing moves; only what is inside the strokes.
 
-     0.32em AND 0.5em, THE WORK PAGES' OWN NUMBERS. They are em, not px,
-     so the movement scales with the type: the statement at 2.9rem travels
-     further in pixels than the body at 1rem, which is what keeps the two
-     looking like one gesture at different sizes.
+     0% TO 100%, WHICH IS THE ONLY SAFE TRAVEL. The gradient is 300% wide
+     with background-repeat: no-repeat, so outside that range it slides off
+     the box and the glyphs have nothing behind them — clipped to a
+     background that is not there, the title would simply be invisible on
+     the way past. Between 0 and 100 the offset runs from 0 to -2x the box
+     width and the box is always covered.
 
-     THE FLOORS ARE 0.12 AND 0.1, ALSO THEIRS. Type never arrives from
-     nothing on this site — there is always something on the page — so the
-     lowest opacity anything reaches is a tenth rather than zero.
+     BOTH ENDS ARE READABLE. The trailing stop is --bone-dim at 14:1 on
+     this ground and the leading stop is --bone at 19:1. There is no point
+     in the sweep where a title is harder to read than it is on the live
+     page — which the reference cannot claim, since its grey tail sits at
+     about half the contrast of its white head.
 
-     EACH ELEMENT IS ITS OWN SUBJECT and the ranges are `cover`, because
-     `entry` has no length once a subject is taller than the window — the
-     first version of this hung all three off the section's timeline over
-     entry ranges and measured as three animations that never advanced.
-
-     RANGES END BETWEEN 26% AND 42% of each element's own passage, well
-     before it is centred, so everything has settled by the time it is
-     being read. Motion still finishing while you read is motion you are
-     fighting. */
-  @supports (animation-timeline: view()) {
+     THE STATEMENT TAKES THE SAME SWEEP A BEAT LATER, so the movement's two
+     largest pieces of type are lit in sequence rather than together. */
+  @supports (animation-timeline: view()) and ((-webkit-background-clip: text) or (background-clip: text)) {
     @media (prefers-reduced-motion: no-preference) {
-      .fr__t, .s__stmt, .s__body {
-        animation: cascade linear both;
+      .fr__t, .s__stmt {
+        background-image: linear-gradient(90deg, var(--bone) 0%, var(--bone) 34%, var(--bone-dim) 62%, var(--bone-dim) 100%);
+        background-size: 300% 100%;
+        background-repeat: no-repeat;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: relight linear both;
         animation-timeline: view();
       }
-      .fr__t   { animation-range: cover 2%  cover 26%; }
-      .s__stmt { animation-range: cover 8%  cover 34%; }
-      .s__body { animation-range: cover 14% cover 42%; }
-      @keyframes cascade {
-        from { opacity: 0.12; transform: translate3d(0, 0.32em, 0); }
-        to   { opacity: 1;    transform: translate3d(0, 0, 0); }
+      .fr__t   { animation-range: cover 0% cover 34%; }
+      .s__stmt { animation-range: cover 8% cover 44%; }
+      .s__stmt .s__mark { -webkit-text-fill-color: inherit; }
+      @keyframes relight {
+        from { background-position: 100% 0%; }
+        to   { background-position: 0% 0%; }
       }
-      .s__body { --floor: 0.1; }
     }
   }
 </style>

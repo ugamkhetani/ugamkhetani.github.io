@@ -1,52 +1,62 @@
 ---
 /**
- * THE WHOLE LIVE HOME PAGE, LOUD — DRAFT A, LINES
+ * THE WHOLE LIVE HOME PAGE — DRAFT D, BLOOM
  *
- * One of six asked for on 2026-09-08, after the first six were judged too
- * subtle. Same rule as that batch: movement only. Not a word of copy, not a
- * box, not a size. Nothing here is on the live site.
+ * Built on 2026-09-08 from the reference film Ugam sent
+ * (cosmos_1909389443.mp4, 18s, 1080x1350, 30fps). Nothing here is on the
+ * live site.
  *
- * EVERY LINE OF TYPE RISES OUT OF ITS OWN SLOT, FULLY. The masks are
- * already in the markup — every heading on this page is a .line box with
- * overflow hidden and a .line__in inside it, which the opening already
- * uses. This gives that treatment to the whole document and takes the
- * travel to 100%%, so a line is entirely absent and then entirely there.
+ * ══ WHAT IS ACTUALLY IN THE REFERENCE ══════════════════════════════
+ * Sixteen frames pulled across the full 18 seconds, then ten more across
+ * the 4.6–7.6s passage, because that is where its signature move lives.
+ * What it does, in order:
  *
- * It is the oldest premium move in editorial motion and it stays premium
- * because nothing is ever drawn at half strength — no half-faded type, no
- * ghosting. A line is behind its own edge or past it.
+ *   0.0–4.5s   rounded image cards of wildly different sizes floating over
+ *              a giant outlined wordmark — some passing IN FRONT of the
+ *              letterforms, some behind. One card grows steadily from a
+ *              thumbnail to the largest thing on screen.
+ *   4.6–7.6s   a train of overlapping rounded cards travels across the
+ *              screen and passes OVER a huge sentence-case headline,
+ *              swallowing whole words as it goes. The headline itself is
+ *              lit left to right — white leading, grey trailing.
+ *   8–18s      a full-bleed wall of cards fills the window, rows sliding
+ *              horizontally in alternating directions, never stopping,
+ *              with a fixed headline over it and a heavy vignette below.
  *
- * ══ LOUD, NOT CHEAP ════════════════════════════════════════════════
- * The difference between a big move that reads as expensive and one that
- * reads as a template is almost always the same three things, and all six
- * of these obey them.
+ * ITS WHOLE VOCABULARY IS ONE OBJECT: a rounded rectangle with a picture
+ * in it, at every scale from thumbnail to full bleed, at several depths,
+ * always moving. Colour is near-black and warm. Type is huge, tight and
+ * sentence case.
  *
- * ONE GESTURE PER DRAFT. Each of these does exactly one thing, everywhere,
- * with no second idea layered on to make it feel richer. A page doing three
- * big things at once reads as a demo.
+ * ══ WHY THAT LANDS ON THIS SITE ════════════════════════════════════
+ * This page already owns both card systems the reference is built from:
+ * thirty frames of the catalogue fixed behind the whole document, and a
+ * horizontal conveyor of sixteen works. The reference is close to what is
+ * already here, played much louder. So none of these six invent a new
+ * object — they take the two that exist and give them the reference's
+ * behaviour.
  *
- * IT ENDS BEFORE YOU READ. Every range closes well before its element
- * reaches the middle of the screen. Motion still resolving while you are
- * trying to read is motion you are fighting, and it is the single most
- * common reason a bold site feels cheap rather than composed.
+ * THE REFERENCE'S OPENING, WHERE ONE CARD GROWS. Over its first four
+ * seconds a single thumbnail swells until it is the largest thing on the
+ * screen, while everything around it holds still.
  *
- * IT NEVER TOUCHES LAYOUT. Only transform, opacity, filter and clip-path.
- * Verified per draft: document height and all six movement offsets are
- * identical to the live page.
+ * Here the whole wall blooms as each movement arrives: it comes forward,
+ * fills more of the window, and settles back as you read. One gesture,
+ * once per section, and nothing else on the page moves at all.
  *
- * ZERO JAVASCRIPT. Every movement below is a scroll-driven CSS animation on
- * a view() timeline, which the browser runs on the compositor rather than
- * on the main thread. After a day spent taking work off that thread, a
- * loud page had better not put it back.
+ * ══ THE RULES ══════════════════════════════════════════════════════
+ * NO CONTENT AND NO LAYOUT CHANGES. Not a word of copy, not a box, not a
+ * size. Only transform, opacity, filter, clip-path and background-position
+ * are animated. Verified: document height 15948 and all six movement
+ * offsets identical to the live page, fonts settled.
  *
- * AND IT DEGRADES TO TODAY. Everything is inside @supports and a
- * prefers-reduced-motion guard, so an older browser or a visitor who has
- * asked for less movement gets the live page exactly as it is.
+ * ZERO JAVASCRIPT. Scroll-driven CSS on view() and scroll() timelines, run
+ * on the compositor rather than the main thread.
  *
- * IT IS A COPY OF src/pages/index.astro, NOT A REPLICA — countdown,
- * masthead, conveyor, all six movements, bed, matte and enquiry form, byte
- * for byte as of f9cfc0e. Two mechanical edits and one appended <style>
- * block.
+ * IT DEGRADES TO TODAY, inside @supports and prefers-reduced-motion.
+ *
+ * A COPY OF src/pages/index.astro, NOT A REPLICA — byte for byte as of
+ * f9cfc0e, with two mechanical edits and one appended <style> block.
  */
 /**
  * THE SITE, AS ONE PAGE.
@@ -226,7 +236,7 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
 ---
 
 <Base
-  title="Home, loud — draft A · Lines"
+  title="Home, from the reference — draft D · Bloom"
   description="Selected works across film, brand and music. Original score for film, OTT and series; sonic identity for brands; campaign audio authored end to end."
   intro
 >
@@ -2219,39 +2229,51 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
 </script>
 
 <style>
-  /* ══ A · LINES ══════════════════════════════════════════════════
-     100%, NOT 135%. The site's own line-up keyframe uses 135% because it
-     animates on a timer and needs the overshoot to look like it started
-     off-screen. On a scroll timeline the reader controls the clock, so
-     the extra 35% is just a line that sits below its slot doing nothing
-     for the first quarter of the range. 100% is exactly hidden.
+  /* ══ D · BLOOM ══════════════════════════════════════════════════
+     IT BLOOMS ONCE, ON THE CATALOGUE, NOT SIX TIMES. The first version
+     put the timeline on every .mvt and had the bed read the name — which
+     cannot work, because the bed lives in .ms__ground, a sibling of the
+     sections and not a descendant, so the name was never in scope and the
+     animation never advanced. Measured: scale pinned at the bed's resting
+     1.06 at every scroll position. It now reads the works section's
+     timeline through timeline-scope on .rg, which is the same wiring C
+     uses and is verified.
 
-     THE SLOTS ALREADY EXIST AND ARE ALREADY BIG ENOUGH. .line carries
-     padding-bottom 0.24em with a matching negative margin, which is what
-     stops descenders being clipped — so a line can travel its full height
-     inside the mask without a g or a y losing its tail on the way.
+     One bloom is also the better idea. Six says every movement is an
+     event; one says the catalogue is, which is true.
 
-     THE STATEMENT AND BODY GET THE SAME EDGE, from a clip-path rather
-     than a mask, because they are not wrapped in .line boxes and wrapping
-     them would be a markup change. Same gesture, same direction. */
+     THE WHOLE WALL, NOT ONE TILE, AND THAT IS A DECISION. Growing a single
+     tile means picking one — and a tile is a work, so picking one is an
+     editorial claim the page has no business making six times on the way
+     down. Blooming the whole bed says the same thing about the catalogue
+     without ranking it.
+
+     1.06 TO 1.30. The bed sits at 1.06 already; 1.30 is the largest it can
+     go before the -10% overhang runs out at the corners and a hard edge
+     appears inside the window. Measured against the inset rather than
+     chosen — anything past it and the wall shows its own boundary.
+
+     IT PEAKS EARLY AND LEAVES SLOWLY: full at 30% of the passage, back
+     down by 100%. A symmetric bloom reads as a pulse, which is a
+     heartbeat and belongs to no idea here. An asymmetric one — arrive,
+     hold, recede — reads as something approaching and passing.
+
+     THE --prog DRIFT IS CARRIED THROUGH EVERY KEYFRAME, so the bed's own
+     parallax against the page survives the bloom instead of being
+     overwritten by it. */
   @supports (animation-timeline: view()) {
     @media (prefers-reduced-motion: no-preference) {
-      .mvt .line__in, .ov__stmt .line__in {
-        animation: lift linear both;
-        animation-timeline: view();
-        animation-range: cover 2% cover 30%;
+      .rg { timeline-scope: --t-bloom; }
+      .sec--works { view-timeline: --t-bloom block; }
+      .ms__bed {
+        animation: bloom linear both;
+        animation-timeline: --t-bloom;
+        animation-range: cover 0% cover 100%;
       }
-      @keyframes lift { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
-      .s__stmt, .s__body {
-        animation: slot linear both;
-        animation-timeline: view();
-      }
-      .s__stmt { animation-range: cover 6% cover 34%; }
-      .s__body { animation-range: cover 12% cover 42%; }
-      @keyframes slot {
-        from { clip-path: inset(0 0 100% 0); transform: translateY(24px); }
-        to   { clip-path: inset(0 0 0 0);    transform: translateY(0); }
+      @keyframes bloom {
+        0%   { transform: translate3d(0, calc(var(--prog, 0) * -8%), 0) scale(1.06); }
+        30%  { transform: translate3d(0, calc(var(--prog, 0) * -8%), 0) scale(1.30); }
+        100% { transform: translate3d(0, calc(var(--prog, 0) * -8%), 0) scale(1.06); }
       }
     }
   }

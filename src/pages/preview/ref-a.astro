@@ -1,52 +1,65 @@
 ---
 /**
- * THE WHOLE LIVE HOME PAGE, LOUD — DRAFT E, WARP
+ * THE WHOLE LIVE HOME PAGE — DRAFT A, WALL
  *
- * One of six asked for on 2026-09-08, after the first six were judged too
- * subtle. Same rule as that batch: movement only. Not a word of copy, not a
- * box, not a size. Nothing here is on the live site.
+ * Built on 2026-09-08 from the reference film Ugam sent
+ * (cosmos_1909389443.mp4, 18s, 1080x1350, 30fps). Nothing here is on the
+ * live site.
  *
- * THE PAGE DEFORMS WHEN YOU THROW IT. Type shears and stretches in the
- * direction you are travelling and snaps back the moment you stop — not a
- * lean, a real distortion, as though the page had weight and you were
- * dragging it through something.
+ * ══ WHAT IS ACTUALLY IN THE REFERENCE ══════════════════════════════
+ * Sixteen frames pulled across the full 18 seconds, then ten more across
+ * the 4.6–7.6s passage, because that is where its signature move lives.
+ * What it does, in order:
  *
- * It is the loudest of the six and the only one that answers the READER
- * rather than the document. It also turns the thing that started this
- * whole thread — scrolling fast to get past a section — into the moment
- * the site is most alive.
+ *   0.0–4.5s   rounded image cards of wildly different sizes floating over
+ *              a giant outlined wordmark — some passing IN FRONT of the
+ *              letterforms, some behind. One card grows steadily from a
+ *              thumbnail to the largest thing on screen.
+ *   4.6–7.6s   a train of overlapping rounded cards travels across the
+ *              screen and passes OVER a huge sentence-case headline,
+ *              swallowing whole words as it goes. The headline itself is
+ *              lit left to right — white leading, grey trailing.
+ *   8–18s      a full-bleed wall of cards fills the window, rows sliding
+ *              horizontally in alternating directions, never stopping,
+ *              with a fixed headline over it and a heavy vignette below.
  *
- * ══ LOUD, NOT CHEAP ════════════════════════════════════════════════
- * The difference between a big move that reads as expensive and one that
- * reads as a template is almost always the same three things, and all six
- * of these obey them.
+ * ITS WHOLE VOCABULARY IS ONE OBJECT: a rounded rectangle with a picture
+ * in it, at every scale from thumbnail to full bleed, at several depths,
+ * always moving. Colour is near-black and warm. Type is huge, tight and
+ * sentence case.
  *
- * ONE GESTURE PER DRAFT. Each of these does exactly one thing, everywhere,
- * with no second idea layered on to make it feel richer. A page doing three
- * big things at once reads as a demo.
+ * ══ WHY THAT LANDS ON THIS SITE ════════════════════════════════════
+ * This page already owns both card systems the reference is built from:
+ * thirty frames of the catalogue fixed behind the whole document, and a
+ * horizontal conveyor of sixteen works. The reference is close to what is
+ * already here, played much louder. So none of these six invent a new
+ * object — they take the two that exist and give them the reference's
+ * behaviour.
  *
- * IT ENDS BEFORE YOU READ. Every range closes well before its element
- * reaches the middle of the screen. Motion still resolving while you are
- * trying to read is motion you are fighting, and it is the single most
- * common reason a bold site feels cheap rather than composed.
+ * THE REFERENCE'S LAST TEN SECONDS, WHICH IS ITS BIGGEST IDEA. The wall of
+ * cards behind everything stops being a still grid: the rows slide, each
+ * at its own pace, alternate rows in opposite directions, endlessly.
  *
- * IT NEVER TOUCHES LAYOUT. Only transform, opacity, filter and clip-path.
- * Verified per draft: document height and all six movement offsets are
- * identical to the live page.
+ * It is the most direct copy of the six and the one this page is most
+ * ready for — the bed is already thirty frames in six columns, fixed
+ * behind the document. All it has never done is move sideways.
  *
- * ONE SCRIPT, because scroll VELOCITY is not something CSS can read. It
- * writes two values on nine elements and nowhere else — never on the root,
- * never on a section, which on this page costs 2.6ms and 2.1ms a frame
- * respectively.
+ * ══ THE RULES ══════════════════════════════════════════════════════
+ * NO CONTENT AND NO LAYOUT CHANGES. Not a word of copy, not a box, not a
+ * size. Only transform, opacity, filter, clip-path and background-position
+ * are animated. Verified: document height 15948 and all six movement
+ * offsets identical to the live page, fonts settled.
  *
- * AND IT DEGRADES TO TODAY. Everything is inside @supports and a
- * prefers-reduced-motion guard, so an older browser or a visitor who has
- * asked for less movement gets the live page exactly as it is.
+ * ZERO JAVASCRIPT, AND IT NEVER STOPS — which is the point, because the
+ * reference never stops either. It is transform and opacity only, which
+ * Chrome keeps entirely on the compositor: no main-thread cost at any
+ * scroll speed. It does cost GPU while the tab is open, which is a
+ * battery question rather than a smoothness one.
  *
- * IT IS A COPY OF src/pages/index.astro, NOT A REPLICA — countdown,
- * masthead, conveyor, all six movements, bed, matte and enquiry form, byte
- * for byte as of f9cfc0e. Two mechanical edits and one appended <style>
- * block and one <script>.
+ * IT DEGRADES TO TODAY, inside @supports and prefers-reduced-motion.
+ *
+ * A COPY OF src/pages/index.astro, NOT A REPLICA — byte for byte as of
+ * f9cfc0e, with two mechanical edits and one appended <style> block.
  */
 /**
  * THE SITE, AS ONE PAGE.
@@ -226,7 +239,7 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
 ---
 
 <Base
-  title="Home, loud — draft E · Warp"
+  title="Home, from the reference — draft A · Wall"
   description="Selected works across film, brand and music. Original score for film, OTT and series; sonic identity for brands; campaign audio authored end to end."
   intro
 >
@@ -2219,73 +2232,38 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
 </script>
 
 <style>
-  /* ══ E · WARP ═══════════════════════════════════════════════════
-     TWO LENGTHS AND ONE ANGLE, ALL WRITTEN BY THE SCRIPT. Declared so they
-     do not inherit, and set on nine elements rather than on an ancestor —
-     the whole reason this costs nothing.
+  /* ══ A · WALL ═══════════════════════════════════════════════════
+     ALTERNATE ROWS, OPPOSITE DIRECTIONS, PRIME-ISH PERIODS. 46, 53, 60,
+     67 and 74 seconds. They are deliberately not multiples of each other:
+     with a common factor the five rows re-align every so often and the
+     wall visibly resets, which is the one thing that turns an endless
+     drift back into a loop. Nothing here divides evenly into anything
+     else, so the pattern does not repeat inside a visit.
 
-     SKEW AND SCALE TOGETHER. skewY alone shears the type and looks like a
-     rendering fault; scaleY alone stretches it and looks like a broken
-     font. Together they read as one object resisting being moved, which
-     is the thing being described.
+     SLOW. Forty-six seconds for one pass reads as drift rather than as
+     traffic — the reference's wall is slow too, it only looks quick
+     because its cards are bright and close together. Faster than about
+     thirty seconds and running text in front of it becomes hard to read,
+     which no amount of taste rescues.
 
-     6 DEGREES AND 8%. Both are past subtle on purpose and both stop well
-     short of illegible — at full throw the type is still type. The snap
-     back is 620ms on a curve that overshoots slightly, which is what
-     makes it read as elastic rather than as a slider returning to zero. */
-  @property --warp-a { syntax: '<angle>';  inherits: false; initial-value: 0deg; }
-  @property --warp-s { syntax: '<number>'; inherits: false; initial-value: 1; }
+     THE TRAVEL IS 16%, NOT 100%. The bed is inset -10% on every side, so
+     it already overhangs the window; a sixth of its width is as far as a
+     row can go before the overhang runs out and an edge appears. It also
+     means no tile is ever recycled — nothing pops.
 
+     BRIGHTNESS IS UNTOUCHED. The tiles keep filter: brightness(0.30), the
+     number this page's whole contrast argument rests on. The reference's
+     wall is far brighter than this, and copying that would take bone on
+     the brightest pixel from 8.4:1 down under AA. This is the one place
+     the copy stops. */
   @media (prefers-reduced-motion: no-preference) {
-    .fr__t, .ov__mast, .s__stmt {
-      transform: skewY(var(--warp-a, 0deg)) scaleY(var(--warp-s, 1));
-      transform-origin: 50% 50%;
-      transition: transform 620ms cubic-bezier(0.16, 1.08, 0.3, 1);
-      will-change: transform;
-    }
+    .ms__tile:nth-child(-n + 6) { animation: slide-r 46s linear infinite; }
+    .ms__tile:nth-child(n + 7):nth-child(-n + 12) { animation: slide-l 53s linear infinite; }
+    .ms__tile:nth-child(n + 13):nth-child(-n + 18) { animation: slide-r 60s linear infinite; }
+    .ms__tile:nth-child(n + 19):nth-child(-n + 24) { animation: slide-l 67s linear infinite; }
+    .ms__tile:nth-child(n + 25) { animation: slide-r 74s linear infinite; }
+    .ms__tile { will-change: transform; }
+    @keyframes slide-r { from { transform: translate3d(-8%, 0, 0); } to { transform: translate3d(8%, 0, 0); } }
+    @keyframes slide-l { from { transform: translate3d(8%, 0, 0); } to { transform: translate3d(-8%, 0, 0); } }
   }
 </style>
-
-<script>
-  /* Signed scroll speed, smoothed, turned into a shear and a stretch.
-
-     THE SMOOTHING IS THE DIFFERENCE between elastic and jittery. A
-     trackpad delivers wildly uneven deltas; leaning on the raw number
-     makes the type vibrate. A one-pole filter at 0.2 keeps the response
-     immediate and the value continuous.
-
-     THE LOOP STOPS ITSELF. Below a thousandth it writes one last resting
-     value and does not schedule again, so a page at rest runs no frames.
-
-     NEVER ON THE ROOT. Measured on this page, one variable written on
-     documentElement costs 2.6ms a frame because every descendant has to be
-     recomputed; on the nine elements that read it, it does not register. */
-  function initWarp() {
-    const rg = document.querySelector('[data-rg]');
-    if (!rg || rg.dataset.warpBound) return;
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    rg.dataset.warpBound = '1';
-    const targets = Array.from(document.querySelectorAll('.fr__t, .ov__mast, .s__stmt'));
-    if (!targets.length) return;
-    const CAP = 80;
-    let last = scrollY, v = 0, raf = 0, live = false;
-    const write = (x) => {
-      const a = (x * 6).toFixed(2) + 'deg';
-      const s = (1 + Math.abs(x) * 0.08).toFixed(4);
-      for (const el of targets) { el.style.setProperty('--warp-a', a); el.style.setProperty('--warp-s', s); }
-    };
-    const tick = () => {
-      raf = 0;
-      const y = scrollY;
-      const raw = Math.max(-1, Math.min(1, (y - last) / CAP));
-      last = y;
-      v += (raw - v) * 0.2;
-      write(v);
-      if (Math.abs(v) > 0.001 || Math.abs(raw) > 0.001) raf = requestAnimationFrame(tick);
-      else { v = 0; write(0); live = false; }
-    };
-    addEventListener('scroll', () => { if (!live) { live = true; if (!raf) raf = requestAnimationFrame(tick); } }, { passive: true });
-  }
-  initWarp();
-  document.addEventListener('astro:page-load', initWarp);
-</script>
