@@ -1080,6 +1080,27 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
 </script>
 
 <style>
+  /* ── --prog IS DECLARED, SO THAT IT STOPS INHERITING ────────────
+     A custom property inherits by default, which means writing one on .rg
+     asks the browser to recompute style for all 1133 elements beneath it.
+     Measured, that is 2.6ms every frame — and it is charged whether or not
+     anything reads the value: a name nothing consumes cost the same 2.2ms
+     in the same test.
+
+     Declaring it as a number that does not inherit ends that. The value is
+     then visible only on the element it is set on, which is why the write
+     moves onto .ms__bed in initSpine below; the two changes are one change
+     and neither works alone. With both: 0.0ms.
+
+     UNSUPPORTED IS SAFE. A browser that does not know @property ignores this
+     block, --prog inherits as it always did, and the moved write still cuts
+     the recompute from 1133 elements to the bed's 150 — measured 0.3ms. */
+  @property --prog {
+    syntax: '<number>';
+    inherits: false;
+    initial-value: 0;
+  }
+
   .rg {
     --tier-0: clamp(2.75rem, 10vw, 9rem);
     --tier-1: clamp(2.5rem, 8vw, 7.5rem);
@@ -2211,6 +2232,10 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
     rg.dataset.spineBound = '1';
     const secs = Array.from(rg.querySelectorAll<HTMLElement>('.ov, .mvt'));
     const rows = Array.from(rg.querySelectorAll<HTMLElement>('[data-row]'));
+    /* --prog is written HERE, not on .rg. See @property --prog at the top of
+       the stylesheet for why, and note that .ms__bed is the only thing in the
+       codebase that reads it. */
+    const bed = rg.querySelector<HTMLElement>('.ms__bed');
     if (!secs.length) return;
     let raf = 0;
     const paint = () => {
@@ -2254,15 +2279,17 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
         if (!secs[i].classList.contains('sec--works') && cover > read) read = cover;
       }
 
+      /* --e, --p AND --f ARE GONE. Nothing in src/ reads any of them —
+         checked across every stylesheet and component — so they were 21
+         writes a frame, on seven sections, feeding nothing. --x is kept: it
+         is read, by .work__peek's `left`, and untangling that is a separate
+         question. */
       for (let i = 0; i < secs.length; i++) {
         const el = secs[i], r = secBoxes[i];
         const h = Math.max(1, r.height);
-        el.style.setProperty('--e', Math.min(1, Math.max(0, (vh - r.top) / vh)).toFixed(4));
         el.style.setProperty('--x', Math.min(1, Math.max(0, -r.top / h)).toFixed(4));
-        el.style.setProperty('--p', Math.min(1, Math.max(0, (vh - r.top) / (vh + h))).toFixed(4));
-        el.style.setProperty('--f', covers[i].toFixed(4));
       }
-      rg.style.setProperty('--prog', (span > 0 ? Math.min(1, Math.max(0, scrollY / span)) : 0).toFixed(4));
+      if (bed) bed.style.setProperty('--prog', (span > 0 ? Math.min(1, Math.max(0, scrollY / span)) : 0).toFixed(4));
       rg.style.setProperty('--lit', lit.toFixed(4));
       rg.style.setProperty('--read', read.toFixed(4));
       const line = vh * 0.42, reach = vh * 0.34;
