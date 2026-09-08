@@ -47,6 +47,44 @@
  * direction. An earlier reading of mine said otherwise; it was measuring
  * `offset`, which is an internal quantity, not the rendered position.
  *
+ *
+ * HOLDS AT EVERY WIDTH. The section was swept again at 1024 and 1440, freshly
+ * loaded each time — the card widths are min(40vh, 26vw) derived and U0 and
+ * FOLD_R come off innerWidth, so none of this was safe to assume:
+ *
+ *              live            A Even          B Rigid
+ *     1024   7.00x cv 0.373  3.26x cv 0.208  1.16x cv 0.065
+ *     1280   7.38x cv 0.375  3.79x cv 0.212  1.16x cv 0.032
+ *     1440   6.75x cv 0.373  4.05x cv 0.212  1.14x cv 0.027
+ *
+ * The live cv is 0.373 to 0.375 at all three, which says the unevenness is
+ * structural and not an accident of one window size.
+ *
+ * WHAT IS ON SCREEN, with Special Ops 2.0 centred at 1280 — rendered width
+ * and opacity, read off the cards:
+ *
+ *     A Even    Taskaree 255 @0.48 | Book My Yamraj 196 @0.67 |
+ *               SPECIAL OPS 567 @1.00 | Broken Reflections 588 @0.75 |
+ *               My Red Crayon 294 @0.44        ... 10 works on screen
+ *
+ *     B Rigid   Taskaree 477 @0.97 | Book My Yamraj 277 @1.00 |
+ *               SPECIAL OPS 569 @1.00 | Broken Reflections 752 @1.00
+ *                                              ... 6 works on screen
+ *
+ * THAT IS THE ARGUMENT AGAINST B, AND IT IS NOT IN THE SPEED NUMBERS.
+ * Freezing the scale means the neighbour is full size AND full opacity, so
+ * Broken Reflections renders 752 wide beside a centred work of 569 at the
+ * same brightness. The centred work stops being the biggest or the brightest
+ * thing on screen and the eye has nothing to land on. The live 0.744 falloff
+ * turns out to be load-bearing: 752 x 0.744 = 559, just under the 569 of a
+ * centred 16:9. B buys a perfectly even scroll by spending the hierarchy.
+ *
+ * WHICH ALSO PUTS A FLOOR UNDER A. The residual 3.79x is the chain
+ * stretching as near works scale, and the scale is what protects the
+ * hierarchy, so it cannot be softened much without hitting the same wall.
+ * A is close to as even as this design gets while still reading as one work
+ * at a time.
+ *
  * IT IS A COPY OF src/pages/index.astro, NOT A REPLICA. Everything else on
  * the page — the countdown, the masthead, all six movements, the bed, the
  * matte, the enquiry form — is the live file byte for byte. Three edits:
