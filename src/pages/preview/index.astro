@@ -28,8 +28,8 @@ const pages = Object.keys(import.meta.glob('./*.astro', { eager: false }))
 
 /** slug → [group, title, note]. Anything missing falls back to its filename. */
 const NOTES: Record<string, [string, string, string]> = {
-  'conveyor-a': ['Selected works · the conveyor’s scroll', 'A · Even', 'The fix, with the look untouched. Scroll is measured along a fixed ruler instead of counted in works, and the row is built outward from whichever work is centred instead of accumulated from the first. Measured: the speed swing drops from 7.38× to 3.79×.'],
-  'conveyor-b': ['Selected works · the conveyor’s scroll', 'B · Rigid', 'The same fix plus the step that makes it exact: the scale is frozen on the straight run, so the visible row is a rigid strip and the speed is all but constant — 1.16× against the live 7.38×. It costs the near depth falloff; a neighbour is full size.'],
+  'conveyor-a': ['Selected works · the conveyor’s scroll', 'A · Even', 'The fix, with the look untouched — every scale, gutter, fold and fade is what it is today. Scroll is measured along a fixed ruler instead of counted in works, and the row is built outward from whichever work is centred instead of accumulated from the first. Measured at three widths: the speed swing drops from 7.0–7.4× to 3.3–4.1×. Recommended.'],
+  'conveyor-b': ['Selected works · the conveyor’s scroll', 'B · Rigid', 'The same fix plus the step that makes it exact: the scale is frozen on the straight run, so the speed is all but constant — 1.16× against the live 7.38×. But it spends the hierarchy to get there: with Special Ops centred, Broken Reflections renders 752px beside it at 569px, both at full opacity. Kept as the evidence, not as a candidate.'],
 };
 
 const pretty = (s: string) =>
