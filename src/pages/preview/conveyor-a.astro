@@ -77,6 +77,13 @@
  * A is close to as even as this design gets while still reading as one work
  * at a time.
  *
+ *
+ * TRACKS THE LIVE PAGE AS OF 2026-09-08. The rendering work applied that day
+ * — will-change made conditional in Still.astro, initSpine's reads batched,
+ * will-change: inset dropped from the matte, and the conveyor's cull moved
+ * off `visibility` onto `inert` — is in here too, so this is still the live
+ * page plus one block and nothing else.
+ *
  * IT IS A COPY OF src/pages/index.astro, NOT A REPLICA. Everything else on
  * the page — the countdown, the masthead, all six movements, the bed, the
  * matte, the enquiry form — is the live file byte for byte. Three edits:
@@ -941,8 +948,27 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
         c.style.setProperty('--fold', dep.toFixed(3));
         c.style.setProperty('--tx', `${x.toFixed(1)}px`);
         c.style.setProperty('--s', st.toFixed(4));
-        c.style.setProperty('--op', op.toFixed(3));
-        c.style.visibility = gone ? 'hidden' : '';
+        /* THE CULL NO LONGER TOUCHES visibility, AND THAT IS THE POINT.
+           `visibility: hidden` stops an element being painted, which
+           takes its composited surface down with it — and .wcard carries
+           will-change: transform, opacity, so that surface is exactly
+           what we are paying to keep. Measured, this flipped 32 times
+           across one scroll of the section: thirty-two surfaces thrown
+           away and rebuilt, each holding a large image, at the moments
+           you are scrolling fastest.
+
+           Nothing is lost by dropping it. --op already reaches 0 before
+           the cull fires — the last quarter of the turn takes it there,
+           see the note above — so clamping it to a hard 0 leaves the work
+           invisible by the same means everything else here uses.
+
+           `inert` does the rest of visibility's job: out of the tab order
+           and deaf to the pointer, so an invisible work cannot be clicked
+           or focused. It is an attribute, not a paint property, so the
+           surface survives. Guarded because writing an attribute that is
+           already set still invalidates style. */
+        c.style.setProperty('--op', gone ? '0' : op.toFixed(3));
+        if (gone !== c.hasAttribute('inert')) c.toggleAttribute('inert', gone);
 
         const ad = Math.abs(i - phase);
         if (ad < bestD) { bestD = ad; best = i; }
@@ -1801,7 +1827,15 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
     box-shadow: 0 0 0 100vmax var(--ground);
     border: 1px solid var(--rule);
     border-radius: 2px;
-    will-change: inset;
+    /* NO will-change HERE. It said `inset`, and inset is a layout
+       property — there is no compositor path for it to be promoted onto,
+       so the hint bought nothing and cost a surface. What it changes is
+       still a real cost: --lit moves through ten distinct values across
+       the document, and each one relays out this box and repaints a
+       100vmax shadow. Measured, --lit does NOT move at all inside
+       Selected works, so none of that lands on the section that was
+       stuttering; it is written down here rather than changed, because
+       changing it would change how the aperture opens. */
   }
 
   /* ══ COMMON GROUND ═══════════════════════════════════════════════
@@ -2181,33 +2215,62 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
     let raf = 0;
     const paint = () => {
       raf = 0;
+      /* ══ EVERY MEASUREMENT FIRST, THEN EVERY WRITE ═══════════════
+         This used to ask for a box, write four custom properties, ask for
+         the next box, write four more — thirty-one boxes a frame, each one
+         after a write.
+
+         THE WRITES ARE NOT FREE, WHICH IS THE WHOLE PROBLEM. --lit on .rg
+         feeds .ap__mat's `inset` and .rl's `bottom`, and both are layout
+         properties, so every write dirtied layout and the next
+         getBoundingClientRect had to resolve the whole page again before
+         it could answer. Thirty-one forced layouts a frame.
+
+         Reordering costs nothing and changes nothing: the numbers written
+         are computed from exactly the same boxes as before. Measured at
+         1280 while sweeping Selected works, this function alone:
+
+             as it was    median 3.9ms   p90 4.6ms   worst 9.4ms
+             reordered    median 0.8ms   p90 1.0ms   worst 4.6ms
+
+         It was the most expensive of the six scroll loops on the page by
+         a factor of six, and it is not the conveyor. */
       const vh = innerHeight;
+      const span = document.documentElement.scrollHeight - vh;
+      const secBoxes = secs.map((el) => el.getBoundingClientRect());
+      const rowBoxes = rows.map((el) => el.getBoundingClientRect());
+
       let lit = 0, read = 0;
-      for (const el of secs) {
-        const r = el.getBoundingClientRect();
-        const h = Math.max(1, r.height);
+      const covers = new Array(secs.length);
+      for (let i = 0; i < secs.length; i++) {
+        const r = secBoxes[i];
         const cover = Math.min(1, Math.max(0, (Math.min(r.bottom, vh) - Math.max(r.top, 0)) / vh));
+        covers[i] = cover;
         if (cover > lit) lit = cover;
         /* Coverage of whatever owns the window, counted only when it is not
            the works — this is what opens the aperture for reading. A coverage
            figure rather than a flag, so the opening rides the scroll instead
            of snapping the moment a section takes over. */
-        if (!el.classList.contains('sec--works') && cover > read) read = cover;
+        if (!secs[i].classList.contains('sec--works') && cover > read) read = cover;
+      }
+
+      for (let i = 0; i < secs.length; i++) {
+        const el = secs[i], r = secBoxes[i];
+        const h = Math.max(1, r.height);
         el.style.setProperty('--e', Math.min(1, Math.max(0, (vh - r.top) / vh)).toFixed(4));
         el.style.setProperty('--x', Math.min(1, Math.max(0, -r.top / h)).toFixed(4));
         el.style.setProperty('--p', Math.min(1, Math.max(0, (vh - r.top) / (vh + h))).toFixed(4));
-        el.style.setProperty('--f', cover.toFixed(4));
+        el.style.setProperty('--f', covers[i].toFixed(4));
       }
-      const span = document.documentElement.scrollHeight - vh;
       rg.style.setProperty('--prog', (span > 0 ? Math.min(1, Math.max(0, scrollY / span)) : 0).toFixed(4));
       rg.style.setProperty('--lit', lit.toFixed(4));
       rg.style.setProperty('--read', read.toFixed(4));
       const line = vh * 0.42, reach = vh * 0.34;
-      for (const el of rows) {
-        const r = el.getBoundingClientRect();
+      for (let i = 0; i < rows.length; i++) {
+        const r = rowBoxes[i];
         if (r.bottom < -vh || r.top > vh * 2) continue;
         const d = Math.abs(r.top + r.height / 2 - line);
-        el.style.setProperty('--lit', Math.max(0, 1 - d / reach).toFixed(3));
+        rows[i].style.setProperty('--lit', Math.max(0, 1 - d / reach).toFixed(3));
       }
     };
     addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(paint); }, { passive: true });

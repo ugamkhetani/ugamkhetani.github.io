@@ -115,9 +115,30 @@ const count = images.length;
   .frame__layer {
     position: absolute; inset: 0;
     opacity: 0;
-    will-change: opacity;
     transition: opacity var(--d-fade) var(--ease-soft);
   }
+  /* will-change IS A PROMISE, NOT A SPEED-UP, and it was being made for
+     every layer on the page at once. It tells the browser to keep a
+     separate composited surface ready — which is right for the fraction
+     of a second before a cut, and wrong for the rest of the time.
+
+     Measured on the home page before this changed: 143 .frame__layer
+     elements carrying it, holding 139MB of decoded bitmap between them,
+     on a display at devicePixelRatio 2. Only one still can be scrubbing
+     at a time, and only three states can scrub — see src/scripts/
+     frames.ts, which cuts on pointer travel over a hovered or focused
+     still, and on `is-active` where there is no pointer. So the promise
+     is made in those three states and nowhere else.
+
+     THE CROSSFADE DOES NOT NEED IT. An opacity transition is composited
+     on its own in every engine this site targets; the hint only decides
+     whether the surface exists BEFORE the transition starts. The first
+     cut of a scrub may cost one extra surface upload; every cut after it
+     is on the promoted path, because the pointer is still over the
+     still. */
+  .st:hover .frame__layer,
+  .st:focus-visible .frame__layer,
+  .st.is-active .frame__layer { will-change: opacity; }
   .frame__layer[data-layer='0'] { opacity: 1; transition: none; }
   .frame__layer.is-cut { opacity: 1; }
 

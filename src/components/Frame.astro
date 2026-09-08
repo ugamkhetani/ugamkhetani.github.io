@@ -95,9 +95,13 @@ const sizes = sizesFor(span);
     inset: 0;
     /* Every layer above the base starts invisible. */
     opacity: 0;
-    will-change: opacity;
     transition: opacity var(--d-fade) var(--ease-soft);
   }
+  /* Promised only while a cut is possible, for the reason written out at
+     the same rule in src/components/Still.astro. */
+  .frame:hover .frame__layer,
+  .frame:focus-visible .frame__layer,
+  .frame.is-active .frame__layer { will-change: opacity; }
   .frame__layer[data-layer='0'] {
     opacity: 1;
     transition: none;
