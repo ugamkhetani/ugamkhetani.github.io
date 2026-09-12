@@ -633,11 +633,18 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
     const readout = sec.querySelector('[data-readout]') as HTMLElement;
     const title = sec.querySelector('[data-w-title]') as HTMLElement;
     const year = sec.querySelector('[data-w-year]') as HTMLElement;
-    const head = sec.querySelector('[data-rl-head]') as HTMLElement;
+    const row = sec.querySelector('.rl__ticks') as HTMLElement;
     const ticks = Array.from(sec.querySelectorAll('.rl__t')) as HTMLElement[];
     if (!cards.length) return;
 
     sec.classList.add('is-live');
+    /* THE FIRST MARK IS LIT HERE, NOT BY paint(). The readout's caption and
+       year are server-rendered from wnodes[0], so the page arrives already
+       claiming to be on work one — but the lit mark has no such markup, and
+       the block in paint() that sets it is guarded on a CHANGE of centred
+       work, which by definition has not happened yet. Measured before this
+       line existed: no mark lit at all through the whole first work. */
+    if (ticks[0]) ticks[0].classList.add('is-on');
 
     /* Natural, unscaled heights. offsetHeight is layout height and is blind
        to transforms, which is exactly what the stack needs — and it is read
@@ -674,7 +681,7 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
     const warmAround = (b: number) => { for (let k = -3; k <= 3; k++) warm((b + k + cards.length) % cards.length); };
     cards.forEach((_, i) => { if (i < 4) warm(i); });
 
-    let raf = 0, last = -1, written = 0;
+    let raf = 0, last = -1, written = 0, ring = -1;
     const paint = () => {
       raf = 0;
       const rect = sec.getBoundingClientRect();
@@ -847,15 +854,27 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
         cards.forEach((c, i) => { c.style.zIndex = String(100 - Math.abs(i - best)); });
       }
 
-      /* THE PLAYHEAD RIDES THE REAL TICKS. The ruler is laid out by flexbox,
-         so asking the layout where the ticks actually are is both exact and
-         immune to the pitch changing with the viewport — a computed
-         percentage would drift the moment the gap clamped differently. It is
-         interpolated between two ticks so it slides rather than steps. */
-      if (head && ticks.length > 1) {
-        const ta = ticks[k], tb = ticks[Math.min(n - 1, k + 1)];
-        const px = ta.offsetLeft + (tb.offsetLeft - ta.offsetLeft) * f + ta.offsetWidth / 2;
-        head.style.left = `${px.toFixed(1)}px`;
+      /* ══ THE SCALE TURNS; THE INDEX MARK DOES NOT ════════════════
+         This was the reverse — a playhead sliding along a flat ruler, placed
+         each frame from ticks[k].offsetLeft. Under the arc the sixteen marks
+         are absolutely positioned and rotated about a point 344px above the
+         strip, so they all share one offsetLeft and there is nothing left to
+         interpolate between: the movement is the row's rotation instead.
+
+         IT IS `phase`, NOT A ROUNDED INDEX, and that costs nothing — phase
+         is already computed above for the conveyor itself, so the readout
+         rides the same continuous number the pictures do and cannot drift
+         away from them. No second scroll listener, no second
+         getBoundingClientRect: the one forced layout this handler performs
+         now serves both the works and their scale.
+
+         GUARDED ON A CHANGE OF 0.001 because a custom-property write
+         invalidates style whether or not the value differs, and at 3.6deg
+         per unit a thousandth of a step is 0.0036deg — far below anything
+         that can reach a pixel. */
+      if (row && Math.abs(phase - ring) > 0.001) {
+        ring = phase;
+        row.style.setProperty('--ring', phase.toFixed(3));
       }
 
       /* WRITTEN IMMEDIATELY; THE FADE IS PRESENTATION ONLY.
@@ -875,6 +894,12 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
         written = best;
         if (title) title.textContent = cards[best].dataset.title || '';
         if (year) year.textContent = cards[best].dataset.year || '';
+        /* The lit mark belongs HERE and not with the rotation above: which
+           work you are on is a discrete fact that changes sixteen times in
+           the whole section, and this is the one place that already knows
+           it has changed. Hung off the rotation it would be a sixteen-class
+           toggle every frame. */
+        ticks.forEach((x, i) => x.classList.toggle('is-on', i === best));
         readout.classList.remove('is-turning');
         void readout.offsetWidth;            /* restart the animation */
         readout.classList.add('is-turning');
@@ -956,6 +981,17 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
      UNSUPPORTED IS SAFE. A browser that does not know @property ignores this
      block, --prog inherits as it always did, and the moved write still cuts
      the recompute from 1133 elements to the bed's 150 — measured 0.3ms. */
+  /* Declared for the same reason --prog is: a custom property inherits by
+     default, and writing one per frame on an element with descendants
+     recomputes style for all of them. --ring is written on .rl__ticks,
+     which has sixteen, and read only by .rl__ticks itself — so it has no
+     business inheriting at all. */
+  @property --ring {
+    syntax: '<number>';
+    inherits: false;
+    initial-value: 0;
+  }
+
   @property --prog {
     syntax: '<number>';
     inherits: false;
@@ -1482,7 +1518,7 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
        the playhead ran 61, 46.5, 32, 55.5, 69, 72.5, 127px down a scroll that
        should have moved it steadily one way. The ruler is a fixed instrument;
        it cannot be re-scaled by the name of the thing it is measuring. */
-    width: min(560px, 62vw);
+    width: min(720px, 72vw);
     text-align: center; pointer-events: none;
   }
   .rl__cap { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -1500,22 +1536,83 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
   @media (prefers-reduced-motion: reduce) {
     .rl.is-turning .rl__cap, .rl.is-turning .rl__date { animation: none; }
   }
+  /* ══ THE SCALE IS AN ARC, AND IT TURNS ══════════════════════════
+     Promoted from preview draft rng-c "Horizon", chosen from twenty-four
+     readout designs. The flat sixteen-tick row is now a shallow curve with
+     its centre 340px ABOVE the strip, so the scale bows downward and the
+     marks hang from it; the index mark stays fixed at the top while the
+     arc turns beneath it, the way a lens barrel moves under its index.
+
+     THE CENTRE IS ABOVE, NOT BELOW, AND THAT IS THE DESIGN. A concave arc
+     is a dial you are turning; a convex one is a horizon you are standing
+     over, and the wedge of space it opens beneath its middle is exactly
+     the shape a line of type wants to sit in — which is where the work's
+     name now goes.
+
+     340px AND 54 DEGREES. A convex arc shows its curvature far more
+     readily than a concave one, because the marks fan outward rather than
+     inward. At the concave radius the outermost marks lie down and the row
+     stops reading as a comb.
+
+     THE MASK IS THE HORIZON. Both ends going to nothing is what stops the
+     curve reading as an arc with two ends and starts it reading as a
+     surface continuing past the frame. It is one declaration and the whole
+     illusion rests on it.
+
+     IT TURNS ON A CONTINUOUS NUMBER. --ring is the same phase the conveyor
+     itself derives — see initHorizon below — so the ring is wherever the
+     scroll is rather than clicking between sixteen resting positions. The
+     first version of this draft used the integer index and a 520ms
+     transition to hide the steps; measured across the section, that gives
+     16 positions against this one's 41 of 41 samples distinct.
+
+     THERE IS NO TRANSITION ON THE ROW, deliberately. With a per-frame
+     input a transition is latency rather than smoothing — the ring would
+     always be chasing a value it had already been given. The lit mark
+     keeps its 220ms fade, because THAT is a discrete change. */
   .rl__ruler {
-    position: relative; height: 28px;
-    margin: clamp(12px, 2vh, 22px) auto clamp(9px, 1.5vh, 16px);
+    position: relative; height: 42px;
+    margin: clamp(12px, 2vh, 18px) auto 0;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 19%, #000 81%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 19%, #000 81%, transparent);
   }
-  /* Centred, because .rl shrink-wraps to its widest child — the caption — and
-     a left-packed tick row then sits off-axis under a centred caption. The
-     playhead reads real tick offsets, so it follows the centring for free. */
   .rl__ticks {
-    display: flex; justify-content: center; align-items: flex-end;
-    gap: 5px; height: 100%;
+    display: block; height: 100%;
+    transform: rotate(calc((7.5 - var(--ring, 0)) * 3.6deg));
+    transform-origin: 50% -340px;
+    will-change: transform;
   }
-  .rl__t { display: block; width: 1px; height: 13px; background: var(--rule); }
+  /* Absolutely positioned, all sixteen stacked on the centre line and then
+     fanned out by the nth-child rotations below — so the spacing is angular,
+     not metric, and the row's own rotation carries every mark with it. */
+  .rl__t {
+    position: absolute; left: 50%; top: 4px;
+    width: 1px; height: 11px; background: var(--dim);
+    transform-origin: 50% -344px;
+    transition: height 220ms var(--ease), background-color 220ms var(--ease);
+  }
+  .rl__t.is-on { height: 18px; background: var(--bone); }
+  .rl__t:nth-child(1) { transform: translateX(-50%) rotate(-27.00deg); }
+  .rl__t:nth-child(2) { transform: translateX(-50%) rotate(-23.40deg); }
+  .rl__t:nth-child(3) { transform: translateX(-50%) rotate(-19.80deg); }
+  .rl__t:nth-child(4) { transform: translateX(-50%) rotate(-16.20deg); }
+  .rl__t:nth-child(5) { transform: translateX(-50%) rotate(-12.60deg); }
+  .rl__t:nth-child(6) { transform: translateX(-50%) rotate(-9.00deg); }
+  .rl__t:nth-child(7) { transform: translateX(-50%) rotate(-5.40deg); }
+  .rl__t:nth-child(8) { transform: translateX(-50%) rotate(-1.80deg); }
+  .rl__t:nth-child(9) { transform: translateX(-50%) rotate(1.80deg); }
+  .rl__t:nth-child(10) { transform: translateX(-50%) rotate(5.40deg); }
+  .rl__t:nth-child(11) { transform: translateX(-50%) rotate(9.00deg); }
+  .rl__t:nth-child(12) { transform: translateX(-50%) rotate(12.60deg); }
+  .rl__t:nth-child(13) { transform: translateX(-50%) rotate(16.20deg); }
+  .rl__t:nth-child(14) { transform: translateX(-50%) rotate(19.80deg); }
+  .rl__t:nth-child(15) { transform: translateX(-50%) rotate(23.40deg); }
+  .rl__t:nth-child(16) { transform: translateX(-50%) rotate(27.00deg); }
   .rl__head {
-    position: absolute; bottom: 0; left: 50%;
-    width: 2px; height: 28px; background: var(--bone);
-    transform: translateX(-50%);
+    position: absolute; left: 50%; top: 0; bottom: auto;
+    width: 1px; height: 24px; background: var(--bone);
+    transform: translateX(-50%); z-index: 2;
   }
   /* Rounded again: 5.5% of the card's width, the radius measured off the
      reference. A flat 4px made the pictures read as browser windows. */
@@ -1916,12 +2013,23 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
      same as the corner labels, when it is the one piece of copy in the
      section that changes as you scroll. */
   .rl__head { background: var(--accent); }
+  /* THE NAME MOVES INTO THE CURVE. With the arc bowing down there is a
+     wedge of space beneath its centre that nothing else can use, and a
+     single line of type is exactly what fits it — so the caption is pulled
+     up into the bowl rather than sitting clear of the scale. */
   .rl__cap {
-    font-size: clamp(1.05rem, 1.5vw, 1.45rem);
+    margin-top: -6px;
+    font-size: clamp(1.05rem, 1.5vw, 1.4rem);
     letter-spacing: -0.015em; line-height: 1.16;
   }
-  .rl__date { font-size: var(--t-sm); }
-  .rl__ruler { margin-top: clamp(15px, 2.4vh, 26px); }
+  /* The year goes to the mono face at furniture size. Against a curved
+     scale and a display-face name it is the third voice in the readout and
+     should read as the smallest — at --t-sm it competed with the title. */
+  .rl__date {
+    margin-top: 6px;
+    font-family: var(--mono); font-size: var(--t-micro);
+    letter-spacing: 0.16em; color: var(--dim);
+  }
 
   /* ══ THE BOXES GO BACK TO BLACK ═════════════════════════════════
      XXXIX and XL cut windows into this panel: the panel gave up its fill and
