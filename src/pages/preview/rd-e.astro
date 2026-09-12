@@ -2236,7 +2236,7 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
     padding: 0 22px;
     font-size: clamp(1.05rem, 1.5vw, 1.4rem);
   }
-  .wk__pin .rl__cap::before
+  .wk__pin .rl__cap::before,
   .wk__pin .rl__cap::after {
     content: ''; position: absolute; top: 50%; width: 12px; height: 1px;
     background: var(--dim);
@@ -2246,12 +2246,12 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
   .wk__pin .rl__ruler { height: 18px; margin: clamp(12px, 2vh, 20px) 0 8px; }
   .wk__pin .rl__ticks { justify-content: space-between; gap: 0; align-items: center; }
   .wk__pin .rl__t { position: relative; width: 9px; height: 9px; background: none; }
-  .wk__pin .rl__t::before
+  .wk__pin .rl__t::before,
   .wk__pin .rl__t::after { content: ''; position: absolute; background: var(--rule); }
   .wk__pin .rl__t::before { left: 0; right: 0; top: 4px; height: 1px; }
   .wk__pin .rl__t::after { top: 0; bottom: 0; left: 4px; width: 1px; }
   .wk__pin .rl__head { bottom: 3px; width: 13px; height: 13px; background: none; transform: translateX(-50%); }
-  .wk__pin .rl__head::before
+  .wk__pin .rl__head::before,
   .wk__pin .rl__head::after { content: ''; position: absolute; background: var(--accent); }
   .wk__pin .rl__head::before { left: 0; right: 0; top: 6px; height: 1px; }
   .wk__pin .rl__head::after { top: 0; bottom: 0; left: 6px; width: 1px; }
