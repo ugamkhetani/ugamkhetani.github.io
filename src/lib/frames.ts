@@ -91,15 +91,36 @@ export function sizesFor(span: number): string {
  * window: (window top in source px) / (source height - window height in
  * source px). 50% reproduces the default exactly.
  *
- *   DIWALI  3456x2234, bars 180 top and 115 bottom, picture 180..2119.
- *   Declared 16:9, which is right — the picture alone is 3456x1939 = 1.782
- *   against 16:9's 1.778. The FILE is 1.547, so cover fits by width and the
- *   window is 3456/1.778 = 1943.8 tall against 290.2 of overflow. Centred it
- *   sat at 145.1..2088.9: 35px of the top bar still showing, and 30px of
- *   picture lost off the bottom. Centred on the picture instead, the window
- *   top is 1149.5 - 971.9 = 177.6, so 177.6 / 290.2 = 61.2%. What is left is
- *   2.4px of bar at each edge, because the window is 4.8px taller than the
- *   picture — 0.1% of the frame, sub-pixel at any size this is drawn at.
+ *   DIWALI WAS THE ONLY ENTRY AND IT IS GONE, because the files it corrected
+ *   are gone. It arrived as a single 3456x2234 frame with bars of 180 top and
+ *   115 bottom, and 61.2% put the window on the picture exactly. On
+ *   2026-09-12 it was replaced by ten stills, and that is what broke the
+ *   approach rather than any arithmetic: SIX of the ten carried bars, in
+ *   THREE different proportions — 180/115, a 66/42 downscale of the same
+ *   frame, and 146/144 on three others — and this table holds one number per
+ *   WORK. Measured on the rendered page in a 363x204 box, the inherited 61.2%
+ *   left 2.4px of black along the bottom of the three symmetric ones.
+ *
+ *   A SEVENTH WAS BEYOND ANY VALUE OF THIS TABLE, and it is the reason the
+ *   files were cut rather than the table extended. 08 was a 2.38 scope
+ *   picture inside a 3420x2214 file — a 4:3 screen grab of a letterboxed
+ *   player. In a 16:9 box the window is 1923.8 tall against a 1437 picture,
+ *   so 486.8px of bar shows WHEREVER the window sits: measured, 25.9px top
+ *   and 25.2px bottom, a quarter of the card. object-position can only move a
+ *   window, never shrink it.
+ *
+ *   So the bars were trimmed off the six files instead, with Ugam's approval,
+ *   and every frame is now 1.7778 or wider. That leaves NO vertical overflow
+ *   in a 16:9 box for any of them, which is why the table is empty rather
+ *   than rewritten: --fcy would be inert even if it were set. Trimming also
+ *   fixed 08 for free — at 3420x1437 it is simply a wide frame, and cover
+ *   crops its sides like 05, 09 and 10 already did.
+ *
+ *   THE MECHANISM STAYS, and so does the arithmetic above. Bars come back
+ *   every time a frame is exported from a player rather than a master, and
+ *   when the next one does this is where the fix is written — but trim the
+ *   file first if you can, because a trimmed frame needs no entry at all and
+ *   cannot be defeated by a picture wider than the box.
  *
  * BOOK MY YAMRAJ IS NOT IN THIS TABLE, AND THE REASON IS WORTH KEEPING. It
  * looks like a third case — 2160x4096 is 0.527 against a declared 9:16 of
@@ -130,7 +151,8 @@ export function sizesFor(span: number): string {
  * own BED_CROP in src/lib/bed.ts, and applying both would correct twice.
  */
 export const FRAME_CROP: Record<string, number> = {
-  'diwali-ke-shor-mein': 61.2,
+  /* Empty on purpose — see above. Every frame in the catalogue is currently
+     free of baked-in bars, so there is nothing to re-centre. */
 };
 
 /** `object-position` for a work's frames — the default unless it has bars. */

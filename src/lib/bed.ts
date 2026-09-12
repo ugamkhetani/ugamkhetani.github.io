@@ -69,25 +69,36 @@ export const BED_SWAPS: Record<string, string> = {
 };
 
 /**
- * TWO FRAMES CARRY LETTERBOX BARS BURNED INTO THE FILE — not a layout fault,
- * they were exported that way. Measured by walking rows in from the top and
+ * ONE FRAME CARRIES LETTERBOX BARS BURNED INTO THE FILE — not a layout fault,
+ * it was exported that way. Measured by walking rows in from the top and
  * bottom until the mean channel clears 6: Broken Reflections has 115px top and
- * bottom of 1080, and Diwali 180 top and 115 bottom of 2234 — 21.3% and 13.2%
- * of the frame. Both are wider than a tile, so object-fit: cover fits them by
- * height and the whole source height, bars included, lands in the tile.
+ * bottom of 1080 — 21.3% of the frame. It is wider than a tile, so
+ * object-fit: cover fits it by height and the whole source height, bars
+ * included, lands in the tile.
  *
- * The scale pushes the bars past the tile edge; Diwali needs a shift as well
- * because its bars are uneven, and without one the picture sits low. The factors
- * that put the bar edges exactly on the tile edges are 1.271 and 1.152, which
- * measured as a margin of 0.0 and -0.2px — right in arithmetic and one rounding
- * from showing a sliver. These carry about 1% more, the smallest that holds a
- * pixel of margin at the narrow four-column grid as well as the six-column one.
- * Nothing is gained by trimming further: the floor for a 1px margin is 1.292
- * and 1.171.
+ * The scale pushes the bars past the tile edge. The factor that puts the bar
+ * edges exactly on the tile edges is 1.271, which measured as a margin of
+ * 0.0px — right in arithmetic and one rounding from showing a sliver. This
+ * carries about 1% more, the smallest that holds a pixel of margin at the
+ * narrow four-column grid as well as the six-column one. Nothing is gained by
+ * trimming further: the floor for a 1px margin is 1.292.
+ *
+ * DIWALI WAS HERE AND IS NOT ANY MORE, AND THE REASON IS THE FILE, NOT THE
+ * TABLE. The bed takes frame 1 only — max={1} on its Still — so this entry
+ * corrected exactly one image, the 3456x2234 with bars of 180 top and 115
+ * bottom, and its uneven bars are why it needed a shift as well as a scale.
+ * On 2026-09-12 that frame was trimmed to 3456x1939, along with five others,
+ * when the work's stills were replaced; see FRAME_CROP in src/lib/frames.ts
+ * for why. A 1.175 scale and a -1.71% shift on a frame with nothing to hide
+ * is not a smaller correction, it is a 17.5% zoom into a clean picture and a
+ * shift off centre, so the entry goes rather than shrinks.
+ *
+ * IF A BED FRAME IS EVER REPLACED, CHECK THIS TABLE. An entry here is keyed to
+ * one work but describes one FILE, and nothing in the build will tell you when
+ * that file stops needing it.
  */
 export const BED_CROP: Record<string, { scale: number; shiftY: number }> = {
   'broken-reflections': { scale: 1.29, shiftY: 0 },
-  'diwali-ke-shor-mein': { scale: 1.175, shiftY: -1.71 },
 };
 
 /**
