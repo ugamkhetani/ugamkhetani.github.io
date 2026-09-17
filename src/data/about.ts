@@ -58,11 +58,11 @@ export const PROCESS = [
   },
   {
     n: '03',
-    title: 'Obsess over the details',
+    title: 'Follow it through',
     lines: [
-      'I’m drawn to texture, imperfection and small decisions.',
-      'A sound can be technically correct and still feel wrong.',
-      'The difference usually lives in the details.',
+      'I like to stay close to the work through the final mix.',
+      'A good idea is only useful if it survives production.',
+      'The last decision matters as much as the first.',
     ],
     pull: 'Magic lies in the details.',
   },
