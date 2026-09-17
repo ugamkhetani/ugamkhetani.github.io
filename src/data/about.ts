@@ -33,7 +33,7 @@ export const WHO = {
     /* ← "that" added on 2026-09-17: Ugam's revision read "the details are easy
        to miss", taken as a dropped word. Remove it if the line was meant as sent. */
     'I care about the details that are easy to miss: the texture underneath a chord, the weight of a silence, the sound that makes an image feel closer, stranger or more alive.',
-    'For me, those details aren’t decoration. They’re the work.',
+    'Those details aren’t decoration. They’re the work.',
   ],
 };
 
