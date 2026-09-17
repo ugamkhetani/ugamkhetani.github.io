@@ -40,7 +40,7 @@ export const PROCESS = [
     n: '01',
     title: 'Find the language',
     lines: [
-      'I start with the world before I start with the sound.',
+      'The sound begins with understanding the world inside the frame.',
       'What does it feel like? What is its texture? What does it leave unsaid?',
       'From there, I shape a language that belongs to the work.',
     ],
