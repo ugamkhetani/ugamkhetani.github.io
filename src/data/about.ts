@@ -30,7 +30,9 @@ export const WHO = {
     'I’m Ugam, a composer, producer and sound designer based in Mumbai.',
     'I work across film, brands, music and emerging formats, building sound from the first creative idea through to the final mix.',
     'My work sits somewhere between composition and sound design. I’m interested in the space between melody and texture, music and atmosphere, precision and imperfection.',
-    'I care about the details most people don’t consciously notice: the texture underneath a chord, the weight of a silence, the sound that makes an image feel closer, stranger or more alive.',
+    /* ← "that" added on 2026-09-17: Ugam's revision read "the details are easy
+       to miss", taken as a dropped word. Remove it if the line was meant as sent. */
+    'I care about the details that are easy to miss: the texture underneath a chord, the weight of a silence, the sound that makes an image feel closer, stranger or more alive.',
     'For me, those details aren’t decoration. They’re the work.',
   ],
 };
@@ -49,7 +51,7 @@ export const PROCESS = [
     n: '02',
     title: 'Build, don’t assemble',
     lines: [
-      'Music, sound design, voice and mix are not separate boxes to me.',
+      'Music, sound design, voice and mix are not separate boxes.',
       'They influence each other.',
       'I prefer building them together, so the final result feels like one idea rather than a collection of parts.',
     ],
@@ -67,7 +69,7 @@ export const PROCESS = [
 ];
 
 export const ACROSS = {
-  head: ['Different pictures.', 'Same obsession.'],
+  head: ['Different formats.', 'Same obsession.'],
   lede: 'I work across formats, but the underlying approach stays the same: build a distinct sonic world that belongs to the work.',
   columns: [
     { label: 'Film',  items: ['Original Score', 'Film & OTT', 'Short Films', 'AI Films', 'Micro Drama'] },
@@ -95,7 +97,7 @@ export const PROOF = {
 
 export const CLOSING = {
   head: 'The work should sound like itself.',
-  body: 'Whether it’s a film, a campaign or a record, I’m interested in building sound with a point of view, from the first idea to the final detail.',
+  body: 'Whether it’s a film, a campaign or a record, I’m interested in making the sound feel inseparable from the work, from the first idea to the final detail.',
   call: 'Let’s make something worth hearing.',
   tail: 'Talk via email, WhatsApp or phone.',
 };
