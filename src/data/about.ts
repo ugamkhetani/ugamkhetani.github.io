@@ -28,9 +28,9 @@ export const WHO = {
   head: 'I think about sound as part of the world, not something added to it.',
   body: [
     'I’m Ugam, a composer, producer and sound designer based in Mumbai.',
-    'I work across film, brands, music and emerging formats, building sound from the first creative idea through to the final mix.',
-    'My work sits somewhere between composition and sound design. I’m interested in what happens when melody, texture and atmosphere begin to feel like the same language.',
-    'That usually begins with listening closely, to the image, the pace, the space around a scene, and the details that give it character.',
+    'I work across film, brands, music and emerging formats, developing sound from the first creative idea through to the final mix.',
+    'My work moves between composition and sound design. I’m interested in what happens when melody, texture and atmosphere begin to feel like the same language.',
+    'That begins with listening closely to the image, the pace, the space around a scene, and the details that give it character.',
     'Those details aren’t decoration. They’re the work.',
   ],
 };
