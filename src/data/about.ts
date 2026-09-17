@@ -38,11 +38,11 @@ export const WHO = {
 export const PROCESS = [
   {
     n: '01',
-    title: 'Start with the world',
+    title: 'Find the language',
     lines: [
       'I start with the world before I start with the sound.',
       'What does it feel like? What is its texture? What does it leave unsaid?',
-      'From there, I shape a language that feels specific to the work.',
+      'From there, I shape a language that belongs to the work.',
     ],
   },
   {
@@ -56,7 +56,7 @@ export const PROCESS = [
   },
   {
     n: '03',
-    title: 'Follow it through',
+    title: 'Hold the intent',
     lines: [
       'I like to stay close to the work through the final mix.',
       'A good idea is only useful if it survives production.',
