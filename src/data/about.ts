@@ -53,7 +53,7 @@ export const PROCESS = [
     lines: [
       'Music, sound design, voice and mix are not separate boxes.',
       'They influence each other.',
-      'I prefer building them together, so the final result feels like one idea rather than a collection of parts.',
+      'I prefer building them together, until the different layers begin to feel like one piece.',
     ],
   },
   {
