@@ -2685,6 +2685,28 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
      gap Fit gave its titles. */
   .fr + .pv-stack { margin-top: clamp(10px, 2vh, 26px); }
 
+  /* ── A NAME COLLISION, AND THE HALF-OPACITY IT CAUSED ─────────────
+     'Same obsession.' rendered dimmer than 'not something added to it.'
+     and the colours were identical — both #D8D8D8. The difference was
+     opacity: measured 0.5 against 1.
+
+     .pv-mark means two things in this stylesheet. The centred base uses it
+     for the RADIAL MARK ON THE RECORD — the line from the label to the
+     spindle, drawn with stroke: var(--ground) and opacity: 0.5 so it reads
+     as pressed rather than printed — and the two-voice base later used the
+     same name for the statement's answering half. The SVG line was renamed
+     .pv-mark-l when that clash was first noticed, but the old rule stayed
+     in the sheet, and it still matches the <em>. So the text inherited a
+     disc's opacity.
+
+     The other half of the pair escapes because it is the live page's own
+     .s__mark, which this rule cannot reach.
+
+     Two classes deep beats one, so this is all it takes here. The same
+     collision is in every draft built on that base — Blend 1, 1a to 1d and
+     Fit 1 to 8 — and is not swept up without asking. */
+  .pv-panel .pv-mark { opacity: 1; }
+
   /* Fit sized its sections around a title that filled the screen. With the
      live frame in its place the movement opens tighter at the top and keeps
      its foot, so the four sit at the live page's rhythm rather than the
