@@ -31,9 +31,7 @@
  *   two different jobs, which is why the corner one is set at eleven pixels
  *   and uppercased and the middle one is not.
  *
- * WHAT IS KEPT FROM FIT. Everything below the frame: the spindle-hole port at
- * the top of every box with a 1400px record clipped inside 26 pixels of it and
- * turning 260 degrees on the section's own timeline; the live statements and
+ * WHAT IS KEPT FROM FIT. Everything below the frame: the live statements and
  * their reveals; the centred prose at 48 characters; How I work tightened to
  * 42 with its three questions breaking the measure at 56; the panel, the
  * palette, the accent stops.
@@ -41,8 +39,46 @@
  * WHAT IS GONE. The fitted SVG titles and the pan that carried them — a pan
  * belongs to a line of type that crosses the screen, and this title does not.
  * The name now arrives the way the live page arrives it: revealed once, in
- * place. The port's turn and the statements' reveals are untouched, so the
- * page still has both of its clocks.
+ * place.
+ *
+ * AMENDED 2026-09-19, three changes asked for by name.
+ *
+ *   THE CLOSING STATEMENT NOW SPEAKS IN THE OPENING STATEMENT'S VOICE. 'The
+ *   work should sound like itself.' was set in the serif; it is now the
+ *   display grotesk at weight 500, upright — the same face, weight, size and
+ *   tracking as 'I think about sound as part of the world,'. The element was
+ *   carrying `s__stmt--serif serif`; both classes are gone and the measure is
+ *   held by `s__stmt--end`, so the face now comes from .s__stmt uninterrupted
+ *   rather than from a counter-rule fighting .serif. That also takes the live
+ *   page's grotesk-obliqued statement out of this draft at the root instead
+ *   of painting over it. The page still has two voices — the opening keeps
+ *   its italic serif half after the comma — but the closing line is no
+ *   longer one of them.
+ *
+ *   THE PORTS ARE GONE. Every box opened with a spindle hole cut out of the
+ *   middle of its top edge and a record turning behind it. Removed on
+ *   request, and with it the mask that cut the hole, the padding that made
+ *   room for it, and the disc itself — grooves, label, spindle, radial mark.
+ *   The panel's top edge is unbroken now and its top padding is the box's own
+ *   again.
+ *
+ *   WHAT WENT WITH THEM. The turn was one of this page's two clocks: each
+ *   disc rotated 260 degrees across its movement on the section's own view()
+ *   timeline. The reveals are the other clock and they are untouched, so the
+ *   page still answers the scroll — but the continuous, ambient motion is
+ *   gone and everything left is discrete.
+ *
+ *   AND A BUG WENT WITH THEM. .pv-mark named two things in this sheet: the
+ *   record's radial mark, drawn at opacity 0.5, and the statement's answering
+ *   voice. The <em> was inheriting the disc's opacity, which is why 'Same
+ *   obsession.' read dimmer than the line it answers. The stroke rule left
+ *   with the record, so the counter-rule that was holding the text at 1 is
+ *   gone too rather than standing over a cause that no longer exists.
+ *
+ *   WHO I AM IS NUMBERED. 02 in the accent above its statement, set exactly
+ *   as 03, 04 and 05 already were in the three movements below — the same
+ *   .pv-label and .pv-n, no new rule and no new colour. It was the only box
+ *   in the run without a number.
  *
  * ← ASSUMED: the corner labels are repeated on all four movements, as they are
  * on the live site. Fit's own numbering is dropped because the frame's top
@@ -342,19 +378,8 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
         </div>
       </div>
       <div class="pv-stack">
-        <span class="pv-port" aria-hidden="true">
-          <span class="pv-huge">
-            <span class="pv-grooves"></span>
-            <span class="pv-spin">
-              <svg viewBox="0 0 400 400">
-                <circle class="pv-lab" cx="200" cy="200" r="150" />
-                <line class="pv-mark-l" x1="200" y1="200" x2="200" y2="200" />
-                <circle class="pv-hole" cx="200" cy="200" r="11" />
-              </svg>
-            </span>
-          </span>
-        </span>
         <div class="pv-panel">
+          <p class="pv-label"><span class="pv-n">02</span></p>
           <h3 class="s__stmt">
             <span class="line" data-reveal><span class="line__in">{whoSans}</span></span>
             {whoSerif && (<em class="s__mark serif">
@@ -379,18 +404,6 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
         </div>
       </div>
       <div class="pv-stack">
-        <span class="pv-port" aria-hidden="true">
-          <span class="pv-huge">
-            <span class="pv-grooves"></span>
-            <span class="pv-spin">
-              <svg viewBox="0 0 400 400">
-                <circle class="pv-lab" cx="200" cy="200" r="150" />
-                <line class="pv-mark-l" x1="200" y1="200" x2="200" y2="200" />
-                <circle class="pv-hole" cx="200" cy="200" r="11" />
-              </svg>
-            </span>
-          </span>
-        </span>
         <div class="pv-panel">
           <p class="pv-label"><span class="pv-n">03</span></p>
           <h3 class="s__stmt">
@@ -423,18 +436,6 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
         </div>
       </div>
       <div class="pv-stack">
-        <span class="pv-port" aria-hidden="true">
-          <span class="pv-huge">
-            <span class="pv-grooves"></span>
-            <span class="pv-spin">
-              <svg viewBox="0 0 400 400">
-                <circle class="pv-lab" cx="200" cy="200" r="150" />
-                <line class="pv-mark-l" x1="200" y1="200" x2="200" y2="200" />
-                <circle class="pv-hole" cx="200" cy="200" r="11" />
-              </svg>
-            </span>
-          </span>
-        </span>
         <div class="pv-panel">
           <p class="pv-label"><span class="pv-n">04</span></p>
           <ol class="pv-steps">
@@ -466,21 +467,9 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
         </div>
       </div>
       <div class="pv-stack">
-        <span class="pv-port" aria-hidden="true">
-          <span class="pv-huge">
-            <span class="pv-grooves"></span>
-            <span class="pv-spin">
-              <svg viewBox="0 0 400 400">
-                <circle class="pv-lab" cx="200" cy="200" r="150" />
-                <line class="pv-mark-l" x1="200" y1="200" x2="200" y2="200" />
-                <circle class="pv-hole" cx="200" cy="200" r="11" />
-              </svg>
-            </span>
-          </span>
-        </span>
         <div class="pv-panel pv-panel--end">
           <p class="pv-label"><span class="pv-n">05</span></p>
-          <h3 class="s__stmt s__stmt--serif serif">
+          <h3 class="s__stmt s__stmt--end">
             {wordsOf(CLOSING.head).map((w, i) => (
               <span class="line" data-reveal style={`--i:${i}`}><span class="line__in">{w}&nbsp;</span></span>
             ))}
@@ -2469,26 +2458,15 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
   }
   .pv-ask { color: var(--dim); }
 
-  /* The grooves, shared by every record here: rings, a run-out band, a
-     lead-in edge. Rings show no rotation, so every disc carries a mark
-     that does. */
-  .pv-grooves {
-    border-radius: 50%;
-    background:
-      radial-gradient(circle, transparent 0 47.5%, rgba(255, 255, 255, 0.055) 47.5% 48.2%, transparent 48.2%),
-      radial-gradient(circle, transparent 0 96%, rgba(255, 255, 255, 0.07) 96% 96.6%, transparent 96.6%),
-      repeating-radial-gradient(circle, rgba(255, 255, 255, 0.05) 0 1.2px, rgba(10, 9, 8, 0.96) 1.2px 3.4px);
-    box-shadow: 0 0 0 1px var(--rule-soft);
-  }
-  .pv-spin { position: absolute; inset: 0; display: block; }
-  .pv-spin svg { width: 100%; height: 100%; display: block; overflow: visible; }
-  .pv-lab { fill: var(--accent); }
-  .pv-hole { fill: var(--ground); }
-  .pv-mark { stroke: var(--ground); stroke-width: 2.4; opacity: 0.5; }
-  .pv-cat {
-    fill: var(--bone-dim); font-family: var(--mono); font-size: 15px;
-    letter-spacing: 3px; text-anchor: middle;
-  }
+  /* THE RECORD IS GONE — grooves, label, spindle and radial mark. It was
+     only ever seen through the port cut into the panel's top edge, and that
+     port was removed on 2026-09-19, so every rule that drew it went with it
+     rather than sitting here unused. One note for anyone restoring it: the
+     radial mark was .pv-mark-l, but an older .pv-mark rule for the same
+     line was still in this sheet and was also matching the <em> that
+     carries a statement's second voice — which is why 'Same obsession.' was
+     rendering at a disc's opacity. Bring the record back by all means; do
+     not bring that name back with it. */
 
   @media (max-width: 820px) {
     .pv-panel, .pv-panel--end { max-width: none; }
@@ -2511,40 +2489,20 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
     to   { transform: translateX(-7vw); }
   }
 
-  /* ══ P2j · PIN ═════════════════════════════════════════════════════ */
-  .mvt.pv-sec { --port-r: clamp(9px, 1vw, 14px); --port-x: 50%; --port-y: 0%; }
-  /* ── RETAINED FROM P2 · PORT ──────────────────────────────────────
-     The hole is cut, not drawn: the panel's own paint is masked away and
-     what shows is whatever the page has behind it. The disc turns 260
-     degrees over the movement on the section's own view() timeline. */
-  .pv-panel {
-    -webkit-mask-image: radial-gradient(circle at var(--port-x) var(--port-y),
-      transparent 0 var(--port-r), rgba(255, 255, 255, 1) calc(var(--port-r) + 0.5px));
-    mask-image: radial-gradient(circle at var(--port-x) var(--port-y),
-      transparent 0 var(--port-r), rgba(255, 255, 255, 1) calc(var(--port-r) + 0.5px));
-    padding-top: calc(var(--port-r) + clamp(26px, 4.4vh, 56px));
-  }
-  .pv-port {
-    position: absolute; z-index: 3; pointer-events: none; overflow: hidden;
-    left: var(--port-x); top: var(--port-y);
-    width: calc(var(--port-r) * 2); aspect-ratio: 1 / 1;
-    border-radius: 50%; transform: translate(-50%, -50%);
-    box-shadow: 0 0 0 1px var(--rule-soft);
-  }
-  .pv-huge {
-    position: absolute; left: 50%; top: 50%;
-    width: min(1400px, 112vw); aspect-ratio: 1 / 1;
-    transform: translate(-50%, -50%);
-  }
-  .pv-huge .pv-grooves { position: absolute; inset: 0; }
-  .pv-mark-l { stroke: var(--ground); stroke-width: 2.4; opacity: 0.55; }
+  /* ══ P2j · PIN — THE PORT, REMOVED 2026-09-19 ═══════════════════════
+     What stood here: a 9–14px circle centred on the top edge of every box,
+     the panel's own paint masked away beneath it so the hole was cut rather
+     than drawn, a 1400px record behind it, and a turn of 260 degrees across
+     each movement on the section's own view() timeline. All of it is gone on
+     request, the padding-top that was reserving the hole's radius included —
+     so the box takes its own clamp(26px, 4.4vh, 56px) back and its top edge
+     is continuous.
 
-  @supports (animation-timeline: view()) {
-    @media (prefers-reduced-motion: no-preference) {
-      .pv-spin { animation: pv-turn linear both; animation-timeline: view(); animation-range: cover; }
-    }
-  }
-  @keyframes pv-turn { from { transform: rotate(0deg); } to { transform: rotate(260deg); } }
+     WHAT THE PAGE LOST WITH IT. Two clocks ran here. The reveals answer the
+     scroll in steps and are untouched; the turn was the continuous one, the
+     only thing on the page that moved by degrees rather than by arrival.
+     Nothing replaces it, so what motion is left is all discrete — worth
+     knowing before reading this draft as quieter than its siblings. */
 
 /* ══ BLEND · PIN + THE LIVE STATEMENTS ═════════════════════════════
      The two statements are the live page's own elements, so they are styled
@@ -2567,30 +2525,33 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
   /* The closing statement is revealed word by word, which means its words
      are separate inline-blocks: without this they set solid at the panel's
      full measure rather than at the statement's. */
-  .pv-panel .s__stmt--serif { max-width: 20ch; margin-inline: auto; }
+  .pv-panel .s__stmt--end { max-width: 20ch; margin-inline: auto; }
 
-  /* ── A BUG INHERITED FROM THE LIVE PAGE, FIXED HERE ONLY ──────────
-     The closing statement is marked up `s__stmt s__stmt--serif serif`, and
-     on the live site it renders in NEUE HAAS GROTESK, obliqued. Measured on
-     localhost:4323/ just now: font-family "Neue Haas Grotesk Display",
-     font-style italic, weight 500.
+  /* ── ONE VOICE FOR BOTH STATEMENTS ───────────────────────────
+     Asked for on 2026-09-19: 'The work should sound like itself.' set in the
+     same face as 'I think about sound as part of the world,'. There is NO
+     RULE FOR IT, which is the point. The element stopped carrying
+     `s__stmt--serif serif` and now carries `s__stmt--end`, so .s__stmt
+     reaches it with nothing in the way — var(--display), weight 500,
+     upright, −0.028em, clamp(1.5rem, min(4.4vw, 5.6vh), 3.1rem), which is
+     the opening statement exactly. Identical by inheritance rather than by a
+     second rule agreeing with the first.
 
-     The cause is source order at equal specificity. Both rules are one
-     class plus the same astro-cid attribute:
+     That also disposes of a bug this draft inherited. The live page marks
+     the same statement `s__stmt s__stmt--serif serif` and renders it in NEUE
+     HAAS GROTESK, SYNTHETICALLY OBLIQUED — measured on localhost:4323 as
+     font-family "Neue Haas Grotesk Display", font-style italic, weight 500.
+     The cause is source order at equal specificity: .serif (line 1124) and
+     .s__stmt (line ~1754) are both one class plus the same astro-cid
+     attribute, so .s__stmt wins the family and the weight while .serif still
+     wins the STYLE, which .s__stmt never sets. A grotesk with a synthetic
+     slant is the one outcome nobody chose. Taking .serif off the element
+     ends it here at the cause rather than over it. The live page still has
+     it, and is not mine to change unasked.
 
-       .serif    { font-family: var(--serif); font-weight: 400 }   line 1124
-       .s__stmt  { font-family: var(--display); font-weight: 500 } line ~1754
-
-     so .s__stmt wins the family and the weight, while .serif still wins the
-     style — because .s__stmt does not set one. What you get is a grotesk
-     with a synthetic slant, which is the one outcome nobody chose. The Who
-     I am mark escapes it because .s__mark sets no family, so .serif carries
-     there uncontested — which is why one statement looks right and the
-     other does not.
-
-     Two classes deep beats one, so this is all it takes. It is deliberately
-     scoped to this draft: the live page is not mine to change unasked. */
-  .pv-panel .s__stmt--serif { font-family: var(--serif); font-weight: 400; }
+     The page keeps two voices: the opening statement's italic serif half
+     after the comma is untouched. The closing line is simply no longer one
+     of them. */
 
   /* ── THE MOVEMENT NUMBER, OVER THE NAME ───────────────────────────
      Asked for after the 02 label row came out of the box: the number on
@@ -2685,27 +2646,24 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
      gap Fit gave its titles. */
   .fr + .pv-stack { margin-top: clamp(10px, 2vh, 26px); }
 
-  /* ── A NAME COLLISION, AND THE HALF-OPACITY IT CAUSED ─────────────
-     'Same obsession.' rendered dimmer than 'not something added to it.'
-     and the colours were identical — both var(--bone-dim). The difference
-     was opacity: measured 0.5 against 1.
+  /* ── A NAME COLLISION THAT LEFT WITH THE RECORD ─────────────────
+     'Same obsession.' used to render dimmer than 'not something added to
+     it.' at an identical colour — both var(--bone-dim), opacity 0.5 against
+     1. .pv-mark named two things in this sheet: the record's radial mark, at
+     half opacity so it read as pressed rather than printed, and a
+     statement's answering voice. The SVG line had already been renamed
+     .pv-mark-l when the clash was first noticed, but the old rule stayed
+     behind and went on matching the <em>.
 
-     .pv-mark means two things in this stylesheet. The centred base uses it
-     for the RADIAL MARK ON THE RECORD — the line from the label to the
-     spindle, drawn with stroke: var(--ground) and opacity: 0.5 so it reads
-     as pressed rather than printed — and the two-voice base later used the
-     same name for the statement's answering half. The SVG line was renamed
-     .pv-mark-l when that clash was first noticed, but the old rule stayed
-     in the sheet, and it still matches the <em>. So the text inherited a
-     disc's opacity.
+     A `.pv-panel .pv-mark { opacity: 1 }` stood at this spot to hold the
+     text up. It is gone now because its cause is gone: the record was
+     removed on 2026-09-19 and its stroke rule with it, so the <em> sits at
+     the initial opacity of 1 on its own. Measured after the change: both
+     halves of both statements at 1.
 
-     The other half of the pair escapes because it is the live page's own
-     .s__mark, which this rule cannot reach.
-
-     Two classes deep beats one, so this is all it takes here. The same
-     collision is in every draft built on that base — Blend 1, 1a to 1d and
-     Fit 1 to 8 — and is not swept up without asking. */
-  .pv-panel .pv-mark { opacity: 1; }
+     The collision is still live in every draft built on that base — Blend 1,
+     1a to 1d and Fit 1 to 8, which all still have their records — and is not
+     swept up without asking. */
 
   /* Fit sized its sections around a title that filled the screen. With the
      live frame in its place the movement opens tighter at the top and keeps
