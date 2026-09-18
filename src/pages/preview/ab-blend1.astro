@@ -37,6 +37,28 @@
  *   centred drafts use — because the reveal boxes are sized from the line, and
  *   a line that wraps differently reveals differently.
  *
+ * THREE CHANGES ASKED FOR ON THE FIRST LOOK:
+ *
+ *   THE 02 LABEL ROW IS GONE. 'Mumbai, India · Working globally · 2025 — 2026'
+ *   and its number came out of the Who I am box entirely. The other three
+ *   movements still carry their bare numbers, 03, 04 and 05, because only this
+ *   row was named.
+ *
+ *   THE TWO STATEMENTS ARE NOW ONE RULE. What I work across was set by
+ *   .pv-state and Who I am by the live .s__stmt, and the two agreed at no
+ *   width: measured, 40.96px against 43.01px, on leading of 41.78 against
+ *   49.03. Matching numbers by hand would have held at one viewport and
+ *   drifted at every other, because .s__stmt is bounded by viewport HEIGHT as
+ *   well as width — min(3.8vw, 5.2vh) — and .pv-state was not. So the second
+ *   statement is given the live class instead of its own, and one rule now
+ *   sets both.
+ *
+ *   THE COLOUR NEEDED NOTHING. 'Same obsession.' and 'not something added to
+ *   it.' already computed to the same value — rgb(216, 216, 216), which is
+ *   --bone-dim — because .pv-mark and .s__mark both set it. What made them
+ *   look unlike each other was the size and the leading above, which the
+ *   change above settles.
+ *
  * RETAINED from P2j: the cut hole and its 260-degree turn on the section's
  * view() timeline, the name pan, the centred setting, the palette.
  *
@@ -339,7 +361,6 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
           </span>
         </span>
         <div class="pv-panel">
-          <p class="pv-label"><span class="pv-n">02</span>{HERO.place[0]} · {HERO.place[1]} · {RANGE}</p>
           <h3 class="s__stmt">
             <span class="line" data-reveal><span class="line__in">{whoSans}</span></span>
             {whoSerif && (<em class="s__mark serif">
@@ -368,7 +389,7 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
         </span>
         <div class="pv-panel">
           <p class="pv-label"><span class="pv-n">03</span></p>
-          <h3 class="pv-state">
+          <h3 class="s__stmt">
             <span class="pv-say">{ACROSS.head[0]}</span>
             <em class="pv-mark">{stopOf(ACROSS.head[1])[0]}<span class="pv-stop">{stopOf(ACROSS.head[1])[1]}</span></em>
           </h3>
