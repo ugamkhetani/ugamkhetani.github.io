@@ -53,6 +53,15 @@
  *   statement is given the live class instead of its own, and one rule now
  *   sets both.
  *
+ *   THE STEP NUMBERS ARE GONE. 01, 02 and 03 no longer sit above the three
+ *   headings in How I work — the steps keep their rules and their titles, and
+ *   the sequence is carried by the order and the wording alone.
+ *
+ *   THE MOVEMENT NUMBER IS BACK, ALONE AND IN THE ACCENT, and over the name
+ *   rather than inside the box: 02 above Who I am, in the mono at label size,
+ *   in the same accent .pv-n was carrying. The other three movements still
+ *   keep their numbers inside their panels — only this one was named.
+ *
  *   THE COLOUR NEEDED NOTHING. 'Same obsession.' and 'not something added to
  *   it.' already computed to the same value — rgb(216, 216, 216), which is
  *   --bone-dim — because .pv-mark and .s__mark both set it. What made them
@@ -346,6 +355,7 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
     </section>
 
     <section class="mvt pv-sec" id="about" aria-labelledby="r-who" data-mv="1">
+      <p class="pv-num">02</p>
       <h2 class="pv-giant" id="r-who" style="--gs:30vw"><span class="pv-pan">Who I am</span></h2>
       <div class="pv-stack">
         <span class="pv-port" aria-hidden="true">
@@ -426,7 +436,6 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
           <ol class="pv-steps">
             {PROCESS.map((s) => (
               <li class="pv-step">
-                <span class="pv-label pv-label--hi">{s.n}</span>
                 <h3 class="pv-steptitle">{s.title}</h3>
                 <div class="pv-steplines">
                   {s.lines.flatMap((l) => clauses(l)).map((c) => (
@@ -2568,4 +2577,17 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
      Two classes deep beats one, so this is all it takes. It is deliberately
      scoped to this draft: the live page is not mine to change unasked. */
   .pv-panel .s__stmt--serif { font-family: var(--serif); font-weight: 400; }
+
+  /* ── THE MOVEMENT NUMBER, OVER THE NAME ───────────────────────────
+     Asked for after the 02 label row came out of the box: the number on
+     its own, in the accent, above the name rather than inside the panel.
+     It takes the site's own mono at label size and the same var(--accent)
+     .pv-n was already carrying, so no new colour is introduced; the section
+     centres it, as it centres everything else here. */
+  .pv-num {
+    margin: 0 0 clamp(10px, 1.6vh, 20px);
+    font-family: var(--mono); font-size: 12px; font-weight: 500;
+    line-height: 1.4; letter-spacing: 0.14em;
+    color: var(--accent);
+  }
 </style>
