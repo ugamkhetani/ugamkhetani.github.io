@@ -2706,7 +2706,7 @@ const WHO_TAIL = LEAD_CUT < 0 ? WHO_REST : WHO_REST.slice(LEAD_CUT + 1);
     to   { clip-path: inset(0 0 -12% 0); }
   }
 
-  .pv-panel .wa7-coda {
+  .pv-panel .wa7-body .wa7-coda {
     margin-top: clamp(26px, 4.4vh, 52px);
     font-family: var(--display); font-weight: 500;
     font-size: clamp(1.24rem, 2vw, 1.78rem);
@@ -2772,16 +2772,31 @@ const WHO_TAIL = LEAD_CUT < 0 ? WHO_REST : WHO_REST.slice(LEAD_CUT + 1);
   .pv-panel .s__stmt + .wa7-body { margin-top: var(--hinge); }
   .pv-panel .wa7-body { --hinge: 1.4435em; }
 
-  /* ONE UNIT EVERYWHERE BELOW. 1.58em is the body's line; every vertical
-     space in both sections is a whole number of them rather than a clamp,
-     so the whole movement sits on one rhythm. */
-  .pv-panel .wa7-body p { margin-bottom: 1.58em; }
-  .pv-panel .wa7-coda { margin-top: calc(2 * 1.58em); }
-  .pv-panel .wa7-steps { gap: calc(2 * 1.58em); }
-  .pv-panel .wa7-title { margin-bottom: calc(0.5 * 1.58em); }
-  .pv-panel .wa7-n { margin-bottom: calc(0.25 * 1.58em); }
-  .pv-panel .wa7-steps .pv-steplines p { margin-bottom: calc(0.5 * 1.58em); }
-  .pv-panel .wa7-steps .pv-steplines p:not(.pv-ask) + p.pv-ask { margin-top: calc(0.5 * 1.58em); }
-  .pv-panel .wa7-steps .pv-steplines p.pv-ask + p:not(.pv-ask) { margin-top: calc(0.5 * 1.58em); }
-  .pv-panel .wa7-pull { margin-top: calc(3 * 1.58em); }
+  /* ONE UNIT EVERYWHERE BELOW — AND IT HAD TO BE REGISTERED TO BE ONE.
+     Writing the spaces as 1.58em looked right and was not: em resolves
+     against each ELEMENT's own font-size, so the coda at 25.6px got a unit
+     of 40.4px while the paragraphs at 16.64px got 26.29 — measured, the
+     coda's two units came out 80.9px, which is 3.08 body lines rather than
+     2. @property with a <length> syntax computes --unit once, on the body,
+     and inherits it as an absolute length, so every element below gets the
+     same number whatever size it is set at. This is the whole reason the
+     draft exists and it was wrong until it was measured. */
+  @property --unit { syntax: '<length>'; inherits: true; initial-value: 0px; }
+  /* AND IT IS DECLARED FROM THE TYPE SCALE, NOT FROM INHERITANCE. Set as
+     1.58em it still resolved against each declaring element's own
+     font-size — the body at 16.64px gave 26.29 and the steps list, which
+     inherits the panel's 16px, gave 25.28. Two units in one movement is
+     no unit. Written against the body's own clamp it is the same length
+     wherever it is declared. */
+  .pv-panel .wa7-body,
+  .pv-panel .wa7-steps { --unit: calc(1.58 * clamp(1.04rem, 1.26vw, 1.2rem)); }
+  .pv-panel .wa7-body p { margin-bottom: var(--unit); }
+  .pv-panel .wa7-body .wa7-coda { margin-top: calc(2 * var(--unit)); }
+  .pv-panel .wa7-steps { gap: calc(2 * var(--unit)); }
+  .pv-panel .wa7-title { margin-bottom: calc(0.5 * var(--unit)); }
+  .pv-panel .wa7-n { margin-bottom: calc(0.25 * var(--unit)); }
+  .pv-panel .wa7-steps .pv-steplines p { margin-bottom: calc(0.5 * var(--unit)); }
+  .pv-panel .wa7-steps .pv-steplines p:not(.pv-ask) + p.pv-ask { margin-top: calc(0.5 * var(--unit)); }
+  .pv-panel .wa7-steps .pv-steplines p.pv-ask + p:not(.pv-ask) { margin-top: calc(0.5 * var(--unit)); }
+  .pv-panel .wa7-pull { margin-top: calc(3 * var(--unit)); }
 </style>
