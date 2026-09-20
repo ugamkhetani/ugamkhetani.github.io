@@ -2695,4 +2695,36 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
   :root[data-blur] .rg .ms__bed {
     filter: brightness(0.30) saturate(0.7) contrast(1.05) blur(var(--haze));
   }
+
+  /* ══ THE WORK'S NAME, FROM ab-ty2 ════════════════════════════════
+     Applied 2026-09-20. The readout under the conveyor names the work you
+     are looking at, and it was the one piece of type in Selected works that
+     disagreed with the poster run about CASE.
+
+     MEASURED, LIVE AGAINST ab-ty2, BEFORE CHANGING ANYTHING. The typeface
+     was never the difference — both are Neue Haas Grotesk Display at 19.2px,
+     weight 500, line-height 22.272, in the bone. What differs is two things:
+
+         case       uppercase     ->  none
+         tracking   -0.288px      ->  0.096px   (-0.015em -> 0.005em)
+
+     Uppercase wants letters opened up and lowercase does not, which is why
+     the negative tracking went with the capitals and why 0.005em comes back
+     with them: it is the poster label's own value, and the name is a label
+     for the work. Sentence case also matches every poster giant on the page,
+     which are the only other place a title is set large.
+
+     THE YEAR IS DELIBERATELY NOT TOUCHED. ab-ty2 also moves .rl__date off
+     JetBrains Mono, but the note above it in this file argues the year
+     should read as the third and smallest voice in the readout, and that is
+     a separate decision from the one that was asked for here.
+
+     :root, NOT .rg ALONE. This file has three <style> blocks and Astro does
+     not emit them in written order — HANDOFF §6 — so a rule written last can
+     still lose a tie. The two .rl__cap rules above are (0,1,0); this is
+     (0,3,0) and cannot lose to them however the blocks are bundled. */
+  :root .rg .rl__cap {
+    letter-spacing: 0.005em;
+    text-transform: none;
+  }
 </style>
