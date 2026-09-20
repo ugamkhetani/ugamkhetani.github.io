@@ -52,18 +52,28 @@
  * went onto the bed with it, one filter instead of thirty. Page-wide
  * filtered surfaces fell from 183 to 155.
  *
- * THE BLUR IS GATED. It is dropped entirely — ground only, no blur — when
- * the viewer asks for reduced motion, when the viewport is 900px or under,
- * or when the device reports four or fewer logical cores or 4GB or less of
- * memory. The last two are set by an inline script before first paint, so
- * the expensive state is never shown and then taken away.
+ * THE BLUR IS EARNED, NOT GATED. It is off until a device proves it can hold
+ * its own refresh rate, measured over about forty frames during the opening
+ * — where the blur is 0px by design, so there is a free window to watch and
+ * nothing is ever shown and then taken away. The bar is the display's own
+ * cadence rather than a millisecond count, so it reads the same on a 60Hz
+ * phone and a 120Hz laptop. prefers-reduced-motion skips the probe and the
+ * blur entirely; it is a stated preference, not a capability.
  *
- * WORTH KNOWING ABOUT THAT GATE: the width rule is what actually protects
- * phones. navigator.deviceMemory is Chromium-only, so every iPhone and iPad
- * passes the memory check by default, and most Android phones have reported
- * eight cores since about 2018, so they pass the core check too. The
- * hardware tests are a thin extra net over low-end desktop-class machines.
- * A budget laptop at 1366x768 is the case none of the three catches.
+ * WHAT THIS REPLACED, AND WHY. A guess in three parts — cores, memory and a
+ * 900px width rule — which, measured, pointed the wrong way. The bed is 1.2x
+ * the viewport in each axis, so an iPhone 15 Pro blurs 4.34 physical
+ * megapixels against a 1512x982 MacBook's 8.55: the phone did half the work
+ * and was switched off, the laptop did twice as much and was let through.
+ * And no static test could have fixed it. deviceMemory does not exist in
+ * Safari, so no iPhone can pass it; what iOS reports for hardwareConcurrency
+ * could not be tested from here, and guessing wrong gates every iPhone.
+ *
+ * WHAT THE PROBE CANNOT KNOW: it measures the page WITHOUT the blur, because
+ * that is the state the opening is in. A device comfortable without it could
+ * still struggle with it. The 1.35 ratio is set to demand real headroom
+ * rather than a bare pass, but that is an inference, not a measurement of
+ * the thing itself.
  */
 import Base from '../layouts/Base.astro';
 import OpNav from '../components/OpNav.astro';
@@ -272,14 +282,84 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
     <div class="ap__mat" aria-hidden="true"></div>
 
     {/* One pane for the whole page. See the stylesheet. */}
-    {/* Set before first paint, so the expensive state is never shown and
-        then taken away. deviceMemory is Chromium-only; `|| 8` makes its
-        absence fail the test rather than the script. */}
+    {/* THE BLUR IS EARNED, NOT GUESSED.
+
+        What this replaced was a guess in three parts — cores, memory and a
+        900px width rule — and measured, it pointed the wrong way. The bed is
+        1.2x the viewport in each axis, so an iPhone 15 Pro blurs 4.34
+        physical megapixels and a 1512x982 MacBook blurs 8.55. The phone did
+        half the work and was switched off; the laptop did twice as much and
+        was let through. Width is not a capability test.
+
+        Nor could a static test be fixed: deviceMemory does not exist in
+        Safari, so no iPhone can ever pass it, and what iOS reports for
+        hardwareConcurrency could not be determined here — guessing wrong
+        gates every iPhone, which is the exact outcome this is meant to
+        avoid.
+
+        So it is measured, and the design pays for the window. The blur is
+        0px until 240px of scroll — the opening is blur-free by construction
+        — which is long enough to discard the first ten frames, watch the
+        next forty and decide before anything expensive is wanted. Nothing is
+        shown and then taken away.
+
+        THE BAR IS THE DISPLAY'S OWN CADENCE, not a millisecond count. The
+        shortest frame observed is taken as the refresh period and the device
+        passes if its median frame sits within 1.35 of it, which reads the
+        same on a 60Hz phone and a 120Hz laptop where one fixed threshold
+        would have had to pick one and be wrong about the other.
+
+        AND THE CADENCE ITSELF HAS TO BE A HEALTHY ONE. Testing the ratio
+        alone let a device pinned at 30fps through — it holds 33.3ms
+        perfectly, ratio 1.01, which reads as a device in complete control of
+        itself. Consistency is not health. The period must also be 20ms or
+        better, which is 50Hz: 60 and 120 pass, a throttled or low-power
+        device does not.
+
+        FAILS TO THE CHEAP STATE. No script, no attribute, no blur. */}
     <script is:inline>
       (function () {
-        var n = navigator;
-        if ((n.hardwareConcurrency || 8) <= 4 || (n.deviceMemory || 8) <= 4)
-          document.documentElement.setAttribute('data-lite', '');
+        var d = document.documentElement;
+        /* A stated preference, not a capability. Never probe, never blur. */
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        /* The verdict survives client-side navigation, so this runs once a
+           session rather than once a page. */
+        try {
+          var seen = sessionStorage.getItem('blur-ok');
+          if (seen === '1') { d.setAttribute('data-blur', ''); return; }
+          if (seen === '0') return;
+        } catch (e) {}
+
+        /* THE FIRST FRAMES ARE THROWN AWAY, and this is the difference
+           between letting a good phone through and failing it. The probe
+           starts at load, which is when image decoding is heaviest — a
+           capable phone can easily spend its first ten frames behind and
+           then hold 60 perfectly. Judging it on those frames would fail
+           exactly the device this measurement exists to let through. */
+        var dts = [], last = 0, warm = 0, WARMUP = 10, N = 40;
+        requestAnimationFrame(function tick(now) {
+          if (last && warm++ >= WARMUP) {
+            var dt = now - last;
+            /* Over 100ms is a tab switch or an image decode, not a verdict
+               on the device. */
+            if (dt < 100) dts.push(dt);
+          }
+          last = now;
+          if (dts.length < N) { requestAnimationFrame(tick); return; }
+
+          var sorted = dts.slice().sort(function (a, b) { return a - b; });
+          var period = sorted[0];
+          var median = sorted[sorted.length >> 1];
+          /* TWO TESTS, AND THE SECOND ONE MATTERS. The ratio alone says the
+             device is holding whatever cadence it has — and a machine pinned
+             at 30fps holds 33.3ms perfectly, ratio 1.01, and sails through.
+             Consistency is not health. The period itself has to be a healthy
+             one: 20ms is 50Hz, which lets 60 and 120 through and stops a
+             throttled or low-power device from calling itself capable. */
+          var ok = period > 0 && period <= 20 && median / period <= 1.35;
+          if (ok) d.setAttribute('data-blur', '');
+          try { sessionStorage.setItem('blur-ok', ok ? '1' : '0'); } catch (e) {}
+        });
       })();
     </script>
     <div class="sm" aria-hidden="true"></div>
@@ -2566,8 +2646,11 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
   /* One filter for the whole bed: the grade the tiles were each running,
      plus the blur the pane was running on the backdrop. Rasterised once;
      --prog then only transforms the result. */
+  /* Grade only. The blur is added below and only once it is earned, so a
+     device that never runs the script, or never passes, still gets the
+     page's full value range and simply loses its softness. */
   .rg .ms__bed {
-    filter: brightness(0.30) saturate(0.7) contrast(1.05) blur(var(--haze));
+    filter: brightness(0.30) saturate(0.7) contrast(1.05);
   }
   /* Thirty filtered surfaces down to none. */
   .rg .ms__tile { filter: none; }
@@ -2580,16 +2663,11 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
      blur's soft edge — about three times its radius — falls well outside
      the clip and no fringe can reach the viewport. */
 
-/* Nothing beyond the base. That is the point of this one. */
-
-  /* ══ THE GATE ════════════════════════════════════════════════════
-     Ground only, no blur, on the viewers and devices least able to afford
-     it. The bed keeps its grade in every branch — only blur() is dropped,
-     so the page loses softness and never loses its value range. */
-  :root[data-lite] .rg .ms__bed {
-    filter: brightness(0.30) saturate(0.7) contrast(1.05);
-  }
-  @media (prefers-reduced-motion: reduce), (max-width: 900px) {
-    .rg .ms__bed { filter: brightness(0.30) saturate(0.7) contrast(1.05); }
+/* ══ THE BLUR, ONCE EARNED ═══════════════════════════════
+     Set by the probe above, which measures the device instead of reading
+     its spec sheet. Opt-in on purpose: the failure direction is no blur,
+     which is the state the page opens in anyway. */
+  :root[data-blur] .rg .ms__bed {
+    filter: brightness(0.30) saturate(0.7) contrast(1.05) blur(var(--haze));
   }
 </style>
