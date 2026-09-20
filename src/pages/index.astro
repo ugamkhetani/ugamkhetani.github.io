@@ -301,7 +301,9 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
         0px until 240px of scroll — the opening is blur-free by construction
         — which is long enough to discard the first ten frames, watch the
         next forty and decide before anything expensive is wanted. Nothing is
-        shown and then taken away.
+        shown and then taken away. The loop is bounded at two hundred frames
+        or five seconds, whichever comes first, and running out is itself a
+        verdict: no blur.
 
         THE BAR IS THE DISPLAY'S OWN CADENCE, not a millisecond count. The
         shortest frame observed is taken as the refresh period and the device
@@ -336,27 +338,50 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
            capable phone can easily spend its first ten frames behind and
            then hold 60 perfectly. Judging it on those frames would fail
            exactly the device this measurement exists to let through. */
-        var dts = [], last = 0, warm = 0, WARMUP = 10, N = 40;
+        var dts = [], last = 0, seen = 0, t0 = 0;
+        var WARMUP = 10, N = 40, MAX_FRAMES = 200, MAX_MS = 5000;
         requestAnimationFrame(function tick(now) {
-          if (last && warm++ >= WARMUP) {
+          if (!t0) t0 = now;
+          seen++;
+          if (last && seen > WARMUP) {
             var dt = now - last;
             /* Over 100ms is a tab switch or an image decode, not a verdict
                on the device. */
             if (dt < 100) dts.push(dt);
           }
           last = now;
-          if (dts.length < N) { requestAnimationFrame(tick); return; }
 
-          var sorted = dts.slice().sort(function (a, b) { return a - b; });
-          var period = sorted[0];
-          var median = sorted[sorted.length >> 1];
-          /* TWO TESTS, AND THE SECOND ONE MATTERS. The ratio alone says the
-             device is holding whatever cadence it has — and a machine pinned
-             at 30fps holds 33.3ms perfectly, ratio 1.01, and sails through.
-             Consistency is not health. The period itself has to be a healthy
-             one: 20ms is 50Hz, which lets 60 and 120 through and stops a
-             throttled or low-power device from calling itself capable. */
-          var ok = period > 0 && period <= 20 && median / period <= 1.35;
+          /* BOUNDED TWO WAYS, and it has to be. Waiting only for N clean
+             samples means a device whose frames are mostly OVER 100ms never
+             collects them — and the loop then runs for the life of the page,
+             on precisely the hardware least able to spare it. It costs 7
+             nanoseconds a frame, so this is untidy rather than harmful, but
+             an unbounded loop is not something to leave in. Frames cap the
+             fast case, wall clock caps the slow one: at 5fps, 200 frames
+             would be 40 seconds. */
+          if (dts.length < N && seen < MAX_FRAMES && now - t0 < MAX_MS) {
+            requestAnimationFrame(tick);
+            return;
+          }
+
+          var ok = false;
+          /* Falling out of the loop without enough clean samples IS the
+             verdict: the device could not produce forty frames under 100ms
+             inside two hundred attempts or five seconds. No blur, and it is
+             cached like any other answer so the probe does not run again. */
+          if (dts.length >= N) {
+            var sorted = dts.slice().sort(function (a, b) { return a - b; });
+            var period = sorted[0];
+            var median = sorted[sorted.length >> 1];
+            /* TWO TESTS, AND THE SECOND ONE MATTERS. The ratio alone says
+               the device is holding whatever cadence it has — and a machine
+               pinned at 30fps holds 33.3ms perfectly, ratio 1.01, and sails
+               through. Consistency is not health. The period itself has to
+               be a healthy one: 20ms is 50Hz, which lets 60 and 120 through
+               and stops a throttled or low-power device from calling itself
+               capable. */
+            ok = period > 0 && period <= 20 && median / period <= 1.35;
+          }
           if (ok) d.setAttribute('data-blur', '');
           try { sessionStorage.setItem('blur-ok', ok ? '1' : '0'); } catch (e) {}
         });
