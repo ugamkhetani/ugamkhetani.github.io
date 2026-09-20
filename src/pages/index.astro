@@ -2727,4 +2727,103 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
     letter-spacing: 0.005em;
     text-transform: none;
   }
+
+  /* ══ CONTACT, FROM ab-ee1 · FITTED ══════════════════════════════
+     Applied 2026-09-20. Typography only — nothing below sets display, grid,
+     position, width or margin, and every one of the 24 selectors is scoped
+     inside .sm-form, so no other section of the page can be reached by it.
+
+     THE TWO STATEMENTS ARE SIZED BY MEASUREMENT, NOT BY CHOICE. That is the
+     whole of this draft and the reason it was the one to take.
+
+         "Let's talk."        3.969px of width per px of type
+                              447px column  ->  112.6px   (8.8vw)
+         "Send this enquiry"  8.736px per px
+                              625px column  ->   71.5px   (5.59vw)
+
+     Verified after: the greeting's ink measures 445 in its 447 column and
+     the action's 618 in its 625. Both reach their edges; neither overhangs.
+     The send's ratio is worth noting — ContactForm's own comment quotes
+     8.71px per px, arrived at independently, and the measurement here says
+     8.736. The same number.
+
+     WHY FITTING RATHER THAN A SIZE THAT LOOKED RIGHT. Every giant in the
+     About run is sized in vw until the screen crops it, which is fitting to
+     the viewport. This is the same idea against a column instead. It also
+     means these numbers can be re-derived rather than re-argued: change the
+     copy or the column and the two ratios give the new sizes.
+
+     ALL TWENTY-EIGHT ROUNDED CONTROLS MOVE TOGETHER, one step — 22 option
+     pills, 5 field pills and the notes area — so the box you type into never
+     reads smaller than the box you tap. 16px to 18.2, with padding in em so
+     the box grows in proportion rather than staying 10px tall while the word
+     gets bigger: 135x48 to 151x54, 119x44 to 132x50, 625x80 to 625x90.
+
+     THE SEND PASSES ITS DOCUMENTED 44px CEILING, deliberately. That comment
+     in ContactForm says 44 is the largest that lets "Name and email
+     required" sit BESIDE the action on one row at 1440 — and says in the
+     same breath that below about 1400 the pair wraps at any size and that
+     flex-wrap handles it. At 1280 it already wraps. The note also moves off
+     11px mono onto the 12px label here, which is narrower, so some of that
+     row is bought back rather than only spent.
+
+     AND THE FIELDS LEAVE INTER. They were the only Inter on the page — a
+     third family inside a section whose neighbours use one. */
+
+/* One family: the fields were Inter, the note and summary mono. */
+  :root .rg .sm-form :global(.pill__in),
+  :root .rg .sm-form :global(.send__note),
+  :root .rg .sm-form :global(.send__ink),
+  :root .rg .sm-form :global(.send__ink i),
+  :root .rg .sm-form :global(summary),
+  :root .rg .sm-form :global(.mono) {
+    font-family: var(--display); font-variant-numeric: tabular-nums;
+  }
+  :root .rg .sm-form :global(.send__note),
+  :root .rg .sm-form :global(.send__ink),
+  :root .rg .sm-form :global(summary),
+  :root .rg .sm-form :global(.ct__grouphead),
+  :root .rg .sm-form :global(.q__n),
+  :root .rg .sm-form :global(.q__hint),
+  :root .rg .sm-form :global(.mono--dim) {
+    font-size: 12px; font-weight: 500; letter-spacing: 0.005em;
+    text-transform: none; color: var(--po-grey, #9B9B9B);
+  }
+
+  /* ══ ALL TWENTY-EIGHT ROUNDED BOXES, ONE STEP UP ═════════════════
+     Options, fields and the notes area together, so the thing you type into
+     never reads smaller than the thing you tap. Padding in em: the box grows
+     with its word instead of staying 10px while the type does. */
+  :root .rg .sm-form :global(.opt span),
+  :root .rg .sm-form :global(.pill),
+  :root .rg .sm-form :global(.pill__in) {
+    font-size: clamp(1.05rem, 1.42vw, 1.2rem);
+    letter-spacing: -0.008em;
+  }
+  :root .rg .sm-form :global(.opt span) { padding: 0.63em 1.06em; }
+  :root .rg .sm-form :global(.pill) { padding: 0.63em 1.06em; }
+  :root .rg .sm-form :global(.pill--area) { padding: 0.72em 1.1em; }
+
+/* 8.8vw = 112.6px at 1280: the greeting's own column, filled. */
+  :root .rg .sm-form :global(.ct__statement) {
+    font-size: clamp(2.9rem, 8.8vw, 7.4rem); font-weight: 500;
+    line-height: 0.96; letter-spacing: -0.042em;
+  }
+  /* 5.59vw = 71.6px at 1280: the form column, filled. */
+  :root .rg .sm-form :global(.send__act) {
+    font-size: clamp(2.2rem, 5.59vw, 5.9rem);
+    line-height: 0.98; letter-spacing: -0.04em;
+  }
+
+  :root .rg .sm-form :global(.q__q) {
+    font-size: clamp(1.35rem, 2.05vw, 1.75rem); font-weight: 500;
+    line-height: 1.06; letter-spacing: -0.026em; color: var(--po-white, #FFF);
+  }
+  :root .rg .sm-form :global(.ct__direct a) {
+    font-size: clamp(1.15rem, 1.6vw, 1.4rem); font-weight: 500; letter-spacing: -0.018em;
+  }
+  :root .rg .sm-form :global(.ct__lede) {
+    font-size: clamp(1.05rem, 1.28vw, 1.26rem); line-height: 1.42;
+    letter-spacing: -0.006em; color: var(--po-grey, #9B9B9B);
+  }
 </style>
