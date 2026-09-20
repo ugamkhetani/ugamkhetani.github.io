@@ -236,6 +236,8 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bed
 /* D · Poster: splits a statement's trailing full stop off so it can take the
    site's orange. The words themselves are untouched. */
 const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -1), '.'] : [s, '']);
+/* The opening letter, split off so it can be set as a versal. */
+const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
 ---
 
 <Base
@@ -471,7 +473,11 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
         <p class="po-label po-c2">{HERO.place[0]}<br />{HERO.place[1]}</p>
         <p class="po-label po-c3">{RANGE}</p>
         <h3 class="po-state">{stopOf(WHO.head)[0]}<span class="po-stop">{stopOf(WHO.head)[1]}</span></h3>
-        <div class="po-body">{WHO.body.map((p) => <p>{p}</p>)}</div>
+        <div class="po-body">
+          {WHO.body.map((p, i) => (i === 0
+            ? <p class="po-open"><span class="po-versal" aria-hidden="true">{versalOf(p)[0]}</span><span class="po-versal-sr">{versalOf(p)[0]}</span>{versalOf(p)[1]}</p>
+            : <p>{p}</p>))}
+        </div>
       </div>
     </section>
 
@@ -2825,5 +2831,41 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
   :root .rg .sm-form :global(.ct__lede) {
     font-size: clamp(1.05rem, 1.28vw, 1.26rem); line-height: 1.42;
     letter-spacing: -0.006em; color: var(--po-grey, #9B9B9B);
+  }
+
+  /* ══ THE OPENING VERSAL, FROM ab-vs4 ════════════════════════════
+     Applied 2026-09-20. Only the letter — vs4's heading scale, question
+     leading and second-voice colours are NOT brought across.
+
+     CUT BY ARITHMETIC, NOT BY EYE. A cap spanning N lines runs from line
+     one's cap-top to line N's baseline, so its height is
+     (N-1) x line-height + one cap-height. The body leads at 1.42 and Neue
+     Haas' cap-height is 0.6616 of its em — measured off the loaded file with
+     canvas, not taken from a spec sheet. Two lines is 23.86 + 11.11 = 34.97px,
+     and over the cap ratio that is 52.85px: 3.146em of the 16.8px body. The
+     float's own height is then simply 0.6616em, its own cap, which is what
+     makes two lines wrap around it.
+
+     THE SHIFT IS MEASURED FOR THIS CAP AND IS NOT PORTABLE. The paragraph's
+     ink top is fixed while the cap's grows with its size, so an em value
+     correct at one cap is wrong at another — 0.4091em, borrowed from a
+     three-line cap in another draft, left this one 0.23px high. 0.4135em
+     puts it on its text. The glyph is placed by transform, which changes no
+     layout, so being wrong costs a re-measure and not a re-flow.
+
+     AND IT IS DOUBLED FOR SCREEN READERS. A floated letter read aloud is a
+     letter, not a word: "I" then "'m Ugam" is two utterances of something
+     that is one. The drawn cap is aria-hidden and the same character is
+     repeated in a visually hidden span, so the sentence is spoken whole.
+     Verified both ways — visible text and spoken text each unchanged. */
+  :root .rg .po-versal-sr {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+  }
+  :root .rg .po-open .po-versal {
+    float: left; font-size: 3.146em; height: 0.6616em;
+    line-height: 0; font-weight: 500; letter-spacing: -0.03em;
+    color: var(--po-white, #FFF); margin: 0 0.1em 0 0;
+    --vs-shift: 0.4135em; transform: translateY(var(--vs-shift));
   }
 </style>
