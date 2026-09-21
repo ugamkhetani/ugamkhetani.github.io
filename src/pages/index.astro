@@ -3018,4 +3018,43 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
   :root .rg #r-across { font-size: 10.162vw; }
   :root .rg #r-how    { font-size: 17.950vw; }
   :root .rg #r-close  { font-size: 13.853vw; }
+
+  /* ══ THE MONO TEXT, IN THE PAGE'S OWN FACE — FROM ab-hn1 ══════════════
+     Applied 2026-09-21. Every string that was rendering in JetBrains Mono
+     Variable now sets in the display stack. Case and size are untouched:
+     nothing lowercased, nothing resized, tracking left where it was.
+
+     ELEVEN KINDS OF ELEMENT were in it, found by scanning the rendered
+     page rather than by reading this stylesheet: the running head's four
+     spans, the four corner labels twice over (the opening frame and
+     works), the Scroll cue twice, the contact form's email preview, and
+     one unclassed span. All inside .rg, and all resolving their family
+     through var(--mono) — so redefining that one property switches every
+     one of them and cannot miss a rule naming the stack directly, because
+     none does.
+
+     var(--display), NOT A LITERAL "Helvetica Neue", so these labels are
+     declared exactly as the rest of the page is. Measured, the named
+     "Neue Haas Grotesk Display" sets a test string at 702.69px — the same
+     as a deliberately invented family name — while "Helvetica Neue" gives
+     781.7 and the page gives 781.7, so on this machine it renders
+     Helvetica Neue. On a machine that HAS Neue Haas installed these
+     labels follow the page into it; naming the fallback directly would
+     pin them there while everything around them moved.
+
+     THE WIDTH CHANGE IS NOT A UNIFORM NARROWING. At a fixed 10px the
+     opening frame's labels measured 53.2 to 56.0, 121.6 to 126.7, 83.6 to
+     77.6 and 106.4 to 112.4px: two grow and two shrink, because mono
+     digits are wide and mono capitals relatively narrow. The label
+     carrying "00/06 2025 — 2026" loses 6px and the one carrying "SELECTED
+     WORKS" gains 6. All four are absolutely positioned in corners, so
+     nothing else moves.
+
+     ← .peek__body IS INCLUDED AND IS THE ONE TO RECONSIDER. It is a <pre>
+       holding the contact form's email preview, where a monospace face
+       was arguably doing semantic work — it read as a mail client because
+       it was set like one. Changed here because the request was the whole
+       page; recorded because it is the one place the mono carried meaning
+       rather than style, and exempting it is one selector. */
+  :root .rg { --mono: var(--display); }
 </style>
