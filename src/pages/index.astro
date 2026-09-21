@@ -425,6 +425,7 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     </header>
 
     <section class="mvt mvt--a2 sec--works" id="works" aria-labelledby="r-works" data-mv="0" style={`--count:${wnodes.length}`}>
+      <p class="po-label po-c1 wk-no">01</p>
       <div class="fr fr--over">
         <div class="fr__mid">
           <h2 class="fr__t" id="r-works">
@@ -3165,5 +3166,141 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     :root .rg .fr--over {
       top: calc(50vh - min(20vh, 13vw) - clamp(30px, 5vh, 66px) - var(--wk-size) * 0.6338);
     }
+  }
+
+  /* ══ THE NUMBERING SYSTEM, AND THE HOW I WORK SPREAD ══════════
+     Applied 2026-09-22 from four drafts in one pass: the section numbers
+     from ab-sy4, the How I work body layout from ab-fs1, the three step
+     numbers from ab-nm1, and the About body-text drift from ab-mo6. The
+     page exactly as it stood before is kept at preview/ab-live-prior.
+
+     THE DIM FLOOR, WHICH GOVERNS ALL OF IT. These labels sit over the
+     smoked mosaic, whose brightest frame this file already records as
+     #4C4C4C: --bone 8.59:1, --bone-dim 6.02:1, #C0C0C0 4.72:1 (AA for
+     12px), #A8A8A8 3.61:1 and --po-grey 3.09:1 both failing. */
+
+  /* ── 1 · THE SECTION NUMBERS, from ab-sy4 ────────────────────
+     Bigger and lighter: 18px at weight 100 against 12px at 500. The axis
+     is real and it is not obvious, because the digits are TABULAR -- the
+     advance is 111.2 per 100px at every weight from 100 to 900, so width
+     proves nothing. Rendering "02" to a canvas and integrating the alpha
+     at the ACTUAL sizes (scaling a 100px sample by area does not work;
+     antialiasing and hinting are not linear) gives 57 units here against
+     65 as it was: an eighth less ink at one and a half times the size.
+     Weight 900 is never worth asking for in this face -- it renders
+     identically to 700, same ink to the unit.
+
+     Set at --bone-dim, not the quiet grey: contrast ratio counts
+     luminance and not stroke width, and a 100-weight hairline needs the
+     6.02:1 to survive a bright frame behind it. */
+  :root .rg .po-sec .po-c1,
+  :root .rg .sec--works .wk-no {
+    font-size: 18px;
+    font-weight: 100;
+    letter-spacing: 0.06em;
+    line-height: 1.1;
+    color: var(--bone-dim);
+  }
+
+  /* ← 01 IS PUT BACK ON SELECTED WORKS. Removing the four corner labels
+     took it with them, so the page counted 00, --, 02, 03, 04, 05, 06.
+     One absolutely positioned <p>, clear of the heading: the frame's top
+     is 116.823px and this sits at 40. THIS IS THE ONE PIECE OF CONTENT
+     ADDED; delete the <p> and this rule and nothing else is affected. */
+  :root .rg .sec--works .wk-no {
+    position: absolute;
+    top: clamp(30px, 5vh, 66px);
+    left: var(--margin);
+    z-index: 7;
+    margin: 0;
+  }
+
+  /* ── 2 · HOW I WORK, THE VERSO AND THE RECTO, from ab-fs1 ────────
+     The step becomes a spread: the number on the verso at column 1, its
+     title beside it at 2, and the body carried over to the recto at 7,
+     with a hairline in the middle of the gutter between them. Font sizes
+     are untouched, as asked -- fs1 sets no size on .po-steplines, and its
+     line-height: 1.5 rule reaches .po-body and .po-lede only, so there was
+     nothing to leave behind. Scoped to #philosophy: fs1 moved every
+     section's body to the recto, and only How I work was asked for. */
+  :root .rg #philosophy .po-stepn { grid-column: 1 / span 1; }
+  :root .rg #philosophy .po-steptitle { grid-column: 2 / span 5; }
+  :root .rg #philosophy .po-steplines { grid-column: 7 / -1; }
+
+  /* THE GUTTER RULE IS DRAWN ON THE STEP, NOT ON THE TEXT, and that is a
+     deliberate departure from fs1. fs1 hangs it off .po-steplines as a
+     border-left pulled half a gutter back -- but .po-steplines is the
+     element ab-mo6's drift moves, and +/-16px of travel in a 20.48px
+     gutter would carry the hairline clean out of it and into column 6.
+     Drawn on .po-step, which does not move, it stays put. A ::after with
+     no grid placement resolves against the padding box rather than a grid
+     area, so the percentage below is of the full twelve-column measure.
+     Column 7's left edge is 6c + 6g; half a gutter back from it is
+     6c + 5.5g, which is 563.2px at 1280 against a column of 75.093 and a
+     gutter of 20.48.
+
+     It also runs the full height of each step rather than only beside the
+     text, so the rule is continuous down the section instead of segmented
+     -- which is what a gutter rule does on a real spread. */
+  :root .rg #philosophy .po-step { position: relative; }
+  :root .rg #philosophy .po-step::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    left: calc(6 * ((100% - 11 * var(--gutter)) / 12) + 5.5 * var(--gutter));
+    width: 1px;
+    background: var(--po-rule);
+  }
+  /* One column below 820: there is no gutter to hang a gutter rule in. */
+  @media (max-width: 820px) {
+    :root .rg #philosophy .po-step::after { display: none; }
+  }
+
+  /* ── 3 · THE THREE STEP NUMBERS, from ab-nm1 ────────────────
+     The step title's own clamp, so the figure is the same size as the
+     words beside it, with line-height matched to the title's 0.98 and
+     .po-stepn's 0.5em padding-top cleared so the two first baselines
+     coincide. .po-stepn also carries .po-label--hi, which .rg colours at
+     (0,3,0); this selector is (0,5,0) and wins on specificity rather than
+     on order, which matters because the blocks in this file are not
+     emitted in the order they are written. */
+  :root .rg .po-sec .po-step .po-stepn {
+    font-size: clamp(2rem, 4.2vw, 4.5rem);
+    font-weight: 500;
+    letter-spacing: -0.04em;
+    line-height: 0.98;
+    padding-top: 0;
+    color: var(--bone);
+  }
+
+  /* ── 4 · THE ABOUT BODY TEXT, from ab-mo6 ──────────────────
+     A counter-scroll: the body drifts 32px against the page across its own
+     cover range. The HEADINGS ARE NOT TOUCHED -- mo6 also restyles
+     .po-giant and moves .po-body to the full measure, and neither is
+     brought across; only the animation is.
+
+     The three selectors are mo6's own and between them they are the body
+     text of all four About movements: .po-body is Who I am, .po-lede is
+     What I work across and (via .po-lede--end) What I'm after, and
+     .po-steplines is How I work.
+
+     Guarded twice. @supports because a browser without scroll-driven
+     timelines would otherwise hold the from-state and leave the text
+     parked 16px to the left; and prefers-reduced-motion because this is
+     motion nobody asked for. */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      :root .rg .po-body,
+      :root .rg .po-lede,
+      :root .rg .po-steplines {
+        animation: mo6-counter linear both;
+        animation-timeline: view();
+        animation-range: cover;
+      }
+    }
+  }
+  @keyframes mo6-counter {
+    from { transform: translateX(-16px); }
+    to   { transform: translateX(16px); }
   }
 </style>
