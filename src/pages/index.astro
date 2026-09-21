@@ -3225,35 +3225,38 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
      section's body to the recto, and only How I work was asked for. */
   :root .rg #philosophy .po-stepn { grid-column: 1 / span 1; }
   :root .rg #philosophy .po-steptitle { grid-column: 2 / span 5; }
-  :root .rg #philosophy .po-steplines { grid-column: 7 / -1; }
 
-  /* THE GUTTER RULE IS DRAWN ON THE STEP, NOT ON THE TEXT, and that is a
-     deliberate departure from fs1. fs1 hangs it off .po-steplines as a
-     border-left pulled half a gutter back -- but .po-steplines is the
-     element ab-mo6's drift moves, and +/-16px of travel in a 20.48px
-     gutter would carry the hairline clean out of it and into column 6.
-     Drawn on .po-step, which does not move, it stays put. A ::after with
-     no grid placement resolves against the padding box rather than a grid
-     area, so the percentage below is of the full twelve-column measure.
-     Column 7's left edge is 6c + 6g; half a gutter back from it is
-     6c + 5.5g, which is 563.2px at 1280 against a column of 75.093 and a
-     gutter of 20.48.
+  /* THE RECTO, AND THE RULE IN THE MIDDLE OF THE GUTTER -- fs1's own four
+     declarations, unchanged. The negative margin pulls the box half a
+     gutter back so the border lands on the gutter's centre line, and the
+     matching padding puts the text back where column 7 starts. Measured
+     against ab-fs1 at 1280: box left 640.00 against 640.00, border 1px
+     rgba(255,255,255,0.2) against the same, first paragraph 651.23 against
+     651.23, and the rule the height of the text block -- 193.64px -- not
+     of the step.
 
-     It also runs the full height of each step rather than only beside the
-     text, so the rule is continuous down the section instead of segmented
-     -- which is what a gutter rule does on a real spread. */
-  :root .rg #philosophy .po-step { position: relative; }
-  :root .rg #philosophy .po-step::after {
-    content: '';
-    position: absolute;
-    top: 0; bottom: 0;
-    left: calc(6 * ((100% - 11 * var(--gutter)) / 12) + 5.5 * var(--gutter));
-    width: 1px;
-    background: var(--po-rule);
+     AN EARLIER PASS DREW THIS ON .po-step::after INSTEAD, to keep it clear
+     of the drift in item 4. The x was right, 640.00 either way, but the
+     rule then ran the STEP's full height, 249.64px including its 24px and
+     80px of padding, so it read as one continuous line down the section
+     rather than as fs1's three short rules beside their own text blocks.
+     That is not what fs1 looks like, so it is fs1's version that stands
+     and the drift that gives way -- see item 4. */
+  :root .rg #philosophy .po-steplines {
+    grid-column: 7 / -1;
+    border-left: 1px solid var(--po-rule, rgba(255, 255, 255, 0.2));
+    margin-left: calc(var(--gutter) / -2);
+    padding-left: calc(var(--gutter) / 2);
   }
-  /* One column below 820: there is no gutter to hang a gutter rule in. */
+
+  /* One column below 820: there is no gutter to hang a gutter rule in.
+     fs1's own cancel, verbatim. */
   @media (max-width: 820px) {
-    :root .rg #philosophy .po-step::after { display: none; }
+    :root .rg #philosophy .po-steplines {
+      border-left: 0;
+      margin-left: 0;
+      padding-left: 0;
+    }
   }
 
   /* ── 3 · THE THREE STEP NUMBERS, from ab-nm1 ────────────────
@@ -3279,10 +3282,22 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
      .po-giant and moves .po-body to the full measure, and neither is
      brought across; only the animation is.
 
-     The three selectors are mo6's own and between them they are the body
-     text of all four About movements: .po-body is Who I am, .po-lede is
-     What I work across and (via .po-lede--end) What I'm after, and
-     .po-steplines is How I work.
+     mo6 lists three selectors -- .po-body, .po-lede, .po-steplines -- and
+     between them they are the body text of all four About movements.
+     TWO OF THE THREE ARE USED HERE. .po-body is Who I am and .po-lede is
+     What I work across and, via .po-lede--end, What I'm after.
+
+     <- .po-steplines IS DELIBERATELY LEFT OUT, and this is the one place
+       the two requests could not both be honoured. How I work's body now
+       carries fs1's gutter rule as a border-left on that very element, so
+       animating it would take the rule with it: 32px of travel in a
+       20.48px gutter puts the hairline clean outside the gutter and into
+       column 6. fs1's layout was asked for exactly, with the vertical
+       line, so the rule stays still and How I work's body does not drift.
+       To have the drift there as well, the rule has to leave the text --
+       .po-step::after with left: calc(6 * ((100% - 11 * var(--gutter)) /
+       12) + 5.5 * var(--gutter)) puts it on the same centre line, at the
+       cost of running the step's full height instead of the text's.
 
      Guarded twice. @supports because a browser without scroll-driven
      timelines would otherwise hold the from-state and leave the text
@@ -3291,8 +3306,7 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
   @supports (animation-timeline: view()) {
     @media (prefers-reduced-motion: no-preference) {
       :root .rg .po-body,
-      :root .rg .po-lede,
-      :root .rg .po-steplines {
+      :root .rg .po-lede {
         animation: mo6-counter linear both;
         animation-timeline: view();
         animation-range: cover;
