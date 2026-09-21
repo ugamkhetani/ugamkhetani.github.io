@@ -18,13 +18,23 @@
  *
  * SO EACH SIZE IS SOLVED, NOT SCALED. Every heading's uppercase ink-per-pixel
  * was measured, and its new size is its OWN current ink width divided by that
- * number. The result reproduces each heading's existing width to the pixel,
- * so the only thing that changes on the page is the case.
+ * number, so three of the four reproduce their existing width to the pixel.
  *
- *   who     27vw   → 23.673vw   (345.6 → 303.02px)
+ *   who     27vw   → 21.800vw   (345.6 → 279.04px)   ← solved 23.673, then cut
  *   across  13.5vw → 10.162vw   (172.8 → 130.07px)
  *   how     23vw   → 17.950vw   (294.4 → 229.77px)
  *   close   18vw   → 13.853vw   (230.4 → 177.32px)
+ *
+ * WHO I AM IS DELIBERATELY BELOW ITS SOLVED SIZE, and the reason is what the
+ * common width hides. Equal INK WIDTH does not mean equal apparent size: WHO
+ * I AM is eight characters and WHAT I WORK ACROSS is eighteen, so holding
+ * both to 1350px puts the first at 303px of type and the second at 130 — a
+ * 2.3 to 1 difference in the size of an actual letter. The shortest heading
+ * is therefore the loudest of the four however carefully the widths match,
+ * which is a real cost of solving for width and worth naming rather than
+ * defending. 21.8vw takes it to 279.04px and about 1243px of ink, roughly
+ * 8 per cent narrower than the other three, which reads as a correction
+ * rather than as a heading that has fallen out of the system.
  *
  * THE TRACKING COMES WITH THE CASE. .fr__t — the Selected works heading this
  * is being matched to — is uppercase at -0.045em. .po-giant is at -0.058em,
@@ -43,8 +53,8 @@
  * ← NOTHING IS REWRITTEN. text-transform is presentational; the four headings
  *   are the same four strings, and each remains its section's accessible name
  *   through aria-labelledby.
- * ← THE SIZES ARE SOLVED FOR 1280 and expressed in vw, so the common width
- *   holds proportionally at every width.
+ * ← THE SIZES ARE SOLVED FOR 1280 and expressed in vw, so the relationship
+ *   between the four holds proportionally at every width.
  */
 import Base from '../../layouts/Base.astro';
 import OpNav from '../../components/OpNav.astro';
@@ -2948,7 +2958,10 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
      current width: 1350.3, 1349.9, 1356.3 and 1310.8px at 1280. Set as
      font-size, not --gs, because --gs is written inline on every h2 and an
      inline custom property beats a stylesheet one. */
-  :root .rg #r-who    { font-size: 23.673vw; }
+  /* Solved for the common width this would be 23.673vw. It is set below
+     that on purpose: see the note above on eight characters against
+     eighteen. */
+  :root .rg #r-who    { font-size: 21.800vw; }
   :root .rg #r-across { font-size: 10.162vw; }
   :root .rg #r-how    { font-size: 17.950vw; }
   :root .rg #r-close  { font-size: 13.853vw; }
