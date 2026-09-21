@@ -2940,13 +2940,26 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
      re-deriving this offset from an element that may come back is a
      bigger change than was asked for. The drop is a clean subtraction on
      top of it. */
-  /* 5.2vh, NOT 4.4, AND THE SHORT VIEWPORT IS WHY. At 1280x600 the
-     readout was measured OVERLAPPING the first card by 26px before any of
-     this — a pre-existing collision at short heights, not something the
-     drop caused. 4.4vh took that to exactly 0, which is touching rather
-     than clearing; 5.2vh gives 5px of daylight at 600 and 45 at 800. */
+  /* THE DROP IS TWO THINGS, AND max() TAKES WHICHEVER IS LARGER.
+
+     ONE, A DESIGN DROP: 2.6vh, which is 20.8px at 800 and puts the block
+     midway between where it started (bottom 107.2) and where the first
+     pass left it (65.6).
+
+     TWO, A CLEARANCE, because the readout collides with the cards and
+     always did. Measured with the drop removed, the gap above the first
+     card is -26px at a 600 viewport height, -11 at 700, -3 at 760, +3 at
+     800 and +31 at 900 — negative below roughly 790, which is not an
+     unusual window, it is a 13-inch laptop with browser chrome. The
+     shortfall closes at about 14.5px per 100px of height, so
+     129px - 14.5vh is what is needed, and it reaches zero by itself once
+     the layout has room.
+
+     max() means the design drop governs wherever there is space and the
+     clearance takes over where there is not — no height media query, and
+     no pair of numbers that has to be kept in step by hand. */
   :root .rg .rl {
-    --rl-drop: clamp(24px, 5.2vh, 52px);
+    --rl-drop: max(2.6vh, calc(129px - 14.5vh));
     bottom: calc(
       11vh + (1 - var(--lit, 1)) * 15vh
       + clamp(14px, 2.4vh, 30px)
