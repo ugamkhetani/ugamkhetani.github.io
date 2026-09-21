@@ -2982,9 +2982,19 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
      spread of 249px where there was 45, and the common width would be gone.
 
      So each size is SOLVED, not scaled: its own ink width divided by its
-     own measured uppercase ink-per-pixel. Measured after: 1350.2, 1349.9,
-     1356.3 and 1310.7px, errors of -0.1, 0, 0 and -0.1px. Only the case
-     changes.
+     own measured uppercase ink-per-pixel. Three of the four land on their
+     own width to within 0.1px — 1349.9, 1356.3 and 1310.7.
+
+     WHO I AM IS DELIBERATELY BELOW ITS SOLVED SIZE, applied from ab-uc1 on
+     2026-09-21. Solving for width gave 23.673vw; it is set at 21.800.
+     Equal ink width is not equal apparent size: WHO I AM is eight
+     characters and WHAT I WORK ACROSS is eighteen, so holding both to
+     1350px puts the first at 303px of type and the second at 130 — a 2.3
+     to 1 difference in the size of an actual letter, which makes the
+     shortest heading the loudest of the four however well the widths
+     match. At 21.8vw it is 279.04px and 1243.4px of ink, 7.9 per cent
+     under the other three, which reads as a correction to that rather
+     than as a heading that has fallen out of the system.
 
      THE TRACKING COMES WITH THE CASE. .fr__t is uppercase at -0.045em;
      .po-giant was at -0.058, which is a lowercase setting — tight tracking
@@ -3003,7 +3013,8 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     text-transform: uppercase;
     letter-spacing: -0.045em;
   }
-  :root .rg #r-who    { font-size: 23.673vw; }
+  /* Solved for the common width this would be 23.673vw; see above. */
+  :root .rg #r-who    { font-size: 21.800vw; }
   :root .rg #r-across { font-size: 10.162vw; }
   :root .rg #r-how    { font-size: 17.950vw; }
   :root .rg #r-close  { font-size: 13.853vw; }
