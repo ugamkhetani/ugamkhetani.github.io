@@ -2966,4 +2966,45 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
       - var(--rl-drop)
     );
   }
+
+  /* ══ THE ABOUT HEADINGS IN CAPITALS, FROM ab-uc1 ═══════════════════
+     Applied 2026-09-21. The four headings set entirely uppercase, the way
+     .fr__t in Selected works is, and resized so the composition does not
+     move.
+
+     THE RESIZE IS NOT COSMETIC. Measured before, the four render 1350.3,
+     1349.9, 1356.3 and 1310.8px of ink at 1280 — one common width of about
+     1.06 viewports, solved four times for four word-lengths, which is the
+     system these headings are built on. Capitals do not widen a line by a
+     constant: "Who I am" grows by 1.114, being already mostly caps and
+     short words, while "What I work across" grows by 1.299. Uppercased at
+     their old sizes the four would run 1504, 1753, 1700 and 1661 — a
+     spread of 249px where there was 45, and the common width would be gone.
+
+     So each size is SOLVED, not scaled: its own ink width divided by its
+     own measured uppercase ink-per-pixel. Measured after: 1350.2, 1349.9,
+     1356.3 and 1310.7px, errors of -0.1, 0, 0 and -0.1px. Only the case
+     changes.
+
+     THE TRACKING COMES WITH THE CASE. .fr__t is uppercase at -0.045em;
+     .po-giant was at -0.058, which is a lowercase setting — tight tracking
+     suits a line broken up by ascenders and closes capitals into each
+     other, caps having flatter sidebearings and nothing between them to
+     hold the gap open. The sizes below are solved WITH -0.045em.
+
+     THE PAN IS UNTOUCHED. po-pan is on .po-pan, the span inside each h2;
+     this sets font-size, text-transform and letter-spacing on the h2. Its
+     keyframes are in vw, 6 to -18, so it is independent of type size and
+     travels exactly as far, at exactly the same rate, as before.
+
+     Set as font-size rather than --gs, because --gs is written inline on
+     each h2 and an inline custom property beats a stylesheet one. */
+  :root .rg .po-giant {
+    text-transform: uppercase;
+    letter-spacing: -0.045em;
+  }
+  :root .rg #r-who    { font-size: 23.673vw; }
+  :root .rg #r-across { font-size: 10.162vw; }
+  :root .rg #r-how    { font-size: 17.950vw; }
+  :root .rg #r-close  { font-size: 13.853vw; }
 </style>
