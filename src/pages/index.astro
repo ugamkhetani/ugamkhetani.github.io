@@ -2868,4 +2868,50 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     color: var(--po-white, #FFF); margin: 0 0.1em 0 0;
     --vs-shift: 0.4135em; transform: translateY(var(--vs-shift));
   }
+
+  /* ══ THE READOUT'S TYPE, FROM ab-vx DIRECTION 02 · THE MEASURE ══════
+     Applied 2026-09-21. Direction 2 derives every size from the About
+     body's own line, 23.856px. The work's name takes 1.5 of those units,
+     35.784px, on a 2-unit line of 47.712; the year takes half a unit,
+     11.928, on a 1-unit line. Measured before: 19.2/22.272 and 10/10.6.
+
+     THE READOUT DOES NOT MOVE. Direction 2 shows it at the grid's left
+     edge, but that came from the shared floor in ab-vx, not from the
+     Measure, and it was not what was asked for. .rl keeps left: 50% with
+     translateX(-50%), text-align: center and its fixed width — which its
+     own comment insists on, having measured the playhead run 61, 46.5, 32,
+     55.5, 69, 72.5 and 127px down a scroll when the block was allowed to
+     shrink-wrap.
+
+     THE TRACKING IS NOT TAKEN. Direction 2 also tightens the name to
+     -0.024em, which large type usually wants. 0.005em here is ab-ty2's,
+     applied on 2026-09-20 and approved then; changing it was not part of
+     this request, so it stands.
+
+     THE RULER IS UNCHANGED, because the Measure does not change it: its
+     42px height and its angular tick geometry are the same in direction 2
+     as on the live page. */
+  :root .rg .rl__cap {
+    font-size: 35.784px;
+    line-height: 47.712px;
+  }
+  :root .rg .rl__date {
+    font-size: 11.928px;
+    line-height: 23.856px;
+  }
+  /* .rl is min(720px, 72vw), and .rl__cap carries text-overflow: ellipsis,
+     so a name wider than the block is truncated silently — which nothing
+     does today and nothing should start doing here.
+
+     MEASURED, AND THE FIRST NUMBER WAS WRONG. A canvas estimate put the
+     longest of the sixteen titles at 411px; rendered, "Dinshaw's Dildaari
+     Battles" is 437 — 26px more, because the estimate was fed the wrong
+     letter-spacing sign. 437 needs 72vw, so it fits only above a 607px
+     viewport, not the 572 the first breakpoint used: at 600 the title was
+     measured truncating. The switch is at 640, which leaves 9px of margin
+     at the narrowest width that still shows the large size. Below it the
+     name keeps the 19.2 it has today, which fits all sixteen down to 375. */
+  @media (max-width: 639px) {
+    :root .rg .rl__cap { font-size: 19.2px; line-height: 22.272px; }
+  }
 </style>
