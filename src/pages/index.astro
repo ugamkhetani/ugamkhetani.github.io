@@ -2914,4 +2914,43 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
   @media (max-width: 639px) {
     :root .rg .rl__cap { font-size: 19.2px; line-height: 22.272px; }
   }
+
+  /* ══ THE READOUT SITS LOWER ═══════════════════════════════════
+     Applied 2026-09-21. The name, the ruler and the year drop together.
+
+     THE EXPRESSION IS NOT REWRITTEN, ONLY OFFSET. .rl's bottom is
+     11vh + (1 - --lit) * 15vh + clamp(14px, 2.4vh, 30px), and its own
+     comment explains why: the aperture's window is inset by the first two
+     terms, and deriving the readout's offset from the same expression is
+     what stops the two drifting apart when the window breathes. A new
+     --rl-drop is SUBTRACTED from that rather than replacing it, so the
+     lit-dependent behaviour is untouched and the whole block simply sits
+     lower at every value of --lit.
+
+     THERE WAS ROOM, AND THE MEASUREMENT SAYS WHERE. At 1280x800 the
+     readout ran 1363 to 1493 inside a pin of 800 to 1600, with the first
+     card ending at 1360 — a 3px gap above it and 107px of unused space
+     below. Moving down opens the tight side and spends the loose one.
+
+     AND ONE TERM IS GUARDING NOTHING. .ap__mat is display: none on this
+     page — MS3 removed it, on the grounds that a hard-edged rectangle in
+     the middle of a page whose whole point is that there is no edge was
+     wrong. So the 11vh that clears the mat now clears an element that is
+     not drawn. It is LEFT IN ANYWAY: the mat is hidden, not deleted, and
+     re-deriving this offset from an element that may come back is a
+     bigger change than was asked for. The drop is a clean subtraction on
+     top of it. */
+  /* 5.2vh, NOT 4.4, AND THE SHORT VIEWPORT IS WHY. At 1280x600 the
+     readout was measured OVERLAPPING the first card by 26px before any of
+     this — a pre-existing collision at short heights, not something the
+     drop caused. 4.4vh took that to exactly 0, which is touching rather
+     than clearing; 5.2vh gives 5px of daylight at 600 and 45 at 800. */
+  :root .rg .rl {
+    --rl-drop: clamp(24px, 5.2vh, 52px);
+    bottom: calc(
+      11vh + (1 - var(--lit, 1)) * 15vh
+      + clamp(14px, 2.4vh, 30px)
+      - var(--rl-drop)
+    );
+  }
 </style>
