@@ -426,10 +426,6 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
 
     <section class="mvt mvt--a2 sec--works" id="works" aria-labelledby="r-works" data-mv="0" style={`--count:${wnodes.length}`}>
       <div class="fr fr--over">
-        <p class="mono cn cn--tl">01<br />Selected works</p>
-        <p class="mono cn cn--tr">{HERO.place[0]}<br />{HERO.place[1]}</p>
-        <p class="mono cn cn--bl">01/06<br />{RANGE}</p>
-        <p class="mono cn cn--br">Selected works<br /><span class="ov__cue">Scroll &darr;</span></p>
         <div class="fr__mid">
           <h2 class="fr__t" id="r-works">
             <span class="line" data-reveal><span class="line__in">Selected works</span></span>
@@ -470,8 +466,6 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
       <h2 class="po-giant" id="r-who" style="--gs:27vw"><span class="po-pan">Who I am</span></h2>
       <div class="po-grid">
         <p class="po-label po-c1">02</p>
-        <p class="po-label po-c2">{HERO.place[0]}<br />{HERO.place[1]}</p>
-        <p class="po-label po-c3">{RANGE}</p>
         <h3 class="po-state">{stopOf(WHO.head)[0]}<span class="po-stop">{stopOf(WHO.head)[1]}</span></h3>
         <div class="po-body">
           {WHO.body.map((p, i) => (i === 0
@@ -535,8 +529,6 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     <section class="mvt po-sec sm-sec mvt--contact" id="contact" aria-label="Contact" data-mv="5">
       <div class="po-grid sm-grid">
         <p class="po-label po-c1">06</p>
-        <p class="po-label po-c2">{HERO.place[0]}<br />{HERO.place[1]}</p>
-        <p class="po-label po-c3">{RANGE}</p>
         <div class="sm-form"><ContactForm /></div>
       </div>
     </section>
@@ -3057,4 +3049,18 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
        page; recorded because it is the one place the mono carried meaning
        rather than style, and exempting it is one selector. */
   :root .rg { --mono: var(--display); }
+
+  /* ══ THE EMAIL, LOWERCASE AND IN HELVETICA NEUE ═══════════════════
+     Applied 2026-09-21. It was already RENDERING Helvetica Neue — measured,
+     its stack sets a test string at 781.7px, "Helvetica Neue" alone gives
+     781.7, and the named "Neue Haas Grotesk Display" gives 702.69, the
+     same as an invented family name — so only the case actually changes
+     here. The family is named outright anyway, so the intent survives a
+     future change to --mono. Reached with :global() because .ft__mail
+     belongs to ContactForm, which is shared with the work pages and is
+     never edited from this file. */
+  :root .rg .sm-form :global(.ft__mail) {
+    text-transform: none;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  }
 </style>
