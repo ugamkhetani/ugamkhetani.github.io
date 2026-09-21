@@ -3072,11 +3072,31 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
      67.2px at 1280 — small enough to sit inside the frame with room to
      spare, and painted OVER the conveyor at z-index 6.
 
-     WHAT IT IS NOW. The size is declared as the measure divided by the ink
-     constant, so the word is exactly as wide as the page's text column at
-     every viewport there is: 131.24px and 1126.4px of ink at 1280, running
-     76.80 to 1203.20 against a measure of 76.80 to 1203.20. It sits behind
-     the stills, and the top of the card band cuts across its feet.
+     WHAT IT IS NOW. The size is declared from the GRID rather than as a vw
+     number: the word is eleven of the twelve columns wide, so it gives up
+     one column and its gutter. 120.10px and 1030.8px of ink at 1280,
+     measured against an eleven-column span of 1030.8. It sits behind the
+     stills, and the top of the card band cuts across its feet.
+
+     THE COLUMN IT GIVES UP IS SPLIT, NOT HUNG AT ONE END. .mvt sets
+     text-align: center and .fr inherits it, so the word stays centred on
+     the measure and the 95.57px it no longer fills opens as 47.79px at
+     each side -- measured, ink 124.59 to 1155.41 inside a measure of 76.80
+     to 1203.20, symmetric to the hundredth. Worth stating because "eleven
+     of twelve columns" sounds like a left-aligned word ending a column
+     short, and it is not.
+
+     IT WAS THE FULL MEASURE UNTIL 2026-09-22 -- 131.24px, 1126.4px of ink,
+     flush to both margins. Taking it to eleven columns is 8.5 per cent
+     down and, because the column is itself derived from the measure and
+     the gutter, it is the same 8.5 per cent at every width rather than a
+     ratio that drifts: 120.10px at 1280, 96.08 at 1024, 34.81 at 375.
+
+     THE BITE LOOKS AFTER ITSELF. top is calculated FROM --wk-size, not set
+     beside it, so shrinking the size moves the frame down by exactly the
+     amount that keeps the card band cutting the same fraction of the cap.
+     The cap goes 95.93 -> 87.79px and the bite 19.19 -> 17.56px, both 0.20
+     of the cap. Nothing about the overlap had to be re-solved.
 
      THE INK CONSTANT IS 8.583px OF PAINTED INK PER PIXEL OF SIZE, and the
      arithmetic is worth writing down because the obvious version is wrong.
@@ -3136,8 +3156,11 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
      THE PUSH IS ABOVE 900px ONLY: below that .wk__pin goes position: static
      and .fr loses its padding-inline, so there is no pinned band to be
      behind. The SIZE still applies there, which is what keeps the word on
-     screen on a phone — 38.10px at 375, 327.0px of ink into a measure of
-     327.0px.
+     screen on a phone — 34.81px at 375, 298.7px of ink into a measure of
+     327.0px. The eleven-column span there computes to 298.0 and the ink
+     lands 0.7px over it, because --gutter is on its 12px clamp floor at
+     that width rather than on 1.6vw; it still leaves 14.14px of air each
+     side, so nothing is at risk.
 
      ← overflow-x: clip ON .sec--works IS A GUARD, NOT LOAD-BEARING. It was
        load-bearing in ab-wh3, where the heading ran 159px off the right of
@@ -3150,7 +3173,12 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
   :root .rg .sec--works { overflow-x: clip; }
 
   :root .rg .fr--over {
-    --wk-size: calc((100vw - 2 * var(--margin)) / 8.583);
+    /* Eleven of the twelve columns: the measure, less one column and the
+       gutter beside it, over the ink constant. The column is derived here
+       rather than assumed so it tracks --gutter's own clamp. */
+    --wk-measure: calc(100vw - 2 * var(--margin));
+    --wk-col: calc((var(--wk-measure) - 11 * var(--gutter)) / 12);
+    --wk-size: calc((var(--wk-measure) - var(--wk-col) - var(--gutter)) / 8.583);
     z-index: 0;
     padding-inline: 0;
   }
