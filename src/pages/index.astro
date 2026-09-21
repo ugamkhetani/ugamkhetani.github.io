@@ -2803,10 +2803,42 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
   :root .rg .sm-form :global(.pill) { padding: 0.63em 1.06em; }
   :root .rg .sm-form :global(.pill--area) { padding: 0.72em 1.1em; }
 
-/* 8.8vw = 112.6px at 1280: the greeting's own column, filled. */
+/* THE GREETING'S OWN COLUMN, FILLED -- BUT ON TWO LINES NOW.
+     8.8vw was already the ceiling for one line and slightly past it: the
+     painted ink measured 449.3px inside a 446.7px column, so "Let's talk."
+     was overhanging its own column by 2.6px and being saved by
+     overflow-x: clip. There was no room to make it bigger on one line at
+     all -- the arithmetic gives 112.0px as the maximum and it was already
+     set at 112.64.
+
+     Breaking it over two lines changes the constraint from the whole
+     phrase to its longest WORD. Measured ink per px of size: the phrase
+     3.989, "Let's" 2.018, "talk." 1.777. So the ceiling goes from
+     446.7 / 3.989 = 112.0px to 446.7 / 2.018 = 221.3px -- very nearly
+     double -- and "talk." then sets at 393px against a 446.7px column,
+     which is the rag.
+
+     DERIVED FROM THE COLUMN RATHER THAN FROZEN AS A vw, so it keeps
+     filling at any width. .ct__page is 5fr 7fr above 900 with a
+     column-gap of 3.4em, and .ct__page inherits the 16px root, so the gap
+     is 54.4px: the greeting's column is (measure - 54.4) x 5/12, and the
+     size is that over 2.018.
+
+     IT COSTS NOTHING VERTICALLY. The greeting's column runs 640px against
+     the form's 1327px, so there is 1181px of headroom on that side; two
+     lines add 317px and the section's height does not move.
+
+     Below 901 .ct__page collapses to one column and the greeting has the
+     whole measure, where one line still fits -- so the old clamp stands
+     there and only the wide case changes. */
   :root .rg .sm-form :global(.ct__statement) {
     font-size: clamp(2.9rem, 8.8vw, 7.4rem); font-weight: 500;
     line-height: 0.96; letter-spacing: -0.042em;
+  }
+  @media (min-width: 901px) {
+    :root .rg .sm-form :global(.ct__statement) {
+      font-size: calc((100vw - 2 * var(--margin) - 3.4rem) * 5 / 12 / 2.018);
+    }
   }
   /* 5.59vw = 71.6px at 1280: the form column, filled. */
   :root .rg .sm-form :global(.send__act) {
@@ -3073,16 +3105,15 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
      spare, and painted OVER the conveyor at z-index 6.
 
      WHAT IT IS NOW. The size is declared from the GRID rather than as a vw
-     number: the word is eleven of the twelve columns wide, so it gives up
-     one column and its gutter. 120.10px and 1030.8px of ink at 1280,
-     measured against an eleven-column span of 1030.8. It sits behind the
+     number: the word is TEN of the twelve columns wide, so it gives up two
+     columns and their gutters. 108.97px and 935.2px of ink at 1280,
+     measured against a ten-column span of 935.2. It sits behind the
      stills, and the top of the card band cuts across its feet.
 
-     THE COLUMN IT GIVES UP IS SPLIT, NOT HUNG AT ONE END. .mvt sets
+     THE COLUMNS IT GIVES UP ARE SPLIT, NOT HUNG AT ONE END. .mvt sets
      text-align: center and .fr inherits it, so the word stays centred on
-     the measure and the 95.57px it no longer fills opens as 47.79px at
-     each side -- measured, ink 124.59 to 1155.41 inside a measure of 76.80
-     to 1203.20, symmetric to the hundredth. Worth stating because "eleven
+     the measure and the 191.15px it no longer fills opens as 95.57px at
+     each side. Worth stating because "eleven
      of twelve columns" sounds like a left-aligned word ending a column
      short, and it is not.
 
@@ -3173,12 +3204,15 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
   :root .rg .sec--works { overflow-x: clip; }
 
   :root .rg .fr--over {
-    /* Eleven of the twelve columns: the measure, less one column and the
-       gutter beside it, over the ink constant. The column is derived here
-       rather than assumed so it tracks --gutter's own clamp. */
+    /* TEN of the twelve columns: the measure, less two columns and their
+       gutters, over the ink constant. The column is derived here rather
+       than assumed so it tracks --gutter's own clamp. It was the full
+       measure until 2026-09-22, then eleven columns, now ten -- each step
+       is one column, which is why the reduction is the same fraction at
+       every width instead of a ratio that drifts. */
     --wk-measure: calc(100vw - 2 * var(--margin));
     --wk-col: calc((var(--wk-measure) - 11 * var(--gutter)) / 12);
-    --wk-size: calc((var(--wk-measure) - var(--wk-col) - var(--gutter)) / 8.583);
+    --wk-size: calc((var(--wk-measure) - 2 * (var(--wk-col) + var(--gutter))) / 8.583);
     z-index: 0;
     padding-inline: 0;
   }
