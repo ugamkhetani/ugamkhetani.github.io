@@ -3215,49 +3215,14 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     margin: 0;
   }
 
-  /* ── 2 · HOW I WORK, THE VERSO AND THE RECTO, from ab-fs1 ────────
-     The step becomes a spread: the number on the verso at column 1, its
-     title beside it at 2, and the body carried over to the recto at 7,
-     with a hairline in the middle of the gutter between them. Font sizes
-     are untouched, as asked -- fs1 sets no size on .po-steplines, and its
-     line-height: 1.5 rule reaches .po-body and .po-lede only, so there was
-     nothing to leave behind. Scoped to #philosophy: fs1 moved every
-     section's body to the recto, and only How I work was asked for. */
-  :root .rg #philosophy .po-stepn { grid-column: 1 / span 1; }
-  :root .rg #philosophy .po-steptitle { grid-column: 2 / span 5; }
-
-  /* THE RECTO, AND THE RULE IN THE MIDDLE OF THE GUTTER -- fs1's own four
-     declarations, unchanged. The negative margin pulls the box half a
-     gutter back so the border lands on the gutter's centre line, and the
-     matching padding puts the text back where column 7 starts. Measured
-     against ab-fs1 at 1280: box left 640.00 against 640.00, border 1px
-     rgba(255,255,255,0.2) against the same, first paragraph 651.23 against
-     651.23, and the rule the height of the text block -- 193.64px -- not
-     of the step.
-
-     AN EARLIER PASS DREW THIS ON .po-step::after INSTEAD, to keep it clear
-     of the drift in item 4. The x was right, 640.00 either way, but the
-     rule then ran the STEP's full height, 249.64px including its 24px and
-     80px of padding, so it read as one continuous line down the section
-     rather than as fs1's three short rules beside their own text blocks.
-     That is not what fs1 looks like, so it is fs1's version that stands
-     and the drift that gives way -- see item 4. */
-  :root .rg #philosophy .po-steplines {
-    grid-column: 7 / -1;
-    border-left: 1px solid var(--po-rule, rgba(255, 255, 255, 0.2));
-    margin-left: calc(var(--gutter) / -2);
-    padding-left: calc(var(--gutter) / 2);
-  }
-
-  /* One column below 820: there is no gutter to hang a gutter rule in.
-     fs1's own cancel, verbatim. */
-  @media (max-width: 820px) {
-    :root .rg #philosophy .po-steplines {
-      border-left: 0;
-      margin-left: 0;
-      padding-left: 0;
-    }
-  }
+  /* ── 2 · HOW I WORK KEEPS ITS ORIGINAL LAYOUT ───────────────
+     ab-fs1's verso/recto spread was applied here and is now reverted, so
+     the step is back to the base sheet: .po-stepn at 1 / span 2,
+     .po-steptitle at 3 / span 6, .po-steplines at 9 / -1, and no gutter
+     rule. Nothing is left behind -- the border, the half-gutter margin and
+     padding, the .po-step::after that drew the rule for one pass, and the
+     820px cancel that went with it have all gone. The step numbers in item
+     3 below are unaffected: they were never fs1's. */
 
   /* ── 3 · THE THREE STEP NUMBERS, from ab-nm1 ────────────────
      The step title's own clamp, so the figure is the same size as the
@@ -3282,22 +3247,16 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
      .po-giant and moves .po-body to the full measure, and neither is
      brought across; only the animation is.
 
-     mo6 lists three selectors -- .po-body, .po-lede, .po-steplines -- and
-     between them they are the body text of all four About movements.
-     TWO OF THE THREE ARE USED HERE. .po-body is Who I am and .po-lede is
-     What I work across and, via .po-lede--end, What I'm after.
+     The three selectors are mo6's own and between them they are the body
+     text of all four About movements: .po-body is Who I am, .po-lede is
+     What I work across and, via .po-lede--end, What I'm after, and
+     .po-steplines is How I work.
 
-     <- .po-steplines IS DELIBERATELY LEFT OUT, and this is the one place
-       the two requests could not both be honoured. How I work's body now
-       carries fs1's gutter rule as a border-left on that very element, so
-       animating it would take the rule with it: 32px of travel in a
-       20.48px gutter puts the hairline clean outside the gutter and into
-       column 6. fs1's layout was asked for exactly, with the vertical
-       line, so the rule stays still and How I work's body does not drift.
-       To have the drift there as well, the rule has to leave the text --
-       .po-step::after with left: calc(6 * ((100% - 11 * var(--gutter)) /
-       12) + 5.5 * var(--gutter)) puts it on the same centre line, at the
-       cost of running the step's full height instead of the text's.
+     .po-steplines WAS TAKEN OUT OF THIS LIST for one pass, while How I
+     work carried fs1's gutter rule as a border on that same element --
+     animating it would have swung the hairline 32px across a 20.48px
+     gutter. The rule is gone with the layout, so there is nothing left for
+     the drift to carry and the element is back.
 
      Guarded twice. @supports because a browser without scroll-driven
      timelines would otherwise hold the from-state and leave the text
@@ -3306,7 +3265,8 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
   @supports (animation-timeline: view()) {
     @media (prefers-reduced-motion: no-preference) {
       :root .rg .po-body,
-      :root .rg .po-lede {
+      :root .rg .po-lede,
+      :root .rg .po-steplines {
         animation: mo6-counter linear both;
         animation-timeline: view();
         animation-range: cover;
@@ -3316,5 +3276,44 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
   @keyframes mo6-counter {
     from { transform: translateX(-16px); }
     to   { transform: translateX(16px); }
+  }
+
+  /* ══ THE THREE QUESTIONS IN FIND THE LANGUAGE ════════════════
+     Applied 2026-09-22. "What does it feel like? What is its texture? What
+     does it leave unsaid?" is ONE line in the data; clauses() splits it on
+     the question marks and asks() tags each piece, so the three arrive as
+     three <p class="po-ask"> in a row. Every paragraph in .po-steplines
+     carries margin: 0 0 1em, which put a uniform 16.8px between all five
+     paragraphs of the step -- measured -- so the questions read as three
+     separate statements rather than as one asked in three ways.
+
+     TIGHTENED ONLY BETWEEN THEMSELVES. :has(+ .po-ask) matches a question
+     that is FOLLOWED by a question, which is the first two and not the
+     third, so the 16.8px above "What does it feel like?" (owned by the
+     paragraph before it) and the 16.8px below "What does it leave unsaid?"
+     (owned by the third question) are both untouched. 0.25em is 4.2px, so
+     the three lines sit 28.06px apart against 40.66px before. :has() is
+     supported here -- checked with CSS.supports('selector(...)') rather
+     than assumed.
+
+     ITALIC IS A REAL FACE, NOT A SLANT. The stack falls through to
+     Helvetica Neue, which has a true Italic: the advance for "What does it
+     feel like?" is 390.4px italic against 393.4px roman at 40px, and a
+     synthetic oblique is a pure shear that leaves advances identical. So
+     this is the drawn face.
+
+     ← AND THE COLOUR IS LIFTED, which was not asked for. .po-ask sits at
+       --po-grey, #9B9B9B, which measures 3.09:1 against the brightest
+       frame the mosaic can produce (#4C4C4C) and fails AA -- the only text
+       on the page below the floor. Since the request is to make these
+       stand out, #C0C0C0 takes them to 4.72:1 while still reading quieter
+       than the #FFFFFF body around them. Drop this one declaration to keep
+       the old grey. */
+  :root .rg .po-steplines .po-ask {
+    font-style: italic;
+    color: #C0C0C0;
+  }
+  :root .rg .po-steplines .po-ask:has(+ .po-ask) {
+    margin-bottom: 0.25em;
   }
 </style>
