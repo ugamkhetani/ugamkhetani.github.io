@@ -3063,4 +3063,107 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     text-transform: none;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
+
+  /* ══ SELECTED WORKS, WHOLLY ON SCREEN AND PARTLY UNDER THE WORK ═══
+     Applied 2026-09-21 from preview/ab-wh3e, THE LINTEL, chosen from four.
+
+     WHAT IT WAS. The heading at clamp(1.5rem, min(6vw, 8vh), 4.2rem) —
+     67.2px at 1280 — small enough to sit inside the frame with room to
+     spare, and painted OVER the conveyor at z-index 6.
+
+     WHAT IT IS NOW. The size is declared as the measure divided by the ink
+     constant, so the word is exactly as wide as the page's text column at
+     every viewport there is: 131.24px and 1126.4px of ink at 1280, running
+     76.80 to 1203.20 against a measure of 76.80 to 1203.20. It sits behind
+     the stills, and the top of the card band cuts across its feet.
+
+     THE INK CONSTANT IS 8.583px OF PAINTED INK PER PIXEL OF SIZE, and the
+     arithmetic is worth writing down because the obvious version is wrong.
+     "SELECTED WORKS" is fourteen characters and the canvas sets it at 9.168
+     per px untracked; -0.045em takes 0.045 off per spacing. Measured with
+     letter-spacing toggled off and on, the layout box moves by 96.77px =
+     14 x 6.912 exactly — so all FOURTEEN spacings are inside the box. But
+     the trailing one pulls the box in while the final K still paints out to
+     where it was, so the INK loses only thirteen: 9.168 - 13 x 0.045 =
+     8.583. 8.538 is the box; 8.583 is what you can see. At this size the
+     difference is one clipped letter, which is why it is spelled out.
+
+     THE TRAILING SPACE IS PAID BACK. .mvt sets text-align: center (line
+     1787) and .fr inherits it, so the word is centred — and the box that
+     centring uses is 0.045em narrower than the ink. That puts the painted
+     word half of that, 0.0225em or 2.95px here, RIGHT of true centre:
+     overhanging the right margin with a gap at the left. It did this before
+     this change as well, at the old size, where it was too small to notice.
+     padding-right: 0.045em makes the box as wide as the ink again, so what
+     gets centred is what you can see.
+
+     Z-INDEX 0 IS WHAT PUTS THE TYPE BEHIND THE WORK. .wcard carries
+     z-index 100 and .fr--over only 6, which looks as though the cards
+     already win. They do not: .wk__pin is position: sticky, and sticky
+     ALWAYS creates a stacking context, so the cards' 100 is scoped inside
+     the pin and never competes with the frame. What competes is the pin's
+     own z-index, which is auto. Dropping .fr--over from 6 to 0 puts it
+     level with the pin, and the pin comes later in the document, so the
+     work paints over the word.
+
+     THE VERTICAL PUSH, AND WHY THE ANCHOR IS NOT 30vh. Z-index alone
+     changed nothing, because the heading's baseline was TANGENT to the top
+     of the card band: 880 + 40 + 0.78 x 153.6 = 1039.81 against 1040.000,
+     two tenths of a pixel. The word CLEARED the stills. So the frame comes
+     down. A card is min(40vh, 26vw) x --card-k placed top: 50% and pulled
+     back half its height, so the common card's top edge is
+     50vh - min(20vh, 13vw). That equals 30vh ONLY at 1280 x 800, where
+     26vw and 40vh cross; anchored to a flat 30vh the bite measured
+     -11.94px at 1024 — the word clear of the work all over again. With
+     .fr's clamp(30px, 5vh, 66px) of top padding, a baseline 0.78em below
+     the content top (line-height 0.8 against a 1.20em font box) and a cap
+     of 0.731em, a bite of beta cap heights is
+         top = 50vh - min(20vh, 13vw) - pad - s (0.78 - 0.731 beta)
+     and beta is 0.20 here: 19.2px of a 95.9px cap, four fifths of the
+     letter still showing. Measured 19.4, 19.5, 19.6 and 19.4 per cent at
+     1280x800, 1024x800, 1440x900 and 1280x700.
+
+     ← THE BITE IS NOT UNIFORM ACROSS THE RUN, which is the conveyor's
+       design rather than a fault here. --card-k enlarges anything narrower
+       than a square by ratio^-0.75, so a 9:16 work stands 492.7px tall
+       against the common 320 and its top edge reaches 153.6px — above the
+       cap top. The figure above is the bite against the COMMON height,
+       twelve of the sixteen works. When one of the four verticals passes it
+       cuts deeper, through a 277px-wide slice of the word rather than all
+       of it.
+
+     THE PUSH IS ABOVE 900px ONLY: below that .wk__pin goes position: static
+     and .fr loses its padding-inline, so there is no pinned band to be
+     behind. The SIZE still applies there, which is what keeps the word on
+     screen on a phone — 38.10px at 375, 327.0px of ink into a measure of
+     327.0px.
+
+     ← overflow-x: clip ON .sec--works IS A GUARD, NOT LOAD-BEARING. It was
+       load-bearing in ab-wh3, where the heading ran 159px off the right of
+       the screen; at this size nothing overruns, and the conveyor's own
+       horizontal excess is already contained by .wk__pin's overflow: hidden.
+       It is carried over because it is what was verified, and because clip
+       on one axis leaves the other visible and so does not make a scroll
+       container that would break the pin — checked: .wk__pin still sticks,
+       the cards hold at 240 while the frame rises past them. */
+  :root .rg .sec--works { overflow-x: clip; }
+
+  :root .rg .fr--over {
+    --wk-size: calc((100vw - 2 * var(--margin)) / 8.583);
+    z-index: 0;
+    padding-inline: 0;
+  }
+  :root .rg .fr--over .fr__t {
+    font-size: var(--wk-size);
+    line-height: 0.8;
+    white-space: nowrap;
+    margin: 0;
+    padding-right: 0.045em;
+  }
+
+  @media (min-width: 901px) {
+    :root .rg .fr--over {
+      top: calc(50vh - min(20vh, 13vw) - clamp(30px, 5vh, 66px) - var(--wk-size) * 0.6338);
+    }
+  }
 </style>
