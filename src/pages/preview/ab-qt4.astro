@@ -1,0 +1,2856 @@
+---
+/**
+ * FOUR QUIETER HEADINGS, AT THE SAME SIZE
+ *
+ * 2026-09-21. Subtler, with three things held fixed: the font size, the
+ * typeface, and the animation. That rules out every lever the previous four
+ * sets reached for — no shrinking, no weight, no re-setting, no new motion —
+ * and leaves exactly one: how the letterforms are FILLED.
+ *
+ * WHAT IS LOCKED, AND CHECKED IN EVERY DRAFT.
+ *   · font-size stays var(--gs): 345.6 / 172.8 / 294.4 / 230.4px at 1280.
+ *   · font-family stays the display stack, and font-weight stays 500 — a
+ *     weight is a face, so it is treated as off-limits here even though the
+ *     brief only names the family.
+ *   · po-pan is untouched: same name, same keyframes (translateX(76.8px) to
+ *     translateX(-230.4px) at 1280), same view() timeline, same cover range,
+ *     same fill. Nothing here adds an animation either.
+ *
+ * SO THE WHOLE SET IS ABOUT INK. A letterform at 345px is not loud because it
+ * is large; it is loud because it is 345px of SOLID WHITE against a near-black
+ * ground — 19.9:1, the highest contrast on the page, spread over the largest
+ * area on the page. Area times contrast is the thing the eye actually weighs,
+ * and only one of those two numbers has been fixed by the brief.
+ *
+ * THE PAGE'S OWN VALUE SCALE, measured, is what these are calibrated against:
+ * --po-white #FFFFFF at 19.9:1, --bone-dim #D8D8D8 at 14.0:1, --po-grey
+ * #9B9B9B at 7.16:1, and --po-rule rgba(255,255,255,0.2), which composited
+ * over --ground measures 1.75:1. The hairlines are the quietest mark the design
+ * already makes, and they are the floor these drafts work down toward.
+ *
+ * QT4 · THE FLOOR. The heading is set at the lowest value that still clears AA
+ * for large text, and not one step quieter.
+ *
+ * Not a guess. Large text needs 3:1. Solving the WCAG ratio against --ground
+ * #0A0908, whose relative luminance is 0.002774, gives a required text
+ * luminance of 0.108322, which is sRGB 92.5 — and white composited at alpha a
+ * over that ground is 10 + 245a, so a = 0.337. The heading is set at
+ * rgba(255,255,255,0.34): three hundredths above the floor, and nothing more.
+ *
+ * WHERE THAT SITS IN THE PAGE'S OWN SCALE. --po-white is 19.9:1, --bone-dim
+ * 14.0, --po-grey 7.16, and --po-rule — the hairline every section opens on —
+ * composites to 1.75:1. Measured after: the heading composites to sRGB
+ * 93,93,92 and 3.02:1, against the 3.00 the arithmetic asked for. Quieter
+ * than every piece
+ * of type on the page and louder than the only mark quieter than type. The
+ * giant word becomes the step between the text and the rules, which is a rank
+ * the design did not previously have and arguably always needed.
+ *
+ * WHY NOT SIMPLY GO TO THE RULE'S VALUE. Because 1.78:1 fails AA outright, and
+ * this heading is not decoration — each one is its section's accessible name
+ * via aria-labelledby. A heading you cannot read is a different draft
+ * (ab-el8 makes that argument properly, by removing it and promoting the
+ * number). This one is the quietest the heading can be while still being a
+ * heading.
+ *
+ * ← NOTHING IS REWRITTEN, AND NOTHING ELSE ON THE PAGE IS TOUCHED. The Smoked
+ *   mosaic, the smoke ramp, the grid and the body are the live page's.
+ * ← SIZE, FACE AND ANIMATION ARE VERIFIED UNCHANGED in each draft, not
+ *   assumed — the numbers are in each one's note.
+ */
+import Base from '../../layouts/Base.astro';
+import OpNav from '../../components/OpNav.astro';
+import Still from '../../components/Still.astro';
+import ContactForm from '../../components/ContactForm.astro';
+import { HERO, PORTRAIT, WHO, PROCESS, ACROSS, CLOSING } from '../../data/about';
+import { EMAIL, PHONE, WHATSAPP } from '../../data/contact';
+import { composition, numberFor, total, RATIO_NUM } from '../../data/composition';
+import { getCollection } from 'astro:content';
+import Opening from '../../components/Opening.astro';
+import { framesFor } from '../../lib/frames';
+import { BED_SWAPS, BED_CROP, BED_GRADE, BED_TILES } from '../../lib/bed';
+import { cardK, type CardMode } from '../../lib/cards';
+
+/* HOW BIG AN UPRIGHT WORK IS IN THE CONVEYOR — draft E · Draw, applied.
+   Chosen from five built as real pages and judged in the browser; those pages
+   were deleted with the rest of the preview library on 2026-09-05, but every
+   mode is kept in src/lib/cards.ts along with the reasoning and the
+   measurements. This is the one line that selects between them. */
+const CARD_MODE: CardMode = 'draw';
+
+const works = await getCollection('works');
+const bySlug = new Map(works.map((w) => [w.id, w]));
+
+/* THE COUNTDOWN'S THREE FRAMES, CHOSEN AND NAMED.
+
+   The opening is the Academy leader: three counts, 3 · 2 · 1, each holding one
+   frame from the catalogue behind the numeral. The order below is the order
+   they are counted in — first entry behind 3, last behind 1.
+
+   THE FRAME NUMBER IS PART OF THE CHOICE, not an afterthought. Everywhere else
+   on the site a work is represented by the first frame in its folder; here
+   Special Ops shows its SECOND. So the index is carried explicitly rather than
+   assumed, and it is 1-based to match how the frames are named on disk.
+
+   This replaced a slice off the front of the score — every other work, eight of
+   them, of which the leader only ever counted the first three. That was the
+   right shape for the helix opening this succeeded, which flew all eight; a
+   countdown shows three, so three are named. */
+/* EACH FRAME IS ALSO AIMED, because the ring is a circle and object-fit alone
+   centres the FRAME, not the face in it. Read off the ring at 10% gridlines,
+   the three faces sit at these fractions of it:
+
+     3  book-my-yamraj   0.50, 0.49   already centred
+     2  taskaree         0.50, 0.455  a little high
+     1  special-ops-2    0.47, 0.31   well high, and slightly left
+
+   `zoom` and the shift correct that. A shift alone cannot: two of the three are
+   landscape frames in a square ring, so cover fits them by height and there is
+   no vertical slack to move into — the zoom is what creates the room, and its
+   floor is set by how far off-centre the face is. A face at 0.31 of the height
+   can only be centred by discarding everything above 0.62, which is a zoom of
+   1/0.62. Shifts are percentages of the ring, applied after the zoom.
+
+   THE ZOOM ALSO HAS TO KEEP THE RING COVERED. The shift can be at most half the
+   slack the zoom created, or the frame pulls off an edge and the ground shows
+   through. Taskaree ran at 1.12 first, which left its top edge 3.7px inside a
+   368px ring — correct, but one rounding from a hairline on a smaller ring;
+   1.15 doubles that margin and moves the face by a third of a pixel. The ring
+   is always square, so these figures hold at every viewport. */
+/* AND EACH FRAME CARRIES ITS OWN BRIGHTNESS, for the same reason it carries
+   its own aim: the thing being corrected is a property of that photograph.
+
+   The numeral is white, and what threatens it is not how bright the frame is
+   on average but the brightest PATCHES falling inside the glyph's own outline.
+   Measured under the real 3/2/1 ink at ring size, the three were unequal and
+   two were under the 3:1 floor that text this large wants — the 2 worst at
+   2.2:1, on a highlight that belongs to Taskaree alone.
+
+   One global value would have to be dark enough for Taskaree and would then
+   take a fifth of Special Ops' brightness away to fix a highlight that is not
+   in it. So each frame is dimmed only as far as ITS OWN worst pixel requires,
+   which is the brightest each can be:
+
+     3  book-my-yamraj  0.67   2.9:1 -> 4.0:1
+     2  taskaree        0.58   2.2:1 -> 4.0:1
+     1  special-ops-2   0.76   3.6:1 -> 4.0:1
+
+   Full workings, both viewports and the ring means that show the frames are
+   still photographs, are in the filter comment in Opening.astro. Re-measure
+   there rather than nudging these by eye — and re-measure if a frame or an aim
+   changes, because the aim decides which part of the photograph is under the
+   glyph in the first place. */
+const COUNTDOWN: { slug: string; frame: number; zoom?: number; x?: number; y?: number; dim: number }[] = [
+  { slug: 'book-my-yamraj', frame: 1, dim: 0.67 },                            // behind 3
+  { slug: 'taskaree', frame: 1, zoom: 1.15, y: 5, dim: 0.58 },                // behind 2
+  { slug: 'special-ops-2', frame: 2, zoom: 1.7, x: 5.4, y: 32.6, dim: 0.76 }, // behind 1
+];
+const stills = COUNTDOWN.map(({ slug, frame, zoom, x, y, dim }) => {
+  const w = bySlug.get(slug)!;
+  const all = framesFor(slug, w.data.frames);
+  /* Clamped, so a frame that is renumbered or removed degrades to the last one
+     the work has rather than failing the build. */
+  return {
+    img: all[Math.min(Math.max(1, frame), all.length) - 1],
+    alt: w.data.alt,
+    aim: zoom || x || y ? { zoom: zoom ?? 1, x: x ?? 0, y: y ?? 0 } : undefined,
+    dim,
+  };
+});
+
+const wordsOf = (s: string) => s.split(' ');
+const cut = (s: string): [string, string] => {
+  const i = s.indexOf(',');
+  return i < 0 ? [s, ''] : [s.slice(0, i + 1), s.slice(i + 1).trim()];
+};
+const [whoSans, whoSerif] = cut(WHO.head);
+const LEDGER = Array.from({ length: 12 }, (_, i) => i);
+const clauses = (l: string) => l.split(/(?<=\?)\s+/).filter(Boolean);
+const asks = (c: string) => c.trim().endsWith('?');
+
+/* The name, taken from the eyebrow rather than retyped. */
+const NAME = HERO.eyebrow.split('·')[0].trim();
+const NAME_PARTS = NAME.split(' ');
+
+/* The catalogue's real year range, for the corner labels — read off the
+   collection so it can never drift from the works themselves. */
+const YEARS = [...new Set(works.map((w) => w.data.year))].sort();
+const RANGE = `${YEARS[0]} — ${YEARS[YEARS.length - 1]}`;
+
+/* XL flattened HERO.statement to a string and re-wrapped it greedily at 22
+   characters, because its caption is uppercase and had to break somewhere the
+   data does not. Corners does not re-wrap: it sets one .line per entry in
+   HERO.statement, so the break after "A composer working in" is the one the
+   data already carries and the accent stays on the word it belongs to rather
+   than being matched back out of a flattened string. The re-wrapper, the Word
+   type and the accent lookup all go with it. */
+
+const R = 900;
+const STEP = 0.5;
+let wi = 0;
+const wnodes: { w: any; i: number; no: string; x: number }[] = [];
+for (const stanza of composition) {
+  for (const p of stanza.items) {
+    const w = bySlug.get(p.slug)!;
+    wnodes.push({
+      w, i: wi, no: numberFor(w.id),
+      /* Which side this work drifts to once it has gone behind. Taken from
+         its column in the score, as the original Conveyor did, so the same
+         work always passes on the same side rather than being scattered. */
+      x: +((((p.col - 1) + p.span / 2 - 6) / 6)).toFixed(3),
+    });
+    wi++;
+  }
+}
+
+/* The bed's cast and its frame corrections live in src/lib/bed.ts. That was
+   so the mosaic drafts could render from the same tables as this page rather
+   than a second copy; the drafts are gone, and the split stays because those
+   tables are content decisions with long arguments attached. */
+const bedCast = wnodes.map((n) => {
+  const to = BED_SWAPS[n.w.id];
+  return to ? { ...n, w: bySlug.get(to)! } : n;
+});
+
+/* The catalogue as a bed behind the whole document. It comes round more than
+   once on purpose: a wall of work should read as more than you can count. */
+const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bedCast.length]);
+
+/* D · Poster: splits a statement's trailing full stop off so it can take the
+   site's orange. The words themselves are untouched. */
+const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -1), '.'] : [s, '']);
+/* The opening letter, split off so it can be set as a versal. */
+const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
+---
+
+<Base
+  title="Ugam Khetani — Composer, Producer, Sound Designer"
+  description="Selected works across film, brand and music. Original score for film, OTT and series; sonic identity for brands; campaign audio authored end to end."
+  intro
+>
+  <Opening stills={stills} />
+  <OpNav variant="bracket" />
+
+  <div class="rg" data-rg>
+    <div class="gauge" aria-hidden="true"><span class="gauge__in" data-progress></span></div>
+
+    <div class="rh" data-runhead aria-hidden="true">
+      <span class="mono rh__name">{NAME}</span>
+      <span class="mono rh__sep">&mdash;</span>
+      <span class="mono rh__mv" data-rh-mv>Selected works</span>
+      <span class="mono rh__folio" data-rh-folio>01/06</span>
+    </div>
+
+    <div class="ms__ground" aria-hidden="true">
+      <div class="ms__bed">
+        {GROUND_TILES.map((c) => (
+          <span
+            class="ms__tile"
+            class:list={[{ 'ms__tile--crop': !!BED_CROP[c.w.id] }]}
+            style={[
+              BED_CROP[c.w.id] &&
+                `--crop-s:${BED_CROP[c.w.id].scale};--crop-y:${BED_CROP[c.w.id].shiftY}%`,
+              BED_GRADE[c.w.id] && `--bed-k:${BED_GRADE[c.w.id].contrast}`,
+            ]
+              .filter(Boolean)
+              .join(';') || undefined}
+          >
+            <Still slug={c.w.id} title={c.w.data.title} year={c.w.data.year}
+              category={c.w.data.category} ratio={c.w.data.ratio}
+              frames={c.w.data.frames} alt={c.w.data.alt}
+              sizes="20vw" eager={false} max={1} free={true} />
+          </span>
+        ))}
+      </div>
+    </div>
+
+    <div class="ap__mat" aria-hidden="true"></div>
+
+    {/* One pane for the whole page. See the stylesheet. */}
+    {/* THE BLUR IS EARNED, NOT GUESSED.
+
+        What this replaced was a guess in three parts — cores, memory and a
+        900px width rule — and measured, it pointed the wrong way. The bed is
+        1.2x the viewport in each axis, so an iPhone 15 Pro blurs 4.34
+        physical megapixels and a 1512x982 MacBook blurs 8.55. The phone did
+        half the work and was switched off; the laptop did twice as much and
+        was let through. Width is not a capability test.
+
+        Nor could a static test be fixed: deviceMemory does not exist in
+        Safari, so no iPhone can ever pass it, and what iOS reports for
+        hardwareConcurrency could not be determined here — guessing wrong
+        gates every iPhone, which is the exact outcome this is meant to
+        avoid.
+
+        So it is measured, and the design pays for the window. The blur is
+        0px until 240px of scroll — the opening is blur-free by construction
+        — which is long enough to discard the first ten frames, watch the
+        next forty and decide before anything expensive is wanted. Nothing is
+        shown and then taken away. The loop is bounded at two hundred frames
+        or five seconds, whichever comes first, and running out is itself a
+        verdict: no blur.
+
+        THE BAR IS THE DISPLAY'S OWN CADENCE, not a millisecond count. The
+        shortest frame observed is taken as the refresh period and the device
+        passes if its median frame sits within 1.35 of it, which reads the
+        same on a 60Hz phone and a 120Hz laptop where one fixed threshold
+        would have had to pick one and be wrong about the other.
+
+        AND THE CADENCE ITSELF HAS TO BE A HEALTHY ONE. Testing the ratio
+        alone let a device pinned at 30fps through — it holds 33.3ms
+        perfectly, ratio 1.01, which reads as a device in complete control of
+        itself. Consistency is not health. The period must also be 20ms or
+        better, which is 50Hz: 60 and 120 pass, a throttled or low-power
+        device does not.
+
+        FAILS TO THE CHEAP STATE. No script, no attribute, no blur. */}
+    <script is:inline>
+      (function () {
+        var d = document.documentElement;
+        /* A stated preference, not a capability. Never probe, never blur. */
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        /* The verdict survives client-side navigation, so this runs once a
+           session rather than once a page. */
+        try {
+          var seen = sessionStorage.getItem('blur-ok');
+          if (seen === '1') { d.setAttribute('data-blur', ''); return; }
+          if (seen === '0') return;
+        } catch (e) {}
+
+        /* THE FIRST FRAMES ARE THROWN AWAY, and this is the difference
+           between letting a good phone through and failing it. The probe
+           starts at load, which is when image decoding is heaviest — a
+           capable phone can easily spend its first ten frames behind and
+           then hold 60 perfectly. Judging it on those frames would fail
+           exactly the device this measurement exists to let through. */
+        var dts = [], last = 0, seen = 0, t0 = 0;
+        var WARMUP = 10, N = 40, MAX_FRAMES = 200, MAX_MS = 5000;
+        requestAnimationFrame(function tick(now) {
+          if (!t0) t0 = now;
+          seen++;
+          if (last && seen > WARMUP) {
+            var dt = now - last;
+            /* Over 100ms is a tab switch or an image decode, not a verdict
+               on the device. */
+            if (dt < 100) dts.push(dt);
+          }
+          last = now;
+
+          /* BOUNDED TWO WAYS, and it has to be. Waiting only for N clean
+             samples means a device whose frames are mostly OVER 100ms never
+             collects them — and the loop then runs for the life of the page,
+             on precisely the hardware least able to spare it. It costs 7
+             nanoseconds a frame, so this is untidy rather than harmful, but
+             an unbounded loop is not something to leave in. Frames cap the
+             fast case, wall clock caps the slow one: at 5fps, 200 frames
+             would be 40 seconds. */
+          if (dts.length < N && seen < MAX_FRAMES && now - t0 < MAX_MS) {
+            requestAnimationFrame(tick);
+            return;
+          }
+
+          var ok = false;
+          /* Falling out of the loop without enough clean samples IS the
+             verdict: the device could not produce forty frames under 100ms
+             inside two hundred attempts or five seconds. No blur, and it is
+             cached like any other answer so the probe does not run again. */
+          if (dts.length >= N) {
+            var sorted = dts.slice().sort(function (a, b) { return a - b; });
+            var period = sorted[0];
+            var median = sorted[sorted.length >> 1];
+            /* TWO TESTS, AND THE SECOND ONE MATTERS. The ratio alone says
+               the device is holding whatever cadence it has — and a machine
+               pinned at 30fps holds 33.3ms perfectly, ratio 1.01, and sails
+               through. Consistency is not health. The period itself has to
+               be a healthy one: 20ms is 50Hz, which lets 60 and 120 through
+               and stops a throttled or low-power device from calling itself
+               capable. */
+            ok = period > 0 && period <= 20 && median / period <= 1.35;
+          }
+          if (ok) d.setAttribute('data-blur', '');
+          try { sessionStorage.setItem('blur-ok', ok ? '1' : '0'); } catch (e) {}
+        });
+      })();
+    </script>
+    <div class="sm" aria-hidden="true"></div>
+
+    <header class="ov ov--cm" id="top">
+      <div class="fr fr--hero">
+        <p class="mono cn cn--tl">00<br />Opening</p>
+        <p class="mono cn cn--tr">{HERO.place[0]}<br />{HERO.place[1]}</p>
+        <p class="mono cn cn--bl">00/06<br />{RANGE}</p>
+        <p class="mono cn cn--br">Selected works<br /><span class="ov__cue">Scroll &darr;</span></p>
+        {/* Corners' middle, lifted whole: .ov__middle / .ov__mast / .ov__word
+            and the .ov__stmt heading, with the same --i reveal ordering. The
+            frame around it is still XL's — .fr--hero and its four corner
+            labels are untouched. */}
+        <div class="fr__mid">
+          <div class="ov__middle">
+            <div class="ov__mast">
+              {NAME_PARTS.map((part, i) => (
+                <span class="line ov__word" data-reveal style={`--i:${i + 1}`}>
+                  <span class="line__in">{part}</span>
+                </span>
+              ))}
+            </div>
+            <h1 class="ov__stmt">
+              {HERO.statement.map((line, li) => (
+                <span class="line" data-reveal style={`--i:${li + 3}`}>
+                  <span class="line__in">
+                    {line.map((part) => (part.accent ? <em class="hot serif">{part.t}</em> : part.t))}
+                  </span>
+                </span>
+              ))}
+            </h1>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section class="mvt mvt--a2 sec--works" id="works" aria-labelledby="r-works" data-mv="0" style={`--count:${wnodes.length}`}>
+      <div class="fr fr--over">
+        <p class="mono cn cn--tl">01<br />Selected works</p>
+        <p class="mono cn cn--tr">{HERO.place[0]}<br />{HERO.place[1]}</p>
+        <p class="mono cn cn--bl">01/06<br />{RANGE}</p>
+        <p class="mono cn cn--br">Selected works<br /><span class="ov__cue">Scroll &darr;</span></p>
+        <div class="fr__mid">
+          <h2 class="fr__t" id="r-works">
+            <span class="line" data-reveal><span class="line__in">Selected works</span></span>
+          </h2>
+        </div>
+      </div>
+
+      <div class="wk" data-works-conveyor style={`--r:${R};--step:${STEP}`}>
+        <div class="wk__pin">
+          <div class="wk__scene" data-scene>
+            <div class="wk__world">
+              {wnodes.map((n) => (
+                <div class="wcard" data-card data-no={n.no} data-title={n.w.data.title} data-year={n.w.data.year}
+                  style={`--arn:${RATIO_NUM[n.w.data.ratio]};--card-k:${cardK(CARD_MODE, RATIO_NUM[n.w.data.ratio])}`}>
+                  <Still slug={n.w.id} title={n.w.data.title} year={n.w.data.year}
+                    category={n.w.data.category} ratio={n.w.data.ratio}
+                    frames={n.w.data.frames} alt={n.w.data.alt}
+                    sizes="46vw" eager={n.i < 3} />
+                </div>
+              ))}
+            </div>
+          </div>
+          <div class="rl" data-readout aria-hidden="true">
+            <p class="rl__cap"><span data-w-title>{wnodes[0].w.data.title}</span></p>
+            <div class="rl__ruler">
+              <span class="rl__ticks">
+                {wnodes.map(() => <span class="rl__t"></span>)}
+              </span>
+              <span class="rl__head" data-rl-head></span>
+            </div>
+            <p class="rl__date"><span data-w-year>{wnodes[0].w.data.year}</span></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mvt po-sec" id="about" aria-labelledby="r-who" data-mv="1">
+      <h2 class="po-giant" id="r-who" style="--gs:27vw"><span class="po-pan">Who I am</span></h2>
+      <div class="po-grid">
+        <p class="po-label po-c1">02</p>
+        <p class="po-label po-c2">{HERO.place[0]}<br />{HERO.place[1]}</p>
+        <p class="po-label po-c3">{RANGE}</p>
+        <h3 class="po-state">{stopOf(WHO.head)[0]}<span class="po-stop">{stopOf(WHO.head)[1]}</span></h3>
+        <div class="po-body">
+          {WHO.body.map((p, i) => (i === 0
+            ? <p class="po-open"><span class="po-versal" aria-hidden="true">{versalOf(p)[0]}</span><span class="po-versal-sr">{versalOf(p)[0]}</span>{versalOf(p)[1]}</p>
+            : <p>{p}</p>))}
+        </div>
+      </div>
+    </section>
+
+    <section class="mvt po-sec" aria-labelledby="r-across" data-mv="2">
+      <h2 class="po-giant" id="r-across" style="--gs:13.5vw"><span class="po-pan">What I work across</span></h2>
+      <div class="po-grid">
+        <p class="po-label po-c1">03</p>
+        <h3 class="po-state">
+          {ACROSS.head.map((l) => <span class="po-line">{stopOf(l)[0]}<span class="po-stop">{stopOf(l)[1]}</span></span>)}
+        </h3>
+        <p class="po-lede">{ACROSS.lede}</p>
+        {ACROSS.columns.map((c, i) => (
+          <div class={`po-list po-list--${i}`}>
+            <h4 class="po-label po-label--hi">{c.label}</h4>
+            <ul>{c.items.map((it) => <li>{it}</li>)}</ul>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section class="mvt po-sec" id="philosophy" aria-labelledby="r-how" data-mv="3">
+      <h2 class="po-giant" id="r-how" style="--gs:23vw"><span class="po-pan">How I work</span></h2>
+      <div class="po-grid">
+        <p class="po-label po-c1">04</p>
+        <ol class="po-steps">
+          {PROCESS.map((s) => (
+            <li class="po-step">
+              <span class="po-label po-label--hi po-stepn">{s.n}</span>
+              <h3 class="po-steptitle">{s.title}</h3>
+              <div class="po-steplines">
+                {s.lines.flatMap((l) => clauses(l)).map((c) => (
+                  <p class={asks(c) ? 'po-ask' : undefined}>{c}</p>
+                ))}
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    <section class="mvt po-sec po-sec--end" aria-labelledby="r-close" data-mv="4">
+      <h2 class="po-giant" id="r-close" style="--gs:18vw"><span class="po-pan">What I’m after</span></h2>
+      <div class="po-grid">
+        <p class="po-label po-c1">05</p>
+        <h3 class="po-state po-state--end">{stopOf(CLOSING.head)[0]}<span class="po-stop">{stopOf(CLOSING.head)[1]}</span></h3>
+        <p class="po-lede po-lede--end">{CLOSING.body}</p>
+      </div>
+    </section>
+
+    {/* The CONTACT heading is gone. aria-label replaces aria-labelledby, so
+        the section is still named for anyone navigating by landmark — the
+        heading was the only thing that id pointed at, and a dangling
+        aria-labelledby names a section after nothing at all. The corner
+        still reads 06 / Contact, and the form opens on "Let's talk." */}
+    <section class="mvt po-sec sm-sec mvt--contact" id="contact" aria-label="Contact" data-mv="5">
+      <div class="po-grid sm-grid">
+        <p class="po-label po-c1">06</p>
+        <p class="po-label po-c2">{HERO.place[0]}<br />{HERO.place[1]}</p>
+        <p class="po-label po-c3">{RANGE}</p>
+        <div class="sm-form"><ContactForm /></div>
+      </div>
+    </section>
+  </div>
+</Base>
+
+<style is:global>
+  .runhead { display: none !important; }
+</style>
+
+<script>
+  function initRegister() {
+    const page = document.querySelector<HTMLElement>('[data-rg]');
+    if (!page || page.dataset.bound) return;
+    page.dataset.bound = '1';
+
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const bar = page.querySelector<HTMLElement>('[data-progress]');
+
+    type Block = { words: HTMLElement[]; el: HTMLElement; lit: number };
+    const blocks: Block[] = Array.from(page.querySelectorAll<HTMLElement>('[data-read]')).map((el) => ({
+      el, words: Array.from(el.querySelectorAll<HTMLElement>('.w')), lit: 0,
+    }));
+    if (still) for (const b of blocks) { b.words.forEach((w) => w.classList.add('is-lit')); b.lit = b.words.length; }
+
+    let ticking = false;
+    const measure = () => {
+      ticking = false;
+      const vh = innerHeight;
+      const max = document.documentElement.scrollHeight - vh;
+      if (bar) bar.style.transform = `scaleY(${max > 0 ? Math.min(scrollY / max, 1) : 0})`;
+      if (still) return;
+      const line = vh * 0.68;
+      for (const b of blocks) {
+        const r = b.el.getBoundingClientRect();
+        const span = r.height + vh * 0.16;
+        const p = span > 0 ? (line - r.top) / span : 0;
+        const want = Math.max(0, Math.min(b.words.length, Math.ceil(p * b.words.length)));
+        if (want === b.lit) continue;
+        if (want > b.lit) for (let i = b.lit; i < want; i++) b.words[i].classList.add('is-lit');
+        else for (let i = want; i < b.lit; i++) b.words[i].classList.remove('is-lit');
+        b.lit = want;
+      }
+    };
+    const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(measure); } };
+    addEventListener('scroll', onScroll, { passive: true });
+    addEventListener('resize', onScroll, { passive: true });
+    measure();
+
+    /* ── the ledger answers the pointer, as ONE system ────────────
+       Rule i in EVERY ledger sits at the same x: they are all laid out
+       inside the same page padding, on the same twelve columns. Column i
+       is therefore not seven separate hairlines but ONE line running the
+       height of the document, drawn in pieces.
+
+       That is why this is bound once on the page and drives every ledger
+       together. Bound per section — which is how it was — each section
+       ran its own loop, so crossing a seam fired one pointerleave while
+       the next fired pointermove, and the light died and was reborn at
+       every boundary. Nothing was wrong with the drawing; the system was
+       simply cut into pieces that could not see each other.
+
+       Vertical offsets are stored DOCUMENT-relative (rect.top + scrollY).
+       Cached viewport offsets are only correct at scroll position zero,
+       which is exactly why the segment effect used to work in the first
+       movement and nowhere below it.
+
+       Eased, frame-driven, sleeps when settled, real pointers only. */
+    if (fine && !still) {
+      const ruled = matchMedia('(min-width: 901px)');
+      const ledgers = Array.from(page.querySelectorAll<HTMLElement>('.ledger'));
+      const perLedger = ledgers.map((l) => Array.from(l.querySelectorAll<HTMLElement>('i')));
+      const cols = perLedger.length ? perLedger[0].length : 0;
+
+      if (cols) {
+        const groups: HTMLElement[][] = [];
+        for (let i = 0; i < cols; i++) groups.push(perLedger.map((rs) => rs[i]).filter(Boolean));
+
+        let lefts: number[] = [];
+        let tops: number[] = [];
+        let span = 0;
+        const cache = () => {
+          lefts = groups.map((g) => g[0].getBoundingClientRect().left);
+          tops = ledgers.map((l) => l.getBoundingClientRect().top + scrollY);
+          span = lefts.length > 1 ? lefts[1] - lefts[0] : 0;
+        };
+        cache();
+        addEventListener('resize', cache, { passive: true });
+        // Rules move vertically as images settle, so refresh once things load.
+        addEventListener('load', cache);
+
+        const val = new Float32Array(cols);
+        const shown = new Float32Array(cols).fill(-1);
+        let px = -1e5, py = 0, inside = false, raf = 0;
+
+        const frame = () => {
+          raf = 0;
+          let busy = false;
+          const docY = py + scrollY;
+          for (let k = 0; k < ledgers.length; k++) {
+            ledgers[k].style.setProperty('--py', (docY - tops[k]).toFixed(1) + 'px');
+          }
+          for (let i = 0; i < cols; i++) {
+            const d = Math.abs(lefts[i] - px);
+            const t = inside ? Math.max(0, 1 - d / 200) : 0;
+            val[i] += (t * t - val[i]) * 0.2;
+            if (val[i] < 0.002) val[i] = 0;
+            // The delta test alone never writes the last step home: a value
+            // that lands on 0 from 0.002 differs by less than the threshold,
+            // so the DOM kept a stale 0.002 for ever while the state said 0.
+            // Invisible at 1px — 0.0019 of alpha — but the resting state
+            // should be the resting state. Force the final write.
+            if (Math.abs(val[i] - shown[i]) > 0.003 || (val[i] === 0 && shown[i] !== 0)) {
+              for (const el of groups[i]) {
+                el.style.setProperty('--lit', val[i].toFixed(3));
+              }
+              shown[i] = val[i];
+            }
+            if (val[i] > 0) busy = true;
+          }
+          if (inside || busy) raf = requestAnimationFrame(frame);
+        };
+        const kick = () => { if (!raf) raf = requestAnimationFrame(frame); };
+
+        page.addEventListener('pointermove', (e) => {
+          const pe = e as PointerEvent;
+          if (pe.pointerType !== 'mouse' || !ruled.matches) return;
+          px = pe.clientX; py = pe.clientY; inside = true; kick();
+        }, { passive: true });
+        page.addEventListener('pointerleave', () => { inside = false; kick(); });
+      }
+    }
+
+    /* SCOPED — About selects [data-count] meaning "a statistic"; Still puts
+       data-count on every work anchor meaning "how many stills". Unscoped, the
+       counter wrote textContent over sixteen image stacks. */
+    const counters = Array.from(page.querySelectorAll<HTMLElement>('.stat__figure[data-count]'));
+    if (counters.length && !still) {
+      const io = new IntersectionObserver((entries, obs) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          const el = e.target as HTMLElement;
+          obs.unobserve(el);
+          const to = Number(el.dataset.count);
+          const pad = Number(el.dataset.pad ?? 0);
+          const suffix = el.dataset.suffix ?? '';
+          const final = String(to).padStart(pad, '0') + suffix;
+          /* The count is decoration; the figure is information. Belt and
+             braces so the true figure lands whatever the frame loop does. */
+          const settle = setTimeout(() => { el.textContent = final; }, 1500);
+          const t0 = performance.now();
+          const tick = (now: number) => {
+            const p = Math.min((now - t0) / 900, 1);
+            const v = Math.round(to * (1 - Math.pow(1 - p, 3)));
+            el.textContent = p < 1 ? String(v).padStart(pad, '0') + suffix : final;
+            if (p < 1) requestAnimationFrame(tick); else clearTimeout(settle);
+          };
+          requestAnimationFrame(tick);
+        }
+      }, { threshold: 0.6 });
+      counters.forEach((c) => io.observe(c));
+    }
+
+    if (fine && !still) {
+      page.querySelector<HTMLElement>('[data-works]')?.querySelectorAll<HTMLElement>('li').forEach((li) => {
+        const peek = li.querySelector<HTMLElement>('.work__peek');
+        if (!peek) return;
+        const move = (e: PointerEvent) => {
+          const r = li.getBoundingClientRect();
+          peek.style.setProperty('--x', `${e.clientX - r.left}px`);
+          peek.style.setProperty('--y', `${e.clientY - r.top}px`);
+        };
+        li.addEventListener('pointerenter', (e) => { move(e as PointerEvent); li.classList.add('is-peek'); });
+        li.addEventListener('pointermove', move, { passive: true });
+        li.addEventListener('pointerleave', () => li.classList.remove('is-peek'));
+      });
+    }
+  }
+
+  initRegister();
+  document.addEventListener('astro:page-load', initRegister);
+</script>
+
+<script>
+  function initOpWorks() {
+    const sec = document.querySelector('.sec--works') as HTMLElement | null;
+    const wk = document.querySelector('[data-works-conveyor]') as HTMLElement | null;
+    if (!sec || !wk || wk.dataset.bound) return;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!matchMedia('(min-width: 901px)').matches) {
+      if (!wk.dataset.armed) { wk.dataset.armed = '1'; addEventListener('resize', () => initOpWorks(), { passive: true }); }
+      return;
+    }
+    wk.dataset.bound = '1';
+
+    const cards = Array.from(wk.querySelectorAll('[data-card]')) as HTMLElement[];
+    const readout = sec.querySelector('[data-readout]') as HTMLElement;
+    const title = sec.querySelector('[data-w-title]') as HTMLElement;
+    const year = sec.querySelector('[data-w-year]') as HTMLElement;
+    const row = sec.querySelector('.rl__ticks') as HTMLElement;
+    const ticks = Array.from(sec.querySelectorAll('.rl__t')) as HTMLElement[];
+    if (!cards.length) return;
+
+    sec.classList.add('is-live');
+    /* THE FIRST MARK IS LIT HERE, NOT BY paint(). The readout's caption and
+       year are server-rendered from wnodes[0], so the page arrives already
+       claiming to be on work one — but the lit mark has no such markup, and
+       the block in paint() that sets it is guarded on a CHANGE of centred
+       work, which by definition has not happened yet. Measured before this
+       line existed: no mark lit at all through the whole first work. */
+    if (ticks[0]) ticks[0].classList.add('is-on');
+
+    /* Natural, unscaled heights. offsetHeight is layout height and is blind
+       to transforms, which is exactly what the stack needs — and it is read
+       once here and on resize rather than every frame, because sixteen
+       offsetHeight reads inside a scroll handler is sixteen forced layouts a
+       frame. Read after `is-live` is applied, so the cards are already at
+       their scene width. */
+    /* WIDTHS now, not heights: the row is horizontal and every card is set to
+       one common height, so its width is what varies with the aspect ratio and
+       what the edge-to-edge placement has to stack. */
+    let W = cards.map((c) => c.offsetWidth || 400);
+    /* Which side each work drifts to once it is behind, set on the element
+       by the score. Read once — it never changes. */
+    const remeasure = () => { W = cards.map((c) => c.offsetWidth || 400); };
+    addEventListener('resize', remeasure, { passive: true });
+    addEventListener('load', remeasure);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(remeasure);
+
+    const cs = getComputedStyle(wk);
+    const R = parseFloat(cs.getPropertyValue('--r')) || 900;
+    const STEP = parseFloat(cs.getPropertyValue('--step')) || 0.5;
+
+    /* Not left to lazy loading: the cards sit in a 0x0 world and are culled
+       with visibility:hidden, so the browser never schedules them — measured,
+       five of sixteen never loaded, one of them on screen. */
+    const warm = (i: number) => {
+      const c = cards[i];
+      if (!c || c.dataset.warm) return;
+      c.dataset.warm = '1';
+      c.querySelectorAll('img').forEach((img) => {
+        if (!(img as HTMLImageElement).complete) (img as HTMLImageElement).loading = 'eager';
+      });
+    };
+    const warmAround = (b: number) => { for (let k = -3; k <= 3; k++) warm((b + k + cards.length) % cards.length); };
+    cards.forEach((_, i) => { if (i < 4) warm(i); });
+
+    let raf = 0, last = -1, written = 0, ring = -1;
+    const paint = () => {
+      raf = 0;
+      const rect = sec.getBoundingClientRect();
+      const run = sec.offsetHeight - innerHeight;
+      const t = run > 0 ? Math.min(1, Math.max(0, -rect.top / run)) : 0;
+      const phase = t * (cards.length - 1);
+
+      /* One pitch for every step. The arc's own R·sin(θ) bunched the works
+         hard at the extremes — measured gaps of 65, 47, 99, 253, 426, 130,
+         105, 10px. Height is linear in the distance from centre now; only
+         the depth still follows the arc. */
+      /* ── CONSTANT EDGE-TO-EDGE SPACING ─────────────────────────
+         The works are different shapes: at the same width a 9:16 stands
+         nearly three times the height of a 2.39:1. A constant CENTRE-to-
+         centre pitch therefore leaves wildly different gaps between the
+         pictures — the tall ones almost touching, the wide ones marooned.
+
+         So the column is STACKED, not stepped. Every work is placed exactly
+         GAP below the bottom edge of the one above it, using rendered
+         heights, so the distance between two pictures is the same number for
+         every pair at every point in the scroll, whatever the two shapes
+         are. That is only possible because the depth is a scale: the height
+         is known before the placement, which a translateZ can never give
+         you, since its foreshortening is applied after layout. The falloff
+         is the same P/(P+z) the perspective was producing, so the depth
+         reads exactly as it did. */
+      /* ══ THE SWEEP ═══════════════════════════════════════════════
+         A horizontal row, read off the reference. The active work is centred
+         and largest; its neighbours recede to BOTH sides on one horizontal
+         axis, shrinking and fading out.
+
+         DEPTH IS QUADRATIC, NOT COSINE. The vertical fold this replaced used
+         z = R(1 - cos(d.STEP)), which is periodic — that is why it had to be
+         frozen at 1.4 steps, or works far off screen turned back into full
+         size and, because the stack accumulates rendered sizes, shifted
+         everything still on screen. A row this long needs a curve that is
+         monotonic the whole way out. d-squared is, and it happens to land on
+         the reference's own falloff without any clamp: 0.62 and 0.29 against
+         the 0.62 and 0.25 measured off the video. */
+      const PERSP = 1250;
+      /* GENTLER AND FROZEN, because the turn below now supplies depth of its
+         own. Aperture III had no fold, so an unbounded d-squared at 750 was
+         safe; multiplied by the turn's falloff it takes the far works to
+         specks — 0.29 x 0.55 is a different thing from 0.29. */
+      const DEPTH = 430;
+      const BIAS_MAX = 1.6;
+      /* The reference's gutter is 3px on a 1068px frame. Edge-to-edge, as
+         everywhere else here: added to the RENDERED half-widths either side,
+         so it is the true gap between two works whatever their shapes. */
+      const GAP = 4;
+      const n = cards.length;
+
+      const s = new Array(n), wr = new Array(n);
+      for (let i = 0; i < n; i++) {
+        const d = Math.min(Math.abs(i - phase), BIAS_MAX);
+        s[i] = PERSP / (PERSP + DEPTH * d * d);
+        wr[i] = W[i] * s[i];
+      }
+
+      /* Half of mine, the gutter, half of yours. */
+      const pos = new Array(n);
+      pos[0] = 0;
+      for (let i = 1; i < n; i++) pos[i] = pos[i - 1] + wr[i - 1] / 2 + GAP + wr[i] / 2;
+
+      /* Slide the row so the work at `phase` sits on the centre line,
+         interpolated between neighbours so the travel is continuous rather
+         than snapping from one work to the next. */
+      const k = Math.max(0, Math.min(n - 2, Math.floor(phase)));
+      const f = Math.max(0, Math.min(1, phase - k));
+      const offset = pos[k] + (pos[k + 1] - pos[k]) * f;
+
+      /* ══ THE TURN ════════════════════════════════════════════════
+         `pos` above is no longer a screen coordinate. It is ARC LENGTH along
+         a path, and the path is a hockey stick laid on its side: dead
+         straight through the middle of the frame, then curving away from the
+         camera at both ends.
+
+         The straight part is what keeps the gutter. Inside |u| <= U0 there is
+         no foreshortening at all, so two consecutive works stay exactly GAP
+         apart whatever their shapes — the reference's hairline is untouched.
+
+         Past U0 the path bends onto a circle of radius FOLD_R. Works swing
+         out, shrink and dim; and because a circle comes back round, so do
+         they. A work far enough along has travelled past the outside of the
+         turn and is on its way back towards the centre, small and dim and
+         behind the near ones. That returning chain is what makes this read as
+         a carousel rather than a strip that runs out of frame.
+
+         U0 at 0.62 of the width keeps two works clear either side of the
+         centre before the turn takes them — matching how many the reference
+         shows square-on. */
+      const U0 = innerWidth * 0.62;
+      const FOLD_R = innerWidth * 0.34;
+
+      let best = 0, bestD = Infinity;
+      for (let i = 0; i < n; i++) {
+        const u = pos[i] - offset;
+        const a = Math.abs(u), sgn = u < 0 ? -1 : 1;
+        const c = cards[i];
+
+        /* Travel is on X ONLY. The circle is in plan — a carousel seen level,
+           not a wheel seen face-on — so every work keeps the one shared
+           vertical axis. */
+        let x = u, sf = 1, dep = 0, gone = false;
+        if (a > U0) {
+          const th = Math.min((a - U0) / FOLD_R, Math.PI);
+          const zf = FOLD_R * (1 - Math.cos(th));
+          sf = PERSP / (PERSP + zf);
+          x = sgn * (U0 + FOLD_R * Math.sin(th)) * sf;
+          dep = th / Math.PI;
+          /* Culled at the far side of the turn, where the chain would double
+             back through itself. */
+          gone = th >= Math.PI * 0.985;
+        }
+
+        const st = s[i] * sf;
+        /* FADED OUT BEFORE IT IS CULLED. The cull fires at the far side of the
+           turn, where the chain would double back through itself — but a work
+           returning round the back arrives at x = -468 in a 1280 window, which
+           is well inside the frame. Measured, it was still at 0.16 opacity
+           when it was switched off: a visible pop, on screen, every lap. The
+           last quarter of the turn now takes it to nothing first, so the cull
+           only ever removes something already invisible. */
+        const fade = dep > 0.75 ? Math.max(0, (1 - dep) / 0.25) : 1;
+        const op = Math.max(0, Math.pow(st, 1.15) * (1 - dep * 0.4) * fade);
+
+        /* How far round the turn this work is: 0 through the straight run,
+           1 at the far side. Exposed because it is the one piece of state that
+           says whether a work is on the straight — without it the gutter
+           cannot be checked, since a returning work passes BEHIND the near
+           ones and reads as a negative gap to anything measuring blind. */
+        c.style.setProperty('--fold', dep.toFixed(3));
+        c.style.setProperty('--tx', `${x.toFixed(1)}px`);
+        c.style.setProperty('--s', st.toFixed(4));
+        /* THE CULL NO LONGER TOUCHES visibility, AND THAT IS THE POINT.
+           `visibility: hidden` stops an element being painted, which
+           takes its composited surface down with it — and .wcard carries
+           will-change: transform, opacity, so that surface is exactly
+           what we are paying to keep. Measured, this flipped 32 times
+           across one scroll of the section: thirty-two surfaces thrown
+           away and rebuilt, each holding a large image, at the moments
+           you are scrolling fastest.
+
+           Nothing is lost by dropping it. --op already reaches 0 before
+           the cull fires — the last quarter of the turn takes it there,
+           see the note above — so clamping it to a hard 0 leaves the work
+           invisible by the same means everything else here uses.
+
+           `inert` does the rest of visibility's job: out of the tab order
+           and deaf to the pointer, so an invisible work cannot be clicked
+           or focused. It is an attribute, not a paint property, so the
+           surface survives. Guarded because writing an attribute that is
+           already set still invalidates style. */
+        c.style.setProperty('--op', gone ? '0' : op.toFixed(3));
+        if (gone !== c.hasAttribute('inert')) c.toggleAttribute('inert', gone);
+
+        const ad = Math.abs(i - phase);
+        if (ad < bestD) { bestD = ad; best = i; }
+      }
+      /* THE EARLY RETURN USED TO SIT HERE, and it cost two things. The
+         playhead only moved when the ACTIVE WORK changed, so it stepped from
+         tick to tick instead of sliding with the scroll. And a readout write
+         cancelled mid-flight by clearTimeout could never be rescheduled,
+         because `best === last` bailed out before reaching it — measured, the
+         caption sat on "Mere Ho" while the centred work was "Bloody Bubbly".
+         Only the work that is genuinely per-change is guarded now. */
+      if (best !== last) {
+        last = best;
+        warmAround(best);
+        cards.forEach((c, i) => { c.style.zIndex = String(100 - Math.abs(i - best)); });
+      }
+
+      /* ══ THE SCALE TURNS; THE INDEX MARK DOES NOT ════════════════
+         This was the reverse — a playhead sliding along a flat ruler, placed
+         each frame from ticks[k].offsetLeft. Under the arc the sixteen marks
+         are absolutely positioned and rotated about a point 344px above the
+         strip, so they all share one offsetLeft and there is nothing left to
+         interpolate between: the movement is the row's rotation instead.
+
+         IT IS `phase`, NOT A ROUNDED INDEX, and that costs nothing — phase
+         is already computed above for the conveyor itself, so the readout
+         rides the same continuous number the pictures do and cannot drift
+         away from them. No second scroll listener, no second
+         getBoundingClientRect: the one forced layout this handler performs
+         now serves both the works and their scale.
+
+         GUARDED ON A CHANGE OF 0.001 because a custom-property write
+         invalidates style whether or not the value differs, and at 3.6deg
+         per unit a thousandth of a step is 0.0036deg — far below anything
+         that can reach a pixel. */
+      if (row && Math.abs(phase - ring) > 0.001) {
+        ring = phase;
+        row.style.setProperty('--ring', phase.toFixed(3));
+      }
+
+      /* WRITTEN IMMEDIATELY; THE FADE IS PRESENTATION ONLY.
+         This was a debounced write on a 130ms timer, and the timer was being
+         starved: paint runs on every scroll event, Lenis emits them for well
+         over a second after a jump, and clearTimeout cancelled the queued
+         write every time — measured, the caption sat on the first work
+         through the whole scroll with is-turning stuck on, so the readout was
+         both wrong AND faded out. Guarding the reschedule on the target index
+         did not fix it either.
+
+         So the text is set the moment the centred work changes, and the fade
+         is a CSS animation restarted by re-adding the class. Worst case, if
+         the class handling ever misbehaves, is a caption that does not
+         animate — never one that lies about which work you are looking at. */
+      if (readout && written !== best) {
+        written = best;
+        if (title) title.textContent = cards[best].dataset.title || '';
+        if (year) year.textContent = cards[best].dataset.year || '';
+        /* The lit mark belongs HERE and not with the rotation above: which
+           work you are on is a discrete fact that changes sixteen times in
+           the whole section, and this is the one place that already knows
+           it has changed. Hung off the rotation it would be a sixteen-class
+           toggle every frame. */
+        ticks.forEach((x, i) => x.classList.toggle('is-on', i === best));
+        readout.classList.remove('is-turning');
+        void readout.offsetWidth;            /* restart the animation */
+        readout.classList.add('is-turning');
+      }
+    };
+    addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(paint); }, { passive: true });
+    addEventListener('resize', () => { if (!raf) raf = requestAnimationFrame(paint); }, { passive: true });
+    paint();
+  }
+
+  function initRunningHead() {
+    const rh = document.querySelector('[data-runhead]') as HTMLElement | null;
+    if (!rh || rh.dataset.bound) return;
+    rh.dataset.bound = '1';
+    const mv = rh.querySelector('[data-rh-mv]') as HTMLElement;
+    const folio = rh.querySelector('[data-rh-folio]') as HTMLElement;
+    const secs = Array.from(document.querySelectorAll('[data-mv]')) as HTMLElement[];
+    const NAMES = [{n:"01",t:"Selected works"},{n:"02",t:"Who I am"},{n:"03",t:"What I work across"},{n:"04",t:"How I work"},{n:"05",t:"What I’m after"},{n:"06",t:"Contact"}];
+    if (!secs.length) return;
+
+    let raf = 0, last = -1, turn = 0;
+    const paint = () => {
+      raf = 0;
+      const line = scrollY + innerHeight * 0.4;
+      let now = -1;
+      for (const s of secs) if (line >= s.offsetTop) now = Number(s.dataset.mv);
+      if (now === last) return;
+      last = now;
+      rh.classList.add('is-turning');
+      clearTimeout(turn);
+      turn = window.setTimeout(() => {
+        if (now < 0) { mv.textContent = ''; folio.textContent = ''; }
+        else { mv.textContent = NAMES[now].t; folio.textContent = NAMES[now].n + '/06'; }
+        rh.classList.remove('is-turning');
+      }, 200);
+    };
+    addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(paint); }, { passive: true });
+    addEventListener('resize', () => { if (!raf) raf = requestAnimationFrame(paint); }, { passive: true });
+    paint();
+  }
+
+  /* The opening's name drifts up more slowly than the page, so the hand-over
+     to the works reads as a camera move rather than a cut. Additive: with no
+     script --drift is unset and the name simply sits where it is laid out. */
+  function initDrift() {
+    const mast = document.querySelector('.ov--mono .ov__mast') as HTMLElement | null;
+    if (!mast || mast.dataset.bound) return;
+    mast.dataset.bound = '1';
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let raf = 0;
+    const paint = () => {
+      raf = 0;
+      const d = Math.min(innerHeight, Math.max(0, scrollY)) * 0.18;
+      mast.style.setProperty('--drift', `${d.toFixed(1)}px`);
+    };
+    addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(paint); }, { passive: true });
+    paint();
+  }
+
+  initOpWorks();
+  initRunningHead();
+  initDrift();
+  document.addEventListener('astro:page-load', () => { initOpWorks(); initRunningHead(); initDrift(); });
+</script>
+
+<style>
+  /* ── --prog IS DECLARED, SO THAT IT STOPS INHERITING ────────────
+     A custom property inherits by default, which means writing one on .rg
+     asks the browser to recompute style for all 1133 elements beneath it.
+     Measured, that is 2.6ms every frame — and it is charged whether or not
+     anything reads the value: a name nothing consumes cost the same 2.2ms
+     in the same test.
+
+     Declaring it as a number that does not inherit ends that. The value is
+     then visible only on the element it is set on, which is why the write
+     moves onto .ms__bed in initSpine below; the two changes are one change
+     and neither works alone. With both: 0.0ms.
+
+     UNSUPPORTED IS SAFE. A browser that does not know @property ignores this
+     block, --prog inherits as it always did, and the moved write still cuts
+     the recompute from 1133 elements to the bed's 150 — measured 0.3ms. */
+  /* Declared for the same reason --prog is: a custom property inherits by
+     default, and writing one per frame on an element with descendants
+     recomputes style for all of them. --ring is written on .rl__ticks,
+     which has sixteen, and read only by .rl__ticks itself — so it has no
+     business inheriting at all. */
+  @property --ring {
+    syntax: '<number>';
+    inherits: false;
+    initial-value: 0;
+  }
+
+  @property --prog {
+    syntax: '<number>';
+    inherits: false;
+    initial-value: 0;
+  }
+
+  .rg {
+    --tier-0: clamp(2.75rem, 10vw, 9rem);
+    --tier-1: clamp(2.5rem, 8vw, 7.5rem);
+    --tier-2: clamp(1.75rem, 5vw, 4.25rem);
+    --tier-3: clamp(1.5rem, 2.8vw, 2.5rem);
+    --tier-4: clamp(1.0625rem, 1.35vw, 1.375rem);
+
+    padding-inline: var(--margin);
+    padding-bottom: 20vh;
+  }
+
+  .rg [data-reveal] { --i: 0; }
+  @media (prefers-reduced-motion: no-preference) {
+    .rg [data-reveal].is-in { animation-delay: calc(var(--i) * 70ms); }
+  }
+
+  .line {
+    display: inline-block; overflow: hidden; vertical-align: bottom;
+    padding-bottom: 0.24em; margin-bottom: -0.24em;
+    padding-right: 0.06em; margin-right: -0.06em;
+  }
+  .line__in { display: inline-block; }
+  /* text-indent INHERITS, and every inline-block is a block container that
+     applies it to its own first line. The hanging indent on .stmt below was
+     therefore re-applied inside each masked word, pushing the word out of
+     its own overflow:hidden box — measured: .line boxes collapsed from full
+     word width to 4px, exactly the padding, and the statement rendered as
+     fragments. The hang has to happen once, on the statement, and stop. */
+  .line, .line__in { text-indent: 0; }
+  @media (prefers-reduced-motion: no-preference) {
+    .line[data-reveal].is-in .line__in {
+      animation: line-up 900ms var(--ease) both;
+      animation-delay: calc(var(--i) * 70ms);
+    }
+  }
+  @keyframes line-up { from { transform: translateY(135%); } to { transform: none; } }
+
+  .draw { display: block; height: 1px; border: 0; margin: 0; background: var(--rule); transform-origin: left; }
+  @media (prefers-reduced-motion: no-preference) {
+    .draw[data-reveal].is-in { animation: draw 1000ms var(--ease) both; }
+  }
+  @keyframes draw { from { transform: scaleX(0); } to { transform: none; } }
+
+  .read p { color: var(--bone-dim); margin: 0 0 var(--s-3); }
+  .read p:last-child { margin-bottom: 0; }
+  .w { transition: color var(--d-reveal) var(--ease); }
+  .w.is-lit { color: var(--bone); }
+
+  .gauge {
+    position: fixed; z-index: 120; pointer-events: none;
+    left: calc(var(--margin) * 0.42); width: 1px;
+    top: calc(var(--head-h) + 24px); bottom: 24px;
+    background: var(--rule-soft);
+  }
+  .gauge__in { display: block; width: 100%; height: 100%; background: var(--accent); transform-origin: top; transform: scaleY(0); }
+  @media (max-width: 900px) { .gauge { display: none; } }
+
+  /* ── the ledger ────────────────────────────────────────────────
+     Twelve hairlines on the site's own column boundaries. Decoration,
+     aria-hidden, pointer-events: none — it lies over the whole section
+     and would otherwise take every hit in it. Drawn only above 901px,
+     where --cols is still twelve; below that it would spill into
+     implicit columns, so it is simply not rendered. */
+  .ledger { display: none; }
+  @media (min-width: 901px) {
+    .ledger {
+      position: absolute; inset: 0; z-index: 0; pointer-events: none;
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--gutter);
+    }
+  }
+  /* ── C · THE LIT SEGMENT ───────────────────────────────────────
+     Light localised in BOTH axes: falloff across x chooses which lines
+     answer, a gradient centred on the cursor's own height chooses how
+     much of each one lights. What travels is a short glowing length of
+     line — a lamp held against the grid rather than a switch thrown.
+
+     Each ledger carries its own --py measured from its own document top,
+     so when the cursor sits near a seam the ledger below already has a
+     small negative --py and its share of the glow is drawn too. The
+     segment crosses the boundary instead of stopping at it.
+
+     The line moves to a pseudo-element because a border cannot carry a
+     gradient. It sits at left: 0, exactly where the border was. */
+  .ledger i { display: block; position: relative; transform-origin: top; }
+  .ledger i::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 1px;
+    background:
+      linear-gradient(to bottom,
+        transparent calc(var(--py, -9999px) - 130px),
+        rgba(255, 255, 255, var(--lit, 0)) calc(var(--py, -9999px) - 24px),
+        rgba(255, 255, 255, var(--lit, 0)) calc(var(--py, -9999px) + 24px),
+        transparent calc(var(--py, -9999px) + 130px)),
+      var(--rule-soft);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    /* The base reveal would nudge the whole overlay 14px down; the rules
+       do their own entrance instead. Hidden state lives only here, and
+       the overlay carries no content. */
+    .ledger[data-reveal].is-in { animation: none; }
+    .ledger[data-reveal].is-in i {
+      animation: rule-down 1100ms var(--ease) both;
+      animation-delay: calc(var(--i) * 45ms);
+    }
+  }
+  @keyframes rule-down { from { transform: scaleY(0); } to { transform: none; } }
+
+  /* ── Opening ───────────────────────────────────────────────────── */
+  .open {
+    position: relative;
+    min-height: calc(100vh - var(--head-h));
+    display: flex; flex-direction: column; justify-content: center;
+    padding: clamp(120px, 17vh, 210px) 0 clamp(36px, 6vh, 72px);
+  }
+  .open > :not(.ledger) { position: relative; z-index: 1; }
+  .open__eyebrow { color: var(--muted); font-size: var(--t-xs); margin: 0 0 clamp(28px, 5vh, 60px); }
+  .open__h {
+    font-family: var(--display); font-weight: 500;
+    font-size: var(--tier-1); line-height: 0.98;
+    letter-spacing: -0.045em; margin: 0;
+  }
+  .open__h .line { display: block; }
+  .serif { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spacing: -0.015em; }
+  /* Fraunces sets optically smaller than the grotesk at the same size. */
+  .open__h .serif { font-size: 1.07em; letter-spacing: -0.02em; }
+  .hot { color: var(--accent); }
+
+  .open__foot {
+    display: flex; flex-wrap: wrap; align-items: baseline;
+    justify-content: space-between; gap: var(--s-3);
+    margin-top: clamp(36px, 6vh, 72px);
+    padding-top: 16px; border-top: 1px solid var(--rule);
+  }
+  .tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s-3); }
+  .tags li { font-size: var(--t-xs); color: var(--muted); }
+  .tags li + li::before { content: '·'; color: var(--rule); margin-right: var(--s-3); }
+  .tags--dim li { color: var(--dim); }
+  .open__portrait { max-width: 340px; margin-top: var(--s-4); }
+  .open__portrait img { display: block; width: 100%; height: auto; }
+
+  .cue { display: block; color: var(--dim); font-size: var(--t-md); margin-top: clamp(24px, 4vh, 48px); }
+  @media (prefers-reduced-motion: no-preference) {
+    .cue { animation: cue-drift 2.4s var(--ease) infinite; }
+  }
+  @keyframes cue-drift { 0%, 100% { transform: translateY(0); opacity: 0.5; } 50% { transform: translateY(6px); opacity: 1; } }
+
+  /* ── section grid ──────────────────────────────────────────────
+     Placed child by child. A `> *` blanket compiles with the scoping
+     attribute on both compounds and outranks a single scoped class,
+     silently flattening every placement below it to full width. */
+  .sec {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+    column-gap: var(--gutter);
+    padding-top: clamp(56px, 10vh, 130px);
+    padding-bottom: clamp(56px, 10vh, 130px);
+  }
+  .sec--close { padding-bottom: 0; }
+  .sec > .spine { grid-column: 1 / span 1; z-index: 1; }
+  .sec > .stmt  { grid-column: 2 / -2; z-index: 1; }
+  .sec > .well  { grid-column: 4 / -1; z-index: 1; }
+  .sec > .steps { grid-column: 4 / -1; z-index: 1; }
+
+  /* The spine holds its name at the head and its folio at the foot, the
+     way a book page carries them. */
+  .spine {
+    align-self: stretch;
+    display: flex; flex-direction: column; justify-content: space-between;
+    align-items: flex-start; gap: var(--s-4);
+  }
+  .spine__top { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s-3); }
+  .spine__n { color: var(--accent); font-size: var(--t-xs); font-variant-numeric: tabular-nums; }
+  .spine__folio { color: var(--dim); font-size: var(--t-xs); font-variant-numeric: tabular-nums; }
+  /* vertical-rl reads top-to-bottom; the half turn sends it up the spine. */
+  .spine__t {
+    writing-mode: vertical-rl; transform: rotate(180deg);
+    margin: 0; color: var(--bone); font-size: var(--t-xs); white-space: nowrap;
+  }
+
+  /* ── statements, with the first line hung ──────────────────────
+     The outdent is smaller than the page margin at every width the
+     clamp can reach, so the line can never leave the page. */
+  .stmt {
+    font-family: var(--display); font-weight: 500;
+    font-size: var(--tier-2); line-height: 1.06; letter-spacing: -0.042em;
+    margin: 0 0 clamp(40px, 8vh, 88px);
+    text-indent: clamp(-84px, -5.4vw, 0px);
+  }
+  .stmt__a, .stmt__b { display: inline; }
+  .stmt__b { letter-spacing: -0.02em; }
+  .stmt--stack .stmt__a, .stmt--stack .stmt__b { display: block; }
+  /* Only the first line hangs; the second returns to the measure, which
+     is what makes the indent read as a hang rather than as a shift. */
+  .stmt--stack .stmt__b { text-indent: 0; padding-left: clamp(0px, 5vw, 80px); }
+  .stmt--serif { letter-spacing: -0.018em; line-height: 1.1; max-width: 20ch; }
+
+  .lede { font-size: var(--tier-4); line-height: 1.72; max-width: 46ch; margin: 0 0 clamp(44px, 8vh, 88px); }
+  .well { display: block; }
+  /* ── the stair ─────────────────────────────────────────────────
+     Each paragraph starts one column further right than the last. The
+     well spans section columns 4–12, so its own column 1+i lands on
+     section column 4+i — which is exactly where a ledger hairline is
+     drawn. Measured at 1440: the five paragraphs begin at 409, 516,
+     624, 732 and 839, every one of them a rule position, off by zero.
+     That is the whole point of it. The prose steps down the page ON the
+     structure, which is what turns the ledger from something drawn over
+     the page into something the page is built on.
+
+     The measure is held constant at 44ch and only the start moves, so
+     the fifth paragraph reads no harder than the first. */
+  .stair {
+    display: grid;
+    grid-template-columns: repeat(9, minmax(0, 1fr));
+    column-gap: var(--gutter);
+    row-gap: clamp(20px, 3.4vh, 38px);
+  }
+  .stair__p { grid-column: calc(1 + var(--s)) / -1; }
+  .stair__p p { font-size: var(--tier-4); line-height: 1.82; max-width: 44ch; margin: 0; }
+
+  /* ── 02 · C · THE QUESTIONS ────────────────────────────────────
+     Every clause takes its own line, and the ones that ask take the
+     serif. Movement 01 already uses Fraunces italic for the half of a
+     sentence that turns something over rather than states it; a question
+     is that same move, so it gets the same voice. Three questions were
+     packed into a single line and read as one long sentence — they are
+     three now, and each is legible as a question at a glance.
+
+     Set at 19px, matching movement 01, which is the same kind of writing
+     and was set larger than this section for no reason. */
+  .steps { list-style: none; margin: 0; padding: 0; }
+  .step {
+    display: grid; grid-template-columns: 3rem minmax(0, 4fr) minmax(0, 5fr);
+    column-gap: var(--gutter); align-items: baseline;
+    padding: clamp(24px, 4vh, 46px) 0;
+  }
+  .step .draw { grid-column: 1 / -1; margin-bottom: clamp(24px, 4vh, 46px); }
+  .step__n { color: var(--accent); font-size: var(--t-xs); }
+  .step__title {
+    font-family: var(--display); font-weight: 500;
+    font-size: var(--tier-3); line-height: 1.08; letter-spacing: -0.032em;
+    margin: 0; max-width: 11ch;
+  }
+  .step__lines { font-size: var(--tier-4); line-height: 1.66; max-width: 46ch; }
+  .step__lines p { margin: 0 0 clamp(10px, 1.5vh, 15px); }
+  .step__lines p:last-child { margin-bottom: 0; }
+  .asks {
+    font-family: var(--serif); font-style: italic; font-weight: 400;
+    letter-spacing: -0.012em; font-size: 1.06em;
+    padding-left: clamp(0px, 2vw, 28px);
+  }
+  /* ── the tone band ─────────────────────────────────────────────
+     The margins cancel the page's own padding exactly, so this is the
+     viewport's width and not a pixel more. */
+  .band {
+    margin: clamp(24px, 5vh, 64px) calc(var(--margin) * -1);
+    padding: clamp(72px, 14vh, 180px) var(--margin);
+    background: var(--ground-lift);
+    border-top: 1px solid var(--rule-soft);
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .band__q {
+    font-size: var(--tier-0); line-height: 0.98; letter-spacing: -0.03em;
+    color: var(--bone); margin: 0; max-width: 13ch;
+    padding-left: clamp(0px, 16vw, 240px);
+  }
+  /* The caption was anchored by an accent em dash. It is anchored by an
+     accent rule instead — same job, same colour, no dash. The indent moves
+     to margin-left so padding-left can hold the rule off the text. */
+  .band__cap {
+    display: block; color: var(--dim); font-size: var(--t-xs);
+    margin-top: var(--s-4);
+    margin-left: clamp(0px, 16vw, 240px);
+    padding-left: 12px;
+    border-left: 1px solid var(--accent);
+  }
+
+  /* ── 03 · Movement's grid, as asked ────────────────────────────── */
+  .cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(28px, 4vw, 72px); align-items: start; }
+  .col__lab { color: var(--accent); font-size: var(--t-xs); padding-bottom: 12px; border-bottom: 1px solid var(--rule); margin: 0 0 var(--s-3); }
+  .col ul { list-style: none; margin: 0; padding: 0; }
+  .col li {
+    display: flex; align-items: baseline; gap: 12px;
+    /* 21px at 1440, up from a flat 18px. The floor stays at 18px rather
+       than dropping to 1rem: a clamp that bottoms out at 16px would have
+       made these SMALLER on a phone than they were before, which is not
+       what "slightly bigger" means. */
+    color: var(--bone-dim); font-size: clamp(1.125rem, 1.5vw, 1.3125rem); padding: 10px 0;
+    border-bottom: 1px solid var(--rule-soft);
+    transition: color var(--d-micro) var(--ease), padding-left var(--d-micro) var(--ease);
+  }
+  .col__n { color: transparent; font-size: var(--t-xs); transition: color var(--d-micro) var(--ease); }
+  .col li:hover { color: var(--bone); padding-left: 8px; }
+  .col li:hover .col__n { color: var(--accent); }
+  .col li:last-child { border-bottom: 0; }
+
+  /* ── 04 ────────────────────────────────────────────────────────── */
+  .stats { display: flex; flex-wrap: wrap; gap: clamp(28px, 5vw, 88px); padding-bottom: clamp(48px, 9vh, 104px); }
+  .stat { display: flex; flex-direction: column; gap: 10px; }
+  .stat__figure {
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.75rem, 3.4vw, 2.875rem); letter-spacing: -0.04em; line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat__lab { color: var(--dim); font-size: var(--t-xs); }
+
+  .works { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
+  .works li { position: relative; }
+  .work {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto 2rem;
+    align-items: baseline; gap: var(--s-3);
+    padding: clamp(18px, 2.8vh, 30px) 0; border-bottom: 1px solid var(--rule-soft);
+    color: var(--bone); transition: padding-left var(--d-micro) var(--ease);
+  }
+  .work__title { font-family: var(--display); font-weight: 500; font-size: var(--tier-3); letter-spacing: -0.03em; line-height: 1.1; }
+  .work__role { color: var(--dim); font-size: var(--t-xs); text-align: right; }
+  .work__arrow { color: var(--dim); text-align: right; transition: transform var(--d-micro) var(--ease), color var(--d-micro) var(--ease); }
+  .works li:hover .work { padding-left: 12px; }
+  .works li:hover .work__arrow { color: var(--accent); transform: translateX(0.3em); }
+
+  .work__peek {
+    position: absolute; top: var(--y, 50%); left: var(--x, 50%);
+    width: 320px; margin: -110px 0 0 -160px;
+    pointer-events: none; z-index: 3;
+    opacity: 0; transform: scale(0.96);
+    transition: opacity var(--d-micro) var(--ease), transform var(--d-micro) var(--ease);
+  }
+  .work__peek :global(img) { display: block; width: 100%; height: auto; }
+  .works li.is-peek .work__peek { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) { .work__peek { display: none; } }
+
+  /* ── 05 ────────────────────────────────────────────────────────── */
+  .call { display: block; padding-top: clamp(40px, 7vh, 80px); margin-bottom: clamp(40px, 7vh, 76px); }
+  .call__big {
+    display: block; font-family: var(--display); font-weight: 500;
+    font-size: var(--tier-0); line-height: 0.94; letter-spacing: -0.05em;
+    color: var(--bone); max-width: 13ch;
+    transition: color var(--d-micro) var(--ease);
+  }
+  .call:hover .call__big { color: var(--accent); }
+  .call__tail { display: block; color: var(--dim); font-size: var(--t-xs); margin-top: var(--s-3); }
+
+  .direct { list-style: none; margin: 0; padding: var(--s-4) 0 0; border-top: 1px solid var(--rule); display: flex; flex-wrap: wrap; gap: var(--s-3) var(--s-5); }
+  .direct li { display: flex; align-items: baseline; gap: 10px; }
+  .direct .mono { font-size: var(--t-xs); }
+  .direct a { font-family: var(--display); font-weight: 500; font-size: var(--t-md); letter-spacing: -0.02em; color: var(--bone); transition: color var(--d-micro) var(--ease); }
+  .direct a:hover { color: var(--accent); }
+
+  @media (max-width: 900px) {
+    .sec { grid-template-columns: 1fr; row-gap: var(--s-4); }
+    /* Answering the by-name rules above at equal specificity — a bare class
+       would lose, and `2 / -2` on a one-column grid conjures a phantom. */
+    .sec > .spine, .sec > .stmt, .sec > .well, .sec > .steps { grid-column: 1 / -1; }
+    .spine { flex-direction: row; align-items: baseline; justify-content: flex-start; gap: var(--s-3); }
+    .spine__top { flex-direction: row; align-items: baseline; gap: var(--s-3); }
+    .spine__t { writing-mode: horizontal-tb; transform: none; }
+    .stmt { text-indent: 0; }
+    .stmt--stack .stmt__b { padding-left: 0; }
+    .stair { grid-template-columns: 1fr; }
+    .stair__p { grid-column: 1 / -1; }
+    .step { grid-template-columns: 2.5rem minmax(0, 1fr); row-gap: 12px; }
+    .step__lines { grid-column: 2; }
+    .asks { padding-left: 0; }
+    .cols { grid-template-columns: 1fr; }
+    .band__q { padding-left: 0; }
+    .band__cap { margin-left: 0; }
+  }
+  @media (max-width: 640px) {
+    .work { grid-template-columns: minmax(0, 1fr) 1.5rem; }
+    .work__role { grid-column: 1; text-align: left; }
+  }
+
+  /* The band carries NO ledger, deliberately. It is the one place in the
+     site where the ground changes, and it is left clean so the change of
+     tone is the only thing happening there.
+
+     The cost is stated rather than hidden: the ledger runs the height of
+     the document everywhere else, and this is the one interval where it
+     does not. The pointer's lit segment therefore fades out as it enters
+     the band and returns below it. If that break ever reads as a fault
+     rather than as a rest, the fix is a ledger on the band inset to
+     `0 var(--margin)` and pulled out vertically by the band's own margin,
+     `calc(clamp(24px, 5vh, 64px) * -1)`, which is what used to be here. */
+  .band { position: relative; }
+
+  /* ══ THE OPENING ══════════════════════════════════════════════ */
+  .ov {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    padding-block: clamp(120px, 17vh, 190px) clamp(40px, 7vh, 80px);
+    position: relative;
+  }
+  .ov__mast { display: block; }
+  .ov__word {
+    display: block;
+    font-family: var(--display); font-weight: 500;
+    letter-spacing: -0.045em; line-height: 0.86;
+    color: var(--bone); text-transform: uppercase;
+  }
+  .ov__roles { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; }
+  .ov__roles li {
+    font-size: var(--t-sm); letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--bone-dim);
+  }
+  .ov__stmt {
+    font-family: var(--display); font-weight: 500;
+    letter-spacing: var(--track-tight); line-height: 1.02; color: var(--bone-dim);
+  }
+  .ov__stmt .hot { color: var(--accent); }
+  .ov__place { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 22px; }
+  .ov__place li { font-size: var(--t-xs); letter-spacing: 0.08em; color: var(--dim); }
+  .ov__cue { font-size: var(--t-micro); letter-spacing: var(--track-mono); color: var(--dim); }
+
+  /* ── CORNER LABELS ────────────────────────────────────────────
+     The small print is pinned to the corners of the opening block and the
+     middle is left to the name. Nothing is set between the two scales, which
+     is what makes the jump from 12px to 280px read as deliberate rather than
+     as a heading that got out of hand. */
+  .ov__corner { position: absolute; z-index: 2; }
+  .ov__corner--tl { top: clamp(110px, 15vh, 165px); left: 0; }
+  .ov__corner--tr { top: clamp(110px, 15vh, 165px); right: 0; text-align: right; }
+  .ov__corner--bl { bottom: clamp(34px, 6vh, 66px); left: 0; }
+  .ov__corner--br { bottom: clamp(34px, 6vh, 66px); right: 0; text-align: right; }
+  /* The left corners are stated explicitly because a centred opening sets
+     text-align on the whole block, and the corner labels inherited it — the
+     roles came out ragged, each line centred on the one above instead of
+     stacking off a shared left edge. */
+  .ov__corner--tl, .ov__corner--bl { text-align: left; }
+  .ov__corner p {
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--dim); margin: 0;
+  }
+  .ov__range { color: var(--accent); margin-top: 3px !important; }
+  .ov__corner--tr .ov__place { flex-direction: column; align-items: flex-end; gap: 3px; }
+  .ov__corner--tl .ov__roles { flex-direction: column; gap: 3px; }
+
+  /* ══ RUNNING HEAD ═════════════════════════════════════════════ */
+  .rh {
+    position: fixed; z-index: 100; left: var(--margin); bottom: 24px;
+    display: flex; align-items: baseline; gap: 10px;
+    pointer-events: none; font-variant-numeric: tabular-nums;
+  }
+  .rh__name { font-size: var(--t-micro); letter-spacing: 0.18em; text-transform: uppercase; color: var(--bone-dim); }
+  .rh__sep { font-size: var(--t-micro); color: var(--dim); }
+  .rh__mv, .rh__folio {
+    font-size: var(--t-micro); letter-spacing: 0.14em; color: var(--dim);
+    transition: opacity 320ms var(--ease);
+  }
+  .rh__folio { color: var(--accent); }
+  .rh.is-turning .rh__mv, .rh.is-turning .rh__folio { opacity: 0; }
+  @media (max-width: 900px) { .rh { display: none; } }
+
+  /* ══ 01 · THE WORKS ═══════════════════════════════════════════ */
+  .sec--works { position: relative; margin-inline: calc(var(--margin) * -1); padding-block: 0; }
+  .sec--works.is-live { height: calc(var(--count) * 62vh + 100vh); }
+  .is-live .wk { height: 100%; }
+  .wk__pin {
+    position: sticky; top: 0; height: 100vh; overflow: hidden;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 9%, #000 91%, transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 9%, #000 91%, transparent 100%);
+  }
+  .wk__scene { position: relative; height: 100%; perspective: 1250px; perspective-origin: 50% 50%; }
+
+  .wk__world { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(20px, 3vw, 48px); margin-inline: var(--margin); padding-block: clamp(60px, 12vh, 140px); }
+  .is-live .wk__world {
+    display: block; position: absolute; top: 50%; left: 50%;
+    width: 0; height: 0; margin: 0; padding: 0; transform-style: preserve-3d;
+  }
+  /* Scale, then position, then centre. The depth is a SCALE rather than a
+     translateZ so each work's rendered height is known before it is placed —
+     which is what makes a constant edge-to-edge gap possible at all. The
+     -50% pair resolves against the unscaled box and is applied last, so the
+     card's centre lands on --ty whatever the scale is. */
+  /* ── THE SWEEP'S CARDS ────────────────────────────────────────────
+     One common height for every work, so the width is what carries the
+     aspect ratio and what the edge-to-edge placement stacks. Travel is on X
+     only; opacity comes off the same depth the scale does. */
+  .is-live .wcard {
+    position: absolute; left: 50%; top: 50%;
+    /* ONE COMMON HEIGHT, TIMES THE WORK'S OWN SCALE. It was a flat
+       min(40vh, 26vw) for every card, which made a work's AREA proportional to
+       its ratio and left the four upright works the smallest things in the
+       catalogue — a 9:16 covered 32% of what a 16:9 did, which is a hierarchy
+       saying the format a piece was shot in decides its importance.
+
+       --card-k comes from the ratio, not from a list of slugs, so it reaches
+       anything narrower than a square and is exactly 1 for everything else. A
+       fifth upright work needs no edit and no work is named. See cards.ts.
+
+       The placement script needed no change: it measures offsetWidth per card
+       and re-measures on resize, load and fonts.ready. */
+    height: calc(min(40vh, 26vw) * var(--card-k, 1));
+    width: calc(min(40vh, 26vw) * var(--card-k, 1) * var(--arn, 1.7778));
+    transform: translate(-50%, -50%) translateX(var(--tx, 0px)) scale(var(--s, 1));
+    opacity: var(--op, 1);
+    filter: none;
+    will-change: transform, opacity;
+  }
+
+  /* ── THE READOUT: caption, ruler, date ────────────────────────────
+     One tick per work rather than the reference's dense month ruler — its
+     ruler is a calendar and its caption a month; ours is a catalogue, so the
+     ticks are the sixteen works and the figure under the playhead is the real
+     year of the work you are on. */
+  .rl {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    /* CLEARED OF THE MAT, BY THE MAT'S OWN NUMBER. The aperture's window is
+       inset 11vh + (1 - lit) x 15vh top and bottom; at a flat 43px the
+       readout's date sat 36px BEHIND the mat's bottom edge and could not be
+       read at all. Deriving the offset from the same expression the mat uses
+       means the two cannot drift apart when the window breathes. */
+    bottom: calc(11vh + (1 - var(--lit, 1)) * 15vh + clamp(14px, 2.4vh, 30px));
+    z-index: 5;
+    /* A FIXED WIDTH, because the block shrink-wraps to its widest child — the
+       caption — and the tick row is centred inside it. Left to shrink-wrap,
+       the ruler slid sideways every time the title length changed: measured,
+       the playhead ran 61, 46.5, 32, 55.5, 69, 72.5, 127px down a scroll that
+       should have moved it steadily one way. The ruler is a fixed instrument;
+       it cannot be re-scaled by the name of the thing it is measuring. */
+    width: min(720px, 72vw);
+    text-align: center; pointer-events: none;
+  }
+  .rl__cap { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rl__cap, .rl__date {
+    margin: 0; font-family: var(--display); font-weight: 500;
+    font-size: var(--t-sm); letter-spacing: 0.02em; line-height: 1.06;
+    text-transform: uppercase;
+  }
+  .rl__cap { color: var(--bone); }
+  .rl__date { color: var(--dim); }
+  @keyframes rl-in { from { opacity: 0 } to { opacity: 1 } }
+  .rl.is-turning .rl__cap, .rl.is-turning .rl__date {
+    animation: rl-in 190ms ease both;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rl.is-turning .rl__cap, .rl.is-turning .rl__date { animation: none; }
+  }
+  /* ══ THE SCALE IS AN ARC, AND IT TURNS ══════════════════════════
+     Promoted from preview draft rng-c "Horizon", chosen from twenty-four
+     readout designs. The flat sixteen-tick row is now a shallow curve with
+     its centre 340px ABOVE the strip, so the scale bows downward and the
+     marks hang from it; the index mark stays fixed at the top while the
+     arc turns beneath it, the way a lens barrel moves under its index.
+
+     THE CENTRE IS ABOVE, NOT BELOW, AND THAT IS THE DESIGN. A concave arc
+     is a dial you are turning; a convex one is a horizon you are standing
+     over, and the wedge of space it opens beneath its middle is exactly
+     the shape a line of type wants to sit in — which is where the work's
+     name now goes.
+
+     340px AND 54 DEGREES. A convex arc shows its curvature far more
+     readily than a concave one, because the marks fan outward rather than
+     inward. At the concave radius the outermost marks lie down and the row
+     stops reading as a comb.
+
+     THE MASK IS THE HORIZON. Both ends going to nothing is what stops the
+     curve reading as an arc with two ends and starts it reading as a
+     surface continuing past the frame. It is one declaration and the whole
+     illusion rests on it.
+
+     IT TURNS ON A CONTINUOUS NUMBER. --ring is the same phase the conveyor
+     itself derives — see initHorizon below — so the ring is wherever the
+     scroll is rather than clicking between sixteen resting positions. The
+     first version of this draft used the integer index and a 520ms
+     transition to hide the steps; measured across the section, that gives
+     16 positions against this one's 41 of 41 samples distinct.
+
+     THERE IS NO TRANSITION ON THE ROW, deliberately. With a per-frame
+     input a transition is latency rather than smoothing — the ring would
+     always be chasing a value it had already been given. The lit mark
+     keeps its 220ms fade, because THAT is a discrete change. */
+  .rl__ruler {
+    position: relative; height: 42px;
+    margin: clamp(12px, 2vh, 18px) auto 0;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 19%, #000 81%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 19%, #000 81%, transparent);
+  }
+  .rl__ticks {
+    display: block; height: 100%;
+    transform: rotate(calc((7.5 - var(--ring, 0)) * 3.6deg));
+    transform-origin: 50% -340px;
+    will-change: transform;
+  }
+  /* Absolutely positioned, all sixteen stacked on the centre line and then
+     fanned out by the nth-child rotations below — so the spacing is angular,
+     not metric, and the row's own rotation carries every mark with it. */
+  .rl__t {
+    position: absolute; left: 50%; top: 4px;
+    width: 1px; height: 11px; background: var(--dim);
+    transform-origin: 50% -344px;
+    transition: height 220ms var(--ease), background-color 220ms var(--ease);
+  }
+  .rl__t.is-on { height: 18px; background: var(--bone); }
+  .rl__t:nth-child(1) { transform: translateX(-50%) rotate(-27.00deg); }
+  .rl__t:nth-child(2) { transform: translateX(-50%) rotate(-23.40deg); }
+  .rl__t:nth-child(3) { transform: translateX(-50%) rotate(-19.80deg); }
+  .rl__t:nth-child(4) { transform: translateX(-50%) rotate(-16.20deg); }
+  .rl__t:nth-child(5) { transform: translateX(-50%) rotate(-12.60deg); }
+  .rl__t:nth-child(6) { transform: translateX(-50%) rotate(-9.00deg); }
+  .rl__t:nth-child(7) { transform: translateX(-50%) rotate(-5.40deg); }
+  .rl__t:nth-child(8) { transform: translateX(-50%) rotate(-1.80deg); }
+  .rl__t:nth-child(9) { transform: translateX(-50%) rotate(1.80deg); }
+  .rl__t:nth-child(10) { transform: translateX(-50%) rotate(5.40deg); }
+  .rl__t:nth-child(11) { transform: translateX(-50%) rotate(9.00deg); }
+  .rl__t:nth-child(12) { transform: translateX(-50%) rotate(12.60deg); }
+  .rl__t:nth-child(13) { transform: translateX(-50%) rotate(16.20deg); }
+  .rl__t:nth-child(14) { transform: translateX(-50%) rotate(19.80deg); }
+  .rl__t:nth-child(15) { transform: translateX(-50%) rotate(23.40deg); }
+  .rl__t:nth-child(16) { transform: translateX(-50%) rotate(27.00deg); }
+  .rl__head {
+    position: absolute; left: 50%; top: 0; bottom: auto;
+    width: 1px; height: 24px; background: var(--bone);
+    transform: translateX(-50%); z-index: 2;
+  }
+  /* Rounded again: 5.5% of the card's width, the radius measured off the
+     reference. A flat 4px made the pictures read as browser windows. */
+  .is-live .wcard :global(.st__win) {
+    border-radius: 5.5%;
+    box-shadow: 0 40px 90px rgba(0, 0, 0, 0.6);
+  }
+
+
+  /* ══ RHYTHM ═══════════════════════════════════════════════════ */
+  .rg .sec { padding-block: clamp(90px, 17vh, 210px); }
+  .sec--bare { position: relative; }
+  .sec > .enq { grid-column: 1 / -1; z-index: 1; margin-top: clamp(50px, 10vh, 120px); }
+  .enq :global(.ct__page) { padding-top: 0; }
+
+  @media (max-width: 900px) {
+    .wk__pin { position: static; height: auto; -webkit-mask-image: none; mask-image: none; }
+    .wk__world { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .ov__corner { position: static; text-align: left !important; margin-bottom: 18px; }
+  }
+
+  /* ── TWO IDEAS, ONE PAGE ─────────────────────────────────────────
+     XV Mosaic put the catalogue behind the type. V Corners left the middle
+     empty and labelled the four corners, so the frame was drawn before the
+     name was read. Put together they answer each other: the mosaic wants
+     something to hold it, and the corner frame wants something inside it.
+
+     ONE BED, FIXED BEHIND THE WHOLE DOCUMENT, and a corner-labelled frame on
+     every movement with the middle kept for the type. Centre layout
+     throughout — every title, every statement, every frame is on the one axis,
+     from the opening to the enquiry.
+
+     READABILITY BY ARITHMETIC. The bed is capped at 0.30 brightness, so the
+     brightest pixel a photograph can put on screen is #4C4C4C and bone on it
+     is 8.4:1 — above AA at any size. Running text then sits on solid ground,
+     which takes it to 19:1. Nothing depends on a picture happening to be dark
+     in the right place. */
+  .rg { position: relative; }
+  .ms__ground { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .ms__bed {
+    position: absolute; inset: -10%;
+    display: grid; grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-auto-rows: minmax(0, 1fr); gap: clamp(5px, 0.8vw, 13px);
+    transform: translate3d(0, calc(var(--prog, 0) * -8%), 0) scale(1.06);
+    will-change: transform;
+  }
+  /* THE GRADE IS ON THE TILE, NOT ON THE BED. It sat on .ms__bed until one
+     frame needed a different contrast — see BED_GRADE in src/lib/bed.ts, where
+     the reasoning and the measurements are. The tiles do not overlap and the
+     filter is per-pixel, so thirty filtered tiles paint identically to one
+     filtered grid; what it buys is a tile being able to name its own value.
+
+     BRIGHTNESS IS NOT A VARIABLE HERE, DELIBERATELY. The 0.30 cap is what the
+     readability arithmetic above rests on — it is the reason the brightest
+     pixel a photograph can put on screen is #4C4C4C — so it is written as a
+     constant that no tile can reach. Only the contrast boost is overridable. */
+  .ms__tile {
+    display: block; overflow: hidden; min-height: 0;
+    border-radius: clamp(6px, 0.7vw, 12px);
+    filter: brightness(0.30) saturate(0.7) contrast(var(--bed-k, 1.05));
+  }
+  /* Reaching past Still's own `transform: scale(1.001)` on the image, which is
+     (0,2,1); naming .frame__layer as well makes this (0,3,1) so it wins without
+     !important — including over Still's reduced-motion reset, which is also
+     (0,2,1). The bed is pointer-events: none, so Still's hover scale, which is
+     higher again, can never fire here. */
+  .ms__tile--crop :global(.frame__layer img) {
+    transform: translateY(var(--crop-y, 0)) scale(var(--crop-s, 1));
+  }
+  .ms__tile :global(.st), .ms__tile :global(.st__win) { border-radius: inherit; height: 100%; }
+
+  .ov, .mvt { position: relative; z-index: 2; background: transparent; }
+  .mvt {
+    margin-inline: calc(var(--margin) * -1);
+    padding-inline: var(--margin);
+    padding-block: clamp(70px, 12vh, 156px);
+    text-align: center;
+  }
+  .ov--cm { text-align: center; justify-content: center; }
+  /* The conveyor IS the catalogue; it must not have the catalogue behind it. */
+  .mvt.sec--works { padding-block: 0; padding-inline: 0; background: var(--ground); }
+
+  /* ── THE FRAME ────────────────────────────────────────────────────
+     Four labels, the middle left alone. */
+  .fr { position: relative; padding: clamp(30px, 5vh, 66px) clamp(26px, 4vw, 72px); }
+  .fr--hero { padding-block: clamp(46px, 8vh, 104px); }
+  /* THE CORNER LABELS SIT OVER THE BED, so --dim cannot be used for them.
+     #858585 against the brightest ground a photograph can produce (#4C4C4C)
+     is 2.4:1 — nowhere near AA, and these are 10px. At --bone-dim the same
+     worst case is 5.9:1, which clears AA for small text, and the shadow gives
+     the letterforms an edge to sit on over a busy tile. */
+  .cn {
+    position: absolute; margin: 0; z-index: 3;
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--bone-dim); line-height: 1.55;
+    text-shadow: 0 1px 3px var(--ground), 0 0 14px rgba(10, 9, 8, 0.95);
+  }
+  .cn--tl { top: 0; left: 0; text-align: left; }
+  .cn--tr { top: 0; right: 0; text-align: right; }
+  .cn--bl { bottom: 0; left: 0; text-align: left; }
+  .cn--br { bottom: 0; right: 0; text-align: right; }
+  .cn--tl { color: var(--bone); }
+  .fr--over { position: absolute; z-index: 6; top: clamp(66px, 10vh, 110px); left: var(--margin); right: var(--margin); }
+
+  .fr__mid { position: relative; z-index: 2; }
+  .fr__t {
+    margin: 0; font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.5rem, min(6vw, 8vh), 4.2rem);
+    line-height: 0.96; letter-spacing: -0.045em;
+    text-transform: uppercase; color: var(--bone);
+  }
+  .fr__name {
+    margin: 0; font-family: var(--display); font-weight: 500;
+    font-size: clamp(2rem, min(11vw, 15vh), 8.5rem);
+    line-height: 0.86; letter-spacing: -0.055em;
+    text-transform: uppercase; color: var(--bone);
+  }
+  .fr__w { display: block; }
+  .fr__cap {
+    margin: clamp(14px, 2.4vh, 32px) auto 0; max-width: 28ch;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1rem, min(3.2vw, 4.4vh), 2.4rem);
+    line-height: 1.1; letter-spacing: var(--track-tight);
+    text-transform: uppercase; color: var(--bone-dim);
+  }
+  .fr__cap .line { display: block; }
+
+  /* ── BODY: CENTRED, ON SOLID GROUND ───────────────────────────────
+     Lists set left inside centred columns, because a ragged-right list read as
+     centred is not readable. That is the one exception on the page. */
+  .ms__panel {
+    margin: clamp(24px, 4.4vh, 58px) auto 0; max-width: 78ch;
+    padding: clamp(22px, 3.6vh, 46px) clamp(20px, 3vw, 44px);
+    background: var(--ground);
+    border: 1px solid var(--rule-soft);
+    border-radius: clamp(10px, 1.2vw, 20px);
+  }
+  .s__stmt { margin: 0 auto; max-width: 22ch;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.25rem, min(3.8vw, 5.2vh), 2.9rem);
+    line-height: 1.14; letter-spacing: -0.028em; color: var(--bone); }
+  .s__mark { display: block; margin-top: 0.2em; color: var(--bone-dim); font-style: italic; }
+  .s__body { margin: clamp(24px, 4.4vh, 56px) auto 0; columns: 2; column-gap: clamp(24px, 4vw, 60px); max-width: 64ch; text-align: left; }
+  .s__p { break-inside: avoid; margin-bottom: var(--s-3); }
+  .s__p p, .s__lede p { margin: 0; }
+  .s__p .s__rn { display: block; margin-bottom: 3px; }
+  .s__rn, .s__coln { color: var(--dim); font-size: var(--t-xs); font-variant-numeric: tabular-nums; }
+  .s__lede { max-width: 52ch; margin: clamp(20px, 3.6vh, 44px) auto 0; color: var(--bone-dim); }
+  .s__cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(22px, 3.4vw, 52px); margin-top: clamp(28px, 5vh, 66px); text-align: left; }
+  .s__col ul { list-style: none; margin: 0; padding: 0; }
+  .s__col li { display: flex; gap: 10px; padding-block: 7px; border-bottom: 1px solid var(--rule-soft); font-size: var(--t-sm); color: var(--bone-dim); }
+  .s__collab { color: var(--accent); font-size: var(--t-xs); margin: 0 0 var(--s-3); padding-bottom: 10px; border-bottom: 1px solid var(--rule); }
+  .s__steps { list-style: none; margin: clamp(26px, 5vh, 62px) auto 0; padding: 0; display: grid; gap: clamp(26px, 5vh, 56px); max-width: 66ch; text-align: left; }
+  .s__stepn { color: var(--accent); font-size: var(--t-xs); }
+  .s__steptitle { margin: 6px 0 var(--s-3); font-family: var(--display); font-weight: 500; font-size: clamp(1.1rem, 2.2vw, 1.7rem); letter-spacing: -0.02em; color: var(--bone); }
+  .s__steplines p { margin: 0 0 8px; color: var(--bone-dim); }
+  .s__steplines .asks { color: var(--dim); }
+  .s__step .draw { margin-bottom: clamp(14px, 2.4vh, 26px); }
+  .s__links { list-style: none; margin: clamp(24px, 4vh, 52px) auto 0; padding: 0; display: flex; justify-content: center; gap: clamp(20px, 4vw, 54px); flex-wrap: wrap; }
+  .s__enq { margin-top: clamp(44px, 8vh, 100px); text-align: left; }
+  .s__enq :global(.ct__page) { padding-top: 0; }
+  .hot { color: var(--accent); text-transform: none; font-family: var(--serif); font-style: italic; font-weight: 300; font-size: 1.06em; }
+  .ov__cue { color: var(--dim); }
+
+  @media (max-width: 900px) {
+    .ms__bed { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .cn { position: static; display: inline-block; margin: 0 10px 10px 0; }
+    .fr { padding-inline: 0; }
+    .s__body { columns: 1; }
+    .s__cols { grid-template-columns: 1fr; }
+  }
+
+  /* ══ LXIII · APERTURE IV ═════════════════════════════════════════════
+     THE CATALOGUE EXISTS ONLY INSIDE THE WINDOW. A mat of solid ground covers
+     the whole viewport except one centred rectangle, and the bed shows through
+     that and nowhere else. V Corners drew a frame around an empty middle; this
+     draws the same frame and puts the work in it.
+
+     THE WINDOW BREATHES. Its inset is driven by --lit — the highest coverage
+     any movement currently has — so it opens as a movement takes the window
+     and closes at the joins. Between rooms the aperture narrows to a slot and
+     the page is almost entirely ground; arriving somewhere, it opens.
+
+     THE MAT IS A BOX-SHADOW, not four positioned rectangles. A spread of
+     100vmax paints solid ground outward from the window's edge in every
+     direction at once, so there are no seams to keep in register and nothing
+     to recompute when the window moves. */
+  .ap__mat {
+    position: fixed; z-index: 1; pointer-events: none;
+    inset: calc(11vh + (1 - var(--lit, 0)) * 15vh) calc(7vw + (1 - var(--lit, 0)) * 13vw);
+    box-shadow: 0 0 0 100vmax var(--ground);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    /* NO will-change HERE. It said `inset`, and inset is a layout
+       property — there is no compositor path for it to be promoted onto,
+       so the hint bought nothing and cost a surface. What it changes is
+       still a real cost: --lit moves through ten distinct values across
+       the document, and each one relays out this box and repaints a
+       100vmax shadow. Measured, --lit does NOT move at all inside
+       Selected works, so none of that lands on the section that was
+       stuttering; it is written down here rather than changed, because
+       changing it would change how the aperture opens. */
+  }
+
+  /* ══ COMMON GROUND ═══════════════════════════════════════════════
+     Aperture IV set its body at 16px in two columns — a 295px measure, about
+     36 characters a line. All three of these open the measure and raise the
+     size first, because no amount of editorial detailing rescues a line that
+     short; the detailing is what they then differ on. */
+  .s__lede { color: var(--bone-dim); }
+  .s__lede p, .s__p p, .s__steplines p {
+    font-size: var(--body-size); line-height: var(--body-lead);
+    /* Widow and orphan control. `pretty` costs a little layout time and is
+       ignored where unsupported, so it can only improve the rag. */
+    text-wrap: pretty;
+  }
+  /* the two-into-three grid is gone; see the section redesign below */
+  .s__col li { font-size: var(--list-size); line-height: 1.45; padding-block: 10px;
+               font-variant-numeric: tabular-nums; }
+  .s__steptitle { font-size: clamp(1.15rem, 2.4vw, 1.8rem); text-wrap: balance; }
+  .fr__t, .s__stmt { text-wrap: balance; }
+
+  /* ══ LXVII · SET AS A BOOK ═══════════════════════════════════════
+     THE RUNNING TEXT BECOMES A SERIF. The register already carries Fraunces,
+     but the layout only loads its ITALIC cut — every existing use of --serif
+     in this codebase pairs it with font-style: italic, and upright Fraunces
+     would have fallen through to Georgia without a word of warning. This
+     draft imports the roman axes ITSELF, in its own frontmatter, so the real
+     site's font payload is untouched.
+
+     AND IT USES THE OPTICAL SIZE AXIS PROPERLY. Fraunces runs opsz 9–144.
+     A face cut for 144pt display has thin hairlines and tight spacing that
+     fall apart at reading size; opsz 22 on the body and 96 on the initial is
+     the axis doing the job it exists for, rather than one drawing scaled up
+     and down. */
+  .s__p p, .s__lede p, .s__steplines p {
+    font-family: 'Fraunces Variable', 'Iowan Old Style', Palatino, Georgia, serif;
+    font-weight: 400; font-style: normal;
+    font-variation-settings: 'opsz' 22, 'SOFT' 18, 'WONK' 0;
+    letter-spacing: 0;
+    hanging-punctuation: first last;
+  }
+  .rg { --body-size: clamp(1.1rem, 1.5vw, 1.36rem); --body-lead: 1.66;
+        --list-size: clamp(1rem, 1.2vw, 1.1rem); }
+  /* ══ THE WINDOW OPENS TO READ, FROM APERTURE VI ══════════════════
+     The aperture is narrow and cinematic over the works and opens out when
+     there is something to read — measured on VI, 1101px to 1219px.
+
+     ONE SOURCE FOR THE APERTURE. The mat's inset and the widths of everything
+     inside it are the same number, so nothing set on the page can end up
+     wider than the window it is being read through. VI proved why that
+     matters: with a fixed max-width, the window closes to about 993px at a
+     join between movements and a wider panel runs its outer lines straight
+     behind the mat.
+
+     AND THE MEASURE IS NOT STRETCHED INTO THE NEW WIDTH. This is the book
+     setting: 60ch of Fraunces comes out at 513px, which is 63 characters a
+     line, and 63 is where it should stay — a longer line is not a better one.
+     The width the window gains goes to the CATALOGUE, which is the point of
+     opening it: more of the work is visible around the text block, and the
+     text itself is untouched. The caps below are ceilings that the window can
+     close down onto, never targets to grow into. */
+  .rg {
+    --mat-h: calc(7vw + (1 - var(--lit, 0)) * 13vw - var(--read, 0) * 4.6vw);
+    --win: calc(100vw - 2 * var(--mat-h));
+  }
+  .ap__mat { inset: calc(11vh + (1 - var(--lit, 0)) * 15vh) var(--mat-h); }
+
+  .ms__panel { max-width: min(76ch, calc(var(--win) - 90px)); }
+  .s__body { columns: 1; max-width: min(60ch, calc(var(--win) - 150px)); }
+  .s__lede { max-width: min(56ch, calc(var(--win) - 180px)); }
+  .s__steps { max-width: min(60ch, calc(var(--win) - 150px)); }
+  .s__stmt { max-width: 26ch; font-size: clamp(1.5rem, min(4.4vw, 5.6vh), 3.1rem); }
+
+  /* THE RAISED INITIAL, cut at display optical size — the one place on the
+     page where the 96 end of the axis belongs. */
+  .s__body .s__p:first-of-type p::first-letter {
+    float: left;
+    font-size: 3.3em; line-height: 0.82;
+    margin: 0.02em 0.08em 0 0;
+    font-variation-settings: 'opsz' 96, 'SOFT' 0, 'WONK' 1;
+    font-weight: 500; color: var(--bone);
+  }
+  /* the paragraph numbers go quiet: a book does not number its paragraphs */
+  .s__p .s__rn { font-size: var(--t-xs); color: var(--dim); opacity: 0.6; }
+
+  /* ══ THE LISTING, IN THE BOOK'S OWN HAND ═════════════════════════
+     THE OLD LAYOUT WAS THREE GROUPS IN A TWO-COLUMN GRID. Film and Brand took
+     the first row and Music was left alone on the second with an empty cell
+     beside it — measured at 322px columns, Music sitting at the same x as
+     Film, 318px below. Three things in a two-column grid can only ever come
+     out lopsided. The data is a clean 3 x 5: three disciplines, five entries
+     each, and every one of these three redesigns is built on that.
+
+     And the entries are set in Fraunces like the running text, at the reading
+     end of the optical size axis — the section stops looking like a UI
+     component parked in a book. */
+  .s__col li, .s__collab {
+    font-family: 'Fraunces Variable', 'Iowan Old Style', Palatino, Georgia, serif;
+    font-variation-settings: 'opsz' 20, 'SOFT' 18, 'WONK' 0;
+  }
+  .s__col li { font-style: normal; font-weight: 400; letter-spacing: 0; }
+
+  /* THE LISTING SECTION GETS A WIDER PANEL. Setting a width on the listing
+     alone did nothing: .ms__panel is 767px and its own padding takes 77 of
+     that, so the block stayed pinned at 688px however wide the listing asked
+     to be. The panel is widened for this movement only — the statement and
+     the lede inside it keep their own narrower limits, so only the listing
+     takes the extra width. Still derived from --win, so it closes with the
+     aperture at a join like everything else. */
+  [data-mv="2"] .ms__panel { max-width: min(940px, calc(var(--win) - 120px)); }
+
+  /* ══ LXXI · INDEX ════════════════════════════════════════════════
+     THREE COLUMNS, ONE ROW. The obvious symmetry, and the opened window is
+     what finally affords it: at 1219px each column gets about 370px, which is
+     room enough to set the entries at reading size instead of the 13px the
+     old three-up needed at 230px. */
+  .s__cols {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(20px, 3vw, 46px);
+    /* An explicit width, not a ch cap. `ch` resolves against the ELEMENT's
+       own font-size, and this block inherits the 13px furniture size — so
+       96ch came out at 688px, three 204px columns inside a 1219px window.
+       The listing runs wider than the 513px reading measure, as an index in a
+       book does, without going full bleed. */
+    max-width: min(880px, calc(var(--win) - 200px));
+    margin-inline: auto;
+    border-top: 1px solid var(--rule);
+    padding-top: clamp(20px, 3vh, 36px);
+  }
+  .s__collab {
+    color: var(--bone); border-bottom: 0; padding-bottom: 0;
+    margin-bottom: clamp(12px, 1.8vh, 20px);
+    font-size: clamp(1.05rem, 1.5vw, 1.4rem);
+    font-style: italic; font-weight: 300; letter-spacing: 0;
+    text-transform: none;
+  }
+  .s__col li {
+    display: grid; grid-template-columns: 2.1em 1fr; align-items: baseline;
+    gap: 0.2em; padding-block: 9px;
+    border-bottom: 1px solid var(--rule-soft);
+    font-size: clamp(1rem, 1.25vw, 1.18rem); line-height: 1.36;
+  }
+  .s__col li:first-child { border-top: 1px solid var(--rule-soft); }
+  .s__coln { font-family: var(--mono); font-size: var(--t-xs); color: var(--dim); }
+
+  /* ══ LXXIV · THE CONTACT SECTION, OPENED OUT ═════════════════════
+     THE DIRECT DETAILS WERE ON THE PAGE TWICE. The section carried its own
+     Email / WhatsApp / Phone list AND the enquiry form, which prints the same
+     three under "Let's talk" — the same addresses set twice, a screen apart.
+     The section's own list is gone; the form's stays, and WhatsApp has been
+     added to it between email and phone so nothing was lost in the removal.
+
+     AND THE FORM WAS BEING ASKED TO WORK IN 767px. .ct__page is a two-column
+     grid, so at that width each column had barely 340px and the whole thing
+     read as cramped. The panel opens to 1080px for this movement only —
+     derived from --win like everything else here, so it still closes with the
+     aperture at a join. */
+  [data-mv="5"] .ms__panel { max-width: min(1080px, calc(var(--win) - 110px)); }
+  [data-mv="5"] .s__enq { margin-top: clamp(30px, 5.5vh, 72px); }
+  .s__enq :global(.ct__page) { column-gap: clamp(40px, 5vw, 88px); }
+  /* THE DIRECT LIST, TIGHTER AGAIN. XXXII had already brought this block
+     from 141px down to 101px — three even rows, one address per row, on a
+     leading set for a list rather than for prose. This takes the same
+     structure further: the row gap comes off first, then the address size,
+     then the leading, in that order, because gap is the cheapest space to
+     lose and type size the most expensive.
+
+     ONE PER ROW SURVIVES THE SQUEEZE. The grid stays, and it is the reason
+     the block can be tightened at all: left to the component's flex-wrap the
+     three break unevenly the moment they shrink — email alone on one row,
+     WhatsApp and phone sharing the next — which is ragged rather than
+     compact. Three even rows shrink evenly.
+
+     THE ADDRESSES STAY LARGER THAN THE COMPONENT'S OWN 20px, on purpose.
+     These are the two lines a visitor is most likely to want without filling
+     in a form, and a compact block is not the same thing as a quiet one. */
+  .s__enq :global(.ct__direct) {
+    display: grid; grid-auto-flow: row;
+    gap: clamp(5px, 0.8vh, 8px);
+  }
+  .s__enq :global(.ct__direct li) { gap: 9px; align-items: baseline; }
+  .s__enq :global(.ct__direct .mono) { font-size: var(--t-xs); letter-spacing: 0.1em; }
+  .s__enq :global(.ct__direct a) {
+    font-size: clamp(1.02rem, 1.32vw, 1.22rem);
+    line-height: 1.2;
+    letter-spacing: -0.016em;
+  }
+  .s__enq :global(.ct__lede) { font-size: clamp(1rem, 1.25vw, 1.15rem); }
+  .s__enq :global(.ct__rule) { margin-block: clamp(20px, 3vh, 34px); }
+
+  /* ══ THE WORKS READOUT ═══════════════════════════════════════════
+     The playhead goes accent. It is the one live thing in that readout — it
+     is the only mark that moves — and it was the same bone as the static
+     furniture around it, so nothing said which mark to watch.
+
+     And the work's name goes up: it was set at the 13px furniture size, the
+     same as the corner labels, when it is the one piece of copy in the
+     section that changes as you scroll. */
+  .rl__head { background: var(--accent); }
+  /* THE NAME MOVES INTO THE CURVE. With the arc bowing down there is a
+     wedge of space beneath its centre that nothing else can use, and a
+     single line of type is exactly what fits it — so the caption is pulled
+     up into the bowl rather than sitting clear of the scale. */
+  .rl__cap {
+    margin-top: -6px;
+    font-size: clamp(1.05rem, 1.5vw, 1.4rem);
+    letter-spacing: -0.015em; line-height: 1.16;
+  }
+  /* The year goes to the mono face at furniture size. Against a curved
+     scale and a display-face name it is the third voice in the readout and
+     should read as the smallest — at --t-sm it competed with the title. */
+  .rl__date {
+    margin-top: 6px;
+    font-family: var(--mono); font-size: var(--t-micro);
+    letter-spacing: 0.16em; color: var(--dim);
+  }
+
+  /* ══ THE BOXES GO BACK TO BLACK ═════════════════════════════════
+     XXXIX and XL cut windows into this panel: the panel gave up its fill and
+     a masked layer under the form painted it back with one hole per chip, so
+     every answer box was an opening onto the catalogue. That is reverted here
+     — the panel keeps its own --ground fill, the masked layer and the script
+     that built it are gone, and the chips are plain outlined boxes on solid
+     ground again, exactly as XXXII draws them.
+
+     Nothing is left behind to do it: no blackout element, no mask, no
+     ResizeObserver, no per-chip geometry. What remains of this draft is the
+     three things that were never about the windows — the heading removed,
+     the enquiry raised into the space it left, and the gutter rule stopping
+     clear of the crossing. */
+
+  /* ══ THE ENQUIRY RISES INTO THE HEADING'S PLACE ══════════════════
+     With the CONTACT heading gone, .fr stopped being a title block and became
+     a bare band of padding with the four corner labels pinned to its edges —
+     top pair at its top, bottom pair at its bottom, and nothing between them.
+     Measured, that left the panel starting 190px below the section's top
+     where the heading used to start at 122px: 68px of the section's opening
+     was empty.
+
+     THE PANEL NOW STARTS EXACTLY WHERE THE WORD DID. The space is taken off
+     the section's own top padding rather than out of .fr, because .fr's
+     padding IS the label band — the corner labels are absolutely positioned
+     to its top and bottom edges, so shrinking it does not tighten the band,
+     it collapses the two rows onto each other. At 72px they already clear by
+     only 10px.
+
+     AND THE NUMBER IS DERIVED, NOT DIALLED IN. The panel's top is the sum of
+     three things: this padding, .fr's own height (2 x its 5vh padding), and
+     the panel's 4.4vh top margin. The heading's top was the section's 12vh
+     padding plus one of .fr's 5vh. Setting this padding to 12vh - 5vh - 4.4vh
+     = 2.6vh makes those two equal — so the panel's top edge lands on the
+     heading's old top at every viewport height where the three source clamps
+     are in their linear range, which is 615px to 1231px. Outside that the
+     clamps stop composing and the two drift apart by a few pixels, which is
+     why the bounds here are the source bounds subtracted the same way
+     (70-30-24 and 156-66-58) rather than a pair of round numbers. */
+  [data-mv="5"] { padding-top: clamp(16px, 2.6vh, 32px); }
+
+  /* ══ THE LINE STOPS AT THE CROSSING ══════════════════════════════
+     The grey rule down the gutter ends where it meets the footer's rule,
+     just under the send action — an intersection, and then nothing.
+
+     The component draws a tail past that crossing on purpose: it measures
+     the distance down to the footer's last line of text, adds an overhang,
+     and runs the line off the page so the meeting reads as a crossing rather
+     than as the line being cut to fit. The cost is that the tail then runs
+     straight down through the middle of "Listen on Spotify or Apple
+     Music…", which is 60ch wide and starts at the left margin, so a 1px
+     rule lands inside the sentence.
+
+     content: none removes the tail's box outright rather than hiding it, so
+     there is nothing left to overlap and nothing left to measure. The
+     component's own script still writes --tail; with no ::after to read it
+     the value is simply unused, which is why this is one line here and no
+     change at all to the component the live site shares.
+
+     AND THEN THE LINE STOPS SHORT OF THE CROSSING ALTOGETHER, so the two
+     rules clear each other instead of meeting. The clearance is not a chosen
+     number: the rule under the standfirst already stops half a gutter shy of
+     this line — measured, it ends at x608 against the line at x640, a 32px
+     clearance. Half the gutter is what this reuses, so the vertical rule
+     leaves the footer's rule exactly what every other rule in the section
+     leaves.
+
+     AND IT IS HALF OF THIS DRAFT'S GUTTER, NOT THE COMPONENT'S. ContactForm
+     sets column-gap: 3.4em, which at the 16px this page resolves at would be
+     54.4px — but the draft overrides the gutter to clamp(40px, 5vw, 88px),
+     64px here. Half of the component's figure gave a 27px clearance against
+     the standfirst rule's 32px, close enough to look like a mistake rather
+     than a system. clamp(20px, 2.5vw, 44px) is half of the gutter actually
+     in force, so the two clearances stay equal at every width.
+
+     Written as a subtraction from the footer's own top margin rather than as
+     a height, because that margin is what the line was pinned to in the first
+     place: if .ft's margin changes, this still lands half a gutter above it.
+
+     The orange fill is measured as a percentage of this line, so it shortens
+     with it and still completes at the new foot. The component's arrival
+     watcher is unaffected — it fires when the fill passes the send action's
+     top, and the foot is still 47px below that. */
+  .s__enq :global(.divide)::after { content: none; }
+  .s__enq :global(.divide) { bottom: calc(clamp(20px, 2.5vw, 44px) - clamp(64px, 11vh, 120px)); }
+
+  /* ══ THE MASTHEAD, BORROWED FROM V · CORNERS ═════════════════════
+     Only the name and the sentence. XL's opening keeps its aperture, its
+     catalogue bed, its four corner labels and its frame; what changes is the
+     two pieces of type in the middle of them.
+
+     THE NAME COMES OFF TWO LINES ONTO ONE. XL set .fr__w to display:block, so
+     UGAM sat above KHETANI at clamp(2rem, min(11vw, 15vh), 8.5rem) on -0.055em.
+     Corners runs the mast as a nowrap flex row with a clamp(12px, 1.7vw, 30px)
+     column gap and sizes the words at clamp(2.4rem, 9.2vw, 7.6rem) on -0.045em
+     — one line, wider tracking, and the size governed by width alone rather
+     than by whichever of 11vw and 15vh is smaller. That last difference is the
+     real one: XL's name shrinks on a short viewport to protect the vertical
+     rhythm of a full-height opening, and Corners' does not, because a single
+     line has far less height to protect.
+
+     THE SENTENCE STOPS BEING UPPERCASE. XL's .fr__cap is uppercase at 28ch on
+     line-height 1.1, close under the name at clamp(14px, 2.4vh, 32px).
+     Corners' .ov__stmt is sentence case at 24ch on 1.02, standing well clear
+     at clamp(34px, 6vh, 72px) — so it reads as a line of prose under a
+     masthead rather than as a second, smaller deck of display type.
+
+     The base .ov__word and .ov__stmt rules this builds on are already in this
+     stylesheet, character for character the same as Corners' — they were
+     carried along unused when the aperture drafts moved to .fr__name. Only
+     the four .ov--corners overrides were missing, and they are re-scoped to
+     .fr--hero rather than applied by adding the ov--corners class: that class
+     also sets align-items:center on the .ov itself, which would shrink
+     .fr--hero to its content width and take the four corner labels with it. */
+  /* ══ THE FRAME KEEPS XL'S BOX, SO THE CORNERS DO NOT MOVE ═══════
+     The four corner labels are absolutely positioned to .fr--hero's own
+     edges, so anything that changes the frame's height moves them. Dropping
+     the name from two lines to one did exactly that: measured at 1280x720,
+     the frame went from 389.98px to 355.41px, and because .ov centres it,
+     the labels came in by half of that at each end — the top pair 17px down,
+     the bottom pair 17px up.
+
+     So the frame is pinned back to the height it has in XL, and .fr--hero
+     becomes a centring flex column so the shorter masthead sits at the same
+     centre rather than riding at the top of a box that is now taller than
+     its contents. The labels are out of flow and do not care.
+
+     THE HEIGHT IS XL'S OWN EXPRESSIONS, NOT A NUMBER. Two pads, the name's
+     two lines at its 0.86 leading, the caption's top margin, and the
+     caption's two lines at its 1.1 leading — each read straight off the rule
+     it comes from, so this tracks XL at every viewport instead of at one.
+
+     THE 2.265 IS MEASURED, NOT DERIVED. A pure flow model gives 2.2 there
+     and lands 2.048px short at 720 and 2.496px short at 1024 — the residual
+     is the baseline gap under the inline-block inside each masked caption
+     line, which no arithmetic over line-height can see. It scales with the
+     caption's own size (2.048/31.68 and 2.496/38.4 agree to three places),
+     so it folds into that coefficient rather than sitting outside as a
+     constant. Checked against XL: 0.011px out at 720 and 0.0005px at 1024. */
+  .fr--hero {
+    min-height: calc(
+      2 * clamp(46px, 8vh, 104px)
+      + 1.72 * clamp(2rem, min(11vw, 15vh), 8.5rem)
+      + clamp(14px, 2.4vh, 32px)
+      + 2.265 * clamp(1rem, min(3.2vw, 4.4vh), 2.4rem)
+    );
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .fr--hero .ov__middle { display: flex; flex-direction: column; align-items: center; }
+  .fr--hero .ov__mast { display: flex; flex-wrap: nowrap; justify-content: center; column-gap: clamp(12px, 1.7vw, 30px); }
+  .fr--hero .ov__word { font-size: clamp(2.4rem, 9.2vw, 7.6rem); }
+  .fr--hero .ov__stmt {
+    margin-top: clamp(34px, 6vh, 72px);
+    font-size: clamp(1.3rem, 2.7vw, 2.3rem); max-width: 24ch;
+  }
+  .fr--hero .ov__stmt .line { display: block; }
+</style>
+<script>
+  /* ONE CLOCK FOR THE WHOLE PAGE.
+     Per movement:  --e entry · --x exit · --p through · --f window coverage
+     On the register: --prog how far down the document · --lit the highest
+     coverage any single movement currently has.
+     --lit is what opens and closes the aperture: at a join no movement owns
+     the window, it dips, and the frame narrows between rooms. */
+  function initSpine() {
+    const rg = document.querySelector<HTMLElement>('[data-rg]');
+    if (!rg || rg.dataset.spineBound) return;
+    rg.dataset.spineBound = '1';
+    const secs = Array.from(rg.querySelectorAll<HTMLElement>('.ov, .mvt'));
+    const rows = Array.from(rg.querySelectorAll<HTMLElement>('[data-row]'));
+    /* --prog is written HERE, not on .rg. See @property --prog at the top of
+       the stylesheet for why, and note that .ms__bed is the only thing in the
+       codebase that reads it. */
+    const bed = rg.querySelector<HTMLElement>('.ms__bed');
+    if (!secs.length) return;
+    let raf = 0;
+    const paint = () => {
+      raf = 0;
+      /* ══ EVERY MEASUREMENT FIRST, THEN EVERY WRITE ═══════════════
+         This used to ask for a box, write four custom properties, ask for
+         the next box, write four more — thirty-one boxes a frame, each one
+         after a write.
+
+         THE WRITES ARE NOT FREE, WHICH IS THE WHOLE PROBLEM. --lit on .rg
+         feeds .ap__mat's `inset` and .rl's `bottom`, and both are layout
+         properties, so every write dirtied layout and the next
+         getBoundingClientRect had to resolve the whole page again before
+         it could answer. Thirty-one forced layouts a frame.
+
+         Reordering costs nothing and changes nothing: the numbers written
+         are computed from exactly the same boxes as before. Measured at
+         1280 while sweeping Selected works, this function alone:
+
+             as it was    median 3.9ms   p90 4.6ms   worst 9.4ms
+             reordered    median 0.8ms   p90 1.0ms   worst 4.6ms
+
+         It was the most expensive of the six scroll loops on the page by
+         a factor of six, and it is not the conveyor. */
+      const vh = innerHeight;
+      const span = document.documentElement.scrollHeight - vh;
+      const secBoxes = secs.map((el) => el.getBoundingClientRect());
+      const rowBoxes = rows.map((el) => el.getBoundingClientRect());
+
+      let lit = 0, read = 0;
+      const covers = new Array(secs.length);
+      for (let i = 0; i < secs.length; i++) {
+        const r = secBoxes[i];
+        const cover = Math.min(1, Math.max(0, (Math.min(r.bottom, vh) - Math.max(r.top, 0)) / vh));
+        covers[i] = cover;
+        if (cover > lit) lit = cover;
+        /* Coverage of whatever owns the window, counted only when it is not
+           the works — this is what opens the aperture for reading. A coverage
+           figure rather than a flag, so the opening rides the scroll instead
+           of snapping the moment a section takes over. */
+        if (!secs[i].classList.contains('sec--works') && cover > read) read = cover;
+      }
+
+      /* --e, --p AND --f ARE GONE. Nothing in src/ reads any of them —
+         checked across every stylesheet and component — so they were 21
+         writes a frame, on seven sections, feeding nothing. --x is kept: it
+         is read, by .work__peek's `left`, and untangling that is a separate
+         question. */
+      for (let i = 0; i < secs.length; i++) {
+        const el = secs[i], r = secBoxes[i];
+        const h = Math.max(1, r.height);
+        el.style.setProperty('--x', Math.min(1, Math.max(0, -r.top / h)).toFixed(4));
+      }
+      if (bed) bed.style.setProperty('--prog', (span > 0 ? Math.min(1, Math.max(0, scrollY / span)) : 0).toFixed(4));
+      rg.style.setProperty('--lit', lit.toFixed(4));
+      rg.style.setProperty('--read', read.toFixed(4));
+      const line = vh * 0.42, reach = vh * 0.34;
+      for (let i = 0; i < rows.length; i++) {
+        const r = rowBoxes[i];
+        if (r.bottom < -vh || r.top > vh * 2) continue;
+        const d = Math.abs(r.top + r.height / 2 - line);
+        rows[i].style.setProperty('--lit', Math.max(0, 1 - d / reach).toFixed(3));
+      }
+    };
+    addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(paint); }, { passive: true });
+    addEventListener('resize', () => { if (!raf) raf = requestAnimationFrame(paint); }, { passive: true });
+    paint();
+  }
+  initSpine();
+  document.addEventListener('astro:page-load', initSpine);
+</script>
+
+<style>
+  /* ══ D · POSTER ════════════════════════════════════════════════════
+     .po-* classes only; .mvt.po-sec outranks the page's .mvt rules. */
+  .mvt.po-sec {
+    --po-white: #FFFFFF;
+    --po-grey: #9B9B9B;
+    --po-rule: rgba(255, 255, 255, 0.2);
+    background: var(--ground);
+    color: var(--po-white);
+    font-family: var(--display);
+    text-align: left;
+    padding-block: clamp(48px, 8vh, 100px) clamp(110px, 20vh, 240px);
+    /* The giant words are meant to be cropped by the screen; clip rather
+       than hidden so no scroll container is made, and nothing sideways
+       can ever scroll. */
+    overflow-x: clip;
+  }
+
+  /* ── THE GIANT WORD ─────────────────────────────────────────────── */
+  .po-giant {
+    margin: 0 0 clamp(20px, 3.4vh, 40px);
+    font-size: var(--gs, 24vw); font-weight: 500;
+    line-height: 0.8; letter-spacing: -0.058em;
+    white-space: nowrap;
+  }
+  .po-pan { display: inline-block; padding-right: 0.08em; }
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .po-pan {
+        animation: po-pan linear both;
+        animation-timeline: view();
+        animation-range: cover;
+      }
+    }
+  }
+  @keyframes po-pan {
+    from { transform: translateX(6vw); }
+    to   { transform: translateX(-18vw); }
+  }
+
+  /* ── THE GRID ───────────────────────────────────────────────────── */
+  .po-grid {
+    display: grid; grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--gutter); row-gap: clamp(44px, 8vh, 100px);
+    align-items: start;
+    border-top: 1px solid var(--po-rule); padding-top: 14px;
+  }
+  .po-label {
+    margin: 0; font-size: 12px; font-weight: 500; line-height: 1.4;
+    letter-spacing: 0.005em; color: var(--po-grey);
+  }
+  .po-label--hi { color: var(--po-white); }
+  .po-c1 { grid-column: 1 / span 2; grid-row: 1; color: var(--po-white); }
+  .po-c2 { grid-column: 4 / span 3; grid-row: 1; }
+  .po-c3 { grid-column: 7 / span 3; grid-row: 1; }
+
+  .po-state {
+    grid-column: 1 / span 10; grid-row: 2; margin: 0;
+    font-size: clamp(2.3rem, 5.4vw, 5.8rem); font-weight: 500;
+    line-height: 0.98; letter-spacing: -0.04em; text-wrap: balance;
+  }
+  .po-line { display: block; }
+  .po-stop { color: var(--accent); }
+
+  .po-body {
+    grid-column: 5 / -1; grid-row: 3;
+    columns: 2; column-gap: calc(var(--gutter) * 2);
+  }
+  .po-body p, .po-lede, .po-steplines p {
+    margin: 0 0 1em; font-size: clamp(1.05rem, 1.28vw, 1.26rem);
+    line-height: 1.42; letter-spacing: -0.006em; text-wrap: pretty;
+  }
+  .po-body p { break-inside: avoid; }
+
+  /* ── WHAT I WORK ACROSS ─────────────────────────────────────────── */
+  .po-lede { grid-column: 1 / span 5; grid-row: 3; margin: 0; }
+  .po-list { grid-row: 4; border-top: 1px solid var(--po-rule); padding-top: 12px; }
+  .po-list--0 { grid-column: 1 / span 4; }
+  .po-list--1 { grid-column: 5 / span 4; }
+  .po-list--2 { grid-column: 9 / span 4; }
+  .po-list ul { list-style: none; margin: clamp(22px, 3.6vh, 40px) 0 0; padding: 0; }
+  .po-list li {
+    font-size: clamp(1.35rem, 2.2vw, 2.25rem); font-weight: 500;
+    line-height: 1.1; letter-spacing: -0.028em;
+  }
+
+  /* ── HOW I WORK ─────────────────────────────────────────────────── */
+  .po-steps { grid-column: 1 / -1; grid-row: 2; list-style: none; margin: 0; padding: 0; }
+  .po-step {
+    display: grid; grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--gutter); align-items: start;
+    border-top: 1px solid var(--po-rule);
+    padding-block: clamp(18px, 3vh, 34px) clamp(40px, 7vh, 80px);
+  }
+  .po-step:first-child { border-top: 0; padding-top: 0; }
+  .po-stepn { grid-column: 1 / span 2; padding-top: 0.5em; }
+  .po-steptitle {
+    grid-column: 3 / span 6; margin: 0;
+    font-size: clamp(2rem, 4.2vw, 4.5rem); font-weight: 500;
+    line-height: 0.98; letter-spacing: -0.038em; text-wrap: balance;
+  }
+  .po-steplines { grid-column: 9 / -1; padding-top: 0.45em; }
+  .po-steplines p:last-child { margin-bottom: 0; }
+  .po-ask { color: var(--po-grey); }
+
+  /* ── WHAT I'M AFTER ─────────────────────────────────────────────── */
+  .po-state--end {
+    grid-column: 1 / -1;
+    font-size: clamp(3rem, 8.6vw, 9.8rem); line-height: 0.9; letter-spacing: -0.052em;
+  }
+  .po-lede--end { grid-column: 7 / span 5; grid-row: 3; }
+
+  @media (max-width: 820px) {
+    .po-grid, .po-step { grid-template-columns: minmax(0, 1fr); row-gap: 28px; }
+    .po-grid > *, .po-step > * { grid-column: 1 / -1 !important; grid-row: auto !important; }
+    .po-body { columns: 1; }
+    .po-step { row-gap: 14px; }
+    .po-list ul { margin-top: 14px; }
+  }
+
+/* ══ MS3 · SMOKED ════════════════════════════════════════════════ */
+  .rg .mvt.po-sec {
+    background: color-mix(in srgb, var(--ground) 55%, transparent);
+    -webkit-backdrop-filter: blur(7px);
+    backdrop-filter: blur(7px);
+  }
+  /* The mat would put a hard-edged rectangle in the middle of a page whose
+     whole point is that there is no edge. */
+  .rg .ap__mat { display: none; }
+  /* Where the pane cannot blur, it thickens instead. */
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .rg .mvt.po-sec { background: color-mix(in srgb, var(--ground) 76%, transparent); }
+  }
+  /* A JUDGEMENT, NOT A FIX. I changed these expecting ab-d's #9B9B9B to fail
+     here. Measured against the composited worst case it gives 5.71:1, which
+     clears AA for small text with room to spare, so the grey was never in
+     trouble. They are lifted anyway because a 12px label wants more presence
+     over a picture than over flat ground — which is a taste, and is written
+     down as one. */
+  .rg .po-sec .po-label { color: var(--bone-dim); }
+  .rg .po-sec .po-label--hi, .rg .po-sec .po-c1 { color: var(--bone); }
+
+
+  /* ══ THE SMOKE ═══════════════════════════════════════════════════
+     One registered number, inherited, driven by the opening's exit.
+     Registration is what makes it interpolate; an unregistered custom
+     property snaps at the halfway mark. */
+  @property --smoke { syntax: '<number>'; inherits: true; initial-value: 1; }
+
+  .rg { --smoke: 1; }
+  @supports (animation-timeline: scroll(root block)) {
+    @media (prefers-reduced-motion: no-preference) {
+      .rg {
+        animation: ms-smoke linear both;
+        animation-timeline: scroll(root block);
+        animation-range: 35vh 100vh;
+      }
+    }
+  }
+  @keyframes ms-smoke { from { --smoke: 0; } to { --smoke: 1; } }
+
+  /* Nothing is ever laid over the bed in the opening. */
+  .rg .ov { background: transparent; }
+
+  /* ONE VALUE, THREE SECTIONS. */
+  .rg .mvt.po-sec,
+  .rg .mvt.sec--works,
+  .rg .mvt.mvt--contact {
+    background: color-mix(in srgb, var(--ground) calc(var(--smoke) * 55%), transparent);
+  }
+  .rg .mvt.sec--works, .rg .mvt.mvt--contact {
+    -webkit-backdrop-filter: blur(7px); backdrop-filter: blur(7px);
+  }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .rg .mvt.po-sec,
+    .rg .mvt.sec--works,
+    .rg .mvt.mvt--contact {
+      background: color-mix(in srgb, var(--ground) calc(var(--smoke) * 76%), transparent);
+    }
+  }
+
+  /* ══ CONTACT, IN THE POSTER'S FURNITURE ══════════════════════════
+     The component's own grid is NOT touched: .ct__page keeps its two
+     columns, .ct__head keeps its sticky 80vh left column, .divide keeps its
+     hairline down the gutter. Only the type and the rules change. */
+  .rg .sm-form { grid-column: 1 / -1; grid-row: 2; }
+  .rg .sm-form :global(.ct__page) { padding-top: clamp(26px, 4.4vh, 52px); }
+
+  /* The gutter rule joins the poster's hairline family. */
+  .rg .sm-form :global(.divide) { background: var(--po-rule); }
+  .rg .sm-form :global(.ct__rule) { border-top-color: var(--po-rule); }
+  .rg .sm-form :global(.opt), .rg .sm-form :global(.pill) { border-color: var(--po-rule); }
+
+  /* Mono out, the poster's 12px display-face label in. This is the one
+     change that does most of the work: the posters above never set a word
+     in the mono face, and the contact column was full of it. */
+  .rg .sm-form :global(.mono--dim),
+  .rg .sm-form :global(.ct__grouphead),
+  .rg .sm-form :global(.q__n),
+  .rg .sm-form :global(.q__hint) {
+    font-family: var(--display); font-weight: 500;
+    font-size: 12px; letter-spacing: 0.005em; text-transform: none;
+    color: var(--po-grey);
+  }
+  .rg .sm-form :global(.ct__statement) { letter-spacing: -0.04em; }
+  .rg .sm-form :global(.ct__lede) { color: var(--po-grey); }
+
+.rg .sm-grid { row-gap: clamp(26px, 4.4vh, 52px); }
+  @media (min-width: 901px) {
+    /* The poster's own fold, not a half. */
+    .rg .sm-form :global(.ct__page) { grid-template-columns: 5fr 7fr; }
+    /* .divide is at left: 50%; the gutter is no longer there. Same
+       arithmetic as the grid: (100% - gap) * 5/12 + half the gap. */
+    .rg .sm-form :global(.divide) {
+      left: calc((100% - 3.4em) * 0.41667 + 1.7em);
+    }
+  }
+
+
+  /* ══ ONE PANE ════════════════════════════════════════════════════
+     Registered so every one of these interpolates. An unregistered custom
+     property snaps at the halfway mark, which on a blur radius is very
+     visible and on a mask position is the whole effect lost. */
+  @property --smoke { syntax: '<number>'; inherits: true; initial-value: 1; }
+  @property --haze { syntax: '<length>'; inherits: true; initial-value: 7px; }
+  @property --veil { syntax: '<percentage>'; inherits: true; initial-value: 100%; }
+  @property --iris { syntax: '<percentage>'; inherits: true; initial-value: 0%; }
+
+  .rg { --smoke: 1; --haze: 7px; --veil: 100%; --iris: 0%; }
+
+  .sm {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background: color-mix(in srgb, var(--ground) calc(var(--smoke) * 55%), transparent);
+    -webkit-backdrop-filter: blur(var(--haze));
+    backdrop-filter: blur(var(--haze));
+  }
+  /* Where the pane cannot blur it thickens instead, so the page never loses
+     the separation the blur was providing. */
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .sm { background: color-mix(in srgb, var(--ground) calc(var(--smoke) * 76%), transparent); }
+  }
+
+  /* The sections hand their ground to the pane. The conveyor's own
+     var(--ground) goes with them — it was the last opaque thing between the
+     content and the bed. */
+  .rg .mvt.po-sec,
+  .rg .mvt.sec--works,
+  .rg .mvt.mvt--contact {
+    background: transparent;
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+  }
+  .rg .ov { background: transparent; }
+
+  /* Reduced motion gets the destination, not the journey. */
+  @media (prefers-reduced-motion: reduce) {
+    .rg { --smoke: 1; --haze: 7px; --veil: 100%; --iris: 0%; }
+  }
+
+@supports (animation-timeline: scroll(root block)) {
+    @media (prefers-reduced-motion: no-preference) {
+      .rg {
+        animation: sm-haze linear both, sm-ground linear both;
+        animation-timeline: scroll(root block), scroll(root block);
+        animation-range: 30vh 96vh, 30vh 104vh;
+      }
+    }
+  }
+  /* Soft first: full blur by 55 per cent of its own range. */
+  @keyframes sm-haze {
+    0%   { --haze: 0px; }
+    55%  { --haze: 7px; }
+    100% { --haze: 7px; }
+  }
+  /* Dark after: still at two fifths where the blur has finished. */
+  @keyframes sm-ground {
+    0%   { --smoke: 0; }
+    55%  { --smoke: 0.4; }
+    100% { --smoke: 1; }
+  }
+
+
+  /* ══ THE BLUR MOVES OFF THE BACKDROP ═════════════════════════════ */
+
+  /* The pane keeps the ground and gives up the backdrop-filter. Its
+     @supports fallback above raised the ground to 76 per cent when
+     backdrop-filter was missing; that no longer applies to anything, and
+     this rule is one class deeper so it wins in both branches. */
+  .rg .sm {
+    background: color-mix(in srgb, var(--ground) calc(var(--smoke) * 55%), transparent);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  /* One filter for the whole bed: the grade the tiles were each running,
+     plus the blur the pane was running on the backdrop. Rasterised once;
+     --prog then only transforms the result. */
+  /* Grade only. The blur is added below and only once it is earned, so a
+     device that never runs the script, or never passes, still gets the
+     page's full value range and simply loses its softness. */
+  .rg .ms__bed {
+    filter: brightness(0.30) saturate(0.7) contrast(1.05);
+  }
+  /* Thirty filtered surfaces down to none. */
+  .rg .ms__tile { filter: none; }
+  /* Except the one BED_GRADE names. Targeted on the inline custom property
+     the bed markup already writes, so no markup changes: contrast composes
+     multiplicatively, so 1.05 on the parent and 1/1.05 here is 1.0. */
+  .rg .ms__tile[style*="--bed-k"] { filter: contrast(calc(var(--bed-k) / 1.05)); }
+
+  /* The bed is inset -10% inside an overflow:hidden .ms__ground, so the
+     blur's soft edge — about three times its radius — falls well outside
+     the clip and no fringe can reach the viewport. */
+
+/* ══ THE BLUR, ONCE EARNED ═══════════════════════════════
+     Set by the probe above, which measures the device instead of reading
+     its spec sheet. Opt-in on purpose: the failure direction is no blur,
+     which is the state the page opens in anyway. */
+  :root[data-blur] .rg .ms__bed {
+    filter: brightness(0.30) saturate(0.7) contrast(1.05) blur(var(--haze));
+  }
+
+  /* ══ THE WORK'S NAME, FROM ab-ty2 ════════════════════════════════
+     Applied 2026-09-20. The readout under the conveyor names the work you
+     are looking at, and it was the one piece of type in Selected works that
+     disagreed with the poster run about CASE.
+
+     MEASURED, LIVE AGAINST ab-ty2, BEFORE CHANGING ANYTHING. The typeface
+     was never the difference — both are Neue Haas Grotesk Display at 19.2px,
+     weight 500, line-height 22.272, in the bone. What differs is two things:
+
+         case       uppercase     ->  none
+         tracking   -0.288px      ->  0.096px   (-0.015em -> 0.005em)
+
+     Uppercase wants letters opened up and lowercase does not, which is why
+     the negative tracking went with the capitals and why 0.005em comes back
+     with them: it is the poster label's own value, and the name is a label
+     for the work. Sentence case also matches every poster giant on the page,
+     which are the only other place a title is set large.
+
+     THE YEAR IS DELIBERATELY NOT TOUCHED. ab-ty2 also moves .rl__date off
+     JetBrains Mono, but the note above it in this file argues the year
+     should read as the third and smallest voice in the readout, and that is
+     a separate decision from the one that was asked for here.
+
+     :root, NOT .rg ALONE. This file has three <style> blocks and Astro does
+     not emit them in written order — HANDOFF §6 — so a rule written last can
+     still lose a tie. The two .rl__cap rules above are (0,1,0); this is
+     (0,3,0) and cannot lose to them however the blocks are bundled. */
+  :root .rg .rl__cap {
+    letter-spacing: 0.005em;
+    text-transform: none;
+  }
+
+  /* ══ CONTACT, FROM ab-ee1 · FITTED ══════════════════════════════
+     Applied 2026-09-20. Typography only — nothing below sets display, grid,
+     position, width or margin, and every one of the 24 selectors is scoped
+     inside .sm-form, so no other section of the page can be reached by it.
+
+     THE TWO STATEMENTS ARE SIZED BY MEASUREMENT, NOT BY CHOICE. That is the
+     whole of this draft and the reason it was the one to take.
+
+         "Let's talk."        3.969px of width per px of type
+                              447px column  ->  112.6px   (8.8vw)
+         "Send this enquiry"  8.736px per px
+                              625px column  ->   71.5px   (5.59vw)
+
+     Verified after: the greeting's ink measures 445 in its 447 column and
+     the action's 618 in its 625. Both reach their edges; neither overhangs.
+     The send's ratio is worth noting — ContactForm's own comment quotes
+     8.71px per px, arrived at independently, and the measurement here says
+     8.736. The same number.
+
+     WHY FITTING RATHER THAN A SIZE THAT LOOKED RIGHT. Every giant in the
+     About run is sized in vw until the screen crops it, which is fitting to
+     the viewport. This is the same idea against a column instead. It also
+     means these numbers can be re-derived rather than re-argued: change the
+     copy or the column and the two ratios give the new sizes.
+
+     ALL TWENTY-EIGHT ROUNDED CONTROLS MOVE TOGETHER, one step — 22 option
+     pills, 5 field pills and the notes area — so the box you type into never
+     reads smaller than the box you tap. 16px to 18.2, with padding in em so
+     the box grows in proportion rather than staying 10px tall while the word
+     gets bigger: 135x48 to 151x54, 119x44 to 132x50, 625x80 to 625x90.
+
+     THE SEND PASSES ITS DOCUMENTED 44px CEILING, deliberately. That comment
+     in ContactForm says 44 is the largest that lets "Name and email
+     required" sit BESIDE the action on one row at 1440 — and says in the
+     same breath that below about 1400 the pair wraps at any size and that
+     flex-wrap handles it. At 1280 it already wraps. The note also moves off
+     11px mono onto the 12px label here, which is narrower, so some of that
+     row is bought back rather than only spent.
+
+     AND THE FIELDS LEAVE INTER. They were the only Inter on the page — a
+     third family inside a section whose neighbours use one. */
+
+/* One family: the fields were Inter, the note and summary mono. */
+  :root .rg .sm-form :global(.pill__in),
+  :root .rg .sm-form :global(.send__note),
+  :root .rg .sm-form :global(.send__ink),
+  :root .rg .sm-form :global(.send__ink i),
+  :root .rg .sm-form :global(summary),
+  :root .rg .sm-form :global(.mono) {
+    font-family: var(--display); font-variant-numeric: tabular-nums;
+  }
+  :root .rg .sm-form :global(.send__note),
+  :root .rg .sm-form :global(.send__ink),
+  :root .rg .sm-form :global(summary),
+  :root .rg .sm-form :global(.ct__grouphead),
+  :root .rg .sm-form :global(.q__n),
+  :root .rg .sm-form :global(.q__hint),
+  :root .rg .sm-form :global(.mono--dim) {
+    font-size: 12px; font-weight: 500; letter-spacing: 0.005em;
+    text-transform: none; color: var(--po-grey, #9B9B9B);
+  }
+
+  /* ══ ALL TWENTY-EIGHT ROUNDED BOXES, ONE STEP UP ═════════════════
+     Options, fields and the notes area together, so the thing you type into
+     never reads smaller than the thing you tap. Padding in em: the box grows
+     with its word instead of staying 10px while the type does. */
+  :root .rg .sm-form :global(.opt span),
+  :root .rg .sm-form :global(.pill),
+  :root .rg .sm-form :global(.pill__in) {
+    font-size: clamp(1.05rem, 1.42vw, 1.2rem);
+    letter-spacing: -0.008em;
+  }
+  :root .rg .sm-form :global(.opt span) { padding: 0.63em 1.06em; }
+  :root .rg .sm-form :global(.pill) { padding: 0.63em 1.06em; }
+  :root .rg .sm-form :global(.pill--area) { padding: 0.72em 1.1em; }
+
+/* 8.8vw = 112.6px at 1280: the greeting's own column, filled. */
+  :root .rg .sm-form :global(.ct__statement) {
+    font-size: clamp(2.9rem, 8.8vw, 7.4rem); font-weight: 500;
+    line-height: 0.96; letter-spacing: -0.042em;
+  }
+  /* 5.59vw = 71.6px at 1280: the form column, filled. */
+  :root .rg .sm-form :global(.send__act) {
+    font-size: clamp(2.2rem, 5.59vw, 5.9rem);
+    line-height: 0.98; letter-spacing: -0.04em;
+  }
+
+  :root .rg .sm-form :global(.q__q) {
+    font-size: clamp(1.35rem, 2.05vw, 1.75rem); font-weight: 500;
+    line-height: 1.06; letter-spacing: -0.026em; color: var(--po-white, #FFF);
+  }
+  :root .rg .sm-form :global(.ct__direct a) {
+    font-size: clamp(1.15rem, 1.6vw, 1.4rem); font-weight: 500; letter-spacing: -0.018em;
+  }
+  :root .rg .sm-form :global(.ct__lede) {
+    font-size: clamp(1.05rem, 1.28vw, 1.26rem); line-height: 1.42;
+    letter-spacing: -0.006em; color: var(--po-grey, #9B9B9B);
+  }
+
+  /* ══ THE OPENING VERSAL, FROM ab-vs4 ════════════════════════════
+     Applied 2026-09-20. Only the letter — vs4's heading scale, question
+     leading and second-voice colours are NOT brought across.
+
+     CUT BY ARITHMETIC, NOT BY EYE. A cap spanning N lines runs from line
+     one's cap-top to line N's baseline, so its height is
+     (N-1) x line-height + one cap-height. The body leads at 1.42 and Neue
+     Haas' cap-height is 0.6616 of its em — measured off the loaded file with
+     canvas, not taken from a spec sheet. Two lines is 23.86 + 11.11 = 34.97px,
+     and over the cap ratio that is 52.85px: 3.146em of the 16.8px body. The
+     float's own height is then simply 0.6616em, its own cap, which is what
+     makes two lines wrap around it.
+
+     THE SHIFT IS MEASURED FOR THIS CAP AND IS NOT PORTABLE. The paragraph's
+     ink top is fixed while the cap's grows with its size, so an em value
+     correct at one cap is wrong at another — 0.4091em, borrowed from a
+     three-line cap in another draft, left this one 0.23px high. 0.4135em
+     puts it on its text. The glyph is placed by transform, which changes no
+     layout, so being wrong costs a re-measure and not a re-flow.
+
+     AND IT IS DOUBLED FOR SCREEN READERS. A floated letter read aloud is a
+     letter, not a word: "I" then "'m Ugam" is two utterances of something
+     that is one. The drawn cap is aria-hidden and the same character is
+     repeated in a visually hidden span, so the sentence is spoken whole.
+     Verified both ways — visible text and spoken text each unchanged. */
+  :root .rg .po-versal-sr {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+  }
+  :root .rg .po-open .po-versal {
+    float: left; font-size: 3.146em; height: 0.6616em;
+    line-height: 0; font-weight: 500; letter-spacing: -0.03em;
+    color: var(--po-white, #FFF); margin: 0 0.1em 0 0;
+    --vs-shift: 0.4135em; transform: translateY(var(--vs-shift));
+  }
+
+:root .rg .po-giant { color: rgba(255, 255, 255, 0.34); }
+</style>
