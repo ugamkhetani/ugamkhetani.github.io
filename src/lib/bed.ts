@@ -164,12 +164,28 @@ export const BED_GRADE: Record<string, { contrast: number }> = {
  *
  * CHOSEN BY LOOKING, THEN CHECKED BY MEASURING. The bed runs at
  * brightness(0.30) saturate(0.7) contrast(1.05), so what survives at a fifth
- * of the viewport's width is TEXTURE AND LIGHT, not faces -- night streets,
- * lit windows, aerial cities, objects on a table. Tight head-and-shoulders
- * goes to mush. Every frame below was viewed as a contact sheet before it was
- * picked, and then graded in software to confirm it sits in the band the bed
- * already occupies: the twelve centre tiles run 5.9 to 29.7 by the same
- * measurement, and nothing here is outside 10.3 to 31.2.
+ * of the viewport's width is TEXTURE AND LIGHT, not faces -- a street stall
+ * frying, a window onto dusk, shattered glass, a tiger in foliage, bangles,
+ * a date split open. Tight head-and-shoulders goes to mush. Every frame below
+ * was viewed as a contact sheet before it was picked.
+ *
+ * NO TWO ADJACENT TILES COME FROM THE SAME WORK, counting all eight
+ * neighbours and counting the fixed centre among them -- so cell 6 cannot be
+ * Diwali because cell 13 is, and cell 12 cannot be Taskaree because cell 19
+ * is. The constraint is checked in code rather than by eye; the same check
+ * reports 0 violations across all 30 cells.
+ *
+ * THE SPREAD IS DELIBERATE. Twelve different works across the eighteen cells,
+ * none used more than three times, and no work used twice in the same
+ * neighbourhood. Diwali Ke Shor Mein, Taskaree and Special Ops 2.0 keep two
+ * cells each; Ve Maahi appears at all, which it never has, because BED_SWAPS
+ * casts it out of the cycle entirely.
+ *
+ * TONALLY they run 9.9 to 32.8 by the same measurement that puts the twelve
+ * centre tiles at 5.9 to 29.7. Two sit just above that: Special Ops 08 at
+ * 32.8 and Diwali 10 at 30.4. Both are wide shots where the brightness is
+ * spread rather than concentrated, which is why they are kept -- but they are
+ * the two to look at first if the bed reads hot.
  *
  * THE READABILITY GUARANTEE IS NOT AT RISK FROM ANY OF THEM. Grading all 119
  * frames in the catalogue puts the brightest pixel any of them can produce at
@@ -182,11 +198,20 @@ export const BED_GRADE: Record<string, { contrast: number }> = {
  * nine of the eighteen between them -- three each, all in the more visible
  * 0.442 and 0.336 cells rather than the corners.
  *
- * <- TWO FRAMES WERE REJECTED ON SIGHT AND THE REASON IS WORTH KEEPING.
+ * <- THE EXTENSION IS PART OF THE NAME AND IT IS NOT UNIFORM. This folder
+ *   set is mixed: Taskaree is .webp throughout, Special Ops is .jpg then
+ *   .JPG, Diwali runs .jpeg, .png and .jpg across ten files, Ve Maahi is
+ *   .JPG. Three entries here were first written with .png by habit and the
+ *   build caught all three by name -- framesFor throws rather than falling
+ *   back, which is the right behaviour and worth not defeating.
+ *
+ * <- THREE FRAMES WERE REJECTED ON SIGHT AND THE REASON IS WORTH KEEPING.
  *   Aladdin 06 and 07 are packaging shots with the product's own type burned
- *   into them. BED_SWAPS above already moves Mere Ho to a quieter cell for
- *   exactly that reason -- it calls it "the single frame in the bed with type
- *   burned into it" -- so adding two more would undo that argument.
+ *   in, and Dinshaw's 02 is the show's title card, logo and all. BED_SWAPS
+ *   above already moves Mere Ho to a quieter cell for exactly that reason --
+ *   it calls it "the single frame in the bed with type burned into it" -- so
+ *   adding three more would undo that argument. Dinshaw's 05 and 10 are used
+ *   instead, which are crowd frames carrying no type.
  *
  * <- BED_GRADE IS NOT APPLIED TO THESE CELLS. That table drops Bloody Bubbly's
  *   contrast because its FRAME 1 graded to 4.2, a hole darker than the ground.
@@ -208,29 +233,29 @@ export const BED_GRADE: Record<string, { contrast: number }> = {
  *   any frame of that work, so the worry does not bite here.
  */
 export const BED_CELLS: Record<number, { slug: string; frame: string; note: string }> = {
-  /* top row, corners 0.149 visible, middles 0.442 */
-  0:  { slug: 'aasha',                frame: '08.png',  note: 'barred window, black and white, 17.0' },
-  1:  { slug: 'diwali-ke-shor-mein',  frame: '07.png',  note: 'night street under festival lights, 11.9' },
-  2:  { slug: 'taskaree',             frame: '09.webp', note: 'the city from the air after dark, 25.3' },
-  3:  { slug: 'special-ops-2',        frame: '09.JPG',  note: 'a figure alone in an empty hall, 17.1' },
-  4:  { slug: 'diwali-ke-shor-mein',  frame: '05.png',  note: 'a boy filming among trees, 31.2' },
-  5:  { slug: 'bloody-bubbly',        frame: '05.png',  note: 'candles, 12.1 - no grade override needed' },
+  /* top row. Corners see 0.149 of themselves, the middles 0.442. */
+  0:  { slug: 'roar',                 frame: '06.png',  note: 'a tiger in the foliage, 9.9' },
+  1:  { slug: 'dinshaws-dildaari-battles', frame: '10.png', note: 'a crowd, fists up, smoke, 24.3' },
+  2:  { slug: 'special-ops-2',        frame: '08.JPG',  note: 'the city from a roof, 32.8' },
+  3:  { slug: 'diwali-ke-shor-mein',  frame: '06.png',  note: 'a scooter on the road, 17.7' },
+  4:  { slug: 'the-shiva-trilogy',    frame: '02.png',  note: 'an archer against fire, 28.6' },
+  5:  { slug: 'taskaree',             frame: '02.webp',  note: '29.0' },
 
   /* side middles, 0.336 visible */
-  6:  { slug: 'special-ops-2',        frame: '02.JPG',  note: '23.4' },
-  11: { slug: 'the-shiva-trilogy',    frame: '08.png',  note: 'bells laid out in a pattern, 24.6' },
-  12: { slug: 'moholla',              frame: '08.png',  note: 'a street in mist, 15.9' },
-  17: { slug: 'mumbai-standard-time', frame: '08.png',  note: 'clocks on a shelf, 16.5' },
-  18: { slug: 'roar',                 frame: '07.png',  note: 'crocodile, 12.2' },
-  23: { slug: 'my-red-crayon',        frame: '06.png',  note: 'the banyan, 22.4' },
+  6:  { slug: 'moholla',              frame: '05.png',  note: 'a street stall, frying, 20.7' },
+  11: { slug: 'book-my-yamraj',       frame: '04.png',  note: '13.8' },
+  12: { slug: 'broken-reflections',   frame: '06.png',  note: 'a room, a figure at the glass, 17.2' },
+  17: { slug: 'special-ops-2',        frame: '05.JPG',  note: '25.5' },
+  18: { slug: 'mumbai-standard-time', frame: '03.png',  note: 'a clock carried where a face should be, 22.9' },
+  23: { slug: 'taskaree',             frame: '05.webp',  note: '25.5' },
 
-  /* bottom row, corners 0.149 visible, middles 0.442 */
-  24: { slug: 'roar',                 frame: '05.png',  note: 'scorpion, 10.3' },
-  25: { slug: 'taskaree',             frame: '08.webp', note: 'sweets on a tray, 23.5' },
-  26: { slug: 'special-ops-2',        frame: '06.JPG',  note: '19.4' },
-  27: { slug: 'diwali-ke-shor-mein',  frame: '09.jpg',  note: 'counting notes on a patterned sofa, 18.7' },
-  28: { slug: 'taskaree',             frame: '04.webp', note: 'the library, 17.4' },
-  29: { slug: 'moholla',              frame: '09.png',  note: 'a candle in a dark room, 15.5' },
+  /* bottom row */
+  24: { slug: 've-maahi',             frame: '01.JPG',  note: 'bangles, hands, gold - the one work BED_SWAPS casts out, 18.0' },
+  25: { slug: 'moholla',              frame: '03.png',  note: 'shattered glass with the crowd behind it, 27.0' },
+  26: { slug: 'aladdin-dateable-bites', frame: '01.png', note: 'a date split open, honey, 16.0' },
+  27: { slug: 'diwali-ke-shor-mein',  frame: '10.jpg',  note: '30.4' },
+  28: { slug: 'dinshaws-dildaari-battles', frame: '05.png', note: 'a face in the crowd, calling, 23.3' },
+  29: { slug: 'moholla',              frame: '04.png',  note: 'a window onto the street at dusk, 21.8' },
 };
 
 /** How many tiles the bed lays down. The cycle repeats to fill them. */
