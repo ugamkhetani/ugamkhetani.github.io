@@ -2803,41 +2803,49 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
   :root .rg .sm-form :global(.pill) { padding: 0.63em 1.06em; }
   :root .rg .sm-form :global(.pill--area) { padding: 0.72em 1.1em; }
 
-/* THE GREETING'S OWN COLUMN, FILLED -- BUT ON TWO LINES NOW.
-     8.8vw was already the ceiling for one line and slightly past it: the
-     painted ink measured 449.3px inside a 446.7px column, so "Let's talk."
-     was overhanging its own column by 2.6px and being saved by
-     overflow-x: clip. There was no room to make it bigger on one line at
-     all -- the arithmetic gives 112.0px as the maximum and it was already
-     set at 112.64.
+/* THE GREETING, SLIGHTLY LARGER, STILL ON ONE LINE.
+     WHAT DECIDES THE WRAP IS THE LAYOUT WIDTH, NOT THE PAINTED INK, and
+     the two are not the same here. "Let's talk." is eleven characters, so
+     its layout box carries eleven letter-spaces while only ten fall
+     between the glyphs. Solved from a measured painted 3.989px per px of
+     size at -0.042em: the untracked advance is 4.409, the painted ink is
+     4.409 + 10t and the LAYOUT ink 4.409 + 11t, which at -0.042em is
+     3.947. So the line breaks the moment the size passes box / 3.947.
 
-     Breaking it over two lines changes the constraint from the whole
-     phrase to its longest WORD. Measured ink per px of size: the phrase
-     3.989, "Let's" 2.018, "talk." 1.777. So the ceiling goes from
-     446.7 / 3.989 = 112.0px to 446.7 / 2.018 = 221.3px -- very nearly
-     double -- and "talk." then sets at 393px against a 446.7px column,
-     which is the rag.
+     IN ITS OWN COLUMN THERE IS NOTHING LEFT. 446.7 / 3.947 = 113.17px
+     against the 112.64 it was already set at -- half a per cent, which is
+     not a change. That is why the previous pass broke it over two lines:
+     it was the only way to make it meaningfully bigger without moving
+     something else.
 
-     DERIVED FROM THE COLUMN RATHER THAN FROZEN AS A vw, so it keeps
-     filling at any width. .ct__page is 5fr 7fr above 900 with a
-     column-gap of 3.4em, and .ct__page inherits the 16px root, so the gap
-     is 54.4px: the greeting's column is (measure - 54.4) x 5/12, and the
-     size is that over 2.018.
+     WHAT MOVES INSTEAD IS THE BOX, BY HALF THE GUTTER. .ct__page's
+     column-gap is 3.4em against an inherited 16px root, so 54.4px; a
+     negative right margin of half that lets the greeting's box reach
+     473.9px and the one-line ceiling becomes 120.07px. Measured
+     consequences: painted ink 478.9px, which crosses the column edge into
+     the gutter and stops 22.2px short of the form column. The whole
+     gutter would give 126.96px but the painted ink would overrun the form
+     column by 5.3px, so half is not a compromise -- it is the last value
+     that clears.
 
-     IT COSTS NOTHING VERTICALLY. The greeting's column runs 640px against
-     the form's 1327px, so there is 1181px of headroom on that side; two
-     lines add 317px and the section's height does not move.
+     Nothing else is touched: the tracking stays at -0.042em, and the 5fr
+     7fr fold, which this file calls the poster's own fold rather than a
+     half, stays as it is. Only the greeting's own box reaches past its
+     column, and its right edge is ragged anyway -- it is one line ending
+     in a full stop, aligned to nothing.
 
-     Below 901 .ct__page collapses to one column and the greeting has the
-     whole measure, where one line still fits -- so the old clamp stands
-     there and only the wide case changes. */
+     Below 901 .ct__page collapses to one column, the greeting has the
+     whole measure and the old clamp stands untouched. */
   :root .rg .sm-form :global(.ct__statement) {
     font-size: clamp(2.9rem, 8.8vw, 7.4rem); font-weight: 500;
     line-height: 0.96; letter-spacing: -0.042em;
   }
   @media (min-width: 901px) {
     :root .rg .sm-form :global(.ct__statement) {
-      font-size: calc((100vw - 2 * var(--margin) - 3.4rem) * 5 / 12 / 2.018);
+      --lt-col: calc((100vw - 2 * var(--margin) - 3.4rem) * 5 / 12);
+      font-size: calc((var(--lt-col) + 1.7rem) / 3.947);
+      margin-right: -1.7rem;
+      white-space: nowrap;
     }
   }
   /* 5.59vw = 71.6px at 1280: the form column, filled. */
