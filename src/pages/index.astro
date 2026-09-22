@@ -2818,30 +2818,38 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
      it was the only way to make it meaningfully bigger without moving
      something else.
 
-     IT NOW BORROWS NOTHING, AND IS SIZED BY THE PAINTED INK RATHER THAN
-     THE LAYOUT BOX. Earlier passes widened the greeting's box with a
-     negative right margin so it could reach into .ct__page's 54.4px
-     column-gap -- half of it, then a quarter. That margin is gone. The
-     size is now column / 3.989, which puts the PAINTED ink exactly on the
-     column edge: 111.97px at 1280, painted 446.7 against a column of
-     446.7, layout 442.0 which is inside the box, so it stays on one line
-     with nothing crossing into the fold at all.
+     IT BORROWS NOTHING, AND IS SIZED BY THE PAINTED INK RATHER THAN THE
+     LAYOUT BOX. Earlier passes widened the greeting's box with a negative
+     right margin so it could reach into .ct__page's 54.4px column-gap --
+     half of it, then a quarter. That margin is gone. column / 3.989 is
+     the size at which the PAINTED ink lands exactly on the column edge --
+     111.97px at 1280 -- and the 0.85 takes it 15 per cent below that.
 
-     THIS IS THE LAST RUNG WITH A RULE BEHIND IT. Every value above is
-     anchored to something -- the column, or a fraction of the gutter:
-       painted ink flush to the column   111.97px   -0.6% on the original
-                                                    <- set here, nothing
-                                                       overhangs
-       layout box flush to the column    113.17px   +0.5%, painted still
-                                                    overhangs by 4.7px
-       a quarter of the gutter           116.62px   +3.5%
-       a third                           117.77px   +4.6%
-       half                              120.07px   +6.6%
-       the whole gutter                  126.96px   painted overruns the
-                                                    form column by 5.3px
-     Below this there is no anchor left: the greeting stops filling its
-     column and any smaller value is a fraction chosen by eye rather than
-     derived from the grid. Which is fine, but it should be said.
+     STILL GRID-TRACKED, JUST NOT FILLING. The factor multiplies the
+     COLUMN, not a frozen pixel value, so the greeting stays a fixed
+     proportion of its own column at every width rather than drifting:
+
+       1280   column 446.7   95.18px   painted 379.7   67.0px of air
+       1440   column 505.3  107.68px   painted 429.5   75.8px of air
+       1024   column 352.8   75.18px   painted 299.9   52.9px of air
+        901   column 307.7   65.57px   painted 261.5   46.2px of air
+
+     -15.5 per cent on the 112.64 the greeting started at, one line at
+     every width, and the gap to the form column is now the air in the
+     column plus the whole 54.4px gutter -- 121.4px at 1280.
+
+     THE LADDER, for whenever this moves again. Everything from 111.97 up
+     is anchored to the grid; 0.85 of it is a chosen proportion:
+       0.85 of the column               95.18px   -15.5% on the original
+                                                  <- set here
+       painted ink flush to the column 111.97px    -0.6%
+       layout box flush                113.17px    +0.5%, painted
+                                                   overhangs by 4.7px
+       a quarter of the gutter         116.62px    +3.5%
+       a third                         117.77px    +4.6%
+       half                            120.07px    +6.6%
+       the whole gutter                126.96px   painted overruns the
+                                                  form column by 5.3px 
 
      Nothing else is touched: the tracking stays at -0.042em, and the 5fr
      7fr fold, which this file calls the poster's own fold rather than a
@@ -2858,7 +2866,7 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
   @media (min-width: 901px) {
     :root .rg .sm-form :global(.ct__statement) {
       --lt-col: calc((100vw - 2 * var(--margin) - 3.4rem) * 5 / 12);
-      font-size: calc(var(--lt-col) / 3.989);
+      font-size: calc(var(--lt-col) * 0.85 / 3.989);
       white-space: nowrap;
     }
   }
