@@ -2818,24 +2818,30 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
      it was the only way to make it meaningfully bigger without moving
      something else.
 
-     WHAT MOVES INSTEAD IS THE BOX, BY A QUARTER OF THE GUTTER. .ct__page's
-     column-gap is 3.4em against an inherited 16px root, so 54.4px; a
-     negative right margin of a quarter of that lets the greeting's box
-     reach 460.3px and the one-line ceiling becomes 116.62px -- 3.5 per
-     cent above the 112.64 it was, with the painted ink at 465.2px
-     crossing the column edge and stopping 35.9px short of the form
-     column.
+     IT NOW BORROWS NOTHING, AND IS SIZED BY THE PAINTED INK RATHER THAN
+     THE LAYOUT BOX. Earlier passes widened the greeting's box with a
+     negative right margin so it could reach into .ct__page's 54.4px
+     column-gap -- half of it, then a quarter. That margin is gone. The
+     size is now column / 3.989, which puts the PAINTED ink exactly on the
+     column edge: 111.97px at 1280, painted 446.7 against a column of
+     446.7, layout 442.0 which is inside the box, so it stays on one line
+     with nothing crossing into the fold at all.
 
-     THE FOUR VALUES THIS CHOOSES BETWEEN, all one line:
-       no borrow, the column alone   113.17px   +0.5% on the original
-       a quarter of the gutter       116.62px   +3.5%   <- set here
-       a third                       117.77px   +4.6%
-       half                          120.07px   +6.6%
-       the whole gutter              126.96px   painted ink overruns the
-                                                form column by 5.3px
-     Borrowing nothing is the tidiest rule and would drop the negative
-     margin entirely, but it lands within half a per cent of where the
-     greeting started, which is a revert rather than a size.
+     THIS IS THE LAST RUNG WITH A RULE BEHIND IT. Every value above is
+     anchored to something -- the column, or a fraction of the gutter:
+       painted ink flush to the column   111.97px   -0.6% on the original
+                                                    <- set here, nothing
+                                                       overhangs
+       layout box flush to the column    113.17px   +0.5%, painted still
+                                                    overhangs by 4.7px
+       a quarter of the gutter           116.62px   +3.5%
+       a third                           117.77px   +4.6%
+       half                              120.07px   +6.6%
+       the whole gutter                  126.96px   painted overruns the
+                                                    form column by 5.3px
+     Below this there is no anchor left: the greeting stops filling its
+     column and any smaller value is a fraction chosen by eye rather than
+     derived from the grid. Which is fine, but it should be said.
 
      Nothing else is touched: the tracking stays at -0.042em, and the 5fr
      7fr fold, which this file calls the poster's own fold rather than a
@@ -2852,8 +2858,7 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
   @media (min-width: 901px) {
     :root .rg .sm-form :global(.ct__statement) {
       --lt-col: calc((100vw - 2 * var(--margin) - 3.4rem) * 5 / 12);
-      font-size: calc((var(--lt-col) + 0.85rem) / 3.947);
-      margin-right: -0.85rem;
+      font-size: calc(var(--lt-col) / 3.989);
       white-space: nowrap;
     }
   }
@@ -3122,14 +3127,15 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
      spare, and painted OVER the conveyor at z-index 6.
 
      WHAT IT IS NOW. The size is declared from the GRID rather than as a vw
-     number: the word is TEN of the twelve columns wide, so it gives up two
-     columns and their gutters. 108.97px and 935.2px of ink at 1280,
-     measured against a ten-column span of 935.2. It sits behind the
-     stills, and the top of the card band cuts across its feet.
+     number: the word is NINE of the twelve columns wide, so it gives up
+     three columns and their gutters. 97.83px and 839.7px of ink at 1280,
+     measured against a nine-column span of 839.7, and 7.643vw at every
+     desktop width. It sits behind the stills, and the top of the card
+     band cuts across its feet.
 
      THE COLUMNS IT GIVES UP ARE SPLIT, NOT HUNG AT ONE END. .mvt sets
      text-align: center and .fr inherits it, so the word stays centred on
-     the measure and the 191.15px it no longer fills opens as 95.57px at
+     the measure and the 286.7px it no longer fills opens as 143.36px at
      each side. Worth stating because "eleven
      of twelve columns" sounds like a left-aligned word ending a column
      short, and it is not.
@@ -3221,15 +3227,15 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
   :root .rg .sec--works { overflow-x: clip; }
 
   :root .rg .fr--over {
-    /* TEN of the twelve columns: the measure, less two columns and their
-       gutters, over the ink constant. The column is derived here rather
-       than assumed so it tracks --gutter's own clamp. It was the full
-       measure until 2026-09-22, then eleven columns, now ten -- each step
-       is one column, which is why the reduction is the same fraction at
-       every width instead of a ratio that drifts. */
+    /* NINE of the twelve columns: the measure, less three columns and
+       their gutters, over the ink constant. The column is derived here
+       rather than assumed so it tracks --gutter's own clamp. It was the
+       full measure until 2026-09-22, then eleven, then ten, now nine --
+       each step is exactly one column, which is why the reduction is the
+       same fraction at every width instead of a ratio that drifts. */
     --wk-measure: calc(100vw - 2 * var(--margin));
     --wk-col: calc((var(--wk-measure) - 11 * var(--gutter)) / 12);
-    --wk-size: calc((var(--wk-measure) - 2 * (var(--wk-col) + var(--gutter))) / 8.583);
+    --wk-size: calc((var(--wk-measure) - 3 * (var(--wk-col) + var(--gutter))) / 8.583);
     z-index: 0;
     padding-inline: 0;
   }
