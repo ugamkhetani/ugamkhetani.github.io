@@ -172,31 +172,30 @@ export const BED_GRADE: Record<string, { contrast: number }> = {
  * NO TWO ADJACENT TILES COME FROM THE SAME WORK, counting all eight
  * neighbours and counting the fixed centre among them -- so cell 6 cannot be
  * Diwali because cell 13 is, and cell 12 cannot be Taskaree because cell 19
- * is. The constraint is checked in code rather than by eye; the same check
- * reports 0 violations across all 30 cells.
+ * is. The constraint is not satisfied by eye: the arrangement is SEARCHED
+ * for, most-constrained-cell-first, and then checked in code against the
+ * table and again against the rendered DOM. 0 violations both times.
  *
- * THE SPREAD IS DELIBERATE. Twelve different works across the eighteen cells,
- * none used more than three times, and no work used twice in the same
- * neighbourhood. Diwali Ke Shor Mein, Taskaree and Special Ops 2.0 keep two
- * cells each; Ve Maahi appears at all, which it never has, because BED_SWAPS
- * casts it out of the cycle entirely.
+ * TWO CELLS ARE HELD BY HAND and the search works around them. Cell 4, the
+ * tile directly above Mere Ho, keeps the archer against fire; cell 27,
+ * directly below the original Special Ops still, keeps Diwali 10. Holding
+ * them also constrains their neighbours -- cells 3, 5 and 11 cannot be
+ * Shiva, and 26 and 28 cannot be Diwali -- which is why they are stated here
+ * rather than buried in the table.
  *
- * TONALLY they run 9.9 to 32.8 by the same measurement that puts the twelve
- * centre tiles at 5.9 to 29.7. Two sit just above that: Special Ops 08 at
- * 32.8 and Diwali 10 at 30.4. Both are wide shots where the brightness is
- * spread rather than concentrated, which is why they are kept -- but they are
- * the two to look at first if the bed reads hot.
+ * THE SPREAD IS DELIBERATE. Fifteen different works across the eighteen
+ * cells and NO WORK USED MORE THAN TWICE, which is tighter than the previous
+ * arrangement managed at twelve works and three uses. Ve Maahi keeps its
+ * place: BED_SWAPS casts that work out of the cycle entirely, so naming a
+ * cell is the only way it is ever seen, and it has exactly one frame.
  *
- * THE READABILITY GUARANTEE IS NOT AT RISK FROM ANY OF THEM. Grading all 119
- * frames in the catalogue puts the brightest pixel any of them can produce at
- * 73.9 against the ceiling of 76 that index.astro's contrast arithmetic rests
- * on -- because contrast() pivots at mid grey and 0.30 brightness has already
- * put every value below the pivot. No frame in the pool can break it, so the
- * choice here is free to be about the picture.
- *
- * DIWALI KE SHOR MEIN, TASKAREE AND SPECIAL OPS 2.0 ARE PRIORITISED, and take
- * nine of the eighteen between them -- three each, all in the more visible
- * 0.442 and 0.336 cells rather than the corners.
+ * TONALLY they run 9.2 to 35.0 by the same measurement that puts the twelve
+ * centre tiles at 5.9 to 29.7. Three sit above that band -- Special Ops 03
+ * at 35.0, Taskaree 07 at 31.4 and the held Diwali 10 at 30.4 -- and Special
+ * Ops is the one with no way around it: of its three unused frames, 03 is
+ * 35.0, 04 is 38.5 and 07 is 6.3, so the choice was a bright tile or a
+ * nearly-black one. 35.0 sits in a cell that shows 0.336 of itself. These
+ * are the three to look at first if the bed reads hot.
  *
  * <- THE EXTENSION IS PART OF THE NAME AND IT IS NOT UNIFORM. This folder
  *   set is mixed: Taskaree is .webp throughout, Special Ops is .jpg then
@@ -234,28 +233,28 @@ export const BED_GRADE: Record<string, { contrast: number }> = {
  */
 export const BED_CELLS: Record<number, { slug: string; frame: string; note: string }> = {
   /* top row. Corners see 0.149 of themselves, the middles 0.442. */
-  0:  { slug: 'roar',                 frame: '06.png',  note: 'a tiger in the foliage, 9.9' },
-  1:  { slug: 'dinshaws-dildaari-battles', frame: '10.png', note: 'a crowd, fists up, smoke, 24.3' },
-  2:  { slug: 'special-ops-2',        frame: '08.JPG',  note: 'the city from a roof, 32.8' },
-  3:  { slug: 'diwali-ke-shor-mein',  frame: '06.png',  note: 'a scooter on the road, 17.7' },
-  4:  { slug: 'the-shiva-trilogy',    frame: '02.png',  note: 'an archer against fire, 28.6' },
-  5:  { slug: 'taskaree',             frame: '02.webp',  note: '29.0' },
+  0:  { slug: 'mumbai-standard-time', frame: '04.png',  note: 'the clock carried through a crowd, 20.5' },
+  1:  { slug: 've-maahi',             frame: '01.JPG',  note: 'bangles, hands, gold, 18.0' },
+  2:  { slug: 'mumbai-standard-time', frame: '10.png',  note: 'an alarm clock, still life, 13.5' },
+  3:  { slug: 'dinshaws-dildaari-battles', frame: '01.png', note: 'a face in the crowd, calling, 22.2' },
+  4:  { slug: 'the-shiva-trilogy',    frame: '02.png',  note: 'an archer against fire, 28.6 - HELD, the tile above Mere Ho' },
+  5:  { slug: 'my-red-crayon',        frame: '05.png',  note: 'two children and a red ribbon, 27.8' },
 
   /* side middles, 0.336 visible */
-  6:  { slug: 'moholla',              frame: '05.png',  note: 'a street stall, frying, 20.7' },
-  11: { slug: 'book-my-yamraj',       frame: '04.png',  note: '13.8' },
-  12: { slug: 'broken-reflections',   frame: '06.png',  note: 'a room, a figure at the glass, 17.2' },
-  17: { slug: 'special-ops-2',        frame: '05.JPG',  note: '25.5' },
-  18: { slug: 'mumbai-standard-time', frame: '03.png',  note: 'a clock carried where a face should be, 22.9' },
-  23: { slug: 'taskaree',             frame: '05.webp',  note: '25.5' },
+  6:  { slug: 'special-ops-2',        frame: '03.JPG',  note: '35.0' },
+  11: { slug: 'aasha',                frame: '05.png',  note: 'blinds, black and white, 20.6' },
+  12: { slug: 'roar',                 frame: '02.png',  note: "a tiger's eye, 9.5" },
+  17: { slug: 'bloody-bubbly',        frame: '02.png',  note: 'a can among candles, 10.9' },
+  18: { slug: 'book-my-yamraj',       frame: '07.png',  note: '11.8' },
+  23: { slug: 'aladdin-dateable-bites', frame: '04.png', note: 'a date split open, 14.6' },
 
   /* bottom row */
-  24: { slug: 've-maahi',             frame: '01.JPG',  note: 'bangles, hands, gold - the one work BED_SWAPS casts out, 18.0' },
-  25: { slug: 'moholla',              frame: '03.png',  note: 'shattered glass with the crowd behind it, 27.0' },
-  26: { slug: 'aladdin-dateable-bites', frame: '01.png', note: 'a date split open, honey, 16.0' },
-  27: { slug: 'diwali-ke-shor-mein',  frame: '10.jpg',  note: '30.4' },
-  28: { slug: 'dinshaws-dildaari-battles', frame: '05.png', note: 'a face in the crowd, calling, 23.3' },
-  29: { slug: 'moholla',              frame: '04.png',  note: 'a window onto the street at dusk, 21.8' },
+  24: { slug: 'aladdin-dateable-bites', frame: '02.png', note: 'a hand over chocolates, 14.0' },
+  25: { slug: 'moholla',              frame: '02.png',  note: 'a courtyard from above at night, 14.1' },
+  26: { slug: 'broken-reflections',   frame: '02.png',  note: 'a face behind glass, 13.9' },
+  27: { slug: 'diwali-ke-shor-mein',  frame: '10.jpg',  note: '30.4 - HELD, the tile below the original Special Ops still' },
+  28: { slug: 'taskaree',             frame: '07.webp', note: '31.4' },
+  29: { slug: 'roar',                 frame: '01.png',  note: 'a snake, close, 9.2' },
 };
 
 /** How many tiles the bed lays down. The cycle repeats to fill them. */
