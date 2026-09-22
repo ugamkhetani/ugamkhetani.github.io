@@ -195,6 +195,13 @@ export const BED_GRADE: Record<string, { contrast: number }> = {
  * darkest centre tile. Only the held Diwali 10 at 30.4 is above the centre's
  * brightest, and that one was asked for by name.
  *
+ * FRAMES GET SWAPPED WITHOUT RECASTING. Five cells have now been re-picked
+ * -- 6, 28, 3, 23, 29 -- and every one kept its WORK and changed only its
+ * file. That is deliberate: the arrangement's adjacency is a property of the
+ * works, so changing a frame in place cannot break it, and the fifteen-work
+ * spread survives untouched. Only if a work runs out of usable frames does a
+ * cell need recasting, and then the whole adjacency has to be re-checked.
+ *
  * IT DID NOT START THERE. Cells 6 and 28 carried Special Ops 03 at 35.0 and
  * Taskaree 07 at 31.4, the two hottest tiles in the bed, and both were
  * replaced with different frames of the SAME work rather than recast -- which
@@ -244,7 +251,7 @@ export const BED_CELLS: Record<number, { slug: string; frame: string; note: stri
   0:  { slug: 'mumbai-standard-time', frame: '04.png',  note: 'the clock carried through a crowd, 20.5' },
   1:  { slug: 've-maahi',             frame: '01.JPG',  note: 'bangles, hands, gold, 18.0' },
   2:  { slug: 'mumbai-standard-time', frame: '10.png',  note: 'an alarm clock, still life, 13.5' },
-  3:  { slug: 'dinshaws-dildaari-battles', frame: '01.png', note: 'a face in the crowd, calling, 22.2' },
+  3:  { slug: 'dinshaws-dildaari-battles', frame: '08.png', note: 'a crowd in identical masks, 20.8' },
   4:  { slug: 'the-shiva-trilogy',    frame: '02.png',  note: 'an archer against fire, 28.6 - HELD, the tile above Mere Ho' },
   5:  { slug: 'my-red-crayon',        frame: '05.png',  note: 'two children and a red ribbon, 27.8' },
 
@@ -254,7 +261,7 @@ export const BED_CELLS: Record<number, { slug: string; frame: string; note: stri
   12: { slug: 'roar',                 frame: '02.png',  note: "a tiger's eye, 9.5" },
   17: { slug: 'bloody-bubbly',        frame: '02.png',  note: 'a can among candles, 10.9' },
   18: { slug: 'book-my-yamraj',       frame: '07.png',  note: '11.8' },
-  23: { slug: 'aladdin-dateable-bites', frame: '04.png', note: 'a date split open, 14.6' },
+  23: { slug: 'aladdin-dateable-bites', frame: '03.png', note: '21.5' },
 
   /* bottom row */
   24: { slug: 'aladdin-dateable-bites', frame: '02.png', note: 'a hand over chocolates, 14.0' },
@@ -262,7 +269,7 @@ export const BED_CELLS: Record<number, { slug: string; frame: string; note: stri
   26: { slug: 'broken-reflections',   frame: '02.png',  note: 'a face behind glass, 13.9' },
   27: { slug: 'diwali-ke-shor-mein',  frame: '10.jpg',  note: '30.4 - HELD, the tile below the original Special Ops still' },
   28: { slug: 'taskaree',             frame: '06.webp', note: 'fire behind the figure, 23.2' },
-  29: { slug: 'roar',                 frame: '01.png',  note: 'a snake, close, 9.2' },
+  29: { slug: 'roar',                 frame: '04.png',  note: 'claw marks raked down bark, 9.4' },
 };
 
 /** How many tiles the bed lays down. The cycle repeats to fill them. */
