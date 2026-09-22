@@ -85,7 +85,7 @@ import { composition, numberFor, total, RATIO_NUM } from '../data/composition';
 import { getCollection } from 'astro:content';
 import Opening from '../components/Opening.astro';
 import { framesFor } from '../lib/frames';
-import { BED_SWAPS, BED_CROP, BED_GRADE, BED_TILES } from '../lib/bed';
+import { BED_SWAPS, BED_CROP, BED_GRADE, BED_TILES, BED_CELLS } from '../lib/bed';
 import { cardK, type CardMode } from '../lib/cards';
 
 /* HOW BIG AN UPRIGHT WORK IS IN THE CONVEYOR — draft E · Draw, applied.
@@ -230,8 +230,20 @@ const bedCast = wnodes.map((n) => {
 });
 
 /* The catalogue as a bed behind the whole document. It comes round more than
-   once on purpose: a wall of work should read as more than you can count. */
-const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bedCast.length]);
+   once on purpose: a wall of work should read as more than you can count.
+
+   BED_CELLS overrides individual cells with a named work AND a named FILE.
+   The cycle alone put the same photograph in a partial cell that was already
+   fully visible in the centre, fourteen times over; the table breaks those
+   repeats by reaching for a different frame rather than a different work. A
+   cell it does not name falls through to the cycle exactly as before, which
+   is what keeps the twelve centre tiles untouched. */
+const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => {
+  const pick = BED_CELLS[i];
+  if (pick) return { w: bySlug.get(pick.slug)!, frames: [pick.frame], set: true };
+  const n = bedCast[i % bedCast.length];
+  return { w: n.w, frames: n.w.data.frames, set: false };
+});
 
 /* D · Poster: splits a statement's trailing full stop off so it can take the
    site's orange. The words themselves are untouched. */
@@ -267,14 +279,18 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
             style={[
               BED_CROP[c.w.id] &&
                 `--crop-s:${BED_CROP[c.w.id].scale};--crop-y:${BED_CROP[c.w.id].shiftY}%`,
-              BED_GRADE[c.w.id] && `--bed-k:${BED_GRADE[c.w.id].contrast}`,
+              /* The grade is frame-specific -- it exists to rescue Bloody
+                 Bubbly's FIRST frame, which graded to a hole. A cell that
+                 names its own file is measured on that file and does not
+                 inherit it; see BED_CELLS in src/lib/bed.ts. */
+              !c.set && BED_GRADE[c.w.id] && `--bed-k:${BED_GRADE[c.w.id].contrast}`,
             ]
               .filter(Boolean)
               .join(';') || undefined}
           >
             <Still slug={c.w.id} title={c.w.data.title} year={c.w.data.year}
               category={c.w.data.category} ratio={c.w.data.ratio}
-              frames={c.w.data.frames} alt={c.w.data.alt}
+              frames={c.frames} alt={c.w.data.alt}
               sizes="20vw" eager={false} max={1} free={true} />
           </span>
         ))}
