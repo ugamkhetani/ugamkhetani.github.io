@@ -189,13 +189,21 @@ export const BED_GRADE: Record<string, { contrast: number }> = {
  * place: BED_SWAPS casts that work out of the cycle entirely, so naming a
  * cell is the only way it is ever seen, and it has exactly one frame.
  *
- * TONALLY they run 9.2 to 35.0 by the same measurement that puts the twelve
- * centre tiles at 5.9 to 29.7. Three sit above that band -- Special Ops 03
- * at 35.0, Taskaree 07 at 31.4 and the held Diwali 10 at 30.4 -- and Special
- * Ops is the one with no way around it: of its three unused frames, 03 is
- * 35.0, 04 is 38.5 and 07 is 6.3, so the choice was a bright tile or a
- * nearly-black one. 35.0 sits in a cell that shows 0.336 of itself. These
- * are the three to look at first if the bed reads hot.
+ * TONALLY they run 6.3 to 30.4 by the same measurement that puts the twelve
+ * centre tiles at 5.9 to 29.7 -- so the partial ring now sits inside the
+ * centre's own range at the top, and its darkest tile is still above the
+ * darkest centre tile. Only the held Diwali 10 at 30.4 is above the centre's
+ * brightest, and that one was asked for by name.
+ *
+ * IT DID NOT START THERE. Cells 6 and 28 carried Special Ops 03 at 35.0 and
+ * Taskaree 07 at 31.4, the two hottest tiles in the bed, and both were
+ * replaced with different frames of the SAME work rather than recast -- which
+ * keeps fifteen works across the eighteen cells instead of dropping to
+ * fourteen. Special Ops 07 is the only one of its unused frames that is not
+ * brighter still: 03 is 35.0, 04 is 38.5, 07 is 6.3, so it was a bright tile
+ * or a dark one and the dark one is the one that fits. It sits left of My Red
+ * Crayon, the brightest tile in the centre at 29.7, which is the best
+ * neighbour a dark tile could have.
  *
  * <- THE EXTENSION IS PART OF THE NAME AND IT IS NOT UNIFORM. This folder
  *   set is mixed: Taskaree is .webp throughout, Special Ops is .jpg then
@@ -241,7 +249,7 @@ export const BED_CELLS: Record<number, { slug: string; frame: string; note: stri
   5:  { slug: 'my-red-crayon',        frame: '05.png',  note: 'two children and a red ribbon, 27.8' },
 
   /* side middles, 0.336 visible */
-  6:  { slug: 'special-ops-2',        frame: '03.JPG',  note: '35.0' },
+  6:  { slug: 'special-ops-2',        frame: '07.JPG',  note: 'a call at night, the city behind in bokeh, 6.3' },
   11: { slug: 'aasha',                frame: '05.png',  note: 'blinds, black and white, 20.6' },
   12: { slug: 'roar',                 frame: '02.png',  note: "a tiger's eye, 9.5" },
   17: { slug: 'bloody-bubbly',        frame: '02.png',  note: 'a can among candles, 10.9' },
@@ -253,7 +261,7 @@ export const BED_CELLS: Record<number, { slug: string; frame: string; note: stri
   25: { slug: 'moholla',              frame: '02.png',  note: 'a courtyard from above at night, 14.1' },
   26: { slug: 'broken-reflections',   frame: '02.png',  note: 'a face behind glass, 13.9' },
   27: { slug: 'diwali-ke-shor-mein',  frame: '10.jpg',  note: '30.4 - HELD, the tile below the original Special Ops still' },
-  28: { slug: 'taskaree',             frame: '07.webp', note: '31.4' },
+  28: { slug: 'taskaree',             frame: '06.webp', note: 'fire behind the figure, 23.2' },
   29: { slug: 'roar',                 frame: '01.png',  note: 'a snake, close, 9.2' },
 };
 
