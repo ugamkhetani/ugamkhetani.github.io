@@ -2818,15 +2818,24 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
      it was the only way to make it meaningfully bigger without moving
      something else.
 
-     WHAT MOVES INSTEAD IS THE BOX, BY HALF THE GUTTER. .ct__page's
+     WHAT MOVES INSTEAD IS THE BOX, BY A QUARTER OF THE GUTTER. .ct__page's
      column-gap is 3.4em against an inherited 16px root, so 54.4px; a
-     negative right margin of half that lets the greeting's box reach
-     473.9px and the one-line ceiling becomes 120.07px. Measured
-     consequences: painted ink 478.9px, which crosses the column edge into
-     the gutter and stops 22.2px short of the form column. The whole
-     gutter would give 126.96px but the painted ink would overrun the form
-     column by 5.3px, so half is not a compromise -- it is the last value
-     that clears.
+     negative right margin of a quarter of that lets the greeting's box
+     reach 460.3px and the one-line ceiling becomes 116.62px -- 3.5 per
+     cent above the 112.64 it was, with the painted ink at 465.2px
+     crossing the column edge and stopping 35.9px short of the form
+     column.
+
+     THE FOUR VALUES THIS CHOOSES BETWEEN, all one line:
+       no borrow, the column alone   113.17px   +0.5% on the original
+       a quarter of the gutter       116.62px   +3.5%   <- set here
+       a third                       117.77px   +4.6%
+       half                          120.07px   +6.6%
+       the whole gutter              126.96px   painted ink overruns the
+                                                form column by 5.3px
+     Borrowing nothing is the tidiest rule and would drop the negative
+     margin entirely, but it lands within half a per cent of where the
+     greeting started, which is a revert rather than a size.
 
      Nothing else is touched: the tracking stays at -0.042em, and the 5fr
      7fr fold, which this file calls the poster's own fold rather than a
@@ -2843,8 +2852,8 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
   @media (min-width: 901px) {
     :root .rg .sm-form :global(.ct__statement) {
       --lt-col: calc((100vw - 2 * var(--margin) - 3.4rem) * 5 / 12);
-      font-size: calc((var(--lt-col) + 1.7rem) / 3.947);
-      margin-right: -1.7rem;
+      font-size: calc((var(--lt-col) + 0.85rem) / 3.947);
+      margin-right: -0.85rem;
       white-space: nowrap;
     }
   }
