@@ -25,7 +25,7 @@ meta:
 external:
   platform: "ZEE5"
   label: "Watch on ZEE5"
-  url: "https://zee5.onelink.me/RlQq/5imifu0j"
+  url: "https://zee5.onelink.me/RlQq/ksuynlbl"
 links:
   - { label: "Watch on YouTube", url: "https://youtu.be/vXcS_67uvoQ", platform: "youtube" }
 alt: "Still from Aasha"
