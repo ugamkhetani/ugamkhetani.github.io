@@ -2,7 +2,7 @@
 title: "Aasha"
 year: 2025
 category: "Short Film"
-opening: video
+opening: still
 ratio: "4:3"
 role: "Composer"
 credits:
@@ -22,8 +22,10 @@ meta:
   - { label: "Approach", value: "Director-led" }
   - { label: "Format", value: "Short film" }
   - { label: "Year", value: "2025" }
-media:
-  youtube: "vXcS_67uvoQ"
+external:
+  platform: "ZEE5"
+  label: "Watch on ZEE5"
+  url: "https://zee5.onelink.me/RlQq/5imifu0j"
 links:
   - { label: "Watch on YouTube", url: "https://youtu.be/vXcS_67uvoQ", platform: "youtube" }
 alt: "Still from Aasha"
