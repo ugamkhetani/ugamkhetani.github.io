@@ -1,0 +1,1488 @@
+---
+/**
+ * DIWALI KE SHOR MEIN, ON THE MOSAIC BED
+ *
+ * 2026-09-23. A draft of the work page with the home page's smoked mosaic
+ * behind it, built to be judged against the About movements -- which is
+ * where that background is seen at rest, at full smoke and full haze.
+ *
+ * WHAT THE BACKGROUND ACTUALLY IS, in three layers rather than one:
+ *   .ms__ground  fixed, inset 0, z-index 0, overflow hidden -- the window;
+ *   .ms__bed     inset -10% inside it, a 6 x 5 grid of thirty stills, and
+ *                the element that carries BOTH the grade and the blur;
+ *   .sm          fixed, z-index 1, the ground colour at 55 per cent -- the
+ *                smoke, which is what stops the bed competing with type.
+ *
+ * THE GRADE IS ON THE BED, NOT THE TILE, which is the home page's own
+ * arrangement and worth copying rather than reinventing:
+ * brightness(0.30) saturate(0.7) contrast(1.05) as one filter on one
+ * element, instead of thirty. The one exception is the tile BED_GRADE
+ * names -- contrast composes multiplicatively, so 1.05 on the parent and
+ * 1/1.05 on that tile resolves to 1.0 for it alone.
+ *
+ * THE BLUR IS BEHIND :root[data-blur] AND THAT IS NOT DECORATION. On the
+ * home page an attribute is set only after a device probe passes, because a
+ * 7px blur over a bed inset -10% is 1.2x the viewport in each axis -- 8.55
+ * megapixels on a 1512x982 MacBook. The failure direction is no blur, which
+ * is a state the page already looks right in. This draft sets the attribute
+ * from a three-line script that respects prefers-reduced-motion; IF THIS IS
+ * EVER APPLIED, PORT THE REAL PROBE from index.astro rather than this.
+ *
+ * SMOKE AND HAZE ARE STATIC HERE, at --smoke: 1 and --haze: 7px. On the
+ * home page both are animated from 0 across the first viewport of scroll,
+ * because the opening has to be seen clean before the bed arrives. A work
+ * page has no opening to protect, and the brief was to match the About
+ * section -- which is the END of that animation, not its journey.
+ *
+ * THE CONTENT HAD TO BE LIFTED, and this is the part that is easy to get
+ * wrong. Everything on the work page is position: static, and a fixed
+ * element at z-index 0 paints in step 6 of the painting order while
+ * non-positioned inline content paints in step 5 -- so the bed would have
+ * covered the text rather than sat behind it. The home page solves this
+ * with .ov, .mvt { position: relative; z-index: 2 }; the same lift is given
+ * here to .sc, the next-work link and the colophon. Measured before
+ * building: html and body are the only opaque surfaces on the page, both
+ * at --ground, so nothing else needed clearing out of the way.
+ */
+/**
+ * THE WORK PAGE.
+ *
+ * Promoted from preview draft XXVI "Ghost" — XXIV's discipline with the
+ * ghost folios: no structural rules, space doing the dividing, one drawn rule
+ * per section that scales in as the section arrives, the statement assembling
+ * word by word on scroll, and each section carrying its own number set
+ * enormous and almost invisible behind the heading.
+ *
+ * WHAT THE DRAFT COULD ASSUME AND THIS CANNOT. XXVI was written against one
+ * work — Aasha — which has a YouTube film, a quote and a festival record.
+ * Across the catalogue only 7 of 16 works have a video, 12 have a quote and
+ * 8 have awards, and the openings run video, composition, still and audio.
+ * So the draft's single VideoFacade becomes a branch over `opening`, and
+ * every section that depends on an optional field is guarded. A page that
+ * printed "The film" over a record, or asserted a youtube id that is not
+ * there, would break nine of sixteen pages.
+ *
+ * THE OPENING IS LABELLED "THE WORK", NOT "THE FILM". The draft could say
+ * film because its subject was one; here the same section holds a film, a set
+ * of films, a still or a record, and only one label is true of all four.
+ * Audio openings say "Listen", which is true of both of them.
+ *
+ * ALL FOUR LABELLED SECTIONS ALWAYS RENDER — every work has an opening, a
+ * description, frames and credits — so the page's shape is the same on all
+ * sixteen. The big ghosted section numerals that used to sit behind each
+ * heading have been removed.
+ *
+ * THE MENU IS THE HOME PAGE'S, not Base's running head. Work pages carried
+ * RunHead until now, which meant leaving a work put you under a different
+ * piece of furniture than the one you left — two menus for one site. They
+ * mount OpNav instead, in the same "bracket" variant the home page uses, and
+ * RunHead is hidden here exactly as it is there.
+ *
+ * IT IS MOUNTED WITH base="/". OpNav's four items are #top / #works / #about /
+ * #contact, which are sections of the one-page home and are nothing at all
+ * beside a work — a bare "#works" here is a link to the top of this page. The
+ * base makes them "/#works", so the menu leaves the work and lands on the home
+ * page at the right section. This is the reason work pages had no menu before,
+ * and it is now handled in the component rather than avoided.
+ *
+ * NOTHING IS INVENTED: every field is read from the work's own markdown.
+ */
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import OpNav from '../../components/OpNav.astro';
+import VideoFacade from '../../components/VideoFacade.astro';
+import FilmPlayer from '../../components/FilmPlayer.astro';
+import AudioPlayer from '../../components/AudioPlayer.astro';
+import NextWork from '../../components/NextWork.astro';
+import Colophon from '../../components/Colophon.astro';
+import { framesFor, cropFor } from '../../lib/frames';
+import { parseAwards } from '../../lib/awards';
+import { listFilms } from '../../lib/assets';
+import { order, RATIO_NUM } from '../../data/composition';
+import Still from '../../components/Still.astro';
+import { BED_SWAPS, BED_CROP, BED_GRADE, BED_TILES, BED_CELLS } from '../../lib/bed';
+
+/* The route's getStaticPaths is replaced by a single named work: a preview
+   is one page, not a set. `next` is still taken from the composition order
+   so the foot of the page behaves exactly as it does live. */
+const SLUG = 'diwali-ke-shor-mein';
+const works = await getCollection('works');
+const bySlug = new Map(works.map((w) => [w.id, w]));
+const sequence = order.filter((s) => bySlug.has(s));
+const work = bySlug.get(SLUG)!;
+const next = bySlug.get(sequence[(sequence.indexOf(SLUG) + 1) % sequence.length])!;
+
+/* THE BED'S CAST, exactly as index.astro builds it: the composition order
+   with BED_SWAPS applied, cycled to thirty, then BED_CELLS overriding the
+   cells that name their own work and file. */
+const bedCast = sequence.map((s) => bySlug.get(BED_SWAPS[s] ?? s)!);
+const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => {
+  const pick = BED_CELLS[i];
+  if (pick) return { w: bySlug.get(pick.slug)!, frames: [pick.frame], set: true };
+  const w = bedCast[i % bedCast.length];
+  return { w, frames: w.data.frames, set: false };
+});
+
+const d = work.data;
+
+const images = framesFor(work.id, d.frames);
+const poster = images[0];
+const AR = d.ratio.replace(':', ' / ');
+
+/* THE ROLE'S PARTS, FROM THE ONE STRING. Split on "/" only, so a role that
+   carries a qualifier behind a middot — "Composer · All six episodes" on Book
+   My Yamraj, "Composer · Sole composer, theatrical" on Diwali — comes through
+   as ONE part and keeps its own punctuation. That is the point: those middots
+   join a role to its scope, they do not divide two roles, and a rule that
+   split on them would set "Composer" and "All six episodes" as if they were
+   equal credits.
+
+   filter(Boolean) so a trailing slash in some future markdown cannot produce
+   an empty part and a hairline with nothing after it. */
+const ROLES = d.role.split('/').map((r) => r.trim()).filter(Boolean);
+
+/* Films listed in the markdown win; otherwise take whatever is in the folder. */
+const films = d.media.films.length ? d.media.films : listFilms(work.id);
+
+/* HOW WIDE ONE FILM WANTS TO BE, from its own shape. Given the full measure a
+   vertical reel becomes enormous: measured on Book My Yamraj, each 9:16 film
+   rendered 1126x2040 — 2.83 screens EACH, six of them making 17.1 screens of
+   film inside a 23-screen page. The fix is not a smaller max-width but a grid
+   whose track is sized to the aspect the films actually are, so a portrait
+   reel sits three or four across and a landscape one sits two.
+
+   Read off the films rather than assumed: a page mixing shapes gets the
+   middle value instead of a track that suits only half of them. */
+/* HOW WIDE ONE STILL WANTS TO BE, from the work's own shape. The grid was a
+   fixed three columns, which is right for a landscape frame and wrong for a
+   portrait one: at 9:16 those three columns gave cells 340 wide and 604 tall,
+   so nine stills ran to three rows of very tall pictures.
+
+   The track is sized so a ROW comes out about the same height whatever the
+   aspect — 300px times the aspect — then capped at 340, which is exactly what
+   three columns already gave. A landscape work therefore keeps its three
+   columns and nothing about it changes; only shapes taller than about 1.13:1
+   gain columns and shrink. The floor stops a very tall frame collapsing into
+   a thumbnail. */
+const STILL_TRACK = `${Math.round(Math.min(340, Math.max(160, 300 * (RATIO_NUM[d.ratio] ?? 1.6))))}px`;
+
+const filmRatios = new Set(films.map((f) => f.ratio));
+const FILM_TRACK =
+  filmRatios.size === 1 && filmRatios.has('16:9') ? '420px'
+  : filmRatios.size === 1 && filmRatios.has('1:1') ? '300px'
+  : filmRatios.size === 1 && filmRatios.has('9:16') ? '240px'
+  : '300px';
+
+/* A film shows wherever there is one to show, rather than only where the
+   opening is declared `video`. Diwali Ke Shor Mein is a `still` opening — the
+   feature itself is not embeddable and lives behind its external link — but it
+   has a trailer, and a moving image is a better opening than a frozen frame.
+   No other page changes: every work that has a youtube id is already declared
+   `video`. */
+const isVideo = !!d.media.youtube || !!d.media.vimeo || !!d.media.instagram;
+const isAudio = d.opening === 'audio';
+/* A `composition` opening only counts as one if it has films to show.
+   bloody-bubbly is declared `composition` and has no films listed and none in
+   /public, so the section rendered a heading with nothing under it — measured
+   on the built page. Anything that cannot show its declared medium falls
+   through to the poster, which every work has. */
+const hasFilms = d.opening === 'composition' && films.length > 0;
+/* Everything that is not one of the above shows its poster — which covers
+   `still`, `typographic`, a `video` whose id is missing, and a `composition`
+   whose films have not arrived yet. */
+const OPEN_LABEL = isAudio ? 'Listen' : 'The work';
+
+/* A work with an external watch block already carries that link prominently;
+   repeating it under the credits would be the same link twice on one page. */
+const creditLinks = d.links.filter((l) => l.url !== d.external?.url);
+
+/* WHERE THE EXTERNAL LINK GOES DEPENDS ON WHETHER THE PAGE CAN PLAY THE WORK.
+   Five works carry one: Diwali (IMDb), Taskaree (Netflix), Special Ops
+   (Hotstar) and the two songs (Spotify).
+
+   A page with a facade or a set of films already OFFERS the work — there is
+   something to press — so the outside link is a second route and belongs with
+   the credits, in the same section Aasha's YouTube link sits in. That is
+   Diwali, whose Vimeo trailer gives it a window even though its opening is
+   declared `still`.
+
+   A page whose opening is a bare STILL has no window at all: that frame is the
+   work as far as the page is concerned, and the outside link is the only way
+   to watch it. So it goes ON the image, where the facade puts its own Watch
+   button, and the image is given the film's width to match. That is Taskaree
+   and Special Ops.
+
+   THE SONGS WERE THE EXCEPTION AND ARE NOT ANY MORE, on 2026-09-06. Their
+   opening is `audio`, so they render a sleeve and a player rather than a
+   still, and "Listen on Spotify" filed underneath was judged the right shape
+   for a record. Ugam asked for the sleeve to carry the button the way a still
+   does, and for the link to appear in the credits as well — so it is now in
+   both places on those two pages, and the .ext block that used to hold it is
+   gone. Nothing else reached that block; the songs were its only users.
+
+   `hasWindow` used to live here — isVideo || hasFilms — and is gone with the
+   rule that used it: the songs now take the credits link without having a
+   window, so the question that const asked is no longer the one being
+   decided. */
+const isStill = !isVideo && !hasFilms && !isAudio;
+/* WHERE THE OUTSIDE LINK IS FILED, on 2026-09-06.
+
+   Every one of the five works that has an `external` also lists that same URL
+   in `links`, so `creditLinks` is empty for all five and the fallback below is
+   what actually fires. The test used to be `hasWindow` — does the page have
+   something you can press to play the work — which put the link in the credits
+   for Diwali and nowhere for the songs, because an audio opening is not a
+   window in that sense.
+
+   The songs now carry it in BOTH places on Ugam's instruction: on the sleeve
+   and again in the credits. So the test is no longer about windows. It is:
+   the credits carry the outside link unless the page is a BARE STILL, where
+   the button sits on the frame and the credits follow close enough underneath
+   that repeating it would be the same link twice with nothing in between.
+
+   Taskaree and Special Ops are the bare stills and are unchanged. Aladdin has
+   no external at all. Diwali is unchanged. */
+const watchLinks =
+  creditLinks.length > 0
+    ? creditLinks
+    : d.external && !isStill
+      ? [{ label: d.external.label, url: d.external.url }]
+      : [];
+
+/* Split on spaces only. The words keep their own punctuation, so nothing has
+   to be re-inserted and the joined text is identical to the source. */
+const QW = (d.quote ?? '').split(' ').filter(Boolean);
+/* A · STANDFIRST, applied 2026-09-07. The first sentence is the standfirst
+   and the rest is the paragraph, so both halves have to be split out of the
+   one string — and both are then split again into WORDS, because the reading
+   light writes a --v per word and it must keep running over both.
+
+   THE SPLIT IS ON A FULL STOP FOLLOWED BY WHITESPACE. It would also split an
+   abbreviation, and no description in the catalogue contains one — checked
+   across all sixteen, which give between three and four sentences each. If a
+   description ever opens "Dir. Rohan Bakshi shot..." this is the line that
+   breaks, and it fails softly: the lede would simply be short.
+
+   THE ONE-SENTENCE CASE IS HANDLED rather than assumed away. LEDE falls back
+   to the whole description and REST comes out empty, in which case the second
+   paragraph is not rendered at all rather than rendered blank. */
+const SENT = d.description.trim().split(/(?<=\.)\s+/).filter(Boolean);
+const LEDE = SENT[0] ?? d.description.trim();
+const REST = SENT.slice(1).join(' ');
+/* NO WORD ARRAYS ANY MORE. A1 · Lead and lag animates the two BLOCKS, so the
+   description is no longer split into words, no longer wrapped in 69 spans,
+   and no longer carries a per-word seed in an inline style. The statement
+   above still is and still does — its rule is unchanged. */
+
+
+/* THE FIELD TAKES TWO SHAPES AND THEY ARE SET DIFFERENTLY.
+   Counts — "7 Official Selections · 10 Nominations · 6 Wins" — are figures, and
+   Aasha and Broken Reflections keep the ruled band of big numerals below. Every
+   other awarded work carries citations instead: an honour and the body that
+   gave it, one entry per award. Those now set as an index.
+
+   The test is unchanged, so which work gets which treatment is unchanged too:
+   if every dot-separated part opens with a figure it is a tally, otherwise it
+   is citations. Measured against the catalogue, that is Aasha and Broken
+   Reflections on one side and the six citation works on the other.
+
+   HAS_AWARDS replaces the old joined string, which existed only to be split
+   apart again — see src/lib/awards.ts for why that join was destructive. */
+const HAS_AWARDS = d.awards.length > 0;
+const AW_PARTS = d.awards.map((a) => a.text).join(' \u00b7 ').split('\u00b7').map((p) => p.trim()).filter(Boolean);
+const AW_MATCH = AW_PARTS.map((p) => p.match(/^(\d+)\s+(.+)$/));
+const TALLY = AW_MATCH.length && AW_MATCH.every(Boolean)
+  ? AW_MATCH.map((m) => ({ n: m![1], k: m![2] }))
+  : null;
+/* Each award kept whole, and split on its FIRST dot only. */
+const CITES = TALLY ? [] : parseAwards(d.awards);
+
+/* EVERY CREDIT THE SCHEMA ALLOWS, IN ONE ORDERED LIST. This read only
+   `director` and `artist` and silently dropped the other four, which is not a
+   layout choice — the information simply never reached the page. Eleven of the
+   sixteen works were losing a credit: `client` on Aladdin, Dinshaw's and Bloody
+   Bubbly, `studio` on Book My Yamraj, Moholla, Mumbai Standard Time, My Red
+   Crayon, Roar and The Shiva Trilogy, and `with` on Taskaree and Special Ops —
+   the last two being collaborators named in the markdown and credited nowhere.
+
+   Driven off a list rather than a chain of appends so a key added to
+   content.config.ts cannot be forgotten here; an unhandled key now shows up as
+   a missing label rather than as silence. The order and the wording follow
+   CreditBlock.astro, which had the full map all along and is not mounted by
+   anything — except that `director` stays "Director" rather than becoming
+   "Direction", because that is what these pages already say. */
+const CREDIT_ORDER: [keyof typeof d.credits, string][] = [
+  ['director', 'Director'],
+  ['client', 'Client'],
+  ['studio', 'Studio'],
+  ['production', 'Production'],
+  ['artist', 'Artist'],
+  ['with', 'Collaboration'],
+];
+
+/* NO SLASH IN THE COLOPHON EITHER, from 2026-09-06. Every "/" in a VALUE
+   becomes a middot, which is the mark the catalogue already uses inside a
+   single credit — "Neeraj Pandey · Shivam Nair", "Original score · In-house
+   mix". So the rule the page now follows end to end is: a middot separates
+   ITEMS WITHIN one category, and nothing but space separates one category
+   from the next.
+
+   IT IS A RULE OVER VALUES, NOT A LIST OF WORKS, so it also catches the two
+   Recognition rows that carry one — "Best AI Film · Waves / IFFI" on My Red
+   Crayon and "Official Selection · Waves / IFFI" on Moholla — which a rule
+   written only for `role` would have missed. Eleven values in the catalogue
+   contain a slash and all eleven are lists.
+
+   WHAT WOULD BREAK IT: a value where "/" is not a separator — a date written
+   9/16, a ratio, a fraction. There is none today, and this is the note to
+   read if one is added. The markdown is untouched, as always. */
+const dots = (v: string) => v.split('/').map((p) => p.trim()).filter(Boolean).join(' · ');
+
+const FACTS: { k: string; v: string }[] = [
+  { k: 'Role', v: dots(d.role) },
+  ...CREDIT_ORDER.filter(([key]) => d.credits[key]).map(([key, label]) => ({
+    k: label,
+    v: dots(d.credits[key]!),
+  })),
+  ...d.meta.map((m) => ({ k: m.label, v: dots(m.value) })),
+];
+---
+
+<Base title={`${d.title} — Ugam Khetani`} description={d.description}>
+  {/* The bed and its smoke, copied from index.astro's markup unchanged. */}
+  <div class="ms__ground" aria-hidden="true">
+    <div class="ms__bed">
+      {GROUND_TILES.map((c) => (
+        <span
+          class="ms__tile"
+          class:list={[{ 'ms__tile--crop': !!BED_CROP[c.w.id] }]}
+          style={[
+            BED_CROP[c.w.id] &&
+              `--crop-s:${BED_CROP[c.w.id].scale};--crop-y:${BED_CROP[c.w.id].shiftY}%`,
+            !c.set && BED_GRADE[c.w.id] && `--bed-k:${BED_GRADE[c.w.id].contrast}`,
+          ]
+            .filter(Boolean)
+            .join(';') || undefined}
+        >
+          <Still slug={c.w.id} title={c.w.data.title} year={c.w.data.year}
+            category={c.w.data.category} ratio={c.w.data.ratio}
+            frames={c.frames} alt={c.w.data.alt}
+            sizes="20vw" eager={false} max={1} free={true} />
+        </span>
+      ))}
+    </div>
+  </div>
+  <div class="sm" aria-hidden="true"></div>
+
+  <OpNav variant="bracket" base="/" />
+
+  <article class="sc" data-sc style={[`--ar:${AR}`, cropFor(work.id)].filter(Boolean).join(';')}>
+    {/* ── HEAD ────────────────────────────────────────────────── */}
+    <header class="hd">
+      {/* J1 · OVERHEAD, applied 2026-09-06. What the work IS goes above the
+          title; what UGAM DID goes below it. The single line that used to
+          carry both — "Short Film · 2025 · Composer · Dir. Sameer
+          Talawdekar" — filed his credit among the work's facts as though it
+          were one more of them.
+
+          THE DIRECTOR IS NOT ON THIS LINE ANY MORE, removed 2026-09-06. It
+          sat here for one day. Six works carried one and two named several —
+          Taskaree names three, which made its top line 517px of ink — so the
+          line that was meant to say what the work IS was mostly saying who
+          else made it. THE CREDIT IS NOT LOST: `director` is the first row of
+          the colophon below, on all six, and Diwali names Rohan Bakshi twice
+          there because its markdown also carries a Direction row in `meta`.
+
+          THE YEAR CAN BE REPLACED, and on exactly one work it is. Diwali sets
+          `overline: "Theatrical"` and reads "Feature Film · Theatrical",
+          because that film's release matters more than its date. Its year is
+          still on the page — a Year row in `meta`, set in the colophon — and
+          content.config.ts warns that a work setting an overline WITHOUT such
+          a row would lose its year altogether.
+
+          THE FOLIO IS GONE. "001 / 16" was the one element that admitted the
+          other fifteen works existed; without it each work is a page unto
+          itself. numberFor() and total are no longer imported here — an
+          import kept for a deleted element is how a page ends up with a data
+          dependency nobody can explain. numberFor() and total are still
+          exported from composition.ts; /contents was their last reader and
+          it was removed on 2026-09-07, so nothing on the site calls them
+          today. */}
+      <p class="mono hd__over">{d.category} · {d.overline ?? d.year}</p>
+      <h1 class="hd__t" data-reveal>
+        <span class="line"><span class="line__in">{d.title}</span></span>
+      </h1>
+      <p class="mono hd__meta">
+        <span class="hd__roles">
+          {ROLES.map((r, i) => (<>{i > 0 && <i class="hd__bar" aria-hidden="true"></i>}<span>{r}</span></>))}
+        </span>
+      </p>
+    </header>
+
+    {/* ── THE STATEMENT, ASSEMBLED. Twelve of sixteen works have one. ── */}
+    {QW.length > 0 && (
+      <section class="q" aria-label="Statement">
+        {/* One line, deliberately: a multiline fragment emits its own
+            indentation as text, which lands on top of the explicit space and
+            doubles it. */}
+        <p class="q__t">{QW.map((w, i) => (<><span class="w" data-w>{w}</span>{i < QW.length - 1 ? ' ' : ''}</>))}</p>
+      </section>
+    )}
+
+    {/* ── 01 · THE WORK. One section, four kinds of media. ────── */}
+    <section class="blk" aria-label={OPEN_LABEL} data-reveal>
+
+      {isVideo && (
+        <VideoFacade youtube={d.media.youtube} vimeo={d.media.vimeo} instagram={d.media.instagram} title={d.title} poster={poster} alt={d.alt} eager />
+      )}
+
+      {hasFilms && (
+        <div class="films" style={`--fw:${FILM_TRACK}`}>
+          {films.map((f, i) => (
+            <FilmPlayer
+              slug={work.id}
+              src={f.src}
+              label={f.label}
+              href={f.href}
+              poster={f.poster}
+              ratio={f.ratio}
+              fallbackPoster={images[i % images.length]}
+              alt={`${d.alt} — ${f.label}`}
+            />
+          ))}
+        </div>
+      )}
+
+      {isAudio && (
+        <div class="cover">
+          {/* SIZES IS DELIBERATELY THE CEILING, NOT THE TYPICAL WIDTH. The sleeve
+            renders 576px at 1280x800 and 778 at 1920x1080, and both sources are
+            square and small — Ve Maahi 1024, Mere Ho 1254 — so on a 2x display
+            the largest candidate is the only one that is not a visible upscale.
+            Declared at 720 the browser picked the 720 candidate and rendered a
+            576px box at 1.6x; declared at the ceiling it picks 1024 and the
+            worst case is 1.13x. It costs one 1024px square on a page that
+            already streams audio. */}
+          <Image src={poster} alt={d.alt} widths={[512, 768, 1024]} sizes="(max-width: 640px) 92vw, 1024px" loading="eager" decoding="async" />
+          {d.external && (
+            <a class="still__go" href={d.external.url} target="_blank" rel="noopener noreferrer">
+              <span class="mono">{d.external.label}</span>
+              <span class="still__arw" aria-hidden="true">&nearr;</span>
+            </a>
+          )}
+        </div>
+      )}
+      {isAudio && d.media.audio.map((a) => <AudioPlayer slug={work.id} src={a.src} title={a.title} />)}
+
+      {!isVideo && !hasFilms && !isAudio && (
+        <div class="still">
+          <Image src={poster} alt={d.alt} widths={[800, 1400, 2000]} sizes="(max-width: 900px) 100vw, 78vw" loading="eager" decoding="async" />
+          {d.external && (
+            <a class="still__go" href={d.external.url} target="_blank" rel="noopener noreferrer">
+              <span class="mono">{d.external.label}</span>
+              <span class="still__arw" aria-hidden="true">&nearr;</span>
+            </a>
+          )}
+        </div>
+      )}
+
+    </section>
+
+    {/* ── 02 · THE WRITING, ASSEMBLED ─────────────────────────── */}
+    <section class="blk" aria-label="About the work">
+      {/* ONE CLOCK ON THE WRAPPER, not one per block and not one per word.
+          A1 fixes the relationship between the standfirst and the paragraph,
+          so both have to read the same --v; a [data-v] on each block would
+          make the lag depend on where each happened to sit. */}
+      <div class="body" data-v>
+        {/* --n is the standfirst's own length in characters. Everything about
+            how it sets is derived from that number; see the CSS. */}
+        <p class="body__lede" style={`--n:${LEDE.length}`}>{LEDE}</p>
+        {REST && <p class="body__rest">{REST}</p>}
+      </div>
+
+      {/* Eight of sixteen works carry a record — two as counts, six as citations. */}
+      {HAS_AWARDS && (TALLY ? (
+        <div class="tally" aria-label="Recognition" data-reveal>
+          <dl class="tally__row">
+            {TALLY.map((t) => (
+              <div class="tally__cell">
+                <dt class="tally__n">{t.n}</dt>
+                <dd class="mono tally__k">{t.k}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      ) : (
+        <div class="rec" aria-label="Recognition">
+          <ol class="rec__list">
+            {CITES.map((c, i) => (
+              <li class="rec__row" data-v>
+                <span class="mono rec__n">{String(i + 1).padStart(2, '0')}</span>
+                <span class="rec__body">
+                  <span class="mono rec__cit">
+                    {c.star && <span class="rec__star" aria-hidden="true">★</span>}
+                    {c.citation}
+                  </span>
+                  {c.body && <span class="rec__where display">{c.body}</span>}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      ))}
+    </section>
+
+    {/* ── 03 · THE FRAMES ─────────────────────────────────────── */}
+    <section class="blk" aria-label="Stills">
+      <div class="grid" style={`--sw:${STILL_TRACK}`}>
+        {images.map((img, i) => (
+          <figure class="cel" data-reveal style={`--i:${i % 3}`}>
+            <span class="cel__win">
+              <Image
+                src={img}
+                alt={i === 0 ? d.alt : ''}
+                aria-hidden={i === 0 ? undefined : 'true'}
+                widths={[420, 700, 1100]}
+                sizes="(max-width: 720px) 46vw, 30vw"
+                loading={i < 3 ? 'eager' : 'lazy'}
+                decoding="async"
+              />
+            </span>
+            <figcaption class="mono cel__no">{String(i + 1).padStart(2, '0')}</figcaption>
+          </figure>
+        ))}
+      </div>
+    </section>
+
+    {/* ── 04 · WATCH — lifted out of the credits ──────────────────
+        It was a `.tbl__links` paragraph at the foot of the credits table, so
+        the one action on the page sat inside a block of reference data. It is
+        its own section now, above the credits and set at title scale.
+        Seven of sixteen works carry one; the guard means the other nine
+        render nothing here rather than an empty band. */}
+    {watchLinks.length > 0 && (
+      <section class="blk wt" aria-label="Watch">
+        {watchLinks.map((l) => (
+          <a class="wt__a" href={l.url} target="_blank" rel="noopener" data-v>
+            <span class="wt__t display">{l.label}</span>
+            {/* TWO BOXES FOR THE ARROW, AND THE REASON IS THE TRANSITION. The
+                outer one carries the scroll-driven transform and must NOT be
+                transitioned, or it chases the scroll 240ms behind. The inner
+                one carries the hover nudge, which must be. One property on
+                two elements rather than two behaviours fighting over one. */}
+            <span class="wt__arw" aria-hidden="true"><span class="wt__arw-i">&nearr;</span></span>
+          </a>
+        ))}
+      </section>
+    )}
+
+    {/* ── 05 · CREDITS, as a colophon ─────────────────────────────
+        No heading. The dl is kept and set inline rather than swapped for a
+        <p>, so the markup still says "these are pairs" to a screen reader
+        while reading as prose. */}
+    <section class="blk cr" aria-label="Credits">
+      {/* ONE CLOCK, ON THE LIST. C · Colophon fixes the relationship between
+          the labels and their values, so both halves have to read the same
+          --v; a [data-v] on each row would make the lag depend on where each
+          pair happened to sit and would quietly turn this back into a
+          per-row cascade. */}
+      <dl class="cr__list" data-v>
+        {FACTS.map((f) => (
+          <div class="cr__row">
+            <dt class="mono cr__k">{f.k}</dt>
+            <dd class="cr__v">{f.v}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  </article>
+
+  <NextWork
+    slug={next.id}
+    title={next.data.title}
+    year={next.data.year}
+    category={next.data.category}
+    frames={next.data.frames}
+    alt={next.data.alt}
+  />
+  <Colophon />
+</Base>
+
+<style>
+  .sc { padding: clamp(96px, 15vh, 190px) var(--margin) 0; }
+
+  /* ── HEAD ───────────────────────────────────────────────────── */
+  .hd { max-width: 1180px; margin-inline: auto; text-align: center; }
+  /* The line above the title. It keeps the folio's exact position and size —
+     only what it says has changed — so the distance from the menu to the
+     title is what it always was. */
+  .hd__over {
+    margin: 0 0 clamp(24px, 4vh, 48px);
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--dim);
+    font-variant-numeric: tabular-nums;
+  }
+  .hd__t {
+    margin: 0;
+    font-family: var(--display); font-weight: 500;
+    /* 7.25rem, not the 8rem this was drawn at, and the measure is why. At
+       128px the longest word in the catalogue — "Reflections" — sets 807px
+       against a 760px column and spilled 47px past the right edge, which is
+       the one thing that would have contradicted the whole point of a narrow
+       page. Measured across all sixteen titles it is the only one that
+       overflows, and the ceiling that fits it is 120px; 116px leaves 29px of
+       margin. Nothing else needed changing. */
+    font-size: clamp(2.6rem, 10vw, 7.25rem);
+    line-height: 0.86; letter-spacing: -0.05em;
+    text-transform: uppercase; color: var(--bone);
+  }
+  /* THE ROLES, DIVIDED BY A DRAWN HAIRLINE RATHER THAN BY A SLASH. A "/" is
+     shorthand — it means "or", or it means a path — and neither is true of a
+     credit; these are things that were all done, which in English is a list.
+     A 7px rule has no baseline, no weight to match the letters and cannot be
+     read as a character, which is what a separator should be.
+
+     THE SLASH IS GONE FROM THE RENDERING, NOT FROM THE DATA. The markdown
+     still says "Music / Sound / Voice Over" and must: the same string is
+     set in this page's own credits list below, so editing it would move two
+     places at once. It was three until /contents was removed on 2026-09-07.
+
+     --dim, not --muted. Both lines around the title now sit at the same
+     weight, so neither is the caption of the other. */
+  .hd__meta {
+    display: flex; justify-content: center; flex-wrap: wrap;
+    margin: clamp(28px, 4.6vh, 50px) 0 0;
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--dim);
+  }
+  /* THE WRAP IS INSURANCE, NOT A FIX FOR ANYTHING IN THE CATALOGUE TODAY.
+     Measured at 375, where the measure is 327: the longest role list is
+     Special Ops' "Asst. Composer | Additional Production" and it inks at 287,
+     so it fits on one line with 40px to spare. Nothing in the sixteen wraps.
+     It is allowed to break so that a longer role added later breaks instead
+     of pushing the page wide — the failure it prevents is horizontal scroll,
+     which is the one thing a narrow page must never do. */
+  .hd__roles { display: inline-flex; align-items: center; flex-wrap: wrap; justify-content: center; row-gap: 8px; }
+  .hd__bar {
+    display: inline-block; width: 1px; height: 7px;
+    margin-inline: clamp(10px, 1.8vw, 16px);
+    background: var(--rule);
+  }
+
+  /* ── THE ASSEMBLING WORD ────────────────────────────────────── */
+  /* Each word carries its own --v, 0 before it is reached and 1 once it is,
+     written by the clock. Everything visual is derived from that one number,
+     so a word cannot be half-lifted and fully lit at the same time. */
+  .w {
+    display: inline-block;
+    opacity: calc(0.12 + var(--v, 1) * 0.88);
+    transform: translateY(calc((1 - var(--v, 1)) * 0.32em));
+    will-change: opacity, transform;
+  }
+
+  /* A1 · LEAD AND LAG, applied 2026-09-07, replacing W3 · Stagger the same
+     day. The standfirst rides the page's own --v and the paragraph lags on
+     --v SQUARED, so the opening line is readable while the body is still
+     coming up.
+
+     IT IS THE PAGE'S OWN DEVICE, SAID TWICE. A recognition row already
+     separates its figure from the festival that gave it exactly this way.
+     Applying it here is not a new idea; it is the same idea at another
+     scale, which is the cheapest coherence a page can buy.
+
+     A LAG IS A SQUARE, NOT A DELAY. v * v trails v everywhere except at 0 and
+     1, where both are exact — so the two blocks separate through the middle
+     and land together, with no timer, nothing to keep in step, and a clean
+     reverse on the way back up.
+
+     THE DESCRIPTION IS NO LONGER SET WORD BY WORD, and that is a real
+     simplification rather than a side effect: 49 to 71 spans per page, each
+     with an inline custom property, are gone from every work page. The
+     statement above still assembles word by word — .w and its rule are
+     untouched — so the page still has a per-word moment; it now has one
+     rather than two.
+
+     THE PARAGRAPH TRAVELS FURTHER THAN THE STANDFIRST, 0.5em against 0.32,
+     because it is smaller type: an em is relative to the element, so equal
+     em values would have made the body move less in pixels as well as later.
+     Measured at a --v of 0.5, the standfirst sits 5.568px low at 0.56 opacity
+     and the paragraph 7.5px low at 0.325. */
+  .body { --v2: calc(var(--v, 1) * var(--v, 1)); }
+  .body__lede {
+    opacity: calc(0.12 + var(--v, 1) * 0.88);
+    transform: translateY(calc((1 - var(--v, 1)) * 0.32em));
+    will-change: opacity, transform;
+  }
+  .body__rest {
+    opacity: calc(0.1 + var(--v2, 1) * 0.9);
+    transform: translateY(calc((1 - var(--v2, 1)) * 0.5em));
+    will-change: opacity, transform;
+  }
+
+  .q {
+    max-width: 1180px;
+    margin: clamp(80px, 14vh, 180px) auto;
+    text-align: center;
+  }
+  .q__t {
+    margin: 0 auto; max-width: 20ch;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.9rem, 5.4vw, 4.4rem);
+    line-height: 1.02; letter-spacing: -0.045em;
+    color: var(--bone);
+  }
+
+  /* ── BLOCKS ─────────────────────────────────────────────────── */
+  .blk { max-width: 1180px; margin: 0 auto clamp(72px, 12vh, 160px); }
+  /* The rule draws itself across the measure as the section arrives — scaled
+     from the left on one transform, so it composites rather than reflowing. */
+
+  .body { margin: 0; }
+
+  /* THE STANDFIRST, AND WHY ITS SIZE IS DERIVED RATHER THAN SET.
+     The draft was drawn against Mumbai Standard Time, whose first sentence is
+     80 characters. Across the catalogue they run 55 to 166 — The Shiva
+     Trilogy's shortest, Aasha's longest — a spread of three to one. At the
+     draft's fixed 2.2rem over 24ch, Aasha's would have set SEVEN lines of
+     35px display type, which is not a standfirst but a slab. A fixed size
+     cannot serve both ends of that spread, so both the size and the measure
+     are computed from --n, the sentence's own character count.
+
+     THE MEASURE targets about three lines: n/3 characters wide, held between
+     20ch so a short one cannot become a narrow ribbon and 44ch so a long one
+     cannot outrun the reading width.
+
+     THE SIZE eases down as the sentence lengthens, 0.007rem per character
+     past 55, so a long first sentence reads as an emphasised opening rather
+     than as a wall. The clamp floor of 1.2rem keeps it clearly above the
+     paragraph beneath it at every length.
+
+     AND IT IS CAPPED BY THE VIEWPORT AS WELL, which the first version of this
+     rule forgot. The draft's size was 3vw and shrank on a phone; a rule
+     derived only from character count does not, so at 375 The Shiva Trilogy's
+     55-character standfirst still set 35px and ran to four lines in a 327px
+     column. The min() against 1.05rem + 2.1vw binds on narrow screens and is
+     inert on wide ones, where the length rule governs alone.
+
+     Both are one expression each. There is no per-work table and no slug
+     named anywhere: a work whose description is rewritten re-sets itself. */
+  .body__lede {
+    margin: 0 0 clamp(22px, 3.4vh, 40px);
+    max-width: clamp(20ch, calc(var(--n, 90) / 3 * 1ch), 44ch);
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(
+      1.2rem,
+      min(calc(2.35rem - (var(--n, 90) - 55) * 0.007rem), calc(1.05rem + 2.1vw)),
+      2.2rem
+    );
+    line-height: 1.12; letter-spacing: -0.025em;
+    color: var(--bone); text-wrap: balance;
+  }
+  .body__rest {
+    margin: 0; max-width: 54ch;
+    font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+    line-height: 1.62; letter-spacing: -0.006em;
+    color: var(--bone-dim); text-wrap: pretty;
+  }
+  /* ── RECOGNITION — X's band ─────────────────────────────────── */
+  /* Three figures set as figures on a ruled band. It sits where IX's one-line
+     awards caption sat, so the order is untouched — only the treatment. */
+  .tally {
+    margin: clamp(44px, 7vh, 90px) 0 0;
+    padding-block: clamp(26px, 4.4vh, 52px);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .tally__row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; }
+  .tally__cell { text-align: center; padding-inline: clamp(8px, 2vw, 28px); }
+  /* Hairlines between the cells only — a border on each would draw one down
+     the outer edges too, where the band already has its own ends. */
+  .tally__cell + .tally__cell { border-left: 1px solid var(--rule-soft); }
+  .tally__n {
+    margin: 0;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(2.6rem, 7vw, 5.5rem);
+    line-height: 0.82; letter-spacing: -0.05em;
+    color: var(--bone); font-variant-numeric: tabular-nums;
+  }
+  .tally__k {
+    margin: clamp(12px, 2vh, 20px) 0 0;
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--accent); line-height: 1.5;
+  }
+  /* ── RECOGNITION — the citation index ───────────────────────── */
+  /* Replaces the one-line .tally__raw fallback, which set every award at one
+     size in one colour: the repeated "Official Selection" was as loud as the
+     festival names that actually differ, and on the one work with two awards
+     the whole thing ran together into a single line. The festival carries the
+     display type here; the honour is a label above it. */
+  /* NO RULES, THE SAME DECISION THE TALLY BAND ALREADY MADE. The block further
+     down strips that band of "its two rules and its cell hairlines"; this one
+     arrived from the draft still carrying a rule above it and a hairline
+     between every row, which put lines back into the one part of the page that
+     had deliberately given them up. Separation is space here, matching the gap
+     the tally uses. The margin is the tally's own, so both bands sit the same
+     distance below the paragraph. */
+  .rec {
+    margin: clamp(56px, 9vh, 110px) 0 0;
+  }
+  .rec__list {
+    margin: 0; padding: 0; list-style: none;
+    display: grid;
+    /* What the hairline between rows used to do. */
+    gap: clamp(22px, 3.4vh, 40px);
+  }
+  .rec__row {
+    display: grid;
+    /* A fixed figure column, so every festival starts on one left edge. */
+    grid-template-columns: clamp(44px, 5vw, 68px) minmax(0, 1fr);
+    align-items: baseline;
+    gap: clamp(10px, 2vw, 24px);
+  }
+  .rec__n {
+    font-size: var(--t-micro); letter-spacing: var(--track-mono);
+    color: var(--dim); font-variant-numeric: tabular-nums;
+  }
+  .rec__body { display: grid; gap: clamp(6px, 1vh, 11px); }
+  .rec__cit {
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--accent);
+  }
+  .rec__star { margin-right: 0.5em; color: var(--accent); }
+
+  /* B · PARALLAX ON RECOGNITION, applied 2026-09-07.
+
+     THE TWO HALVES OF A ROW ARRIVE AT DIFFERENT RATES. The figure and the
+     honour ride at the page's own --v; the festival that gave it lags on --v
+     SQUARED. So the small mono key is already legible while the thing it
+     names is still coming up, which is the order a row is read in.
+
+     A LAG IS A SQUARE, NOT A DELAY. v * v is behind v everywhere except at
+     the two ends, where both are exactly 0 and exactly 1 — the halves
+     separate through the middle and land together, with no timer, nothing to
+     keep in step, and a clean reverse on the way back up.
+
+     EACH ROW HAS ITS OWN --v, so Diwali's three selections cascade as they
+     cross the reading line rather than arriving as a block. That is the whole
+     reason `data-reveal` came OFF this section: the site's global reveal adds
+     `.is-in` once, on first intersection, and gives the whole block a 14px
+     rise that never plays again and never reverses. Two reveals on one
+     element fight; this one replaces it.
+
+     NO display DECLARATION IS NEEDED and none is written. .rec__row is a grid
+     and .rec__body is a grid, so every part named here is already a grid item
+     and therefore blockified — a transform applies without help. Adding
+     `display: inline-block` would have been a line that does nothing, which
+     is worse than no line at all.
+
+     THE TALLY WORKS ARE UNTOUCHED. Aasha and Broken Reflections set their
+     record as three big figures on a ruled band rather than as citations;
+     that is a different element with a different shape and this rule does not
+     reach it. Six works get this: Book My Yamraj, Dinshaw's, Diwali, Moholla,
+     Mumbai Standard Time and My Red Crayon. */
+  .rec__row {
+    --v2: calc(var(--v, 1) * var(--v, 1));
+  }
+  .rec__n, .rec__cit {
+    opacity: calc(0.14 + var(--v, 1) * 0.86);
+    transform: translateY(calc((1 - var(--v, 1)) * 0.34em));
+    will-change: opacity, transform;
+  }
+  .rec__where {
+    opacity: calc(0.08 + var(--v2, 1) * 0.92);
+    transform: translateY(calc((1 - var(--v2, 1)) * 0.6em));
+    will-change: opacity, transform;
+  }
+  /* The one thing on the row that differs from the row above it, so the one
+     thing set at size. */
+  .rec__where {
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.3rem, 3vw, 2.35rem);
+    line-height: 1.06; letter-spacing: -0.035em;
+    color: var(--bone); text-wrap: balance;
+  }
+  @media (max-width: 620px) {
+    .tally__row { grid-template-columns: 1fr; }
+    .tally__cell + .tally__cell {
+      border-left: 0; border-top: 1px solid var(--rule-soft);
+      margin-top: clamp(20px, 4vh, 32px); padding-top: clamp(20px, 4vh, 32px);
+    }
+  }
+
+  /* ── CREDITS — XV's ruled table ─────────────────────────────── */
+  /* One hairline per edge: the table draws its own left and top, each cell
+     its right and bottom. Drawn on all four, every internal edge doubles and
+     reads at 1px on a dark ground as uneven weight, not a heavier rule. */
+
+  /* ── FRAMES ─────────────────────────────────────────────────── */
+  /* auto-fill so a short last row keeps the cell size of the row above it,
+     and a track sized to the work's own aspect — see the note on the page. */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(var(--sw, 340px), 100%), 1fr));
+    gap: clamp(20px, 2.6vw, 46px);
+  }
+  .cel { margin: 0; }
+  /* Entry is the site's own reveal, staggered by column so a row arrives as a
+     sweep rather than as three things at once. */
+  .cel[data-reveal] {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+      opacity var(--d-reveal) var(--ease) calc(var(--i) * 90ms),
+      transform var(--d-reveal) var(--ease) calc(var(--i) * 90ms);
+  }
+  .cel[data-reveal].is-in { opacity: 1; transform: none; }
+  .cel__win {
+    display: block; aspect-ratio: var(--ar);
+    overflow: hidden; background: var(--ground-lift);
+  }
+  .cel__win :global(img) {
+    width: 100%; height: 100%; object-fit: cover;
+    /* See FRAME_CROP in src/lib/frames.ts — the crop window sits on the
+       picture rather than on the file, for the two works with baked-in bars. */
+    object-position: 50% var(--fcy, 50%);
+    filter: saturate(0.94) contrast(1.02);
+    transform: scale(1.001);
+    transition: filter var(--d-micro) var(--ease), transform 1100ms var(--ease);
+  }
+  .cel:hover .cel__win :global(img) {
+    filter: saturate(1) contrast(1.06) brightness(1.04);
+    transform: scale(1.035);
+  }
+  .cel__no {
+    display: block; margin-top: 8px;
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    color: var(--dim); font-variant-numeric: tabular-nums;
+  }
+  /* Below this the track governs on its own — a fixed two columns would make
+     a portrait still taller on a phone than it is on a desktop. */
+  @media (max-width: 720px) { .grid { --sw: min(46vw, 220px); } }
+
+  /* ── CREDITS ────────────────────────────────────────────────── */
+
+  /* ── REDUCED MOTION HANDS OVER THE SENTENCE ─────────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    .w { opacity: 1; transform: none; will-change: auto; }
+    .cel[data-reveal] { opacity: 1; transform: none; transition: none; }
+    .rec__n, .rec__cit, .rec__where { opacity: 1; transform: none; will-change: auto; }
+    .body__lede, .body__rest { opacity: 1; transform: none; will-change: auto; }
+    .wt__t, .wt__arw { opacity: 1; transform: none; will-change: auto; }
+    .cr__k, .cr__v { opacity: 1; transform: none; will-change: auto; }
+  }
+
+  /* ══ XXIV · NO RULES ══════════════════════════════════════════════
+     Space divides instead of lines. The only rule left on the page is the one
+     the clock draws, which is why it reads as a mark rather than furniture. */
+  .blk { margin-bottom: clamp(104px, 18vh, 240px); }
+
+  /* The recognition band loses its two rules and its cell hairlines. */
+  .tally {
+    margin-top: clamp(56px, 9vh, 110px);
+    padding-block: 0;
+    border-top: 0; border-bottom: 0;
+  }
+  .tally__cell + .tally__cell { border-left: 0; }
+  .tally__row { gap: clamp(20px, 3vw, 56px); }
+
+  /* The credit table loses every border and becomes cells held apart by
+     gaps. The label colour is what keeps the pairs legible without them. */
+
+  /* The ghost folio is gone. It set the section's number at 13vw behind each
+     heading at 0.04 opacity — decorative, and the only ornament on the page.
+     Removed on request. Its `.blk { position: relative }` and the
+     `.blk > :not(.fol)` layering went with it: the only thing that needed a
+     positioned ancestor was the folio itself, and `.rl` anchors to
+     the label it hung on, which carried its own.
+
+     THE HEAD'S FOLIO IS ALSO GONE NOW. This used to end by saying the
+     sections were still numbered where it mattered, because the line at the
+     top of the page read "007 / 16". It does not: J1 replaced it with the
+     category and year on 2026-09-06, so there is no number anywhere on a work
+     page any more, and since /contents was removed on 2026-09-07 the
+     catalogue is not counted anywhere on the site. */
+
+  /* ══ ONE MEASURE ══════════════════════════════════════════════════
+     Borrowed from preview XXII "Measure". Every block sits on the same
+     narrow column, so the page has exactly two vertical edges and
+     everything begins and ends on them. Minimalism here is a rule about
+     WIDTH rather than about removing anything: nothing else changes.
+
+     760px, not the 1180px these blocks were drawn at. The body loses its
+     own 60ch cap so it fills the measure rather than sitting narrower
+     still inside it — one column, one edge.
+
+     THE STILLS GRID IS DELIBERATELY LEFT ALONE, which is where this
+     departs from the reference. XXII forces two columns because it was
+     built for Aasha; measured across the catalogue, the live grid's
+     ratio-aware auto-fill already lands on two for thirteen of the sixteen
+     works at this measure, and on three for the three 9:16 portrait works —
+     which is better than two would be for them. Forcing it would throw that
+     away to match a draft that only ever had one ratio to satisfy.
+
+     The credit table does drop to two. Three cells on a 760px measure
+     leaves about 215px each, which is not enough for a value to sit on one
+     line — that is a real consequence of narrowing, so it is carried. The
+     existing 860px rule cannot do it: that is a viewport query, and the
+     viewport is still wide. */
+  .sc { --measure: min(760px, 100%); }
+  .hd, .q, .blk { max-width: var(--measure); }
+  /* The one-measure pass gave .body its own width; it is a wrapper now and
+     its two paragraphs carry their own, so there is nothing left to release. */
+  .body { max-width: none; }
+</style>
+
+<style>
+  /* ── MEDIA THE DRAFT DID NOT HAVE TO CARRY ──────────────────── */
+  /* XXVI opened on one YouTube facade. These are the other three openings,
+     given the same measure and the same ground so a record and a film sit in
+     the page identically. */
+  /* auto-FILL, not auto-fit: with fit, a last row holding two of six items
+     stretches them to half the measure each and the grid stops being a grid.
+     Empty tracks keep every film the same size as the row above it. */
+  .films {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(var(--fw, 300px), 100%), 1fr));
+    gap: clamp(16px, 2.2vw, 34px);
+  }
+  /* THE SLEEVE IS SIZED LIKE A FILM, CAPPED BY THE WINDOW'S HEIGHT.
+
+     It was clamp(220px, 34vw, 380px) — 380 on a 1280 desktop and 220 on a
+     phone, an illustration beside the prose rather than the thing the page is
+     about, which is the same fault the bare stills had.
+
+     It takes --film, the SAME width the facade and the stills take, so all
+     three kinds of opening share one edge. But a song is 1:1, and --film is
+     1016px at 1280 wide, so matching the film exactly would make a block 1016
+     TALL in a window 800 tall — the one page where you could not see the
+     opening. Hence the 72vh cap, which is on the height because the height is
+     the constraint a square has and the 16:9 openings do not.
+
+     THE SOURCES ARE THE OTHER CEILING, and they are why the cap is not looser.
+     Ve Maahi's sleeve is 1024x1024 and Mere Ho's 1254x1254, so on a 2x display
+     a CSS width over 512 is already an upscale for Ve Maahi. 72vh keeps it
+     mild — 576px at 800 tall is 1.13x, invisible — where matching --film would
+     ask 1016 CSS px of a 1024 source and render it a visibly soft 2x.
+
+     Measured: 1280x800 -> 576 (was 380), 1440x900 -> 648, 1920x1080 -> 778,
+     and 375 wide -> 327, the full measure, where --film wins over 72vh and the
+     sleeve lands exactly where a still lands. */
+  .cover { position: relative; width: min(var(--film), 72vh); margin-inline: auto; }
+  .cover :global(img), .still :global(img) { width: 100%; height: auto; display: block; }
+  .still { overflow: hidden; background: var(--ground-lift); }
+
+  /* ══ THE OPENING FILM IS WIDER THAN THE MEASURE ═══════════════════
+     D · Inset, chosen from five built as real pages on Aasha and judged in
+     the browser. The film stops one and a half --margins in from each window
+     edge — measured 1050x590 at 1280x800, against the 760px measure — where
+     B stopped at one margin and A held a fixed 920px column.
+
+     ONLY THE FILM MOVES. The label above it, its rule, the statement, the
+     body, the stills and the credits all stay on the measure, so the film
+     breaks the column and the column is still there to be broken.
+
+     WHICH WORKS GET IT, AND WHY THE SELECTOR IS THE WHOLE ANSWER. The three
+     vertical works with multiple episodes — Book My Yamraj's six, Dinshaw's
+     four, Aladdin's four — are excluded, and no test for that is written
+     anywhere. They carry `media.films`, so they render a `.films` GRID rather
+     than a facade, and this rule only reaches `.facade`. The distinction Ugam
+     drew is already the distinction the markup makes: one film gets a facade,
+     several get a grid. A ratio test would have been a second, weaker way of
+     saying the same thing, and would have gone wrong the day a landscape work
+     had episodes.
+
+     So this reaches the eight single-video works: seven on YouTube and Diwali
+     on Vimeo. Every one of them is landscape or square.
+
+     THE max() IS A FLOOR AND IT IS LOAD-BEARING. --margin bottoms out at 24px
+     on a phone, where 100vw - 3 x margin is 303px against a measure of 327 —
+     without it the film would be NARROWER THAN THE TEXT beside it. Measured
+     at 375x812: it clamps to 327 and sits flush with the column.
+
+     --measure is `min(760px, 100%)` and the 100% in a custom property resolves
+     where the property is USED. It is used on .facade, whose containing block
+     is .blk, so it resolves to the block's width rather than to .sc's.
+
+     IT ESCAPES BY NEGATIVE INLINE MARGINS, not a wider parent, so .blk keeps
+     its max-width and only this child overflows — computed from the SAME
+     --film as the width, so the two cannot disagree at any viewport.
+
+     SPECIFICITY IS DELIBERATE. VideoFacade sets `margin-inline: auto` at
+     (0,2,0) with its own scope attribute; a plain `.blk :global(.facade)` is
+     also (0,2,0) and would be a tie broken by source order, and losing it
+     means `auto` wins and the frame stops being centred. The
+     :not([data-instagram]) takes this to (0,4,0).
+
+     AND IT MUST STAY IN A SCOPED STYLE BLOCK. The third block in this file is
+     `<style is:global>`, where Astro ships :global() as a literal string, no
+     browser understands it and the rule is dropped with no error at all —
+     the symptom is the element measuring exactly as it did before. HANDOFF
+     section 6. */
+  .sc { --film: max(var(--measure), calc(100vw - 3 * var(--margin))); }
+  .blk :global(.facade:not([data-instagram])) {
+    width: var(--film);
+    margin-inline: calc((100% - var(--film)) / 2);
+  }
+
+  /* BLOODY BUBBLY IS THE ONE VERTICAL WORK WITH A SINGLE VIDEO, so it is not
+     in the excluded set and it does not belong in the rule above either: an
+     Instagram facade is portrait and carries the post's own chrome.
+
+     It widens on its own terms. 400px is the width Instagram's embed code
+     ships with; 540px is the widest their embed supports, and 440 is a tenth
+     more than the default and comfortably inside that range, so the mounted
+     iframe still matches the facade and nothing jumps on press.
+
+     THE COST IS HEIGHT, because the shape is fixed at 400/700: at 440 the
+     frame is 770px tall, which is 96% of an 800px viewport against 88% before.
+     That is the trade for widening a portrait frame at all, and it is why this
+     is 440 rather than Instagram's full 540 — which would stand 945px tall and
+     be taller than the window it is shown in.
+
+     max-width, not --facade-max: that custom property is set INLINE by
+     VideoFacade, and an inline custom property beats a stylesheet one. */
+  .blk :global(.facade[data-instagram]) { max-width: 440px; }
+
+  /* ══ THE PAGE IS LABELLED ONCE, AND THE CREDITS ARE A COLOPHON ════
+     D · Colophon, chosen from nine built as real pages on Aasha.
+
+     FOUR HEADINGS ARE GONE — "The work" (or "Listen"), "The score",
+     "Recognition" and "Credits". "Stills" is the only one left, because it is
+     the only one naming something a reader cannot infer: a grid of frames
+     could be production photos, a gallery, or the film's own stills. The
+     others sat over a video, a paragraph, three figures with their own nouns
+     ("7 Official Selections"), and a list of labelled values — each of which
+     announces itself.
+
+     STILLS WENT TOO, on 2026-09-05, and it was the last one. FIVE headings
+     are gone and the page now carries NO visible section label at all — the
+     parts are told apart by their content and by the space between them, which
+     is what §5's "no rules" note wanted in the first place and never quite
+     reached.
+
+     THE DRAWN RULES WENT WITH THEM. Each label carried the hairline that
+     scaled in as its section arrived, so removing the last label removed the
+     last rule: the `.blk__lbl` and `.rl` classes are gone, and so is the
+     `[data-rl]` query in the scroll handler, which would otherwise have sat
+     there collecting an empty list for ever. The handler still runs — it
+     drives the word-by-word reading light off `[data-w]`, which is untouched
+     and was verified working after the change.
+
+     NOTHING IS LOST TO ASSISTIVE TECH. Every section keeps its `aria-label`,
+     so the document still announces Watch, Credits and the rest. The headings
+     were never the accessible name.
+
+     THE CREDITS ARE A PARAGRAPH, not a table: one running line of pairs
+     divided by middots, set at body size, as a colophon is set at the back of
+     a book. The `dl` is kept and made inline rather than replaced by a `<p>`,
+     so the markup still says "pairs" while reading as prose. `dd` carries a
+     default `margin-inline-start` of 40px which has to be reset, or every
+     value sits a tab stop from its label.
+
+     SELECTORS ARE ANCHORED TO `.blk` DELIBERATELY. These sections are
+     `class="blk cr"` and `class="blk wt"`, so `.blk` and `.cr` match the same
+     element at the same (0,2,0) once Astro adds its scope attribute, and the
+     tie is settled by which rule the BUNDLE emits last — which is not
+     document order: this file's second style block is bundled before its
+     first. `.blk.cr` is (0,3,0) and cannot be reordered out of winning.
+     HANDOFF §6. */
+  .blk.cr { margin-top: clamp(40px, 7vh, 90px); }
+  /* THE DOT BETWEEN CATEGORIES IS GONE, 2026-09-06, and space does the
+     dividing instead. It used to set " · " between every pair, which put the
+     same mark between "Role" and "Director" as the one inside "Neeraj Pandey
+     · Shivam Nair" — so the page drew no distinction between a break between
+     two credits and a break between two people sharing one. Now the middot
+     means one thing only: another item in the SAME category.
+
+     THE ROW BECOMES inline-block RATHER THAN inline, which is what makes the
+     gap possible and also fixes something the dots were hiding: an inline row
+     could break between its label and its value at the end of a line, so
+     "Director" and "Rohan Bakshi" could land on different lines with nothing
+     joining them. inline-block keeps every pair whole and wraps between
+     pairs, which is the only place a colophon should ever break. */
+  .cr__list { margin: 0; display: block; max-width: 62ch; }
+  /* THE GAP IS TIGHTENED, AND BOTH GAPS HAD TO MOVE. Measured at 1280 before
+     this change: 44px between one pair and the next, against 19px between a
+     label and its own value — a ratio of 2.3, which is what made the pairs
+     read as pairs once the dot between them was removed.
+
+     So the between-pair gap could not simply be cut. Space is the only thing
+     separating one credit from the next now, and taking it to 24px against a
+     19px inner gap would have been a ratio of 1.26 — near enough to even that
+     "Composer" and "Director" would read as one run.
+
+     THE INNER GAP THEREFORE COMES DOWN WITH IT. The label carried TWO no-break
+     spaces after it and now carries one. Both numbers drop by about half and
+     the ratio holds, so the pairs still group while the whole block closes up.
+     Read off the rendered page at 1280 rather than predicted — I had guessed
+     11px and 2.2, and it is 12 and 2.0:
+
+                        was    now
+       between pairs    44     24
+       label to value   19     12
+       ratio           2.3    2.0
+
+     max-width is the guard inline-block needs. A shrink-wrapped box takes its
+     content's width, so a value longer than the column would push the page
+     wide rather than wrap — the one failure a narrow page must never have.
+     Measured at 375, where the list is 327: the widest row in the catalogue
+     is Taskaree's three directors at 305, so nothing needs it today. It is
+     here so that the next long credit wraps instead of breaking the page. */
+  .cr__row { display: inline-block; max-width: 100%; margin-right: clamp(14px, 1.9vw, 26px); }
+  .cr__row:last-child { margin-right: 0; }
+  .cr__k {
+    margin: 0; font-size: var(--t-micro); letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--dim);
+  }
+  .cr__k::after { content: '\00a0'; }
+  .cr__v { margin: 0; font-size: var(--t-md); color: var(--bone); }
+
+  /* C · COLOPHON, applied 2026-09-07, replacing B · Overshoot the same day.
+
+     THE RECOGNITION SECTION'S RULE, AT THE SCALE OF THE WHOLE BLOCK. Every
+     label rides the page's own --v and every value lags on --v SQUARED, so
+     the colophon arrives once, as a key half and an answer half — which is
+     what a colophon is. Recognition already separates its figure from the
+     festival this way, and the description its standfirst from its
+     paragraph; this is the same device a third time rather than a third idea.
+
+     THE NUMBERS ARE RECOGNITION'S, UNCHANGED — 0.14 and 0.34em on the key,
+     0.08 and 0.6em on what it names. Checked against the rendered recognition
+     row rather than against the source: at a --v of 0.4 both read 0.484 and
+     0.2272, at 0.7 both read 0.742 and 0.5308.
+
+     THE TRAVEL IN PIXELS DIFFERS AND SHOULD. The same 0.6em moves the
+     recognition body 18.95px and a credit value 9.07px, because one is 37.6px
+     type and the other 18. An em is relative to its element, which is the
+     whole reason the rule is written in em and not in pixels.
+
+     ONE ARRIVAL RATHER THAN SIX. The overshoot this replaces gave every pair
+     its own clock, so the block cascaded; the credits are the last thing on
+     the page and a sixfold cascade there is a lot of motion at the moment a
+     reader is finishing. This resolves in a single move.
+
+     AND THE WORD SPANS ARE GONE WITH IT. The overshoot needed each value split
+     into inline-block words to move them separately — nine to twenty-four
+     spans a page. The value moves as one box now, so the markup is back to a
+     plain <dd>.
+
+     inline-block IS STILL LOAD-BEARING on both halves: .cr__k and .cr__v are
+     display: inline, and a transform does not apply to a non-replaced inline
+     element. The recognition row needs no such declaration because its parts
+     are grid items and blockified already. Row widths are unaffected — 271,
+     137, 181, 553, 169 and 86 by 29 on Mumbai Standard Time, before and
+     after. */
+  .cr__list { --v2: calc(var(--v, 1) * var(--v, 1)); }
+  .cr__k {
+    display: inline-block;
+    opacity: calc(0.14 + var(--v, 1) * 0.86);
+    transform: translateY(calc((1 - var(--v, 1)) * 0.34em));
+    will-change: opacity, transform;
+  }
+  .cr__v {
+    display: inline-block;
+    opacity: calc(0.08 + var(--v2, 1) * 0.92);
+    transform: translateY(calc((1 - var(--v2, 1)) * 0.6em));
+    will-change: opacity, transform;
+  }
+
+  /* The watch link: right-aligned, at title scale, with no rule at all. The
+     separation from the credits is a full section of air and the fact that one
+     is a line of display type and the other a paragraph — not a box. */
+  .blk.wt { margin-bottom: clamp(64px, 11vh, 150px); text-align: right; }
+  .wt__a { display: inline-flex; align-items: baseline; gap: 14px; text-decoration: none; color: var(--bone); }
+  .wt__t { font-size: clamp(1.6rem, 4.2vw, 2.6rem); line-height: 1.05; letter-spacing: -0.02em; }
+  /* A · LEDGER ON THE WATCH LINK, applied 2026-09-07. The label rides the
+     page's own --v and the arrow lags on --v SQUARED — the same relationship
+     a recognition row has between its figure and the festival, and the
+     description between its standfirst and its paragraph.
+
+     THE ARROW ARRIVES ALONG ITS OWN DIAGONAL, up and to the right: the
+     direction the glyph points and the direction it already travels on
+     hover. So the entry and the hover are one gesture at two sizes rather
+     than two ideas sharing a control.
+
+     THE TRANSITION IS ON THE INNER BOX ONLY. --d-micro is 240ms, which is
+     long enough that a transition on the scroll-driven transform would drag
+     the arrow visibly behind the scroll. The outer span takes the scroll and
+     is untransitioned; the inner one takes the hover and is. */
+  .wt__a { --v2: calc(var(--v, 1) * var(--v, 1)); }
+  .wt__t {
+    opacity: calc(0.12 + var(--v, 1) * 0.88);
+    transform: translateY(calc((1 - var(--v, 1)) * 0.28em));
+    will-change: opacity, transform;
+  }
+  .wt__arw {
+    font-size: var(--t-md); color: var(--dim);
+    transition: color var(--d-micro) var(--ease);
+    opacity: calc(0.05 + var(--v2, 1) * 0.95);
+    transform: translate(calc((1 - var(--v2, 1)) * -14px), calc((1 - var(--v2, 1)) * 14px));
+    will-change: opacity, transform;
+  }
+  .wt__arw-i { display: inline-block; transition: transform var(--d-micro) var(--ease); }
+  .wt__a:hover .wt__arw { color: var(--bone); }
+  .wt__a:hover .wt__arw-i { transform: translate(3px, -3px); }
+  .wt__a:hover .wt__t { text-decoration: underline; text-underline-offset: 6px; }
+
+  /* THE BARE STILL IS A WINDOW, so it is given the film's width and the film's
+     button. On Taskaree and Special Ops the page has nothing to play: the
+     frame is the work, and the only way to watch is elsewhere. Sized at 760
+     with the link filed below it, that frame read as an illustration beside
+     the prose rather than as the thing the page is about.
+
+     It takes the SAME --film as the facade — not a second number — so the two
+     kinds of opening share an edge, and a change to one moves the other.
+
+     The button copies .facade__play: same inset from the corner, same border,
+     ground and blur, so a still that links out and a video that plays look
+     like the same control doing two jobs. It is an anchor rather than a
+     button because it leaves the site, and it carries the arrow the rest of
+     the page uses for that. */
+  .still { position: relative; }
+  .blk :global(.still) {
+    width: var(--film);
+    margin-inline: calc((100% - var(--film)) / 2);
+  }
+  .still__go {
+    position: absolute; left: var(--margin); bottom: var(--margin);
+    display: inline-flex; align-items: center; gap: 11px;
+    padding: 11px 18px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: rgba(10, 9, 8, 0.35);
+    backdrop-filter: blur(6px);
+    color: var(--bone); text-decoration: none;
+    transition: border-color var(--d-micro) var(--ease), background var(--d-micro) var(--ease);
+  }
+  .still__go .mono { color: inherit; }
+  .still__go:hover { border-color: var(--accent); background: rgba(10, 9, 8, 0.6); }
+  .still__arw { transition: transform var(--d-micro) var(--ease); }
+  .still__go:hover .still__arw { transform: translate(2px, -2px); }
+  @media (max-width: 900px) {
+    .still__go { left: var(--s-3); bottom: var(--s-3); padding: 9px 14px; }
+  }
+</style>
+
+<script>
+  /* ONE CLOCK for every assembling thing on the page.
+
+     A word's --v is how far its own top has risen past a line two thirds down
+     the window, normalised over a third of a screen. So words light in
+     reading order as the paragraph rises, the effect reverses on the way back
+     up, and nothing is ever mid-animation while the reader is still — which
+     is what separates this from a timed stagger, and the reason a timed one
+     looks right once and wrong every time after.
+
+
+     Writing a custom property per word is the expensive part, so a word is
+     only written when its value actually changes by enough to see: 240-odd
+     spans times sixty frames is otherwise fourteen thousand style writes a
+     second for a change no one can perceive. */
+  function initScore() {
+    const root = document.querySelector<HTMLElement>('[data-sc]');
+    if (!root || root.dataset.bound) return;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    root.dataset.bound = '1';
+
+    /* WORDS ONLY NOW. This also collected [data-rl] and drove the hairline
+       under each section's heading from the same number. The headings are
+       gone — Stills was the last — so there are no rules left to drive, and
+       the query goes rather than sit there returning an empty list. */
+    /* [data-w] is a word of prose. [data-v] is anything else that wants its
+       own progress — today, a recognition row. Same number, same formula, so
+       there is one clock on the page rather than two. */
+    const items = Array.from(root.querySelectorAll<HTMLElement>('[data-w], [data-v]'));
+    if (!items.length) return;
+
+    const last = new WeakMap<HTMLElement, number>();
+    let raf = 0;
+
+    const paint = () => {
+      raf = 0;
+      const line = innerHeight * 0.66;
+      const span = innerHeight / 3;
+      for (const el of items) {
+        const t = el.getBoundingClientRect().top;
+        const v = Math.min(1, Math.max(0, (line - t) / span));
+        const prev = last.get(el);
+        if (prev !== undefined && Math.abs(prev - v) < 0.02) continue;
+        last.set(el, v);
+        el.style.setProperty('--v', v.toFixed(3));
+      }
+    };
+    const tick = () => { if (!raf) raf = requestAnimationFrame(paint); };
+
+    paint();
+    addEventListener('scroll', tick, { passive: true });
+    addEventListener('resize', tick, { passive: true });
+  }
+  initScore();
+  document.addEventListener('astro:page-load', initScore);
+</script>
+
+<style is:global>
+  /* The same line index.astro carries: OpNav replaces the running head rather
+     than sitting under it. */
+  .runhead { display: none !important; }
+</style>
+
+<style>
+  /* ══ THE MOSAIC BED ═════════════════════════════════════════════ */
+  .ms__ground { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .ms__bed {
+    position: absolute; inset: -10%;
+    display: grid; grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-auto-rows: minmax(0, 1fr); gap: clamp(5px, 0.8vw, 13px);
+    transform: scale(1.06);
+    /* One filter on one element rather than thirty. */
+    filter: brightness(0.30) saturate(0.7) contrast(1.05);
+  }
+  .ms__tile {
+    display: block; overflow: hidden; min-height: 0;
+    border-radius: clamp(6px, 0.7vw, 12px);
+  }
+  /* Contrast composes multiplicatively: 1.05 on the bed and 1/1.05 here
+     resolves to 1.0 for the one tile BED_GRADE names. */
+  .ms__tile[style*="--bed-k"] { filter: contrast(calc(var(--bed-k) / 1.05)); }
+  .ms__tile--crop :global(.frame__layer img) {
+    transform: translateY(var(--crop-y, 0)) scale(var(--crop-s, 1));
+  }
+  .ms__tile :global(.st), .ms__tile :global(.st__win) { border-radius: inherit; height: 100%; }
+  @media (max-width: 900px) {
+    .ms__bed { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+
+  /* The bed is inset -10% inside an overflow: hidden ground, so the blur's
+     soft edge -- about three times its radius -- falls outside the clip and
+     no fringe reaches the viewport. */
+  :root[data-blur] .ms__bed {
+    filter: brightness(0.30) saturate(0.7) contrast(1.05) blur(var(--haze, 7px));
+  }
+
+  /* ══ THE SMOKE ══════════════════════════════════════════════════
+     Static at the About section's resting values rather than animated from
+     the opening, because a work page has no opening to protect. */
+  .sm {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background: color-mix(in srgb, var(--ground) calc(var(--smoke, 1) * 55%), transparent);
+  }
+
+  /* ══ THE CONTENT, LIFTED ════════════════════════════════════════
+     A fixed element at z-index 0 paints in step 6 of the painting order and
+     non-positioned inline content in step 5, so without this the bed sits
+     ON the text. index.astro does the same with .ov, .mvt at z-index 2. */
+  .sc { position: relative; z-index: 2; }
+  :global(.next), :global(.colophon) { position: relative; z-index: 2; }
+</style>
+
+<script>
+  /* A stated preference is not a capability: reduced motion never blurs.
+     ← THIS IS NOT THE REAL GATE. index.astro measures the device with a
+       frame-timing probe before setting this attribute, because the blur
+       covers 1.2x the viewport in each axis. Port that, not this, if the
+       bed is ever applied to a work page for real. */
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.documentElement.setAttribute('data-blur', '');
+  }
+</script>
