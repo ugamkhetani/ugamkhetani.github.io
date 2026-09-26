@@ -1,7 +1,8 @@
 # Handoff — Ugam Khetani portfolio
 
-A static Astro site. Sixteen works, twenty pages. Every project is one
-markdown file; every image is a file in a folder. No CMS, no database.
+A static Astro site. Sixteen works, eighteen real pages plus a kept preview
+library. Every project is one markdown file; every image is a file in a folder.
+No CMS, no database.
 
 This file is the briefing for whoever picks the work up next — including a
 fresh chat with no memory of how any of it got here. Read §1, then §5 and §6
@@ -14,10 +15,10 @@ before changing anything.
 Paste this:
 
 > I'm continuing work on my portfolio site at
-> `~/Desktop/Website Design/Website Draft 3`. It's static Astro, and it IS a git
-> repo now — one commit, working tree clean — so check `git status` before you
-> start and commit as you go. Read HANDOFF.md and README.md first, then tell me
-> what you understand the state to be before changing anything.
+> `~/Desktop/Website Design/Website Draft 3`. It's static Astro and a git repo —
+> check `git status` before you start and commit as you go. Read HANDOFF.md and
+> README.md first, then tell me what you understand the state to be before
+> changing anything.
 >
 > How I work: don't invent facts — names, credits, years and awards come from
 > my documents, and anything assumed gets flagged with a `←` comment. Build
@@ -29,28 +30,41 @@ Paste this:
 > HANDOFF.md §6 before debugging anything; those traps are all real and most of
 > them cost hours.
 >
-> Where we left off: the mosaic bed, the loading screen and the work pages are
-> all live and settled. Both of the old open questions are now closed — the
-> countdown dims per frame rather than globally, and Bloody Bubbly's bed tile
-> has a contrast exception that leaves the brightness cap intact. `/about` and
-> `/contact` are gone as standalone pages and redirect to the home page's
-> sections. Awaiting my decision, with nothing applied: mosaic drafts A–I and L,
-> recognition drafts B and C, and four alternate loaders. Two things need a
-> word from me. Everything in §7 marked "Settled" is decided — including two
-> things that look like unfixed problems and are not, so please don't re-raise
-> them.
+> Where we left off (2026-09-27): the home page is settled and there is
+> nothing half-applied. The mosaic bed, the loading screen and the sixteen work
+> pages are live. The home page's numbering, its Selected works heading, its
+> three step numbers, its About body drift and the sizes of both display lines
+> in the contact section were all applied over the last week and are in §5 —
+> they were each chosen from drafts and each one is measured, so please don't
+> re-derive them.
+>
+> The preview library was cut down to five directions on my instruction, plus
+> three records that are not designs. `/preview` lists them. **ab-hv2 is the
+> only one that is a live proposal**: a hover reading for Selected works that
+> puts a work's format, platform, role and year in the four corners of the
+> frame. It is not applied and is waiting on my word. The other four are About
+> and poster directions I want kept to compare against.
+>
+> Everything in §7 marked "Settled" is decided — including two things that look
+> like unfixed problems and are not, so please don't re-raise them.
 
 Then say what you want. The two files together are enough to work from.
 
 **Two things to know about how this was built.** Decisions were made against
 the uploaded PDFs as the source of truth — names, roles, credits, years,
 platforms, awards. Nothing was invented; where something had to be assumed it
-was flagged in the file with a `←` comment. Keep that habit. And previews were
-built as pages under `src/pages/preview/` so options could be judged in the
-real browser rather than described. **That folder is now KEPT, not thrown
-away** — it is a library of design directions to compare against and come back
-to. Do not delete any of it without asking Ugam first; the instruction has
-always come as "discard X, keep the rest".
+was flagged in the file with a `←` comment. Keep that habit. And previews are
+built as pages under `src/pages/preview/` so options can be judged in the real
+browser rather than described. **Build every option there and apply nothing
+without a word from Ugam.**
+
+**The folder is a KEPT library, and it is cut down rather than added to
+indefinitely.** It has been culled twice on Ugam's explicit instruction — 71
+pages on 2026-09-05 and 167 more on 2026-09-27 — and it now holds five chosen
+directions and three records. **Do not delete any of it without asking him
+first.** Both culls came as "keep these, discard the rest", and both times the
+instruction named what to keep. Everything removed is in git; §7 has the
+recovery command.
 
 ---
 
@@ -115,8 +129,9 @@ something to frame it, the frame wants something inside it.
 | `src/styles/tokens.css` | Every colour, size, duration. Nothing outside it invents one. |
 
 **Pages:** `/` · `/contents` · `/work/<slug>` ×16, plus whatever is under
-`/preview/`. **23 pages build** — 18 real plus 5 current drafts — and two
-redirect stubs for the retired `/about` and `/contact` URLs, so 25 files.
+`/preview/`. **29 HTML files build** — 18 real, the preview index and eight
+drafts under it, and two redirect stubs for the retired `/about` and
+`/contact` URLs.
 
 **Overlays:** none. All three outgrew them — Contents was the last, and
 `Overlay.astro` plus the `overlay` branch in `RunHead.astro` are now unused.
@@ -665,6 +680,91 @@ button copies `.facade__play` — same inset, border, ground and blur — so a
 still that links out and a video that plays read as one control doing two
 jobs. It is an anchor rather than a button because it leaves the site.
 
+### Applied to the home page, 2026-09-20 to 2026-09-27
+
+Each of these was chosen from a set of drafts and each number below was
+measured rather than picked. The drafts they came from are gone (§7); the
+reasoning is in `index.astro`'s own comments, at the rule.
+
+**`--mono` IS NOT MONOSPACE ON THIS PAGE, and it will catch you.**
+`index.astro` carries `:root .rg { --mono: var(--display); }` — the 2026-09-21
+re-face that took the running head, the four corner labels, the Scroll cue and
+the contact form's email preview off JetBrains Mono. Every "mono label" on the
+home page therefore sets in the display stack, which itself falls through to
+Helvetica Neue until the licensed face lands. Declaring the token rather than a
+family is deliberate: those labels follow the page if Neue Haas is ever
+installed. **Measured, to save you the probe:** the named "Neue Haas Grotesk
+Display" sets "Selected works" at 608.15px, exactly what a deliberately
+invented family name gives, while "Helvetica Neue" gives 688.80. `.peek__body`
+is the one place the mono carried meaning rather than style and is the one to
+reconsider — exempting it is one selector.
+
+**The Selected works heading is sized from the grid, not chosen.** Applied
+from `ab-wh3e` · THE LINTEL and then stepped down twice on Ugam's word. It is
+now **nine of the twelve columns** — 97.83px, 7.643vw at 1280 — and it sits
+behind the work icons on purpose, its lower third bitten by the cards by about
+19%. The size is written as an expression, not a pixel value:
+`(measure − 3 columns) / 8.583`, where **8.583 is the painted ink per px of
+size** for "SELECTED WORKS" uppercase at −0.045em. The layout figure is 8.538
+and differs because all fourteen letter-spaces sit inside the layout box while
+the final K paints out to where the box began. Use the painted figure for how
+it looks and the layout figure for where it wraps.
+
+**Its vertical anchor is the card band, not 30vh.** The common card's top edge
+is `50vh − min(20vh, 13vw)`, which equals 30vh **only at 1280×800**. Anchored
+at a flat 30vh the heading cleared the cards entirely at 1024 — measured, the
+bite went to −11.94.
+
+**The section numbers are 18px at weight 100.** From `ab-sy4`: `letter-spacing:
+0.06em`, `line-height: 1.1`, `--bone-dim`. Selected works gained an `01` of its
+own as `.wk-no`, absolutely positioned. ← That added `01` is the one part of
+this Ugam can drop without touching anything else.
+
+**The three step numbers recede as the step is read.** From `ab-nq6`: half the
+step title's size, `opacity: 0.55`, on a `view-timeline` that takes them to
+0.25 as the step passes the middle of the screen and back to 0.85 as it leaves.
+The inversion is the point — the figure helps you before you start reading and
+withdraws while the words have you. Guarded by `@supports` and
+`prefers-reduced-motion`.
+
+**The three FIND THE LANGUAGE questions are italic, and the italic is drawn.**
+`font-style: italic` at `#C0C0C0`, with the gaps between them tightened to
+4.2px while the 16.8px above the first and below the last are kept. The face
+has a true Italic — measured, "What does it feel like?" sets 390.4px italic
+against 393.4px roman at 40px, where a synthetic oblique is a pure shear and
+would leave the advances identical. The colour is lifted from `--po-grey`
+(#9B9B9B, 3.09:1 over the mosaic's brightest frame, the only text on the page
+below the floor) to #C0C0C0 at 4.72:1.
+
+**The two display lines in the contact section are each a fraction of their own
+column, and the fractions differ.** "Let's talk." is **0.85** of the 5fr
+column; the send action is **0.78** of the 7fr column. Both are written as
+`column × fraction ÷ ink-per-px` so they hold at every width — measured 0.7800
+/ 0.7801 / 0.7800 at 1280 / 1440 / 1024. **They used to match**: before
+2026-09-27 the send action sat at 0.842 against the greeting's 0.85, which may
+well have been deliberate. It is recorded at both rules so whoever moves one
+knows what the other was doing. Ink per px of size: 4.409 untracked for "Let's
+talk." (painted = 4.409 + 10t, layout = 4.409 + 11t), 7.3595 for "Send this
+enquiry".
+
+**The About body text drifts against the scroll.** From `ab-mo6`: `.po-body`,
+`.po-lede` and `.po-steplines` travel −16px to +16px on a `view()` timeline
+over the `cover` range. Heading animations were explicitly NOT taken.
+
+**The mosaic bed names its partial cells.** `BED_CELLS` in `src/lib/bed.ts`
+overrides 18 of the 30 tiles by cell index, each with a slug, a frame number
+and a note. **The twelve fully visible centre stills are fixed and were not to
+be touched**; the eighteen partial ones were re-picked so no work sits beside
+itself and no still repeats from the centre twelve. Two are held by name —
+Shiva at cell 4 and Diwali at cell 27.
+
+**Aasha opens on a still and links out to ZEE5.** The YouTube embed is gone;
+`external` carries platform, label and url. ← The first link Ugam sent
+resolved to a different film — `deep_link_value`, `desktop_url` and `af_dp`
+all said `elizabeth-ekadashi` — and he supplied a corrected one. **Resolve a
+OneLink before shipping it**; the visible URL says nothing about where it goes.
+
+
 ---
 
 ## 6 · Traps — every one of these cost real time
@@ -984,11 +1084,73 @@ production. Quote it AND `encodeURI` it — quotes make it parse, the encoding
 makes it fetch. Caught on the X · Frame draft, where a heading filled with the
 work's own still was rendering as nothing at all.
 
+**`max(<length>, min-content)` is invalid, and the whole declaration is
+dropped.** `min-content` is an intrinsic sizing KEYWORD, not a `<length>`, so
+it cannot appear inside `max()`, `min()` or `calc()`. The rule fails at parse
+time with no error anywhere, the property falls back to `auto`, and a panel
+that should have been the width of a picture silently shrink-wraps to its own
+text — which then feeds the wrong number to anything measuring it. Measured on
+the hover drafts: a caption came out 237.2px across a 556.9px picture, on four
+lines at its minimum size, where it should have been two lines at its maximum.
+**Write `width: calc(…)` and `min-width: min-content` as two declarations.**
+
+**A z-index cannot escape a `perspective` or a `preserve-3d`.** `.wk__scene`
+carries `perspective: 1250px` and `.wk__world` carries `transform-style:
+preserve-3d`, and both create a stacking context — so a `.wcard`'s z-index is
+only ever compared against its fifteen siblings inside the scene. The scene
+itself sits at `z-index: auto`, which means ANY sibling of it with a positive
+z-index paints over the entire subtree, and no value on a card can climb back
+over that. Measured: with a card at an inline `z-index: 300`,
+`elementsFromPoint` at that card's own centre returned the overlay first, above
+the card's image. It looks exactly like a z-index that is too low, and raising
+it can never work. To dim everything except one card, dim the CARDS — see the
+`--pv-k` pattern in the history at `d312fef`, which multiplies into `opacity`
+alongside the per-frame `--op` so the two cannot fight.
+
+**`getPropertyValue` on a custom property hands back the UNRESOLVED token.**
+`--margin` is `clamp(24px, 6vw, 88px)`, and that string is what you get — so
+`parseFloat` returns NaN and any JS clamp written against it silently becomes
+no clamp at all, with the `|| 0` fallback quietly standing in. Only registered
+properties (`@property`) compute to a value. **Do the arithmetic in the
+stylesheet**, where `min()` and `max()` can evaluate the token, and write raw
+pixel values from JS for the stylesheet to clamp.
+
+**The preview pane's rAF shim recurses if you make it synchronous.** This
+section already says rAF is bursty there; the obvious fix —
+`requestAnimationFrame = f => { f(0); return 0 }` — turns any handler that
+reschedules itself into unbounded recursion, and the console fills with
+`Maximum call stack size exceeded` from `main.ts` that looks exactly like a
+real fault in the page. Back it with a timer instead:
+`requestAnimationFrame = f => setTimeout(() => f(performance.now()), 0)`, then
+`await` a short delay. And the console buffer keeps history across navigations,
+so **judge a page's console on a FRESH TAB**.
+
+**A hidden pane also refuses to screenshot.** The call times out with "the
+Browser pane is not displayed, so the page is not compositing frames" — which
+rules out the "act, screenshot, then measure" trick for pumping frames. The
+timer-backed shim above is the replacement.
+
+**`innerText` and `textContent` disagree about clipped type.** `textContent`
+includes `display: none` and `visibility: hidden` subtrees; `innerText`
+excludes those but INCLUDES text that is merely `clip-path`ed to nothing. So a
+draft that authors separators inside a live element reads +2 on `innerText`
+while painting nothing at all. Use `innerText` for "what does the reader see",
+and predict the delta rather than chasing it.
+
+**The home page's own character count moves with the scroll position, and it
+is NOT a content change.** `.rl__cap` is the conveyor's live readout and its
+string changes as you scroll: 2455 at the top of the section where it reads
+"Mumbai Standard Time", 2450 mid-section where it reads "Special Ops 2.0".
+Compare a draft against live **at the same scroll position**, or both on a
+fresh load. This has been mistaken for a content difference twice.
+
+
 ## 7 · State of play
 
 ### What the site is, as of now
-**23 pages build clean** — 18 real, 5 under `/preview/` — plus two redirect
-stubs for the retired `/about` and `/contact` URLs, so 25 files.
+**29 HTML files build clean**: the home page, Contents, sixteen work pages,
+the preview index and eight drafts under it — 27 pages — plus two redirect
+stubs for the retired `/about` and `/contact` URLs.
 
 The home page is **one page**: the Academy-countdown opening, the `OpNav`
 menu, a fixed mosaic bed of the catalogue behind everything, the aperture mat,
@@ -1021,46 +1183,89 @@ All sixteen works have real stills. Homepage, sixteen project pages, Contents.
 
 ### There is a preview index at `/preview`
 Any `.astro` file dropped in `src/pages/preview/` is listed there on the next
-build — the page globs the folder rather than keeping a list, so it cannot go
-stale, and a draft with no entry in its `NOTES` map still appears under a title
-derived from its filename.
+build — the page globs the folder rather than keeping a list, so the LISTING
+cannot go stale, and a draft with no entry in its `NOTES` map still appears
+under a title derived from its filename.
 
-### The library that was there before was DELETED on 2026-09-05
-71 pages, the 10 shared `_pv-*` components and `_pv-mosaic.ts`, on Ugam's
-instruction. **The standing rule before that was to ask first, and it still
-is** — he asked for it explicitly. It is all in git; a single draft comes back
-with `git checkout cdaf71e^ -- src/pages/preview/<name>.astro`.
+The `NOTES` map itself can go stale, and did: after the 2026-09-27 cull it
+still described 155 files that no longer existed. It is now pruned to the eight
+that are there. **If you delete a draft, drop its note as well** — and do not
+delete `index.astro` itself while filtering the folder by filename, which is
+how it was lost and restored in `b4390c4`.
+
+### The library has been culled twice, both times on Ugam's instruction
+
+**2026-09-05 — 71 pages**, plus the 10 shared `_pv-*` components and
+`_pv-mosaic.ts`. Recover a single draft with
+`git checkout cdaf71e^ -- src/pages/preview/<name>.astro`.
+
+**2026-09-27 — 167 more.** Ugam named five directions to keep and everything
+else went. Recover the whole folder as it was with
+`git checkout d312fef -- src/pages/preview/`, or one file by name from the
+same commit. What is left:
+
+| | |
+| --- | --- |
+| `ab-hv2` | **HV2 · The Corners** — the only live proposal. A hover reading for Selected works: format, platform, role and year, one in each corner of the frame. Not applied. |
+| `ab-blend1` | Blend 1 · Pin, with the live statements |
+| `ab-fitlive` | Fit · with the live frame |
+| `ab-d` | D · Poster |
+| `ab-fh5` | FH5 · Hanging Display |
+| `ab-live-prior` | **A record, not a design.** `index.astro` verbatim at `2533db9`, immediately before the 2026-09-22 numbering edit. The revert point. |
+| `ab-live` | **A record.** The home page as it stood on 2026-09-20, before op1. |
+| `ab-wh3e` | **A record.** THE LINTEL — the source of the Selected works heading that is live now. |
+
+`index.astro`'s own comments point at the last three, so they were kept on a
+separate question rather than swept up with the drafts.
+
+**The standing rule is still to ask first.** Both culls were explicit
+instructions from Ugam naming what to keep.
 
 What survived and why: `src/lib/cards.ts`, `bed.ts`, `frames.ts`, `awards.ts`
 and `assets.ts` were split out so drafts could share the live tables, but the
 real pages read them too. Their comments no longer claim a draft is the reason
 they are split.
 
-**One capability went with it.** `/preview/loading-a-leader` was the only place
-the countdown could be watched, since on the home page it runs once per
-session. `Opening.astro` now carries the console recipe that replaces it,
+**One capability went with that first cull.** `/preview/loading-a-leader` was
+the only place the countdown could be watched, since on the home page it runs
+once per session. `Opening.astro` now carries the console recipe that replaces it,
 including how to hold a single count still given the animations drop off the
 timeline when they finish.
 
-### Awaiting a decision — nothing applied
-- **Mosaic bed:** drafts A–I and L are unapplied. A–C predate the "same
-  geometry" constraint and propose new geometry. D–I are placements of a ranked
-  twelve. **L** proposes swapping My Red Crayon and The Shiva Trilogy. **J** and
-  **M** are applied and kept as records.
-- **Recognition:** **B · Plate** and **C · Register** unapplied; **A · Index**
-  is live on the six citation works.
-- **Loading screen:** Gate, Contact, Scope and Slats are unapplied alternates;
-  **Leader** is live. Each is drop-in — one import in `index.astro`.
-- **Conveyor card size:** **E · Draw is applied.** Every mode is still in
-  `src/lib/cards.ts` and switching is one word in `index.astro`; the five
-  draft PAGES are gone with the rest of the library.
+### Awaiting a decision
+
+**One thing only: `ab-hv2` · THE CORNERS.** A hover reading for Selected works
+— point at a work and its format, platform, role and year set in the four
+corners of the frame, in the page's own corner furniture, with nothing in the
+middle. Nothing is applied. It reads its four facts through
+**`src/lib/wkinfo.ts`**, which is a new module that nothing live imports; if
+the draft is dropped, that file goes with it.
+
+Two data questions come with it, both flagged in `wkinfo.ts`'s header:
+
+- **Four works name no platform at all** — Aladdin Dateable Bites, Bloody
+  Bubbly, Dinshaw's Dildaari Battles and Book My Yamraj. Three of them carry a
+  `Channels: Social-first` meta row, which the draft shows under its own label.
+  Book My Yamraj has neither and returns three facts rather than four; every
+  layout was built to take three. Should the other three say "Social-first", or
+  should the row be absent for all four?
+- **Book My Yamraj's `studio` is Chivitra.** Nothing in the documents says the
+  series streams there, so nothing is claimed. Should it name a platform?
+
+Also unresolved: **Roar and The Shiva Trilogy have no written `Format` meta
+row** and fall back to `category` ("Spec Trailer"). Everything else in §7's old
+decision list — the mosaic drafts, the recognition drafts, the alternate
+loaders, the conveyor card modes — was settled or the drafts were culled.
+**E · Draw is the applied card mode**; every mode is still in
+`src/lib/cards.ts` and switching is one word in `index.astro`.
 - **The opening film's width on work pages: D · Inset is APPLIED** — 1050x590
   at 1280x800 against a 760px measure. The five drafts it was chosen from were
   deleted on Ugam's instruction; they are in the history.
-- **The order of a work page's sections.** Three drafts on Aasha at
-  `/preview/aasha-order-a|b|c`, all putting the **credits straight after the
-  film window, with the score following**. As it stands the one block of hard
-  fact is the last thing reached, after two blocks of prose and a grid.
+- **The order of a work page's sections — DRAFTS GONE, question open.** Three
+  drafts existed on Aasha at `/preview/aasha-order-a|b|c` and were culled on
+  2026-09-27; they are at `d312fef`. All three put the **credits straight after
+  the film window, with the score following**. As it stands the one block of
+  hard fact is the last thing reached, after two blocks of prose and a grid.
 
   | | order |
   | --- | --- |
@@ -1074,10 +1279,10 @@ timeline when they finish.
   The 42 label and layout drafts that were here before were deleted on Ugam's
   instruction; they are in the history.
 - **A more minimal, more editorial work page: D · Colophon is APPLIED** to all
-  sixteen. The nine drafts stay at `/preview/aasha-edit-a..i` as the record;
-  `aasha-edit-d` now reflects the live page. The other eight drop the "The work", "The score" and
-  "Credits" headings and keep only **Stills**, redesign the credits, and lift
-  the watch link out of the credits into its own section:
+  sixteen. The nine drafts were at `/preview/aasha-edit-a..i` and were culled
+  on 2026-09-27; they are at `d312fef`. The other eight dropped the "The work",
+  "The score" and "Credits" headings and kept only **Stills**, redesigned the
+  credits, and lifted the watch link out of the credits into its own section:
 
   | | credits | watch link |
   | --- | --- | --- |
@@ -1126,8 +1331,8 @@ are written down.
   `COUNTDOWN`. Ugam has seen this and wants it left as it is.
 
 ### Housekeeping
-**This IS now a git repository** — initialised at the handoff, one commit on
-`main`, 275 files, working tree clean. `node_modules`, `dist`, `.astro` and
+**This IS a git repository** — `main`, 286 commits as of 2026-09-27, working
+tree clean. `node_modules`, `dist`, `.astro` and
 `.DS_Store` are ignored; `src/media` (279MB of stills) and `_originals` (34MB)
 are tracked, because they are source the site builds from and there is no other
 copy. No single file exceeds 7.5MB, so nothing approaches GitHub's 100MB limit,
