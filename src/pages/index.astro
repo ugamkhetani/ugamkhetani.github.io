@@ -2886,10 +2886,36 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
       white-space: nowrap;
     }
   }
-  /* 5.59vw = 71.6px at 1280: the form column, filled. */
+  /* THE SEND ACTION, SIZED FROM ITS COLUMN.
+     It was clamp(2.2rem, 5.59vw, 5.9rem) -- 71.55px at 1280 -- under a
+     comment claiming it filled the form column. It did not: "Send this
+     enquiry" runs 7.3595px of ink per px of size, measured and constant
+     across widths, so at 71.55 it was 526.5px of ink in a 625.3px column.
+     0.842 of it, with 98.8px of slack.
+
+     0.78 now, which is 66.28px at 1280 and 7.4 per cent down.
+
+     DERIVED FROM THE COLUMN RATHER THAN FROZEN AS A vw, so the fraction
+     holds at every width instead of drifting: .ct__page is 5fr 7fr above
+     900 with a column-gap of 3.4em against an inherited 16px root, so the
+     form's column is (measure - 54.4) x 7/12 and the size is that times
+     0.78 over the ink constant.
+
+     <- IT WAS MATCHING THE GREETING AND NO LONGER IS. "Let's talk." sits at
+       0.85 of its own 5fr column; this sat at 0.842 of the 7fr one, so the
+       two display lines in this section filled their columns to within a
+       per cent of each other. That was either deliberate or a happy
+       accident, and it is worth knowing which before this is taken further
+       down -- the pair is now 0.85 against 0.78. */
   :root .rg .sm-form :global(.send__act) {
     font-size: clamp(2.2rem, 5.59vw, 5.9rem);
     line-height: 0.98; letter-spacing: -0.04em;
+  }
+  @media (min-width: 901px) {
+    :root .rg .sm-form :global(.send__act) {
+      --send-col: calc((100vw - 2 * var(--margin) - 3.4rem) * 7 / 12);
+      font-size: calc(var(--send-col) * 0.78 / 7.3595);
+    }
   }
 
   :root .rg .sm-form :global(.q__q) {
