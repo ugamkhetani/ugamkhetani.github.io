@@ -1,0 +1,129 @@
+---
+/**
+ * THE PREVIEW INDEX — one page that lists every draft.
+ *
+ * The library used to be 71 pages with no way in except a URL you had to
+ * remember, and it was deleted partly for that. This is the way back in: any
+ * .astro file dropped in this folder appears here on the next build, with no
+ * list to keep in step.
+ *
+ * DISCOVERY IS A GLOB, NOT A TABLE. `import.meta.glob` is evaluated at build
+ * time and is eager: false, so nothing here loads a draft's module — only its
+ * path is read. A draft that is deleted stops being listed because the file is
+ * gone, which is the only kind of index that cannot go stale.
+ *
+ * The glob is case-sensitive, as it is in src/lib/frames.ts (HANDOFF §6), but
+ * every page in this folder is lowercase .astro so one pattern is enough.
+ *
+ * NOTES ARE OPTIONAL. A slug with no entry in NOTES still lists, under a title
+ * derived from its filename — so adding a draft never means editing this file,
+ * and writing a note is a courtesy rather than a requirement.
+ */
+import Base from '../../layouts/Base.astro';
+
+const pages = Object.keys(import.meta.glob('./*.astro', { eager: false }))
+  .map((p) => p.replace('./', '').replace('.astro', ''))
+  .filter((s) => s !== 'index')
+  .sort();
+
+/** slug → [group, title, note]. Anything missing falls back to its filename. */
+const NOTES: Record<string, [string, string, string]> = {
+  'ab-blend1': ['About · Blends', 'Blend 1 · Pin, with the live statements', 'P2j · Pin throughout — the cropped panning names, the 26px spindle-hole port onto a 1400px record, the centred prose, What I work across and How I work — with the Who I am and closing statements taken from the live site as its own markup, not a copy of its styling. So they arrive the way they do on the site: each line rising out of an overflow-hidden box, the closing one word at a time, 70ms apart. Two clocks on one page — the site’s reveal, which fires once, and P2j’s scroll-driven turn and pan, which run throughout.'],
+  'ab-d': ['About · redesigned from scratch', 'D · Poster', 'Swiss posters in the site’s own grotesk: each movement’s name so large the screen crops it, panning sideways as you scroll past, over a strict twelve-column grid. Monochrome — the only colour is the site’s orange on the full stops.'],
+  'ab-fh5': ['About · ab-fv8, process at scale', 'FH5 · Hanging Display', 'FV8’s idea at the size FV8 should have used. Same display face, same uppercase, same −0.045em — the page’s own way of naming a movement — but at 2.63 times the body instead of 1.65: 40.8px against 15.5px. At that scale the tight tracking stops reading as a label’s device and starts reading as what it is on the frame above. The names sit flush left and the prose indents three characters under them, so the left edge of the section is three large names and nothing else. No rules, no numbers, no boxes: one alignment, held.'],
+  'ab-fitlive': ['About · Blends', 'Fit · with the live frame', 'Blend 1b · Fit with its fitted SVG titles replaced by the live site’s own heading apparatus, lifted whole: the movement number and name at the top left, the place at the top right, the folio and year range at the bottom left, Selected works and the scroll cue at the bottom right, and the name again at size in the middle. Everything below the frame is Fit’s — the live statements and their reveals, the prose at 48 characters, How I work at 42 with its questions breaking to 56. Amended 19 Sep: the spindle ports and the records behind them are gone, the closing statement is set in the opening statement’s face rather than the serif, and Who I am carries 02 in the accent like the three movements below it.'],
+  'ab-hv2': ['Selected works · the hover reading', 'HV2 · The Corners', 'Hover a work in the conveyor and it answers with its format, platform, role and year \u2014 one fact in each corner of the frame, in the page\u2019s own corner furniture, with nothing at all in the middle. The frame labels the picture instead of the picture carrying a label. Flat hierarchy on purpose: four facts, four corners, one size, one weight, one tone, because which of them matters is the reader\u2019s business. The four blocks travel 12px in from their own corners and land together at 170ms rather than in a stagger \u2014 a stagger makes the frame assemble, landing together makes it arrive. Measured at 1280\u00d7800: x 76.8 and 1203.2, y 96\u2013135.5 and 664.5\u2013704, clear of the cards, the readout and the running head. A work with only three facts fills the corners in reading order and leaves the last one empty.'],
+  'ab-live': ['The site itself', 'The homepage before op1 · 20 Sep 2026', 'A byte-for-byte copy of src/pages/index.astro as it stood immediately before the op1 design was applied, kept so the previous site can be read, compared or restored without going through git. Only two things differ from the original: every relative import is one level deeper, because this sits in preview/, and its header comment. The About movements are .mvt--a2 sections with the live statements and their reveals rather than Swiss posters; there is no pane over the page, so the bed shows only through .ap__mat’s breathing window; the conveyor sits on solid ground; and the bed’s grade is on each of the thirty tiles rather than on the bed. This is the page every draft in this library was measured against.'],
+  'ab-live-prior': ['Revert point', 'The live site before 2026-09-22', 'A REVERT POINT, NOT A DESIGN. src/pages/index.astro copied verbatim at commit 2533db9, immediately before four things were applied to it in one pass: the section numbers from ab-sy4, the How I work body layout from ab-fs1, the three step numbers from ab-nm1 and the About body-text drift from ab-mo6. Nothing is changed except what has to be — the eleven relative imports gain one ../ because this file sits a directory deeper, and a header comment is added. Verified byte-exact: undoing those two things reproduces the live file’s sha256 (ea5d8e9e985a70e1). To go back, git show 2533db9:src/pages/index.astro > src/pages/index.astro; this page exists so the previous state can be opened and compared side by side, not because git has lost it.'],
+  'ab-wh3e': ['Behind the work, on screen', 'WH3E · The Lintel', 'The heading is exactly the measure — declared as the measure divided by the ink constant rather than as a vw number, so it is as wide as the page’s text column at every width, with .fr’s padding-inline cancelled so it starts on the margin with everything else. 131.24px, 10.253vw, 1126.4px of ink filling the measure exactly at 1280 — 76.80 to 1203.20, both margins met. The lightest bite but one: a fifth of the cap, 19.2px of 95.9, under the stills. A lintel the work stacks against. Variations of ab-wh3, which drops .fr--over to z-index 0 so the stills travel in front of the word: .wcard carries z-index 100 and .fr--over only 6, which looks as though the cards already win — they do not, because .wk__pin is position: sticky and sticky always creates a stacking context, so the cards’ 100 is scoped inside the pin and never competes with the frame. What competes is the pin’s own z-index, which is auto. WHAT AB-WH3 DOES NOT DO, measured at 1280 x 800: its ink runs x 128 to 1439, so 159px is off the screen; and its painted cap band is y 926 to 1036 against a card band starting at 1040, so the word CLEARS the work by four pixels rather than going behind it. That tangency is deliberate — 880 + 40 + 0.78 x 153.6 = 1039.81 against 1040.000 — which is why shrinking alone makes it worse: every one of ab-wh3a to ab-wh3d lifts the baseline further clear. So these push the frame down as well, each naming its bite as a fraction of its own cap: top = 50vh - min(20vh, 13vw) - clamp(30px, 5vh, 66px) - size x (0.78 - 0.731 beta), where the first term is the common card’s own top edge — a card is height: min(40vh, 26vw) x --card-k placed top: 50% and pulled back half its height. That equals 30vh at 1280 x 800 and nowhere else, because 26vw and 40vh cross exactly there; anchored to a flat 30vh the bite measured -11.94px at 1024, the word clear of the work again. The baseline sits 0.78em below the frame’s content top (line-height 0.8 against a 1.20em font box) and the cap is 0.731em. The bite is not uniform across the run, which is the design: --card-k enlarges anything narrower than a square by ratio^-0.75, so a 9:16 work stands 492.7px tall against the common 320 and cuts deeper, through a 277px slice of the word. Every figure quoted is the bite against the common height, twelve of the sixteen works. Scoped above 900px, where the pin is still sticky. The ink constant here is 8.583, not the 8.538 used earlier in this thread: with letter-spacing toggled the layout box moves by 96.77px = 14 x 6.912 exactly, so all fourteen spacings are inside it, and the trailing one pulls the box in 6.912px while the final K still paints out to where it was. One correction they all carry: .fr inherits text-align: center, and the box that centring uses is 0.045em narrower than the ink, because all fourteen spacings sit inside it while the final K still paints out to where the fourteenth began. That puts the painted word 0.0225em — 2.95px here — right of true centre, overhanging the right margin while leaving a gap at the left, on the live page as much as here. padding-right: 0.045em on .fr__t makes the box as wide as the ink again, so what gets centred is what you can see. Nothing else changes — same white, same face, same weight, same -0.045em, same stills and animation.'],
+};const pretty = (s: string) =>
+  s.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+
+const groups = new Map<string, { slug: string; title: string; note: string }[]>();
+for (const slug of pages) {
+  const [group, title, note] = NOTES[slug] ?? ['Unfiled', pretty(slug), ''];
+  if (!groups.has(group)) groups.set(group, []);
+  groups.get(group)!.push({ slug, title, note });
+}
+---
+
+<Base title="Previews — Ugam Khetani">
+  <main class="pv">
+    <header class="pv__hd">
+      <p class="mono pv__eyebrow">Previews</p>
+      <h1 class="pv__t">Drafts</h1>
+      <p class="pv__lede">
+        Design options built as real pages, to be judged in the browser rather
+        than described. Nothing here is on the live site unless it says so.
+      </p>
+      <p class="mono pv__count">{pages.length} {pages.length === 1 ? 'draft' : 'drafts'}</p>
+    </header>
+
+    {[...groups].map(([group, items]) => (
+      <section class="pv__grp" aria-label={group}>
+        <p class="mono pv__grpname">{group}</p>
+        <ul class="pv__list">
+          {items.map((it) => (
+            <li class="pv__row">
+              <a class="pv__a" href={`/preview/${it.slug}`}>
+                <span class="pv__name">{it.title}</span>
+                <span class="mono pv__slug">{it.slug}</span>
+                {it.note && <span class="pv__note">{it.note}</span>}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+
+    <p class="mono pv__back"><a href="/">&larr; Back to the site</a></p>
+  </main>
+</Base>
+
+<style>
+  .pv {
+    max-width: min(860px, 100%);
+    margin-inline: auto;
+    padding: clamp(96px, 15vh, 190px) var(--margin) clamp(80px, 14vh, 180px);
+  }
+  .pv__eyebrow {
+    margin: 0 0 clamp(18px, 3vh, 30px);
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--dim);
+  }
+  .pv__t {
+    margin: 0 0 clamp(18px, 3vh, 28px);
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(2.4rem, 7vw, 4.2rem); line-height: 1; letter-spacing: -0.03em;
+  }
+  .pv__lede { margin: 0 0 14px; max-width: 52ch; font-size: var(--t-md); color: var(--bone-dim); }
+  .pv__count { margin: 0 0 clamp(56px, 9vh, 110px); font-size: var(--t-micro); color: var(--dim); }
+
+  .pv__grp { margin-bottom: clamp(52px, 8vh, 96px); }
+  .pv__grpname {
+    margin: 0 0 clamp(14px, 2vh, 20px); padding-bottom: 12px;
+    border-bottom: 1px solid var(--rule);
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--bone-dim);
+  }
+  .pv__list { list-style: none; margin: 0; padding: 0; }
+  .pv__row { border-bottom: 1px solid var(--rule); }
+  .pv__a {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px clamp(16px, 3vw, 40px); align-items: baseline;
+    padding-block: clamp(16px, 2.4vh, 24px);
+    text-decoration: none; color: var(--bone);
+  }
+  .pv__name { font-size: var(--t-md); }
+  .pv__slug { font-size: var(--t-micro); color: var(--dim); text-align: right; }
+  .pv__note {
+    grid-column: 1 / -1; max-width: 60ch;
+    font-size: var(--t-sm); color: var(--bone-dim); line-height: 1.5;
+  }
+  .pv__a:hover .pv__name { text-decoration: underline; text-underline-offset: 4px; }
+  .pv__a:hover .pv__slug { color: var(--bone-dim); }
+
+  .pv__back { margin: 0; font-size: var(--t-micro); }
+  .pv__back a { color: var(--dim); text-decoration: none; }
+  .pv__back a:hover { color: var(--bone); }
+</style>
