@@ -1249,6 +1249,18 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
       });
     };
 
+    /* GUARDED, BECAUSE place() RUNS ON EVERY SCROLL FRAME WHILE A WORK IS
+       HELD. Writing an attribute that is already set still invalidates
+       style — the conveyor's own paint() guards its `inert` toggle for
+       exactly this reason — so sixteen unguarded writes a frame is sixteen
+       style invalidations for no change at all. */
+    const mark = (c: HTMLElement | null, attr: string) => {
+      cards.forEach((o) => {
+        const want = o === c;
+        if (o.hasAttribute(attr) !== want) o.toggleAttribute(attr, want);
+      });
+    };
+
     /* THE ONE THING THIS DIRECTION WRITES TO THE CARDS. The reading runs the
        full width of the frame, so its type lands in the margins — and the
        margins are not empty, because the conveyor is edge to edge and runs
@@ -1262,7 +1274,7 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
        .wk__world's preserve-3d each make a stacking context, so the way to
        single one out is to dim the OTHERS. */
     const place = (c: HTMLElement) => {
-      cards.forEach((o) => o.toggleAttribute('data-lit', o === c));
+      mark(c, 'data-lit');
     };
     const show = (c: HTMLElement) => {
       held = c;
@@ -1272,7 +1284,7 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
       sec.classList.add('is-hv');
     };
     const hide = () => {
-      cards.forEach((o) => o.removeAttribute('data-lit'));
+      mark(null, 'data-lit');
       held = null;
       sec.classList.remove('is-hv');
     };
