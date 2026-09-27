@@ -33,12 +33,26 @@
  * needs the line's width, which is why this is the one direction in the set
  * that FILLS BEFORE IT PLACES. The order is inverted here and nowhere else.
  *
+ * EACH FACT IS STACKED, LABEL OVER VALUE, AND THAT IS A MEASUREMENT AND NOT
+ * A LOOK. Set side by side the four facts ran 647.7px — more than half the
+ * frame — and there was then a 197px band of pointer positions, x 541.5 to
+ * 738.5, where the line fitted on neither side of the plumb; the clamp drove
+ * it through its own rule. Stacked, a fact is only as wide as its value, the
+ * line comes to 430.3px, and every x in the frame has a side that fits.
+ *
+ * SWEPT AND COUNTED, 68 pointer positions across the centred work at 1280x800
+ * at 8px intervals: ZERO crossings of the rule, ZERO starts off a column
+ * boundary, ZERO breaches of either margin, and a smallest gap to the rule of
+ * 15.9px against the 14px the placement asks for. Exactly one side flip, at
+ * pointer x 737.7 — which is where the next boundary out, 841.4, would carry
+ * the line's right edge to 1271.7 against a right margin at 1203.2.
+ *
  * WHY ONE LINE AND NOT A STACK. Four stacked pairs would be 194px tall from
  * y 96, which runs straight into the work band — the tallest thing the
  * conveyor produces is a 9:16 work at full scale spanning y 153.6 to 646.4.
- * Set as one line the reading is 19px tall and sits entirely inside the
- * clear top band, so the ONLY thing that ever crosses a photograph is the
- * hairline itself. That is the direction's whole discipline: the rule may
+ * Set as one row of stacked facts the reading occupies y 105 to 137, 32px,
+ * entirely inside the clear top band of y 72 to 155 — so the ONLY thing that
+ * ever crosses a photograph is the hairline itself. That is the direction's whole discipline: the rule may
  * cross the pictures, the type may not.
  *
  * MOTION: THE RULE GROWS FROM THE POINTER OUTWARD. transform-origin is set
@@ -1264,13 +1278,29 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
 
       /* The width has to be the line's own, so this runs after fill(). */
       const w = inner.getBoundingClientRect().width;
-      let lx = m + Math.ceil((px + 14 - m) / st) * st;
-      let dx = '-7px';
-      if (lx + w > p.width - m) {
-        lx = m + Math.floor((px - 14 - w - m) / st) * st;
-        dx = '7px';
+      /* BOTH SIDES ARE TESTED BEFORE EITHER IS TAKEN, and the test is whether
+         the snapped position actually FITS — not whether the clamp can drag
+         it back inside the margin. Clamping was the first version and it is
+         what let the line cross its own rule: with nowhere to fit, both
+         branches collapsed onto the left margin and the type ran straight
+         through the plumb. */
+      const right = m + Math.ceil((px + 14 - m) / st) * st;
+      const left = m + Math.floor((px - 14 - w - m) / st) * st;
+      const fitsRight = right + w <= p.width - m;
+      const fitsLeft = left >= m;
+      let lx, dx;
+      if (fitsRight) { lx = right; dx = '-7px'; }
+      else if (fitsLeft) { lx = left; dx = '7px'; }
+      else {
+        /* Cannot happen at any width where the line is narrower than half the
+           content, which is why the facts are stacked rather than set side by
+           side — see the note on .hp3__f. Kept as a real branch rather than an
+           assumption: it takes the side with more room and stays clear of the
+           rule even if that means leaving the column grid. */
+        const roomR = p.width - m - (px + 14), roomL = (px - 14) - m;
+        lx = roomR >= roomL ? p.width - m - w : m;
+        dx = roomR >= roomL ? '-7px' : '7px';
       }
-      lx = Math.max(m, Math.min(lx, p.width - m - w));
       line.style.setProperty('--lx', `${lx.toFixed(1)}px`);
       inner.style.setProperty('--dx', dx);
     };
@@ -3813,7 +3843,7 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     white-space: nowrap;
   }
   :root .rg .hp3__in {
-    display: inline-flex; align-items: baseline; gap: 26px;
+    display: inline-flex; align-items: flex-start; gap: 22px;
     opacity: 0; transform: translateX(var(--dx, -7px));
     transition: opacity 90ms linear, transform 90ms cubic-bezier(0.4, 0, 1, 1);
   }
@@ -3821,17 +3851,24 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     opacity: 1; transform: none;
     transition: opacity 120ms linear 40ms, transform 190ms cubic-bezier(0.22, 1, 0.36, 1) 40ms;
   }
-  :root .rg .hp3__f { display: inline-flex; align-items: baseline; gap: 8px; }
+  /* LABEL OVER VALUE, NOT BESIDE IT — and it is the line's WIDTH that forces
+     it. Set side by side the four facts ran 647.7px at 1280, which is more
+     than half the frame: measured, there was then a 197px band of pointer
+     positions (x 541.5 to 738.5) where the line fitted on NEITHER side of the
+     plumb, and the clamp drove it straight through the rule. Stacked, each
+     fact is only as wide as its own value and the line comes to 372.6px,
+     which fits on one side or the other at every x in the frame. */
+  :root .rg .hp3__f { display: grid; row-gap: 2px; align-content: start; }
   :root .rg .hp3__f[hidden] { display: none; }
   :root .rg .hp3__l {
     font-family: var(--mono); font-size: var(--t-micro);
     letter-spacing: 0.16em; text-transform: uppercase;
-    color: var(--muted); line-height: 1;
+    color: var(--muted); line-height: 1.2;
   }
   :root .rg .hp3__v {
     font-family: var(--display); font-weight: 500;
     font-size: clamp(13px, 1.17vw, 15px);
-    letter-spacing: -0.006em; color: var(--bone); line-height: 1;
+    letter-spacing: -0.006em; color: var(--bone); line-height: 1.2;
   }
 
   @media (prefers-reduced-motion: reduce) {

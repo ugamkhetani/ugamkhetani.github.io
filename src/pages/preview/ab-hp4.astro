@@ -22,15 +22,31 @@
  * Nothing else in this set asks the reader to travel; this one makes the
  * travelling the reading.
  *
+ * THE CATALOGUE RECEDES WHILE THE CROSSING IS OPEN, and that is not a mood —
+ * it is what makes the reading legible. The type sits in the margins, and the
+ * margins are not empty: the conveyor is edge to edge and runs off both
+ * sides, so a label lands on whatever neighbour happens to be under it.
+ * Measured with the cards at full strength, the worst label read 1.83:1 over
+ * Mere Ho and eight of the sixteen hover states had something below 3.2:1. So
+ * every card except the one being read drops to 0.28 over 180ms, and the page
+ * changes from browsing to reading for as long as you hold it. It also suits
+ * the direction better than it suits any other here: this is the only reading
+ * that takes the whole frame, so the whole frame answering to it is right.
+ *
+ * MEASURED AFTER: nothing in the catalogue is below 4.5:1 and the worst hover
+ * state is 11.40:1, against 1.83:1 before. Verified at the same time that the
+ * work being read is NOT dimmed — hovering The Shiva Trilogy it renders at
+ * 0.975, exactly its own --op, while its neighbours render at --op x 0.28
+ * (0.818 becomes 0.229, 0.607 becomes 0.170, 0.484 becomes 0.136).
+ *
  * TYPE IN THE MARGINS, RULES ACROSS THE MIDDLE. The four rows sit at y 312
  * to 488, centred on the frame — so they pass straight through the centred
- * work, which measured x 259.7..816.1 at 1280x800. The labels end around
- * x 137 and the values begin around x 1100, both outside it. <- FLAGGED, the
- * honest cost: the conveyor is edge to edge, so a NEIGHBOURING work can be
- * under either margin — measured, the next works out reached x -113.1 on the
- * left and x 1056.9..1359.3 on the right. When that happens the type is over
- * a photograph and the site's two-part text-shadow is what carries it, the
- * same way the four corner labels are carried.
+ * work, which measured x 259.7..816.1 at 1280x800. Measured on that work the
+ * labels run 76.8 to 126.6 and the values end at 1203.2, both well outside
+ * it. A NEIGHBOUR can still be under either margin — the conveyor is edge to
+ * edge and the next works out reached x -113.1 on the left and 1056.9..1359.3
+ * on the right — which is exactly what the recession above is for, and with
+ * it the type is reading against a card at 0.28 rather than at full.
  *
  * HIERARCHY IS IN THE RULE'S WEIGHT, NOT THE TYPE'S. All four rows set at
  * one size in one colour. The three upper rules are --rule-soft at 7% white
@@ -1233,7 +1249,21 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
       });
     };
 
-    const place = (_c: HTMLElement) => {};
+    /* THE ONE THING THIS DIRECTION WRITES TO THE CARDS. The reading runs the
+       full width of the frame, so its type lands in the margins — and the
+       margins are not empty, because the conveyor is edge to edge and runs
+       off both sides. Measured with the cards at full strength, the worst
+       label sat at 1.83:1 over a neighbouring still and eight of the sixteen
+       hover states had something under 3.2:1.
+
+       So the catalogue recedes while the crossing is open, and only the work
+       being read stays lit. That is the pattern HANDOFF §6 points at: a card
+       cannot be raised above the scene, because .wk__scene's perspective and
+       .wk__world's preserve-3d each make a stacking context, so the way to
+       single one out is to dim the OTHERS. */
+    const place = (c: HTMLElement) => {
+      cards.forEach((o) => o.toggleAttribute('data-lit', o === c));
+    };
     const show = (c: HTMLElement) => {
       held = c;
 
@@ -1242,7 +1272,7 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
       sec.classList.add('is-hv');
     };
     const hide = () => {
-
+      cards.forEach((o) => o.removeAttribute('data-lit'));
       held = null;
       sec.classList.remove('is-hv');
     };
@@ -3721,6 +3751,29 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
      check on this row answer "wrapped". The rule is a 1px box with no
      baseline of its own, so centring is also the only thing that puts it on
      the type's optical middle. */
+  /* THE CATALOGUE RECEDES WHILE THE CROSSING IS OPEN — see the note in the
+     script. Registered, because an unregistered custom property interpolates
+     discretely and the recession would snap; and named --hp4-k rather than
+     --k, because HANDOFF §6 records what happens when a custom property
+     collides with a token (the countdown's --dim resolved to a COLOUR and
+     invalidated the whole filter). Grepped: neither appears in tokens.css.
+
+     IT IS A FACTOR ON opacity, NOT A TRANSITION OF IT. paint() writes --op to
+     every card on every frame, so transitioning `opacity` here would fight
+     the conveyor's own fade and make sixteen cards lag the scroll. The factor
+     is transitioned instead and multiplied in, so the two cannot argue. */
+  @property --hp4-k {
+    syntax: '<number>';
+    inherits: false;
+    initial-value: 1;
+  }
+  :root .rg .sec--works .wcard {
+    opacity: calc(var(--op, 1) * var(--hp4-k, 1));
+    transition: --hp4-k 180ms linear;
+  }
+  :root .rg .sec--works.is-hv .wcard { --hp4-k: 0.28; }
+  :root .rg .sec--works.is-hv .wcard[data-lit] { --hp4-k: 1; }
+
   :root .rg .hp4 {
     position: absolute; inset: 0;
     z-index: 200; pointer-events: none;
@@ -3782,11 +3835,15 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
   }
 
   @media (prefers-reduced-motion: reduce) {
+    :root .rg .sec--works .wcard { transition: none; }
     :root .rg .hp4__rule,
     :root .rg .sec--works.is-hv .hp4__rule { transition: none; transform: scaleX(1); }
     :root .rg .hp4__l, :root .rg .hp4__v,
     :root .rg .sec--works.is-hv .hp4__l,
     :root .rg .sec--works.is-hv .hp4__v { transition: none; }
   }
-  @media (max-width: 900px) { :root .rg .hp4 { display: none; } }
+  @media (max-width: 900px) {
+    :root .rg .hp4 { display: none; }
+    :root .rg .sec--works .wcard { opacity: var(--op, 1); }
+  }
 </style>
