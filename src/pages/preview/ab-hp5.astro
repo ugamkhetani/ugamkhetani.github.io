@@ -9,16 +9,26 @@
  * ── THIS ONE: THE SLUG ───────────────────────────────────────────
  *
  * NO NEW FURNITURE ANYWHERE ON THE FRAME. The page already has an instrument
- * that names the work you are looking at — the readout, x 280..1000,
- * y 584..713.6, a caption over a sixteen-tick arc with the year beneath it.
- * This direction gives that instrument one more thing to say and adds nothing
- * else. Hover a work and the caption line stops being its title and becomes
- * its slug: four facts, in the readout's own voice, on the line the title was
- * on. Let go and the title comes back.
+ * that names the work you are looking at — the readout at x 280..1000,
+ * y 584..713.6: a caption at 35.8px, a sixteen-tick arc, and the year beneath
+ * it at 11.9px. This direction gives that instrument one more thing to say
+ * and adds nothing else. Hover a work and its LOWER LINE, which already says
+ * the year, says the other three facts as well. Let go and it is a year again.
+ *
+ * THE LOWER LINE AND NOT THE CAPTION, WHICH IS A MEASUREMENT. The obvious
+ * move is to swap the title for the slug — and it does not fit. The caption
+ * is 35.784px, and the longest slug in the catalogue set at that size runs
+ * past 1200px against a 720px block, so it would simply be ellipsised. The
+ * year's line is 11.928px and the same slug sets well inside the block —
+ * measured across all sixteen works the widest is Special Ops 2.0 at 590.6px
+ * against a 720px block, 129px to spare, and none of the sixteen truncates.
+ * It is also the better idea: the work's NAME stays on screen while you read its
+ * facts, so nothing is hidden to show something, and the line that gains the
+ * three facts is the line that already carried one of them.
  *
  * IT IS THE MINIMUM POSSIBLE INTERVENTION, WHICH IS THE ARGUMENT FOR IT. Not
- * one pixel of the frame changes. There is no panel to place, no corner to
- * clear, no photograph to set type on, nothing to clamp and nothing to
+ * one pixel of the frame changes and the title never moves. There is no panel
+ * to place, no corner to clear, no photograph to set type on, nothing to
  * collide with — and a visitor who never hovers sees precisely the page that
  * is live today. Against that, it is also the direction that puts the
  * reading furthest from the thing being read: the slug is 584px down the
@@ -26,15 +36,18 @@
  * the eye has to travel. Every other direction in this set attaches the
  * reading to the work; this one attaches it to the page.
  *
- * SET IN THE READOUT'S VOICE EXACTLY: 13px display, weight 500, 0.02em,
- * uppercase, centred — `.rl__cap`'s own declarations, not an approximation of
- * them. If the readout is ever re-sized this line has to be re-sized with
- * it, which is the cost of quoting rather than sharing.
+ * SET IN THE READOUT'S VOICE EXACTLY: 11.928px on 23.856px, display face,
+ * weight 500, 0.02em, uppercase, centred — `.rl__date`'s own declarations,
+ * quoted rather than approximated. Those two figures are the ones the live
+ * page carries at `:root .rg .rl__date`; if the readout is ever re-sized this
+ * line has to be re-sized with it, which is the cost of quoting rather than
+ * sharing. Its resting colour is --dim, which is also the colour the wave
+ * starts from, so the line brightens as it gains meaning.
  *
  * VALUES ONLY, DIVIDED BY MIDDOTS IN THE ACCENT. "MICRO DRAMA · SOCIAL-FIRST
- * · SOUND DESIGN · 2025". No labels — at 13px uppercase in a 720px box there
- * is room for the facts or for their names, not both, and the facts are the
- * content. The dividers are the page's orange because on this page the accent
+ * · SOUND DESIGN · 2025". No labels — at 11.9px uppercase in a 720px block
+ * there is room for the facts or for their names, not both, and the facts are
+ * the content. The dividers are the page's orange because on this page the accent
  * marks information; they are also the one part of the line that does NOT
  * wake, so the punctuation belongs to the instrument and the words belong to
  * the work.
@@ -48,13 +61,26 @@
  * 26ms is 1.2 seconds, which is a page turning rather than a label
  * answering. The unit had to be the fact.
  *
- * THE TITLE FADES UNDER IT RATHER THAN BEING REWRITTEN, and that is
- * deliberate. `.rl__cap`'s text is written every frame by the conveyor's own
+ * THE YEAR FADES UNDER IT RATHER THAN BEING REWRITTEN, and that is
+ * deliberate. `.rl__date`'s text is written every frame by the conveyor's own
  * paint() as the centred work changes; anything that wrote to the same node
  * would be in a fight with it and would lose on the next scroll event. The
- * slug is a sibling laid over the caption, and the caption is taken to
- * opacity 0 for as long as a work is held. Nothing is overwritten and there
- * is nothing to restore.
+ * slug is a sibling laid over the year, and the year is taken to opacity 0
+ * for as long as a work is held. Nothing is overwritten, so there is nothing
+ * to restore.
+ *
+ * <- AND HIDING IT NEEDS `animation: none`, WHICH COST A ROUND. `.rl` gains
+ *   `is-turning` whenever the centred work changes, and `.rl.is-turning
+ *   .rl__date` runs `rl-in` with `animation-fill-mode: both` — so once that
+ *   animation has run it HOLDS opacity 1, and a held animation value outranks
+ *   every author declaration in the cascade short of !important. The fade
+ *   measured as a no-op: opacity computed 1 with the rule plainly in the
+ *   built CSS and the right specificity. Cancelling the animation for as long
+ *   as the slug is up is what lets the author rule apply. It is the same
+ *   fill-mode trap §5 records on the send action's letters, seen from the
+ *   other side. Verified after the fix on all sixteen works with `.rl`
+ *   carrying `is-turning` in every one of them: the year computes opacity 0
+ *   and the title stays at 1.
  *
  * <- HONEST LIMIT. Transitions freeze at their start value in the preview
  *   pane (HANDOFF §6), so the wave is verified off the computed style — four
@@ -538,8 +564,9 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
               <span class="rl__head" data-rl-head></span>
             </div>
             <p class="rl__date"><span data-w-year>{wnodes[0].w.data.year}</span></p>
-            <!-- THE SLUG. The readout's own caption line, saying the work's four facts
-                 instead of its title. Values only, accent middots, no new furniture. -->
+            <!-- THE SLUG. The readout's own lower line — the one that already says the
+                 year — saying all four facts instead. Values only, accent middots, and no
+                 new furniture anywhere on the frame. -->
             <div class="hv hp5" data-hv aria-hidden="true">
               <p class="hp5__slug">
                 <span class="hp5__f" data-hv-row><span data-hv-v></span></span>
@@ -3716,14 +3743,14 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
   /* ══ HP5 · THE SLUG ═══════════════════════════════════════════════
      :root on every selector for the reason HANDOFF §6 gives.
 
-     THE READOUT'S VOICE, QUOTED. These four declarations are `.rl__cap`'s
-     own — display face, weight 500, --t-sm, 0.02em, line-height 1.06,
-     uppercase — repeated rather than shared, because the slug is a sibling
-     laid over the caption and not the caption itself. If the readout is
-     re-sized, re-size this with it. That duplication is the price of not
-     writing into a node the conveyor's paint() writes every frame. */
+     THE READOUT'S VOICE, QUOTED. These declarations are `.rl__date`'s own —
+     display face, weight 500, 11.928px on 23.856px, 0.02em, uppercase,
+     centred — repeated rather than shared, because the slug is a sibling laid
+     over the year and not the year itself. If the readout is re-sized,
+     re-size this with it. That duplication is the price of not writing into a
+     node the conveyor's paint() writes every frame. */
   :root .rg .hp5 {
-    position: absolute; left: 0; right: 0; top: 0;
+    position: absolute; left: 0; right: 0; bottom: 0;
     pointer-events: none;
     opacity: 0; visibility: hidden;
     transition: opacity 110ms linear, visibility 0s linear 110ms;
@@ -3735,7 +3762,7 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
   :root .rg .hp5__slug {
     margin: 0; text-align: center;
     font-family: var(--display); font-weight: 500;
-    font-size: var(--t-sm); letter-spacing: 0.02em; line-height: 1.06;
+    font-size: 11.928px; letter-spacing: 0.02em; line-height: 23.856px;
     text-transform: uppercase;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
@@ -3761,10 +3788,18 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     margin: 0 0.42em;
   }
 
-  /* The title steps aside for as long as a work is held. Nothing is
-     overwritten, so there is nothing to put back. */
-  :root .rg .sec--works .rl__cap { transition: opacity 110ms linear; }
-  :root .rg .sec--works.is-hv .rl__cap { opacity: 0; }
+  /* The year steps aside for as long as a work is held. Nothing is
+     overwritten, so there is nothing to put back.
+
+     `animation: none` IS LOAD-BEARING AND NOT TIDINESS. `.rl` carries
+     `is-turning` every time the centred work changes, and `.rl.is-turning
+     .rl__date` runs `rl-in` with fill-mode `both` — which HOLDS opacity 1
+     after it ends, and a held animation value beats every author declaration
+     in the cascade. Measured without this line: opacity computed 1 while the
+     rule below was in the built CSS at (0,8,0) with nothing else touching it.
+     Cancelling the animation is what lets the fade apply at all. */
+  :root .rg .sec--works .rl__date { transition: opacity 110ms linear; }
+  :root .rg .sec--works.is-hv .rl__date { animation: none; opacity: 0; }
 
   @media (prefers-reduced-motion: reduce) {
     :root .rg .hp5__f,
