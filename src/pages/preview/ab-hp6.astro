@@ -18,11 +18,15 @@
  * THE ARITHMETIC FALLS OUT EXACTLY, WHICH IS WHY IT IS FOUR AND NOT THREE OR
  * FIVE. At 1280 the content is 1126.4px in twelve columns with a 20.48px
  * gutter, so a column is 75.09px. Three columns plus their two inner gutters
- * is 3 x 75.09 + 2 x 20.48 = 266.23px, and four of those plus three gutters
- * is 4 x 266.23 + 3 x 20.48 = 1126.36px — the content width, to within four
- * hundredths of a pixel. So `repeat(4, 1fr)` with `column-gap: var(--gutter)`
- * IS a 3-3-3-3 division of the twelve, and it stays one at every width
- * because both terms come from the same tokens. Nothing is hardcoded.
+ * is 266.24px, and four of those plus three gutters is the 1126.4px content
+ * width. So `repeat(4, 1fr)` with `column-gap: var(--gutter)` IS a 3-3-3-3
+ * division of the twelve, and it stays one at every width because both terms
+ * come from the same tokens. Nothing is hardcoded.
+ *
+ * MEASURED RATHER THAN ASSERTED: the four cells render 266.24, 266.24, 266.24
+ * and 266.25px at x 76.80, 363.52, 650.23 and 936.95, ending on 1203.20. Those
+ * four origins are column boundaries 1, 4, 7 and 10 of the page's own grid, to
+ * the hundredth of a pixel. Each cell's hairline is its full 266.24px.
  *
  * FOUR FACTS, FOUR FIELDS, AND THE FIELD IS RULED. Label at 10px in the
  * page's label voice, a hairline the full width of the cell under it, value
@@ -34,15 +38,17 @@
  *
  * WHERE IT SITS, AND WHY IT IS ALWAYS CLEAR. The band starts at 9% of the
  * frame — y 72, the exact point the mask reaches full opacity — and stands
- * 46px, so it occupies y 72..118. The tallest thing the conveyor can produce
- * is a 9:16 work at full scale, which spans y 153.6..646.4. The band
- * therefore clears every work at every scroll position by at least 35.6px,
- * and it needs no clamping, no measurement and no knowledge of the picture at
- * all. It is the only direction here whose panel is placed entirely in CSS.
+ * 47.79px, so it occupies y 72..119.79. The tallest thing the conveyor
+ * actually produces is Book My Yamraj at the top of its scale, measured at
+ * y 155.04, so the band clears the work band by 35.25px at its very worst and
+ * by 73.26px on a landscape work. It needs no clamping, no measurement and no
+ * knowledge of the picture at all: it is the only direction here whose panel
+ * is placed entirely in CSS.
  *
  * A THREE-FACT WORK LEAVES THE FOURTH FIELD EMPTY, NOT REDIVIDED. Book My
  * Yamraj has no platform, so its three facts hold columns 1-3, 4-6 and 7-9
- * and columns 10-12 say nothing. The grid is the grid: the fields do not
+ * and columns 10-12 say nothing — verified, the empty field still measures
+ * 266.25px at x 936.95 rather than collapsing. The grid is the grid: the fields do not
  * grow to fill it, because then the same fact would sit in a different place
  * on a different work and the whole point of filing is lost.
  *
@@ -1235,7 +1241,15 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
            same fact sits in a different place on a different work. Removing
            the cell from the grid is exactly what this direction must not do. */
         s.style.visibility = r ? '' : 'hidden';
-        if (!r) return;
+        /* Emptied as well as hidden. The cell keeps its three columns either
+           way — that is the point of using visibility here — but leaving the
+           previous work's words in it is stale state, and the only reason it
+           does not show today is the one property holding it back. */
+        if (!r) {
+          (s.querySelector('[data-hv-l]') as HTMLElement).textContent = '';
+          (s.querySelector('[data-hv-v]') as HTMLElement).textContent = '';
+          return;
+        }
         (s.querySelector('[data-hv-l]') as HTMLElement).textContent = r.label;
         (s.querySelector('[data-hv-v]') as HTMLElement).textContent = r.value;
       });

@@ -73,11 +73,24 @@
  * is slower leaving than arriving, because a photograph growing back into its
  * own frame at 110ms reads as a glitch.
  *
- * <- HONEST LIMIT. Transitions freeze at their start value in the preview
- *   pane (HANDOFF §6), so the crop is verified by reading the computed
- *   clip-path in the settled state with transition-duration collapsed, and
- *   the registered property is verified by checking it computes to a
- *   percentage rather than handing back its own token.
+ * MEASURED, AT 1280x800. --hp7-yp computes to `26%` rather than handing back
+ * its own token, which is the registration doing its job. The strip is 26.0%
+ * of the picture on every shape in the catalogue — 81.4 of 312.9 on The Shiva
+ * Trilogy, 124.5 of 479 on Bloody Bubbly, 127.4 of 489.9 on Book My Yamraj —
+ * and its left edge and width are the card's to the tenth of a pixel. The box
+ * is untouched: .st__win still measures its full height, still carries
+ * border-radius 5.5%, still carries `rgba(0,0,0,.6) 0 40px 90px`, and the
+ * strip shows its rgb(15,14,13) background. On leaving, the attribute is gone,
+ * the property is cleared and the layers compute `clip-path: none`.
+ *
+ * TWO THINGS THAT COULD ONLY BE PROVED BY CATCHING IT IN FLIGHT. Sampled mid
+ * transition the layers read `inset(0px 0px 18.1828%)` on the way to 26% —
+ * so the registered property really is INTERPOLATING rather than stepping,
+ * which is the whole reason for the @property block. And all eight of that
+ * work's .frame__layer elements still compute `transition: opacity 0.5s`,
+ * except layer 0, which carries Still's own `transition: none` and always
+ * did — so the scrub crossfade survived, which is the whole reason the
+ * transition was put on .wcard instead.
  */
 /**
  * THE HOMEPAGE.

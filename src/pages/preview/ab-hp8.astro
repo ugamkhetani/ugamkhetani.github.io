@@ -39,17 +39,28 @@
  *
  * WHERE IT SITS. Flush right at the page margin, growing UPWARD from the foot
  * of the frame — `bottom: calc(9% + 10px)`, so its last row sits 10px above
- * the point the mask begins to fade. Four rows of 26px is 104px, so at
- * 1280x800 it occupies y 616..720 and x roughly 1053..1203.2. The readout
- * ends at x 1000, so the two do not meet, and no work at the gate reaches
- * into that corner at that height — measured, the right-hand neighbours on
- * the straight run were x 820.1..1052.9 at y 193..606.9 and x 1056.9..1359.3
- * at y 314.9..485.1, both finishing above it. It is the bottom-right corner
- * of the frame, and it is the quietest quarter of this page.
+ * the point the mask begins to fade. Measured at 1280x800 it occupies
+ * y 629..718 with four facts and y 653..718 with three, ending on x 1203.2
+ * and reaching back to x 967.9 on the longest value in the catalogue.
+ *
+ * IT CLEARS THE READOUT BY 151.5px, AND THE FIGURE THAT MATTERS IS THE INK
+ * RATHER THAN THE BOX. `.rl` is `width: min(720px, 72vw)` and its box does run
+ * to x 1000 — which the index passes — but everything in it is centred, so
+ * what is actually painted stops much earlier: the caption's ink ends at
+ * x 782.1, the sixteen ticks at x 816.4, the year at x 657.1. Measured
+ * directly with a Range over each, nothing in the readout overlaps the index.
+ * Reading the BOX would have reported a collision that is not there.
+ *
+ * AND IT NEVER SITS ON A PICTURE. Swept across all sixteen works, every
+ * ordinal and every value in this direction had nothing behind it but the
+ * ground — not one of them landed on a still at any scroll position. It is
+ * the only direction in this set for which the contrast question does not
+ * arise at all, which is what the bottom-right corner buys.
  *
  * MOTION: A TRUE STAGGER, AND IT IS THE POINT. Each row travels 8px in from
- * the right and fades over 180ms on a 34ms stagger, so the index counts
- * itself in and settles at 282ms. Everything else in this set either lands
+ * the right and fades over 180ms on a 34ms stagger — verified off the computed
+ * style as 0, 34, 68 and 102ms — so the index counts itself in and settles at
+ * 282ms. Everything else in this set either lands
  * together or is carried by something; this one is deliberately sequential,
  * because a numbered list is the one shape where arriving in order is what
  * the content is already doing. Hold it against ab-hp6, which puts the same
