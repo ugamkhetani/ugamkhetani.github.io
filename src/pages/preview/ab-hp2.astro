@@ -8,11 +8,21 @@
  *
  * ── THIS ONE: THE OVERPRINT ──────────────────────────────────────
  *
- * NO FURNITURE AT ALL. No panel, no scrim, no box, no rule, no labels. Four
- * words set straight onto the photograph in its bottom-left corner, in the
- * display face, and nothing else. This is the direction that argues the
- * reading is part of the picture rather than apparatus attached to it — the
- * way a plate is captioned in the plate in a printed monograph.
+ * NO PANEL, NO BOX, NO RULE, NO LABELS. Four words set straight onto the
+ * photograph in its bottom-left corner, in the display face, and nothing
+ * drawn around them. This is the direction that argues the reading is part of
+ * the picture rather than apparatus attached to it — the way a plate is
+ * captioned in the plate in a printed monograph.
+ *
+ * IT BEGAN WITH NOTHING BEHIND THE TYPE AT ALL, AND THAT DOES NOT SURVIVE
+ * MEASUREMENT. The workings are at the foot of this comment. The short of it:
+ * white type on an unprepared still reads 1.07:1 at its worst in this
+ * catalogue, no arrangement of text-shadow lifts it past 2.24:1, and the
+ * picture therefore has to be prepared. It is prepared with a GRADIENT and
+ * not a plate — the photograph falling into shadow at its own base, carrying
+ * the card's own 5.5% radius — so there is still no edge, no box and no panel
+ * anywhere in this direction. That is the one thing about it that changed,
+ * and it changed because of a number rather than a preference.
  *
  * THE LABELS ARE GONE, WHICH IS THE IDEA AND ALSO THE RISK. "Micro Drama",
  * "Social-first", "Sound Design", "2025" — a format, a platform, a role and
@@ -44,14 +54,44 @@
  * shave it off all four sides — so the open state is slack by 18px on every
  * edge and only the left-to-right travel does any clipping.
  *
- * <- THE HONEST COST OF THIS DIRECTION IS CONTRAST, and it is the one thing
- *   to judge it on. Every other direction in this set puts type on the
- *   ground or on the mosaic bed, where the worst case is measured and known:
- *   the bed's brightest pixel is #4C4C4C and --bone reads 8.59:1 on it. This
- *   one puts type on a full-brightness photograph, where the worst case is
- *   whatever is in that corner of that still. The text-shadow is the whole
- *   defence. Sampled at the block's own position across all sixteen works —
- *   the numbers are in the measurement note below this file's CSS.
+ * ── THE CONTRAST WORKINGS ────────────────────────────────────────
+ *
+ * Every other direction in this set puts type on the ground or on the mosaic
+ * bed, where the worst case is known: the bed's brightest pixel is #4C4C4C
+ * and --bone reads 8.59:1 on it. This one puts type on a full-brightness
+ * photograph, so the worst case is whatever happens to be in that corner of
+ * that still, and it had to be read rather than guessed.
+ *
+ * HOW IT WAS READ. A canvas probe is not what the browser painted — drawImage
+ * at 0,0 draws the SOURCE bitmap and knows nothing about object-fit, so it
+ * answers about an image nobody sees (HANDOFF §6). The cover geometry is
+ * replicated explicitly here: the scale is max(win/natural) on both axes, the
+ * offset comes from the computed object-position, and the block's rect is
+ * mapped back through both into source pixels. Then the two CSS text-shadows
+ * are re-drawn onto that patch in the same order the stylesheet gives them,
+ * the glyphs are drawn on a second canvas as a mask, and the measurement is
+ * the BRIGHTEST background pixel within 2px of a glyph stroke — which is what
+ * actually decides whether a letter reads, rather than the mean.
+ *
+ * WHAT IT SAID. Bare photograph under the block, worst pixel: The Shiva
+ * Trilogy rgb(253,247,229) at 1.07:1, Aladdin rgb(248,239,179) at 1.17:1,
+ * Bloody Bubbly 1.26, Book My Yamraj 1.34, Dinshaw's 1.37, Ve Maahi 1.59 —
+ * six of sixteen effectively white on white. With the site's own two-part
+ * shadow the worst line in the catalogue came to 1.70:1 and six works sat
+ * under 3.5:1.
+ *
+ * FOUR SHADOW STACKS WERE TRIED AND NONE OF THEM IS ENOUGH. A tight six-layer
+ * halo hugging the letterform was the best of them and reached 2.24:1 at
+ * worst. Worth keeping: a WIDER blur measured WORSE than a tight one — 3.89:1
+ * against 3.59:1 across the four hardest works — because the same ink spread
+ * over more area leaves less of it at the glyph's edge, which is the only
+ * place it counts. Reaching for a bigger shadow is the wrong instinct here.
+ *
+ * WITH THE FOOT GRADIENT AND THE SITE'S ORDINARY TWO-PART SHADOW: nothing in
+ * the catalogue is below 4.5:1 and the worst two are Bloody Bubbly at 6.00:1
+ * and The Shiva Trilogy at 6.01:1, both on their top line, which is the line
+ * furthest from the foot and therefore the one the gradient reaches last.
+ * Fourteen of sixteen are above 8:1.
  */
 /**
  * THE HOMEPAGE.
@@ -535,6 +575,7 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
           <!-- THE OVERPRINT. Four words on the photograph, bottom-left, no labels and
                no box. The year hangs an accent tick in the margin. -->
           <div class="hv hp2" data-hv aria-hidden="true">
+            <div class="hp2__foot"></div>
             <div class="hp2__set">
               <span class="hp2__f" data-hv-row><i class="hp2__tick"></i><span data-hv-v></span></span>
               <span class="hp2__f" data-hv-row><i class="hp2__tick"></i><span data-hv-v></span></span>
@@ -1226,7 +1267,11 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
       slots.forEach((s, i) => {
         const r = rows[i];
         s.hidden = !r;
-        if (!r) return;
+        /* Cleared BEFORE the early return, or a hidden slot keeps the flag
+           the last work left on it — invisible today because the row is
+           display: none, and exactly the kind of stale state that surfaces
+           the day the row is shown for another reason. */
+        if (!r) { s.dataset.fig = ''; return; }
         /* THE TICK IS ON THE YEAR, AND IT IS FOUND BY LABEL, NOT BY
            POSITION. The year is last in every work today, but a work with no
            platform returns three rows and :last-of-type would still match
@@ -1250,6 +1295,14 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
       const y = Math.min(b.bottom - p.top - 18, p.height * 0.91 - 8);
       panel.style.setProperty('--hp-x', `${x.toFixed(1)}px`);
       panel.style.setProperty('--hp-y', `${y.toFixed(1)}px`);
+      /* The foot gradient takes the CARD's whole box, not the text's, so its
+         corners can carry the picture's own 5.5% radius and sit exactly on
+         it. Unclamped on purpose — it is part of the picture and travels off
+         the frame with it. */
+      panel.style.setProperty('--hp-cx', `${(b.left - p.left).toFixed(1)}px`);
+      panel.style.setProperty('--hp-cy', `${(b.top - p.top).toFixed(1)}px`);
+      panel.style.setProperty('--hp-cw', `${b.width.toFixed(1)}px`);
+      panel.style.setProperty('--hp-ch', `${b.height.toFixed(1)}px`);
     };
     const show = (c: HTMLElement) => {
       held = c;
@@ -3732,16 +3785,48 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
      <style> blocks here are not emitted in document order, so a tie at
      (0,2,0) is settled by the bundler rather than by the file.
 
-     MEASURED, THE BLOCK'S OWN CORNER ACROSS THE CATALOGUE. The type sits
-     20px in and 18px up from the picture's bottom-left, which on the centred
-     work at 1280x800 is a 160x38 patch at the foot of the frame. The
-     brightest mean luminance any of the sixteen stills puts under that patch
-     and the brightest single pixel in it are both recorded in the
-     measurement note at the end of this block. */
+     MEASURED, THE BLOCK'S OWN CORNER ACROSS THE CATALOGUE. The type sits 20px
+     in and 18px up from the picture's bottom-left — a 185.8 x 83.3 block on
+     the centred work at 1280x800. The full contrast workings are in this
+     file's header comment; the summary is that nothing is below 4.5:1 and the
+     worst is 6.00:1. */
   :root .rg .hp2 {
     position: absolute; inset: 0;
     z-index: 200; pointer-events: none;
   }
+  /* THE PICTURE DARKENS INTO ITS OWN FOOT. Measured, this is not optional:
+     with nothing but a text-shadow the worst still in the catalogue puts a
+     rgb(248,239,179) highlight directly under the block and white type on it
+     reads 1.70:1. Six tight shadow layers hugging the letterform lift that to
+     2.24:1 and no further — a halo cannot rescue a near-white ground without
+     becoming a plate, and measured across four stacks a WIDER blur is worse
+     than a tight one because it spreads the same ink over more area. With
+     these stops nothing in the catalogue is under 4.5:1 and the worst is
+     6.00:1. Full workings in the header.
+
+     So the ground is made rather than fought. It is a gradient on the
+     picture, not a panel behind the words: it takes the card's whole box and
+     its 5.5% radius, so what a reader sees is the photograph falling into
+     shadow at its own base — the way a plate is prepared for a caption in
+     print — and there is still no box, no rule and no edge anywhere. */
+  :root .rg .hp2__foot {
+    position: absolute;
+    left: var(--hp-cx, 0px); top: var(--hp-cy, 0px);
+    width: var(--hp-cw, 0px); height: var(--hp-ch, 0px);
+    border-radius: 5.5%;
+    background: linear-gradient(
+      to top,
+      rgba(10, 9, 8, 0.88) 0px,
+      rgba(10, 9, 8, 0.70) 66px,
+      rgba(10, 9, 8, 0) 178px);
+    opacity: 0; visibility: hidden;
+    transition: opacity 120ms linear, visibility 0s linear 120ms;
+  }
+  :root .rg .sec--works.is-hv .hp2__foot {
+    opacity: 1; visibility: visible;
+    transition: opacity 190ms linear, visibility 0s;
+  }
+
   :root .rg .hp2__set {
     position: absolute;
     left: var(--hp-x, 0px);
