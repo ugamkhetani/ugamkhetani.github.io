@@ -68,6 +68,26 @@ const works = defineCollection({
 
     description: z.string(),
 
+    /**
+     * WHERE THE STANDFIRST BREAKS, when it must break somewhere the measure
+     * would not choose. The first sentence of `description` is set as the
+     * standfirst; this is the exact text that should end its first line.
+     *
+     * IT IS OPT-IN AND IT FAILS SOFT. If the string is not the opening of
+     * that sentence — because the description was rewritten and this was
+     * not — the break is ignored and the sentence sets the way every other
+     * one does. It never throws and it never sets a break in the wrong
+     * place.
+     *
+     * AND IT IS A DESKTOP INSTRUCTION. Below 620px the break stands down and
+     * the sentence wraps to the column, because a forced break needs a
+     * measure wide enough to hold the longer of the two halves and a phone
+     * does not have one. ONLY MUMBAI STANDARD TIME SETS ONE, on Ugam's
+     * instruction 2026-09-29: "A 48-hour production window" / "spanning
+     * idea, script, image and sound."
+     */
+    ledeBreak: z.string().optional(),
+
     /** The four-column mono block below the media. */
     meta: z.array(z.object({ label: z.string(), value: z.string() })).default([]),
 

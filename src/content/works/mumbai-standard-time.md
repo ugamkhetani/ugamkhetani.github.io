@@ -17,6 +17,7 @@ description: >
   expressive, natural performance, while the score moves at the film's pace
   without becoming mechanical. One recurring theme appears through distinct
   instrumental variations, each shaped around the world on screen.
+ledeBreak: "A 48-hour production window"
 meta:
   - { label: "Studio", value: "Kalpnk AI" }
   - { label: "Scope", value: "End-to-end Audio" }

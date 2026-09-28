@@ -217,6 +217,24 @@ const QW = (d.quote ?? '').split(' ').filter(Boolean);
 const SENT = d.description.trim().split(/(?<=\.)\s+/).filter(Boolean);
 const LEDE = SENT[0] ?? d.description.trim();
 const REST = SENT.slice(1).join(' ');
+
+/* THE STANDFIRST'S OWN BREAK, when the markdown asks for one.
+
+   THE MEASURE CANNOT PRODUCE IT AND THAT IS NOT A BUG IN THE MEASURE.
+   Measured on Mumbai Standard Time at 35.2px: the wanted first line is
+   458.1px, the wanted second is 615.8, and "A 48-hour production window
+   spanning" is 609.3. Because 609.3 is LESS than 615.8, any measure wide
+   enough to hold the second line also holds "spanning" on the first — so no
+   column width, greedy or balanced, can put the break after "window". A
+   sentence that must break in a particular place has to say so.
+
+   IT FAILS SOFT. The field is the exact text that should end line one, so a
+   description rewritten without updating it simply stops matching and the
+   sentence sets normally. No index arithmetic, nothing to go stale
+   silently. */
+const BRK = d.ledeBreak && LEDE.startsWith(d.ledeBreak) ? d.ledeBreak.length : 0;
+const LEDE_A = BRK ? LEDE.slice(0, BRK) : '';
+const LEDE_B = BRK ? LEDE.slice(BRK).replace(/^\s+/, '') : '';
 /* NO WORD ARRAYS ANY MORE. A1 · Lead and lag animates the two BLOCKS, so the
    description is no longer split into words, no longer wrapped in 69 spans,
    and no longer carries a per-word seed in an inline style. The statement
@@ -430,7 +448,9 @@ const FACTS: { k: string; v: string }[] = [
       <div class="body" data-v>
         {/* --n is the standfirst's own length in characters. Everything about
             how it sets is derived from that number; see the CSS. */}
-        <p class="body__lede" style={`--n:${LEDE.length}`}>{LEDE}</p>
+        <p class={`body__lede${BRK ? ' body__lede--brk' : ''}`} style={`--n:${LEDE.length}`}>
+          {BRK ? <Fragment>{LEDE_A}<br class="lede__br" />{LEDE_B}</Fragment> : LEDE}
+        </p>
         {REST && <p class="body__rest">{REST}</p>}
       </div>
 
@@ -733,6 +753,28 @@ const FACTS: { k: string; v: string }[] = [
     );
     line-height: 1.12; letter-spacing: -0.025em;
     color: var(--bone); text-wrap: balance;
+  }
+
+  /* A SENTENCE THAT CARRIES ITS OWN BREAK IS MEASURED BY ITS OWN HALVES.
+     The clamp above targets three lines; a two-line break needs room for the
+     longer half, which on Mumbai Standard Time is 615.8px against a computed
+     measure of 437. So the cap comes off and the body column bounds it
+     instead — the text still only occupies its longest line, so what the eye
+     reads as the measure is the sentence, not the box.
+
+     text-wrap: balance is dropped with it. Balance re-distributes words
+     across the lines it is given, which is the one thing a chosen break must
+     not allow; each half sets on its own line and nothing is re-flowed. */
+  :root .body__lede--brk { max-width: none; text-wrap: wrap; }
+
+  /* THE BREAK IS A DESKTOP INSTRUCTION. At 375 the column is 327px and this
+     sentence's longer half is 431.7px at the size the viewport cap allows —
+     so honouring the break there would push the page sideways, which is the
+     one failure a narrow page must never have. Below 620 the break stands
+     down and the sentence wraps to the column like every other. */
+  @media (max-width: 620px) {
+    .lede__br { display: none; }
+    :root .body__lede--brk { max-width: clamp(20ch, calc(var(--n, 90) / 3 * 1ch), 44ch); text-wrap: balance; }
   }
   .body__rest {
     margin: 0; max-width: 54ch;
