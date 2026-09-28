@@ -23,8 +23,6 @@ category: "Brand Work"
 opening: composition
 ratio: "9:16"
 role: "Sound Design"
-credits:
-  client: "Bloody Bubbly"
 quote: "Sometimes all a moment needs is a little unease."
 description: >
   Sound design for a short-form Halloween campaign built around elements of
@@ -33,11 +31,12 @@ description: >
   do much of the work, allowing tension to accumulate quietly before the
   image gives anything away.
 meta:
-  - { label: "Channels", value: "Social-first" }
-  - { label: "Format", value: "Vertical, short form" }
+  - { label: "Client", value: "Bloody Bubbly" }
+  - { label: "Studio", value: "Kalpnk AI" }
+  - { label: "Format", value: "Vertical · Short-form" }
+  - { label: "Scope", value: "Sound Design" }
+  - { label: "Channel", value: "Social-first" }
   - { label: "Year", value: "2025" }
-# Films are picked up automatically from
-# public/media/works/bloody-bubbly/films/ — drop MP4s in and they appear.
 media:
   # Campaign film, posted to Instagram.
   instagram: "DQZiyPUDSEB"

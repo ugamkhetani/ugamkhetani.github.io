@@ -5,8 +5,6 @@ category: "Short Film"
 opening: video
 ratio: "2.35:1"
 role: "Composer"
-credits:
-  director: "Rohan Bakshi"
 awards:
   - text: "7 Official Selections · 1 Nomination · 1 Win"
 quote: "Emotion is easy to score. Contradiction is harder."
@@ -17,9 +15,11 @@ description: >
   score was shaped around that instability, using restraint as much as
   escalation and leaving space when the image was already carrying enough.
 meta:
-  - { label: "Scope", value: "Original score" }
+  - { label: "Director", value: "Rohan Bakshi" }
+  - { label: "Studio", value: "NeoRang Pictures" }
+  - { label: "Format", value: "Short Film" }
+  - { label: "Scope", value: "Original Score" }
   - { label: "Approach", value: "Director-led" }
-  - { label: "Format", value: "Short film" }
   - { label: "Year", value: "2025" }
 media:
   youtube: "AhzQTAfnsCs"

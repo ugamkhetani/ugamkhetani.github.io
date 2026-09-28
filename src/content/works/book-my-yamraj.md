@@ -4,10 +4,7 @@ year: 2025
 category: "Micro Drama"
 opening: composition
 ratio: "9:16"
-role: "Composer · All six episodes"
-credits:
-  director: "Sameer Talawdekar"
-  studio: "Chivitra"
+role: "Composer · All Six Episodes"
 awards:
   - text: "Top 100 Storytellers · TVF Shorts League"
 quote: "Vertical isn't shorter film. It's its own grammar."
@@ -19,9 +16,12 @@ description: >
   format itself, allowing the score to move naturally with the pace of
   vertical storytelling.
 meta:
+  - { label: "Director", value: "Sameer Talawdekar" }
+  - { label: "Studio", value: "Chivitra" }
   - { label: "Format", value: "Vertical · Sound-on" }
-  - { label: "Output", value: "6 episodes · 6 original cues" }
-  - { label: "Release", value: "Episodic rollout" }
+  - { label: "Scope", value: "Original Score" }
+  - { label: "Output", value: "6 Episodes · 6 Original Cues" }
+  - { label: "Release", value: "Episodic Rollout" }
   - { label: "Year", value: "2025" }
 media:
   films:

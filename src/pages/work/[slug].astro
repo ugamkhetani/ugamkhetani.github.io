@@ -245,20 +245,30 @@ const TALLY = AW_MATCH.length && AW_MATCH.every(Boolean)
 /* Each award kept whole, and split on its FIRST dot only. */
 const CITES = TALLY ? [] : parseAwards(d.awards);
 
-/* EVERY CREDIT THE SCHEMA ALLOWS, IN ONE ORDERED LIST. This read only
-   `director` and `artist` and silently dropped the other four, which is not a
-   layout choice — the information simply never reached the page. Eleven of the
-   sixteen works were losing a credit: `client` on Aladdin, Dinshaw's and Bloody
-   Bubbly, `studio` on Book My Yamraj, Moholla, Mumbai Standard Time, My Red
-   Crayon, Roar and The Shiva Trilogy, and `with` on Taskaree and Special Ops —
-   the last two being collaborators named in the markdown and credited nowhere.
+/* EVERY CREDIT THE SCHEMA ALLOWS, IN ONE ORDERED LIST.
 
-   Driven off a list rather than a chain of appends so a key added to
-   content.config.ts cannot be forgotten here; an unhandled key now shows up as
-   a missing label rather than as silence. The order and the wording follow
-   CreditBlock.astro, which had the full map all along and is not mounted by
-   anything — except that `director` stays "Director" rather than becoming
-   "Direction", because that is what these pages already say. */
+   NO WORK SETS `credits` ANY MORE, so nothing below fires today. The whole
+   colophon moved into `meta` on 2026-09-29, and it had to: Ugam's list asks
+   for DIRECTOR then PLATFORM then STUDIO, and this block renders in a fixed
+   order BEFORE every meta row, so a platform could only ever land after a
+   studio. It also asks for labels that vary by WORK rather than by key —
+   "Directors" on Taskaree and Special Ops against "Director" on three
+   others, plus "Artists" and "Music by" — which a key-to-label map cannot
+   say. One list in the markdown is now the single source of truth for what
+   the colophon reads and in what order.
+
+   THE CODE STAYS rather than being deleted, because the schema still allows
+   `credits` and a work that sets one should not silently lose it. It is
+   driven off a list rather than a chain of appends so a key added to
+   content.config.ts cannot be forgotten here; an unhandled key shows up as a
+   missing label rather than as silence.
+
+   WHAT IT FIXED WHILE IT WAS LOAD-BEARING, for the record: it read only
+   `director` and `artist` and dropped the other four, so eleven of the
+   sixteen works were losing a credit — `client` on Aladdin, Dinshaw's and
+   Bloody Bubbly, `studio` on six more, and `with` on Taskaree and Special
+   Ops, the last two being collaborators named in the markdown and credited
+   nowhere. Those facts are all in `meta` now and set on the page. */
 const CREDIT_ORDER: [keyof typeof d.credits, string][] = [
   ['director', 'Director'],
   ['client', 'Client'],
@@ -1149,9 +1159,15 @@ const FACTS: { k: string; v: string }[] = [
      max-width is the guard inline-block needs. A shrink-wrapped box takes its
      content's width, so a value longer than the column would push the page
      wide rather than wrap — the one failure a narrow page must never have.
-     Measured at 375, where the list is 327: the widest row in the catalogue
-     is Taskaree's three directors at 305, so nothing needs it today. It is
-     here so that the next long credit wraps instead of breaking the page. */
+
+     IT IS LOAD-BEARING NOW, WHICH IT WAS NOT WHEN IT WAS WRITTEN. The note
+     here used to read "nothing needs it today", measured against Taskaree's
+     three directors at 305 in a 327 list. After the 2026-09-29 credits pass,
+     re-measured at 375: THREE rows reach the full 327 and wrap — the
+     Recognition rows on Mumbai Standard Time, My Red Crayon and Moholla —
+     and the widest that still fits on one line is Aasha's new studio,
+     "Daimi Films · Vishwajeet Entertainment", at 313. Verified across all
+     sixteen: no row is wider than its list and no page scrolls sideways. */
   .cr__row { display: inline-block; max-width: 100%; margin-right: clamp(14px, 1.9vw, 26px); }
   .cr__row:last-child { margin-right: 0; }
   .cr__k {

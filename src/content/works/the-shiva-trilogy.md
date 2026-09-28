@@ -5,12 +5,7 @@ category: "Spec Trailer"
 lead: true
 opening: video
 ratio: "16:9"
-role: "Music / Sound / Voice Over"
-credits:
-  # Confirmed by Ugam, 2026-09-05. This field held "Concept trailer · Pitch
-  # work" — a description of the work, not a studio — which was harmless only
-  # while credits never rendered. That phrase moved to "Use case" below.
-  studio: "Kalpnk AI"
+role: "Music · Sound · Voice Direction"
 quote: "Scale is seen. Believability is heard."
 description: >
   Full audio for a concept trailer created as pitch work. The visual world
@@ -20,9 +15,10 @@ description: >
   system, giving weight to environments, scale to action and credibility to
   performance while carrying the story from mystery to revelation to war.
 meta:
-  - { label: "Scope", value: "Full audio" }
-  - { label: "Use case", value: "Concept trailer · Pitch work" }
-  - { label: "Tone", value: "Cinematic" }
+  - { label: "Studio", value: "Kalpnk AI" }
+  - { label: "Format", value: "Concept Trailer · Pitch Work" }
+  - { label: "Scope", value: "End-to-end Audio" }
+  - { label: "Treatment", value: "Cinematic" }
   - { label: "Year", value: "2026" }
 media:
   youtube: "uVuwV7zoNB0"

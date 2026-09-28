@@ -10,10 +10,7 @@ ratio: "16:9"
 # Swapped on 2026-09-06: Additional Production leads. The order in this one
 # string is the order in three places at once — the hairline pair under the
 # title, the Role row in the colophon, and /contents.
-role: "Additional Production / Assistant Composer"
-credits:
-  director: "Neeraj Pandey · Shivam Nair"
-  with: "Composed with Advait Nemlekar"
+role: "Assistant Composer · Additional Production"
 quote: "When the score is always moving, the challenge is keeping it alive."
 description: >
   Score and additional production for a flagship Indian streaming series,
@@ -23,15 +20,18 @@ description: >
   Cues were developed directly against picture, balancing continuity with
   enough variation to keep the score evolving across the series.
 meta:
-  - { label: "Platform", value: "Hotstar" }
+  - { label: "Directors", value: "Neeraj Pandey · Shivam Nair" }
+  - { label: "Platform", value: "JioHotstar" }
+  - { label: "Studio", value: "Friday Filmworks" }
   - { label: "Format", value: "Long-form · Episodic" }
-  - { label: "Scope", value: "Score · Additional production" }
+  - { label: "Scope", value: "Additional Score" }
+  - { label: "Music by", value: "Advait Nemlekar" }
   - { label: "Year", value: "2025" }
 external:
-  platform: "Hotstar"
-  label: "Watch on Hotstar"
+  platform: "JioHotstar"
+  label: "Watch on JioHotstar"
   url: "https://www.hotstar.com/in/shows/special-ops/1260022894"
 links:
-  - { label: "Watch on Hotstar", url: "https://www.hotstar.com/in/shows/special-ops/1260022894", platform: "hotstar" }
+  - { label: "Watch on JioHotstar", url: "https://www.hotstar.com/in/shows/special-ops/1260022894", platform: "hotstar" }
 alt: "Still from Special Ops 2.0"
 ---

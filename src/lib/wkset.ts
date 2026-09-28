@@ -21,16 +21,32 @@
  * Counted across the sixteen works, and it is worth knowing before designing
  * against it, because two of the four facts are much thinner than they sound:
  *
- *   YEAR      2 distinct values.  2025 x 9, 2026 x 7.
+ * RECOUNTED 2026-09-29, after Ugam's credits pass rewrote every work's
+ * colophon. The figures below are the new ones; the old set is not kept,
+ * because a stale count is worse than no count.
+ *
+ *   YEAR      2 distinct values.  2025 x 9, 2026 x 7.  Unchanged.
  *   PLATFORM  6 distinct over the 12 works that have one. YouTube x 6, then
- *             Spotify x 2 and IMDb, ZEE5, Netflix and Hotstar once each.
- *             Three more carry "Channels: Social-first"; Book My Yamraj has
+ *             Spotify x 2 and IMDb, ZEE5, Netflix and JioHotstar once each.
+ *             Three more carry "Channel: Social-first"; Book My Yamraj has
  *             neither and returns three rows.
- *   FORMAT    8 distinct over 16. AI-native film x 3, Vertical, short form
- *             x 3, then Short film, Long-form · Episodic, Spec Trailer and
- *             Single x 2, and two singletons.
- *   ROLE      9 distinct over 16. Music / Sound / Voice Over x 5,
- *             Composer x 3, Music / Sound x 2, and six singletons.
+ *   FORMAT    9 distinct over 16, and ALL SIXTEEN NOW HAVE ONE — Roar and
+ *             The Shiva Trilogy were the two that did not. Vertical ·
+ *             Short-form x 3, then AI-native Short Film, Short Film,
+ *             Long-form · Episodic, Concept Trailer · Pitch Work and Single
+ *             x 2 each, and Theatrical Feature, Vertical · Sound-on and
+ *             AI-native Film once each.
+ *   ROLE      9 distinct over 16. Music · Sound · Voice Direction x 5,
+ *             Composer x 3, Music · Sound x 2, and six singletons.
+ *
+ * <- THE LABEL IS "Channel", SINGULAR, from the same pass. Anything looking
+ *   the row up by its old plural finds nothing and drops it silently —
+ *   src/lib/wkinfo.ts was changed with it for exactly that reason.
+ *
+ * <- AND THE SEPARATOR IS NOW A MIDDOT IN THE MARKDOWN ITSELF. Roles used
+ *   to be written "Music / Sound / Voice Over" and converted to middots by
+ *   the work page, which meant the hover reading — which does not convert —
+ *   showed the slashes. Written as middots they read the same everywhere.
  *
  * <- THE YEAR CANNOT BE A POSITION. A timeline needs a range and this one has
  *   two points, so any draft that draws the year as a place on a span is
@@ -40,8 +56,9 @@
  *
  * <- WHAT THE SET IS GENUINELY GOOD FOR IS RARITY. Of the four facts on a
  *   typical work, one or two are shared with several others and the rest are
- *   nearly unique: fifteen of the thirty-two distinct values in the whole
- *   catalogue are held by one work only. So "how characteristic is this?" is
+ *   nearly unique: THIRTEEN of the twenty-seven distinct values in the whole
+ *   catalogue are held by one work only (it was fifteen of thirty-two before
+ *   the 2026-09-29 pass, which tightened the vocabulary). So "how characteristic is this?" is
  *   a question with a different answer on every work, which is what fm1, fm2
  *   and fm4 are built on.
  */

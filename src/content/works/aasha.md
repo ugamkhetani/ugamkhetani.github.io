@@ -5,8 +5,6 @@ category: "Short Film"
 opening: still
 ratio: "4:3"
 role: "Composer"
-credits:
-  director: "Sameer Talawdekar"
 awards:
   - text: "7 Official Selections · 10 Nominations · 6 Wins"
 quote: "Sometimes the score is not there to tell you what is right."
@@ -18,9 +16,12 @@ description: >
   for him. Instead, harmonic colour, texture and space gradually shift with
   his circumstances, allowing the audience to inhabit his uncertainty.
 meta:
-  - { label: "Scope", value: "Original score" }
+  - { label: "Director", value: "Sameer Talawdekar" }
+  - { label: "Platform", value: "ZEE5" }
+  - { label: "Studio", value: "Daimi Films · Vishwajeet Entertainment" }
+  - { label: "Format", value: "Short Film" }
+  - { label: "Scope", value: "Original Score" }
   - { label: "Approach", value: "Director-led" }
-  - { label: "Format", value: "Short film" }
   - { label: "Year", value: "2025" }
 external:
   platform: "ZEE5"

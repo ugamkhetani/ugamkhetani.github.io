@@ -4,9 +4,7 @@ year: 2025
 category: "Song"
 opening: audio
 ratio: "1:1"
-role: "Producer"
-credits:
-  artist: "with Heeya Tikku"
+role: "Producer · Featured Artist"
 quote: "A song changes when the players can hear each other."
 description: >
   An artist-led record built around a live band performance. Trumpet, drums,
@@ -15,9 +13,10 @@ description: >
   playing together, allowing interaction, timing and small imperfections to
   remain part of the record.
 meta:
-  - { label: "Scope", value: "Production" }
-  - { label: "Approach", value: "Artist-led" }
+  - { label: "Artists", value: "Heeya Tikku · Ugam Khetani" }
   - { label: "Format", value: "Single" }
+  - { label: "Scope", value: "Production" }
+  - { label: "Approach", value: "Collaborative" }
   - { label: "Year", value: "2025" }
 external:
   platform: "Spotify"

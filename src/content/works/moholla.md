@@ -8,9 +8,7 @@ opening: video
 # 7.8% off each side. Unlike Diwali and Book My Yamraj there are no bars to
 # remove here: the frames are clean HD, so the crop was cutting picture only.
 ratio: "16:9"
-role: "Music / Sound"
-credits:
-  studio: "Kalpnk AI"
+role: "Music · Sound"
 awards:
   - text: "Official Selection · Waves Film Bazaar 2025 · IFFI Goa"
 quote: "Technology can create the image. Storytelling gives it meaning."
@@ -23,10 +21,11 @@ description: >
   sound were developed around those questions, supporting a world that feels
   observed rather than generated.
 meta:
-  - { label: "Scope", value: "Music · Sound" }
-  - { label: "Recognition", value: "Official Selection · Waves / IFFI" }
-  - { label: "Format", value: "AI-native film" }
+  - { label: "Studio", value: "Kalpnk AI" }
+  - { label: "Format", value: "AI-native Film" }
+  - { label: "Scope", value: "Original Score · Sound Design" }
   - { label: "Year", value: "2025" }
+  - { label: "Recognition", value: "Official Selection · Waves · IFFI Goa" }
 media:
   youtube: "XL1G7qP8cz0"
 links:

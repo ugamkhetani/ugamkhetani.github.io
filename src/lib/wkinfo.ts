@@ -11,28 +11,38 @@
  * all sixteen works and neither is derived.
  *
  * FORMAT is the work's own `meta` row labelled "Format" — Ugam's words, as
- * they already set in the four-column block on the work page. FOURTEEN OF
- * SIXTEEN have one. Roar and The Shiva Trilogy do not, and those two fall
- * back to `category` ("Spec Trailer"), which is the same fact said in the
- * schema's vocabulary rather than in Ugam's.  <- FLAGGED. If those two
- * should carry a written Format row like the rest, say so and it goes in
- * the markdown rather than in this fallback.
+ * they already set in the colophon on the work page. ALL SIXTEEN NOW HAVE
+ * ONE: Roar and The Shiva Trilogy were the two that did not, and the
+ * 2026-09-29 credits pass gave them "Concept Trailer · Pitch Work", which
+ * was the FLAG raised here being answered. The fallback to `category` is
+ * kept because it costs nothing and a work added tomorrow may arrive
+ * without the row, but nothing in the catalogue reaches it today.
  *
  * PLATFORM is where the work can actually be seen:
- *   `external.platform`   ZEE5, Netflix, Hotstar, Spotify, IMDb  — 6 works
+ *   `external.platform`   ZEE5, Netflix, JioHotstar, Spotify, IMDb — 6 works
  *   the first `links[]`   YouTube                                — 6 more
  * That leaves FOUR WORKS WITH NO PLATFORM AT ALL: Aladdin Dateable Bites,
  * Bloody Bubbly, Dinshaw's Dildaari Battles and Book My Yamraj. Three of
- * those four carry a `meta` row labelled "Channels" reading "Social-first",
+ * those four carry a `meta` row labelled "Channel" reading "Social-first",
  * which answers the same question in Ugam's own words, so it is used —
- * UNDER ITS OWN LABEL, "Channels", never relabelled as a platform. Book My
+ * UNDER ITS OWN LABEL, "Channel", never relabelled as a platform. Book My
  * Yamraj has neither, so it returns three rows instead of four and every
- * draft is built to take that.  <- FLAGGED, two decisions for Ugam:
- *   1. Should Book My Yamraj name a platform? Its `studio` is Chivitra;
- *      nothing in the documents says the series streams there, so nothing
- *      is claimed here.
- *   2. Should the other three say "Social-first" under CHANNELS, or should
- *      the row simply be absent for all four?
+ * draft is built to take that.
+ *
+ * <- THE LABEL IS SINGULAR FROM 2026-09-29 and this lookup was changed with
+ *   it. It read "Channels" and the credits pass renamed the row to
+ *   "Channel", which would have dropped the row from the hover on all three
+ *   works while every precondition still passed — the kind of break that
+ *   shows up as an absence rather than an error.
+ *
+ * <- STILL FLAGGED, one decision for Ugam: should Book My Yamraj name a
+ *   platform? Its studio is Chivitra; nothing in the documents says the
+ *   series streams there, so nothing is claimed here and it answers three
+ *   rows rather than four.
+ *
+ * SPECIAL OPS READS "JioHotstar" from 2026-09-29, in both the colophon and
+ * `external`, so the button and the reading cannot disagree about the name
+ * of the service.
  *
  * DIWALI'S "IMDb" IS A LISTING, NOT A PLATFORM, and it is worth a word. It
  * is what `external.platform` says in the markdown, and it is true — the
@@ -82,8 +92,8 @@ export function infoRows(data: any): InfoRow[] {
   if (platform) {
     rows.push({ label: 'Platform', value: platform });
   } else {
-    const channels = metaValue(data.meta, 'Channels');
-    if (channels) rows.push({ label: 'Channels', value: channels });
+    const channels = metaValue(data.meta, 'Channel');
+    if (channels) rows.push({ label: 'Channel', value: channels });
   }
 
   rows.push({ label: 'Role', value: data.role });

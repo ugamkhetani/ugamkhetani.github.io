@@ -6,9 +6,6 @@ lead: true
 opening: still
 ratio: "3:2"
 role: "Additional Composer"
-credits:
-  director: "Neeraj Pandey · Raghav Jairath · B. A. Fida"
-  with: "Composed with Advait Nemlekar"
 quote: "A series score has to breathe beyond the scene."
 description: >
   Score and additional production for a flagship Indian streaming series,
@@ -18,9 +15,12 @@ description: >
   directly against picture and delivered to platform specifications within
   demanding production timelines.
 meta:
+  - { label: "Directors", value: "Neeraj Pandey · Raghav Jairath · B. A. Fida" }
   - { label: "Platform", value: "Netflix" }
+  - { label: "Studio", value: "Friday Filmworks" }
   - { label: "Format", value: "Long-form · Episodic" }
-  - { label: "Scope", value: "Additional score · Production" }
+  - { label: "Scope", value: "Additional Score" }
+  - { label: "Music by", value: "Advait Nemlekar" }
   - { label: "Year", value: "2026" }
 external:
   platform: "Netflix"

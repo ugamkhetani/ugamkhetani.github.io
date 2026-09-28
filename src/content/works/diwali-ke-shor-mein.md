@@ -13,8 +13,6 @@ ratio: "16:9"
 # above the title, "Theatrical feature" is still the Format row in meta, and
 # being the sole composer is what a single Composer credit already says.
 role: "Composer"
-credits:
-  director: "Rohan Bakshi"
 awards:
   - text: "Official Selection · Indian Film Festival of Melbourne"
   - text: "Official Selection · Toulouse Indian Film Festival"
@@ -32,9 +30,11 @@ description: >
   atmosphere before melodic ideas emerge. The theme grows from the world
   rather than sitting above it.
 meta:
-  - { label: "Format", value: "Theatrical feature" }
-  - { label: "Direction", value: "Rohan Bakshi" }
-  - { label: "Scope", value: "Original score · In-house mix" }
+  - { label: "Director", value: "Rohan Bakshi" }
+  - { label: "Studio", value: "NeoRang Pictures" }
+  - { label: "Format", value: "Theatrical Feature" }
+  - { label: "Scope", value: "Original Score" }
+  - { label: "Approach", value: "Director-led" }
   - { label: "Year", value: "2026" }
 media:
   # Trailer. Unlisted, so the id carries its privacy hash.

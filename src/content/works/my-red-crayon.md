@@ -4,9 +4,7 @@ year: 2025
 category: "AI Film"
 opening: video
 ratio: "16:9"
-role: "Music / Sound"
-credits:
-  studio: "Kalpnk AI"
+role: "Music · Sound"
 awards:
   - star: true
     text: "Best AI Film · Waves Film Bazaar 2025 · IFFI Goa"
@@ -19,10 +17,11 @@ description: >
   performance, texture and emotional timing, giving the film a sense of
   memory rather than novelty.
 meta:
-  - { label: "Scope", value: "Music · Sound" }
-  - { label: "Recognition", value: "Best AI Film · Waves / IFFI" }
-  - { label: "Format", value: "AI-native film" }
+  - { label: "Studio", value: "Kalpnk AI" }
+  - { label: "Format", value: "AI-native Short Film" }
+  - { label: "Scope", value: "Original Score · Sound Design" }
   - { label: "Year", value: "2025" }
+  - { label: "Recognition", value: "Best AI Film · Waves · IFFI Goa" }
 media:
   youtube: "9jPFXdeCIwM"
 links:

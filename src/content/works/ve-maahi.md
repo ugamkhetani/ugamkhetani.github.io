@@ -4,9 +4,7 @@ year: 2025
 category: "Song"
 opening: audio
 ratio: "1:1"
-role: "Producer / Composer / Mix"
-credits:
-  artist: "with Raag Suri"
+role: "Artist · Producer · Composer · Mix"
 quote: "Indian at its core. Contemporary by design."
 description: >
   An electronic production bringing together Indian music, hip-hop, drill
@@ -16,9 +14,10 @@ description: >
   allowing the track to move between worlds without settling neatly into
   one.
 meta:
-  - { label: "Scope", value: "Production · Composition · Mix" }
-  - { label: "Approach", value: "Artist-led" }
+  - { label: "Artists", value: "Raag Suri · Ugam Khetani" }
   - { label: "Format", value: "Single" }
+  - { label: "Scope", value: "Production · Composition · Mix" }
+  - { label: "Approach", value: "Collaborative" }
   - { label: "Year", value: "2025" }
 external:
   platform: "Spotify"
