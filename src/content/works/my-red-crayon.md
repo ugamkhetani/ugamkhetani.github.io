@@ -16,6 +16,11 @@ description: >
   personal rather than technological. The sound was approached through
   performance, texture and emotional timing, giving the film a sense of
   memory rather than novelty.
+hover:
+  - { label: "Format", value: "AI Film" }
+  - { label: "Platform", value: "YouTube" }
+  - { label: "Scope", value: "Music · Sound" }
+  - { label: "Year", value: "2025" }
 meta:
   - { label: "Studio", value: "Kalpnk AI" }
   - { label: "Format", value: "AI-native Short Film" }

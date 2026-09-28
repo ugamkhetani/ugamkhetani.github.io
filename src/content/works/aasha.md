@@ -15,6 +15,11 @@ description: >
   simply innocent nor corrupted, so the score could not resolve his conflict
   for him. Instead, harmonic colour, texture and space gradually shift with
   his circumstances, allowing the audience to inhabit his uncertainty.
+hover:
+  - { label: "Format", value: "Short Film" }
+  - { label: "Platform", value: "ZEE5" }
+  - { label: "Role", value: "Composer" }
+  - { label: "Year", value: "2025" }
 meta:
   - { label: "Director", value: "Sameer Talawdekar" }
   - { label: "Platform", value: "ZEE5" }

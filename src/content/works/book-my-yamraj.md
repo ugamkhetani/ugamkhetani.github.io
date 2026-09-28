@@ -15,6 +15,10 @@ description: >
   feeling rushed. Rhythm, density and transitions were shaped around the
   format itself, allowing the score to move naturally with the pace of
   vertical storytelling.
+hover:
+  - { label: "Format", value: "Micro Drama" }
+  - { label: "Role", value: "Composer · All Six Episodes" }
+  - { label: "Year", value: "2025" }
 meta:
   - { label: "Director", value: "Sameer Talawdekar" }
   - { label: "Studio", value: "Chivitra" }

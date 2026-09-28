@@ -20,6 +20,11 @@ description: >
   inhabited and the emotional world needs to remain believable. Music and
   sound were developed around those questions, supporting a world that feels
   observed rather than generated.
+hover:
+  - { label: "Format", value: "AI Film" }
+  - { label: "Platform", value: "YouTube" }
+  - { label: "Scope", value: "Music · Sound" }
+  - { label: "Year", value: "2025" }
 meta:
   - { label: "Studio", value: "Kalpnk AI" }
   - { label: "Format", value: "AI-native Film" }

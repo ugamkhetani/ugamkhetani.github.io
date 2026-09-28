@@ -15,6 +15,11 @@ description: >
   direction, vocal manipulation and editorial timing were treated as one
   problem across the campaign. The work reached 67.10M+ views, 24.82M+ reach
   and 173.4K+ engagement, with 3+ organic features.
+hover:
+  - { label: "Format", value: "Vertical · Short-form" }
+  - { label: "Channel", value: "Social-first" }
+  - { label: "Scope", value: "End-to-end Audio" }
+  - { label: "Year", value: "2026" }
 meta:
   - { label: "Client", value: "Dinshaw's" }
   - { label: "Studio", value: "Kalpnk AI" }

@@ -14,6 +14,11 @@ description: >
   language that can sustain itself across episodes. The work was developed
   directly against picture and delivered to platform specifications within
   demanding production timelines.
+hover:
+  - { label: "Format", value: "Web Series" }
+  - { label: "Platform", value: "Netflix" }
+  - { label: "Role", value: "Additional Composer" }
+  - { label: "Year", value: "2026" }
 meta:
   - { label: "Directors", value: "Neeraj Pandey · Raghav Jairath · B. A. Fida" }
   - { label: "Platform", value: "Netflix" }

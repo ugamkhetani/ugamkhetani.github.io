@@ -86,6 +86,15 @@ function metaValue(meta: MetaRow[] | undefined, label: string): string | null {
  * with a dash when the documents do not answer it — see the note above.
  */
 export function infoRows(data: any): InfoRow[] {
+  /* WRITTEN BEATS DERIVED. From 2026-09-29 each work states its own hover
+     rows in the markdown, because Ugam's selection cuts across every field
+     the derivation below reads — see the note on `hover` in
+     src/content.config.ts. The derivation is kept as the fallback for a work
+     added without one; on the present sixteen it never runs. */
+  if (Array.isArray(data.hover) && data.hover.length) {
+    return data.hover.map((r: MetaRow) => ({ label: r.label, value: r.value }));
+  }
+
   const rows: InfoRow[] = [];
 
   rows.push({ label: 'Format', value: metaValue(data.meta, 'Format') ?? data.category });

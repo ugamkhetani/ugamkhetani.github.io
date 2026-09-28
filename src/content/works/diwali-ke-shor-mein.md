@@ -29,6 +29,11 @@ description: >
   world outward, with texture, harmony and instrumentation establishing the
   atmosphere before melodic ideas emerge. The theme grows from the world
   rather than sitting above it.
+hover:
+  - { label: "Format", value: "Feature Film" }
+  - { label: "Platform", value: "Theatrical" }
+  - { label: "Role", value: "Composer" }
+  - { label: "Year", value: "2026" }
 meta:
   - { label: "Director", value: "Rohan Bakshi" }
   - { label: "Studio", value: "NeoRang Pictures" }

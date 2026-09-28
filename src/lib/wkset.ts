@@ -21,23 +21,40 @@
  * Counted across the sixteen works, and it is worth knowing before designing
  * against it, because two of the four facts are much thinner than they sound:
  *
- * RECOUNTED 2026-09-29, after Ugam's credits pass rewrote every work's
- * colophon. The figures below are the new ones; the old set is not kept,
- * because a stale count is worse than no count.
+ * RECOUNTED 2026-09-29 (second pass), after Ugam wrote the hover reading's
+ * four facts out by hand. THE ROWS ARE NO LONGER DERIVED — each work states
+ * them in its own `hover:` block, so what is counted below is an editorial
+ * selection rather than a projection of the colophon. See the note on
+ * `hover` in src/content.config.ts for why.
  *
- *   YEAR      2 distinct values.  2025 x 9, 2026 x 7.  Unchanged.
- *   PLATFORM  6 distinct over the 12 works that have one. YouTube x 6, then
- *             Spotify x 2 and IMDb, ZEE5, Netflix and JioHotstar once each.
- *             Three more carry "Channel: Social-first"; Book My Yamraj has
- *             neither and returns three rows.
- *   FORMAT    9 distinct over 16, and ALL SIXTEEN NOW HAVE ONE — Roar and
- *             The Shiva Trilogy were the two that did not. Vertical ·
- *             Short-form x 3, then AI-native Short Film, Short Film,
- *             Long-form · Episodic, Concept Trailer · Pitch Work and Single
- *             x 2 each, and Theatrical Feature, Vertical · Sound-on and
- *             AI-native Film once each.
- *   ROLE      9 distinct over 16. Music · Sound · Voice Direction x 5,
- *             Composer x 3, Music · Sound x 2, and six singletons.
+ * SEVEN LABELS NOW, NOT FOUR, and a work uses whichever four answer it:
+ *
+ *   FORMAT     on all 16.  8 distinct — AI Film and Vertical · Short-form
+ *              x 3, Short Film, Web Series, Concept Trailer · Pitch Work
+ *              and Single x 2, Feature Film and Micro Drama once.
+ *   PLATFORM   on 10.  6 distinct — YouTube x 4, Spotify x 2, then
+ *              Theatrical, ZEE5, Netflix and JioHotstar once each.
+ *   CHANNEL    on 3.   "Social-first" on all three.
+ *   ROLE       on 8.   6 distinct — Composer x 3, five singletons.
+ *   SCOPE      on 8.   3 distinct — End-to-end Audio x 5, Music · Sound
+ *              x 2, Sound Design once.
+ *   TREATMENT  on 2.   "Cinematic" on both.
+ *   YEAR       on all 16.  2025 x 9, 2026 x 7.
+ *
+ * <- ROLE AND SCOPE SPLIT THE THIRD ROW EIGHT AND EIGHT, which is the
+ *   change with the most consequence for anything counting this set: a work
+ *   answers one or the other and never both, so neither label covers the
+ *   catalogue and a draft that assumes four fixed labels is wrong.
+ *
+ * <- TWO WORKS NAME NO PLATFORM ALTHOUGH THEY HAVE ONE. The Shiva Trilogy
+ *   and Roar both carry a YouTube link and both spend their third and
+ *   fourth rows on Scope and Treatment instead. Not an omission — chosen.
+ *
+ * <- AND ONE PLATFORM IS NOT A SERVICE. Diwali Ke Shor Mein says
+ *   "Theatrical", which answers where you can see it rather than on what.
+ *   It replaced "IMDb", which was a listing standing in for a platform.
+ *
+ * <- BOOK MY YAMRAJ STILL ANSWERS THREE ROWS, not four. It is the only one.
  *
  * <- THE LABEL IS "Channel", SINGULAR, from the same pass. Anything looking
  *   the row up by its old plural finds nothing and drops it silently —
@@ -56,9 +73,8 @@
  *
  * <- WHAT THE SET IS GENUINELY GOOD FOR IS RARITY. Of the four facts on a
  *   typical work, one or two are shared with several others and the rest are
- *   nearly unique: THIRTEEN of the twenty-seven distinct values in the whole
- *   catalogue are held by one work only (it was fifteen of thirty-two before
- *   the 2026-09-29 pass, which tightened the vocabulary). So "how characteristic is this?" is
+ *   nearly unique: TWELVE of the twenty-seven distinct label-and-value pairs
+ *   in the hover reading are held by one work only. So "how characteristic is this?" is
  *   a question with a different answer on every work, which is what fm1, fm2
  *   and fm4 are built on.
  */

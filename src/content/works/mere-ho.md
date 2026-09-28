@@ -12,6 +12,11 @@ description: >
   musicians in the room. The focus was on preserving the feeling of people
   playing together, allowing interaction, timing and small imperfections to
   remain part of the record.
+hover:
+  - { label: "Format", value: "Single" }
+  - { label: "Platform", value: "Spotify" }
+  - { label: "Role", value: "Producer · Featured Artist" }
+  - { label: "Year", value: "2025" }
 meta:
   - { label: "Artists", value: "Heeya Tikku · Ugam Khetani" }
   - { label: "Format", value: "Single" }

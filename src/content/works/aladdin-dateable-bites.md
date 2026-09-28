@@ -13,6 +13,11 @@ description: >
   Upbeat jazz-inflected music, crisp sound design and naturalistic voice
   direction were developed together, giving each reel its own rhythm while
   maintaining a consistent sonic character.
+hover:
+  - { label: "Format", value: "Vertical · Short-form" }
+  - { label: "Channel", value: "Social-first" }
+  - { label: "Scope", value: "End-to-end Audio" }
+  - { label: "Year", value: "2026" }
 meta:
   - { label: "Client", value: "Aladdin Dates" }
   - { label: "Studio", value: "Kalpnk AI" }

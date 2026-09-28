@@ -30,6 +30,11 @@ description: >
   time to establish it. Space, proximity, pauses and small shifts in sound
   do much of the work, allowing tension to accumulate quietly before the
   image gives anything away.
+hover:
+  - { label: "Format", value: "Vertical · Short-form" }
+  - { label: "Channel", value: "Social-first" }
+  - { label: "Scope", value: "Sound Design" }
+  - { label: "Year", value: "2025" }
 meta:
   - { label: "Client", value: "Bloody Bubbly" }
   - { label: "Studio", value: "Kalpnk AI" }

@@ -19,6 +19,11 @@ description: >
   to the shifting tension, pace and emotional perspective of each sequence.
   Cues were developed directly against picture, balancing continuity with
   enough variation to keep the score evolving across the series.
+hover:
+  - { label: "Format", value: "Web Series" }
+  - { label: "Platform", value: "JioHotstar" }
+  - { label: "Role", value: "Assistant Composer · Additional Production" }
+  - { label: "Year", value: "2025" }
 meta:
   - { label: "Directors", value: "Neeraj Pandey · Shivam Nair" }
   - { label: "Platform", value: "JioHotstar" }

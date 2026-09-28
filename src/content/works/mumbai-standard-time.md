@@ -18,6 +18,11 @@ description: >
   without becoming mechanical. One recurring theme appears through distinct
   instrumental variations, each shaped around the world on screen.
 ledeBreak: "A 48-hour production window"
+hover:
+  - { label: "Format", value: "AI Film" }
+  - { label: "Platform", value: "YouTube" }
+  - { label: "Scope", value: "End-to-end Audio" }
+  - { label: "Year", value: "2026" }
 meta:
   - { label: "Studio", value: "Kalpnk AI" }
   - { label: "Scope", value: "End-to-end Audio" }

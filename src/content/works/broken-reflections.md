@@ -14,6 +14,11 @@ description: >
   adulthood. The film moves between shock, anger, loyalty and confusion. The
   score was shaped around that instability, using restraint as much as
   escalation and leaving space when the image was already carrying enough.
+hover:
+  - { label: "Format", value: "Short Film" }
+  - { label: "Platform", value: "YouTube" }
+  - { label: "Role", value: "Composer" }
+  - { label: "Year", value: "2025" }
 meta:
   - { label: "Director", value: "Rohan Bakshi" }
   - { label: "Studio", value: "NeoRang Pictures" }

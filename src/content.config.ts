@@ -91,6 +91,31 @@ const works = defineCollection({
     /** The four-column mono block below the media. */
     meta: z.array(z.object({ label: z.string(), value: z.string() })).default([]),
 
+    /**
+     * WHAT THE WORK SAYS ON HOVER in Selected works — up to four rows, in
+     * the order they are set, each with its own label.
+     *
+     * IT IS WRITTEN RATHER THAN DERIVED, from 2026-09-29, and the reason is
+     * that no derivation survives contact with the list. src/lib/wkinfo.ts
+     * used to build these from `category`, `meta`, `role` and `external`,
+     * and Ugam's selection cuts across all of it: Format is the CATEGORY on
+     * nine works and the `meta` Format row on seven; the third row is Role
+     * on eight and Scope on eight; The Shiva Trilogy and Roar name no
+     * platform at all although both carry a YouTube link; and Diwali says
+     * "Theatrical", which is not a platform anywhere in the data. Those are
+     * editorial choices about what a glance should answer, not facts waiting
+     * to be looked up.
+     *
+     * IT IS A SECOND STATEMENT OF FACTS THE COLOPHON ALSO CARRIES, and that
+     * is the cost. A work whose Role or Scope changes has two places to
+     * change. The alternative was a derivation with sixteen exceptions in
+     * it, which is the same duplication with the seams hidden.
+     *
+     * A work that sets none falls back to the old derivation, so nothing
+     * breaks if one is added without this block.
+     */
+    hover: z.array(z.object({ label: z.string(), value: z.string() })).default([]),
+
     media: z
       .object({
         youtube: z.string().optional(),

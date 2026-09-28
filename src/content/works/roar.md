@@ -13,6 +13,11 @@ description: >
   acoustic and electronic scoring, processed instruments, granular textures
   and found sound were shaped into a palette that gives the environments
   weight, distance, movement and tension.
+hover:
+  - { label: "Format", value: "Concept Trailer · Pitch Work" }
+  - { label: "Scope", value: "End-to-end Audio" }
+  - { label: "Treatment", value: "Cinematic" }
+  - { label: "Year", value: "2026" }
 meta:
   - { label: "Studio", value: "Kalpnk AI" }
   - { label: "Format", value: "Concept Trailer · Pitch Work" }

@@ -13,6 +13,11 @@ description: >
   vocal textures were woven into a contemporary electronic framework,
   allowing the track to move between worlds without settling neatly into
   one.
+hover:
+  - { label: "Format", value: "Single" }
+  - { label: "Platform", value: "Spotify" }
+  - { label: "Role", value: "Artist" }
+  - { label: "Year", value: "2025" }
 meta:
   - { label: "Artists", value: "Raag Suri · Ugam Khetani" }
   - { label: "Format", value: "Single" }
