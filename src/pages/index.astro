@@ -87,6 +87,7 @@ import Opening from '../components/Opening.astro';
 import { framesFor } from '../lib/frames';
 import { BED_SWAPS, BED_CROP, BED_GRADE, BED_TILES, BED_CELLS } from '../lib/bed';
 import { cardK, type CardMode } from '../lib/cards';
+import { infoRows } from '../lib/wkinfo';
 
 /* HOW BIG AN UPRIGHT WORK IS IN THE CONVEYOR — draft E · Draw, applied.
    Chosen from five built as real pages and judged in the browser; those pages
@@ -456,6 +457,8 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
             <div class="wk__world">
               {wnodes.map((n) => (
                 <div class="wcard" data-card data-no={n.no} data-title={n.w.data.title} data-year={n.w.data.year}
+                  data-rows={JSON.stringify(infoRows(n.w.data))}
+                  data-ratio={n.w.data.ratio}
                   style={`--arn:${RATIO_NUM[n.w.data.ratio]};--card-k:${cardK(CARD_MODE, RATIO_NUM[n.w.data.ratio])}`}>
                   <Still slug={n.w.id} title={n.w.data.title} year={n.w.data.year}
                     category={n.w.data.category} ratio={n.w.data.ratio}
@@ -474,6 +477,21 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
               <span class="rl__head" data-rl-head></span>
             </div>
             <p class="rl__date"><span data-w-year>{wnodes[0].w.data.year}</span></p>
+          </div>
+
+          <div class="hv hvr" data-hv aria-hidden="true">
+            <!-- The baseline probe. An inline-block of zero size on the baseline of a
+                 line set in the caption's own font: the distance from the line box's
+                 top to the strut IS the baseline offset, measured rather than assumed,
+                 and it follows the caption if its type ever changes. -->
+            <span class="hvr__probe" data-hvr-probe aria-hidden="true">H<i class="hvr__strut" data-hvr-strut></i></span>
+            <div class="hvr__left"><span class="hvr__box"><i class="hvr__e hvr__e--t"></i><i class="hvr__e hvr__e--l"></i><i class="hvr__e hvr__e--b"></i><i class="hvr__e hvr__e--r"></i></span><span class="hvr__num" data-hvr-num></span></div>
+            <div class="hvr__right">
+              <span class="hvr__f" data-hv-row><span class="hvr__l" data-hv-l></span><span class="hvr__v" data-hv-v></span></span>
+              <span class="hvr__f" data-hv-row><span class="hvr__l" data-hv-l></span><span class="hvr__v" data-hv-v></span></span>
+              <span class="hvr__f" data-hv-row><span class="hvr__l" data-hv-l></span><span class="hvr__v" data-hv-v></span></span>
+              <span class="hvr__f" data-hv-row><span class="hvr__l" data-hv-l></span><span class="hvr__v" data-hv-v></span></span>
+            </div>
           </div>
         </div>
       </div>
@@ -758,6 +776,13 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
        work, which by definition has not happened yet. Measured before this
        line existed: no mark lit at all through the whole first work. */
     if (ticks[0]) ticks[0].classList.add('is-on');
+    /* WHICH WORK IS CENTRED, IN A PLACE THE HOVER READING CAN READ IT. The
+       caption is server-rendered from wnodes[0] and `written` starts at 0,
+       so the block in paint() that would set this is guarded on a CHANGE
+       that has not happened yet — the same reason the first mark is lit by
+       hand above. Without the seed, leaving a hover before the first scroll
+       restores a caption to an empty string. */
+    sec.dataset.wkTitle = cards[0].dataset.title || '';
 
     /* Natural, unscaled heights. offsetHeight is layout height and is blind
        to transforms, which is exactly what the stack needs — and it is read
@@ -1005,7 +1030,15 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
          animate — never one that lies about which work you are looking at. */
       if (readout && written !== best) {
         written = best;
-        if (title) title.textContent = cards[best].dataset.title || '';
+        sec.dataset.wkTitle = cards[best].dataset.title || '';
+        /* THE POINTER OUTRANKS THE SCROLL ON THE CAPTION, AND ONLY THE
+           CAPTION. While a work is held, --hv-title carries its name and the
+           caption belongs to it; the year, the lit mark and the arc below
+           all keep answering for the CENTRED work, because those are the
+           instrument and the instrument reports where the conveyor is. Only
+           the name is in dispute, because only the name is also the subject
+           of the reading hanging off it. */
+        if (title) title.textContent = sec.dataset.hvTitle || sec.dataset.wkTitle || '';
         if (year) year.textContent = cards[best].dataset.year || '';
         /* The lit mark belongs HERE and not with the rotation above: which
            work you are on is a discrete fact that changes sixteen times in
@@ -1072,10 +1105,263 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     paint();
   }
 
+  /* ══ THE HOVER READING ═══════════════════════════════════════════
+     ONE PANEL, NOT SIXTEEN, AND IT IS NOT A CHILD OF THE CARD. Every
+     .wcard carries `transform: scale(var(--s))` — the conveyor's depth is a
+     scale, not a translateZ, because the placement needs each work's
+     rendered height before it places it. Anything inside a card is scaled
+     with it, and across the gate below that is a factor of two: the same
+     13px label would set at 6.5px on one work and 12.7px on another. So the
+     panel lives outside .wk__world and is positioned from the hovered
+     card's own getBoundingClientRect().
+
+     A POSITIVE z-index HERE BEATS THE WHOLE SCENE. .wk__scene carries
+     `perspective: 1250px` and .wk__world carries `transform-style:
+     preserve-3d`; both create a stacking context, so a card's z-index is
+     only ever compared against its fifteen siblings. The panel is a SIBLING
+     of .wk__scene, so anything it draws is above every card — and nothing a
+     card does can climb over it.
+
+     THE GATE IS --op >= 0.5, read off the card's own inline style. That
+     property is written every frame by paint() above and is the one number
+     that already says how visible a work is. Measured at 1280x800 mid
+     section it admits exactly three works — 0.607, 0.975 and 0.818 — and
+     refuses the next one out at 0.484, which is 302px wide and half round
+     the turn. Putting a crisp reading on that would claim a prominence its
+     picture does not have. The gate is IDENTICAL in all eight drafts so a
+     difference between them is never a difference of which works answer.
+
+     IT IS RE-CHECKED ON SCROLL, in the panel's own rAF rather than inside
+     paint(): the row keeps moving under a stationary pointer, so a held
+     work can fall through the gate without the pointer ever leaving it.
+
+     THE MARGIN AND GUTTER ARE COMPUTED, NOT READ. `--margin` is
+     `clamp(24px, 6vw, 88px)` and getPropertyValue hands back that string
+     unresolved, so parseFloat returns NaN and a JS clamp written against it
+     silently becomes no clamp at all (HANDOFF §6). Both are recomputed from
+     innerWidth here, which is what the stylesheet's own clamp resolves to.
+
+     KEYBOARD GETS IT TOO. focusin/focusout run the same path as the
+     pointer. The panel itself is aria-hidden — it is a pointer affordance,
+     and the same four facts are set in the four-column block on the work
+     page, which is what a screen reader follows the card's own link to.
+     <- FLAGGED: say the word and it becomes a live region instead.
+
+     BELOW 901px NOTHING BINDS. The conveyor is not live there — .wk__pin
+     goes static and .wk__world becomes a plain two-column grid — so there
+     is no hovered work to read, and on a touch pointer there is no hover.
+
+     See the file header. */
+  function initHvInfo() {
+    const sec = document.querySelector('.sec--works') as HTMLElement | null;
+    if (!sec || sec.dataset.hvBound) return;
+    const panel = sec.querySelector('[data-hv]') as HTMLElement | null;
+    const pin = sec.querySelector('.wk__pin') as HTMLElement | null;
+    if (!panel || !pin) return;
+    if (!matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    /* RE-ARMED ON RESIZE, exactly as initOpWorks arms itself. A window that
+       STARTS under 901px and is then widened would otherwise never bind: the
+       conveyor comes to life on the resize, the panel does not, and the
+       hover reading is silently dead for the rest of the session with every
+       precondition passing when you go looking. Found by loading a draft in
+       a narrow pane and widening it afterwards — the section reported
+       is-live, the panel and the pin were both found, sixteen cards were
+       there, and nothing was bound. */
+    if (!matchMedia('(min-width: 901px)').matches) {
+      if (!sec.dataset.hvArmed) {
+        sec.dataset.hvArmed = '1';
+        addEventListener('resize', () => initHvInfo(), { passive: true });
+      }
+      return;
+    }
+    const cards = Array.from(sec.querySelectorAll('[data-card]')) as HTMLElement[];
+    if (!cards.length) return;
+    /* NOT `data-hv`: that is the panel's own marker, and a bound flag
+       sharing the name makes a document-wide query for it return the
+       SECTION rather than the panel. */
+    sec.dataset.hvBound = '1';
+
+    const GATE = 0.5;
+    const opOf = (c: HTMLElement) => {
+      const v = parseFloat(c.style.getPropertyValue('--op'));
+      return isNaN(v) ? 1 : v;
+    };
+    const rowsOf = (c: HTMLElement): { label: string; value: string }[] => {
+      try { return JSON.parse(c.dataset.rows || '[]'); } catch { return []; }
+    };
+    const MARGIN = () => Math.min(88, Math.max(24, innerWidth * 0.06));
+    const GUTTER = () => Math.min(24, Math.max(12, innerWidth * 0.016));
+
+    let held: HTMLElement | null = null;
+    let raf = 0;
+
+    const slots = Array.from(panel.querySelectorAll('[data-hv-row]')) as HTMLElement[];
+
+    const CAP = 26;
+    const numOut = panel.querySelector('[data-hvr-num]') as HTMLElement;
+    const capEl = sec.querySelector('.rl__cap') as HTMLElement | null;
+    const probe = panel.querySelector('[data-hvr-probe]') as HTMLElement;
+    const strut = panel.querySelector('[data-hvr-strut]') as HTMLElement;
+    const nameEl = sec.querySelector('[data-w-title]') as HTMLElement | null;
+    const readout = sec.querySelector('[data-readout]') as HTMLElement | null;
+
+    /* THE NAME FOLLOWS THE POINTER, WHICH IT DID NOT IN THE DRAFT.
+
+       The gate admits any work at --op >= 0.5 — three at once, measured —
+       and the readout names the CENTRED work. So pointing at either of the
+       two neighbours put one work's name over another work's format,
+       platform, role and year, which is the one thing a colophon may never
+       do. The draft never showed it because a draft is read by hovering
+       whatever is in front of you, and what is in front of you is usually
+       centred.
+
+       So the caption is written from the HELD card while a work is held, and
+       restored to the centred one when the pointer leaves. --hv-title is the
+       flag paint() reads, so the two writers cannot fight: while it is set,
+       the scroll loop leaves the caption alone and updates only the year,
+       the lit mark and the arc.
+
+       IT FADES THE WAY THE CONVEYOR'S OWN TURN FADES, by restarting
+       `is-turning` — the same 190ms rl-in the readout already uses when the
+       centred work changes. A name that changed without it would be the one
+       hard cut on the page. */
+    /* THE FALLBACK IS SEEDED HERE TOO, because initOpWorks may never run.
+       It returns early under prefers-reduced-motion, and this does not — so
+       on that path sec.dataset.wkTitle is never written and leaving a hover
+       would have restored the caption to an empty string, wiping the only
+       name on the section. The caption is server-rendered from the first
+       work, so its own text is the right fallback at bind time. */
+    if (!sec.dataset.wkTitle && nameEl) sec.dataset.wkTitle = nameEl.textContent || '';
+
+    const setName = (name: string) => {
+      if (!nameEl || nameEl.textContent === name) return;
+      nameEl.textContent = name;
+      if (readout) {
+        readout.classList.remove('is-turning');
+        void readout.offsetWidth;          /* restart the animation */
+        readout.classList.add('is-turning');
+      }
+    };
+
+    const fill = (c: HTMLElement) => {
+      const rows = rowsOf(c);
+      const arn = parseFloat(c.style.getPropertyValue('--arn')) || 1.7778;
+      panel.style.setProperty('--bw', (CAP * arn).toFixed(1));
+      numOut.textContent = c.dataset.ratio || '';
+
+      anchor();
+
+      slots.forEach((s, i) => {
+        const row = rows[i];
+        s.hidden = !row;
+        if (!row) return;
+        (s.querySelector('[data-hv-l]') as HTMLElement).textContent = row.label;
+        (s.querySelector('[data-hv-v]') as HTMLElement).textContent = row.value;
+      });
+
+      /* THE STAGGER IS BY ROW, AND THE ROW IS NOW A MEASUREMENT. It was
+         written into the markup as 0,0,1,1 while the block was a fixed 2 x 2
+         grid; once the facts wrap to the space the name leaves, the markup
+         cannot know which row a fact lands on — Book My Yamraj takes one row
+         and Special Ops 2.0 takes three. Ranking the distinct offsetTops
+         after the text is in gives the real row, so the claim in the header
+         is the behaviour. */
+      const vis = slots.filter((s) => !s.hidden);
+      const tops = Array.from(new Set(vis.map((s) => s.offsetTop))).sort((a, b) => a - b);
+      vis.forEach((s) => s.style.setProperty('--i', String(tops.indexOf(s.offsetTop))));
+    };
+
+    /* WHERE THE NAME IS, MEASURED — and re-measured whenever the frame
+       moves. It lived inside fill() in the draft, which runs on hover and
+       never again, so a conveyor that kept moving under a held pointer left
+       the shape and the particulars hanging off a caption that had drifted.
+       The readout's own `bottom` is derived from --lit, which changes with
+       scroll, so this is a real drift and not a theoretical one. place() is
+       called by the panel's rAF on every scroll and resize while a work is
+       held, so hanging it here costs one Range read a frame and only while
+       something is actually held. */
+    const anchor = () => {
+      /* THE TITLE'S INK, NOT ITS BOX. .rl__cap is a block filling the
+         readout's 720px, so its rect says nothing about the name — a Range
+         over the contents gives the painted width. The composition is locked
+         to the NAME, so this is the number everything else is placed from,
+         and reading the box instead would centre the whole thing on a
+         constant and lose the point. */
+      let l = 0, r = 0;
+      if (capEl) {
+        const rg = document.createRange();
+        rg.selectNodeContents(capEl);
+        const rects = Array.from(rg.getClientRects());
+        if (rects.length) {
+          const p = pin.getBoundingClientRect();
+          l = Math.min(...rects.map((x) => x.left)) - p.left;
+          r = Math.max(...rects.map((x) => x.right)) - p.left;
+        }
+      }
+      panel.style.setProperty('--tl', `${l.toFixed(1)}px`);
+      panel.style.setProperty('--tr', `${r.toFixed(1)}px`);
+
+      /* THE CAPTION'S BASELINE, MEASURED. Both blocks hang off it, and it
+         was a hardcoded 592px first. Two things were wrong with that. The
+         rectangle landed 2.6px below the baseline on fifteen works — close
+         enough to look deliberate and still not the claim the header makes.
+         And on Mere Ho the readout sits at y 539.9 rather than 578, so the
+         shape stood 40.7px below the name it is supposed to be set with.
+         A constant cannot follow an element that moves. */
+      if (capEl) {
+        const cs = getComputedStyle(capEl);
+        probe.style.fontFamily = cs.fontFamily;
+        probe.style.fontSize = cs.fontSize;
+        probe.style.fontWeight = cs.fontWeight;
+        probe.style.lineHeight = cs.lineHeight;
+        const pt = probe.getBoundingClientRect().top;
+        const st = strut.getBoundingClientRect().top;
+        const cb = capEl.getBoundingClientRect().top + (st - pt) - pin.getBoundingClientRect().top;
+        panel.style.setProperty('--cb', `${cb.toFixed(1)}px`);
+      }
+    };
+
+    const place = (_c: HTMLElement) => { anchor(); };
+    const show = (c: HTMLElement) => {
+      held = c;
+      /* THE NAME FIRST, because everything below is measured off its ink. */
+      sec.dataset.hvTitle = c.dataset.title || '';
+      setName(c.dataset.title || '');
+      place(c);
+      fill(c);
+      sec.classList.add('is-hv');
+    };
+    const hide = () => {
+      delete sec.dataset.hvTitle;
+      setName(sec.dataset.wkTitle || '');
+      held = null;
+      sec.classList.remove('is-hv');
+    };
+
+    cards.forEach((c) => {
+      const on = () => { if (held !== c && opOf(c) >= GATE) show(c); };
+      const off = () => { if (held === c) hide(); };
+      c.addEventListener('pointerenter', on);
+      c.addEventListener('pointerleave', off);
+      c.addEventListener('focusin', on);
+      c.addEventListener('focusout', off);
+    });
+
+    const track = () => {
+      raf = 0;
+      if (!held) return;
+      if (opOf(held) < GATE) { hide(); return; }
+      place(held);
+    };
+    addEventListener('scroll', () => { if (held && !raf) raf = requestAnimationFrame(track); }, { passive: true });
+    addEventListener('resize', () => { if (held && !raf) raf = requestAnimationFrame(track); }, { passive: true });
+  }
+
   initOpWorks();
   initRunningHead();
   initDrift();
-  document.addEventListener('astro:page-load', () => { initOpWorks(); initRunningHead(); initDrift(); });
+  initHvInfo();
+  document.addEventListener('astro:page-load', () => { initOpWorks(); initRunningHead(); initDrift(); initHvInfo(); });
 </script>
 
 <style>
@@ -3512,4 +3798,133 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
   :root .rg .po-steplines .po-ask:has(+ .po-ask) {
     margin-bottom: 0.25em;
   }
+  /* ══ THE HOVER READING ══════════════════════════════════════════
+     Applied to the live page 2026-09-29 from /preview/ab-xr4d, which
+     stays as the draft of record. The class prefix was xr4 there and is
+     hvr here; nothing else in this block was rewritten.
+     :root on every selector for the reason HANDOFF §6 gives.
+
+     EVERYTHING IS PLACED FROM THE TITLE'S INK. --tl and --tr are the
+     painted left and right edges of the name, written from script because
+     the caption's own box is the readout's full 720px and says nothing
+     about the word in it. The baseline is the caption's: it sits at
+     y 578..625.7 and the cap height of 35.784px type is about 26px, so the
+     shape stands on y 618 with the type. */
+  :root .rg .hvr { position: absolute; inset: 0; z-index: 200; pointer-events: none; }
+  :root .rg .hvr__probe {
+    position: absolute; top: 0; left: 0;
+    visibility: hidden; white-space: nowrap; pointer-events: none;
+  }
+  :root .rg .hvr__strut {
+    display: inline-block; width: 0; height: 0; vertical-align: baseline;
+  }
+
+  :root .rg .hvr__left {
+    position: absolute; top: auto; bottom: calc(100% - var(--cb, 618px));
+    left: 0; width: var(--tl, 500px);
+    display: flex; align-items: flex-end; justify-content: flex-end; gap: 9px;
+    padding-right: 16px;
+    opacity: 0; visibility: hidden;
+    transition: opacity 120ms linear, visibility 0s linear 120ms;
+  }
+  :root .rg .sec--works.is-hv .hvr__left {
+    opacity: 1; visibility: visible;
+    transition: opacity 70ms linear, visibility 0s;
+  }
+  /* ── THE CIRCUIT ────────────────────────────────────────────────
+     FOUR EDGES, NOT A BORDER, borrowed from ab-fm5. A border cannot be
+     drawn in sequence; four absolutely positioned 1px children can, each
+     scaling from the corner the one before it finished at. The chained
+     origins are the whole effect — they are what make this read as one
+     continuous line going round a shape rather than as four rules
+     appearing near each other.
+
+     MIRRORED FROM ab-fm5's T, R, B, L. The rectangle sits to the LEFT of
+     the name here, so the circuit starts at the corner nearest the name —
+     top-right — and runs T, L, B, R. Swap the four origins and the four
+     delays to put it back exactly as ab-fm5 has it; nothing else depends
+     on them. */
+  :root .rg .hvr__box {
+    position: relative; display: block;
+    width: calc(var(--bw, 46) * 1px); height: 26px;
+  }
+  :root .rg .hvr__e { position: absolute; background: var(--bone-dim); }
+  :root .rg .hvr__e--t { top: 0; left: 0; right: 0; height: 1px; transform: scaleX(0); transform-origin: right center; }
+  :root .rg .hvr__e--l { top: 0; left: 0; bottom: 0; width: 1px; transform: scaleY(0); transform-origin: center top; }
+  :root .rg .hvr__e--b { bottom: 0; left: 0; right: 0; height: 1px; transform: scaleX(0); transform-origin: left center; }
+  :root .rg .hvr__e--r { top: 0; right: 0; bottom: 0; width: 1px; transform: scaleY(0); transform-origin: center bottom; }
+  :root .rg .hvr__e { transition: transform 110ms cubic-bezier(0.4, 0, 1, 1); }
+  :root .rg .sec--works.is-hv .hvr__e--t,
+  :root .rg .sec--works.is-hv .hvr__e--b { transform: scaleX(1); }
+  :root .rg .sec--works.is-hv .hvr__e--l,
+  :root .rg .sec--works.is-hv .hvr__e--r { transform: scaleY(1); }
+  :root .rg .sec--works.is-hv .hvr__e--t { transition: transform 150ms cubic-bezier(0.22, 1, 0.36, 1) 0ms; }
+  :root .rg .sec--works.is-hv .hvr__e--l { transition: transform 150ms cubic-bezier(0.22, 1, 0.36, 1) 80ms; }
+  :root .rg .sec--works.is-hv .hvr__e--b { transition: transform 150ms cubic-bezier(0.22, 1, 0.36, 1) 160ms; }
+  :root .rg .sec--works.is-hv .hvr__e--r { transition: transform 150ms cubic-bezier(0.22, 1, 0.36, 1) 240ms; }
+  /* LINE-HEIGHT 1, because the block is bottom-aligned on the caption's
+     baseline. At 1.9 the numerals sat centred in a line box twice their own
+     height and floated well above the rectangle they label. */
+  :root .rg .hvr__num {
+    font-family: var(--mono); font-size: var(--t-micro);
+    letter-spacing: 0.16em; color: var(--dim); line-height: 1;
+    opacity: 0; transition: opacity 90ms linear;
+  }
+  /* 300ms, which is ab-fm5's relationship rather than ab-xr4's 260: the
+     figure is still closing when its label appears. */
+  :root .rg .sec--works.is-hv .hvr__num { opacity: 1; transition: opacity 180ms linear 300ms; }
+
+  /* WRAPPED TO WHAT THE NAME LEAVES, NOT SET TO TWO COLUMNS. As a 2 x 2
+     grid of max-content columns the block ignored its own right edge and ran
+     past the margin on five of the sixteen works — worst, Special Ops 2.0
+     needed 515px where the name left 432.2, putting ink at x 1286, six
+     pixels past the frame itself. Wrapping inside a box bounded by the
+     margin cannot overflow: the widest single fact is 10px type and fits the
+     narrowest gap any title leaves, so the block simply takes a third row
+     when it needs one and grows UPWARD, because the baseline is the fixed
+     thing here. */
+  :root .rg .hvr__right {
+    position: absolute; top: auto; bottom: calc(100% - var(--cb, 618px));
+    left: var(--tr, 700px); right: var(--margin);
+    padding-left: 18px;
+    display: flex; flex-wrap: wrap; align-content: flex-end;
+    column-gap: clamp(14px, 1.7vw, 26px); row-gap: 3px;
+    opacity: 0; visibility: hidden;
+    transition: opacity 120ms linear, visibility 0s linear 120ms;
+  }
+  :root .rg .sec--works.is-hv .hvr__right {
+    opacity: 1; visibility: visible;
+    transition: opacity 70ms linear, visibility 0s;
+  }
+  /* Wiped rightward out of the title's right edge, two rows 50ms apart. */
+  :root .rg .hvr__f {
+    display: inline-flex; align-items: baseline; gap: 6px;
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.15em; text-transform: uppercase; line-height: 1.5;
+    white-space: nowrap;
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path 120ms cubic-bezier(0.4, 0, 1, 1);
+  }
+  :root .rg .hvr__f[hidden] { display: none; }
+  :root .rg .sec--works.is-hv .hvr__f {
+    clip-path: inset(0 -3px 0 0);
+    transition: clip-path 300ms cubic-bezier(0.22, 1, 0.36, 1) calc(var(--i, 0) * 50ms);
+  }
+  :root .rg .hvr__l { color: var(--muted); }
+  :root .rg .hvr__v { color: var(--bone); }
+
+  /* The instrument stands down and the name does not. `animation: none` on
+     the year, or the fade is a measured no-op — see the header. */
+  :root .rg .sec--works .rl__date,
+  :root .rg .sec--works .rl__ruler { transition: opacity 140ms linear; }
+  :root .rg .sec--works.is-hv .rl__date { animation: none; opacity: 0; }
+  :root .rg .sec--works.is-hv .rl__ruler { opacity: 0; }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root .rg .hvr__e, :root .rg .sec--works.is-hv .hvr__e { transition: none; transform: none; }
+    :root .rg .hvr__f, :root .rg .sec--works.is-hv .hvr__f { transition: none; clip-path: inset(0 -3px 0 0); }
+    :root .rg .hvr__num { transition: none; opacity: 1; }
+  }
+  @media (max-width: 900px) { :root .rg .hvr { display: none; } }
+
 </style>

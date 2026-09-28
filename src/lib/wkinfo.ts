@@ -1,9 +1,13 @@
 /**
  * THE FOUR FACTS A WORK CAN ANSWER ON HOVER — format, platform, role, year.
  *
- * Written 2026-09-27 for the ab-pv1..pv4 hover drafts. NOTHING LIVE IMPORTS
- * THIS. It exists so the four drafts cannot disagree about what a work says:
- * a difference between them should be a difference of DESIGN, not of data.
+ * Written 2026-09-27 for the ab-pv1..pv4 hover drafts, so that no two drafts
+ * could disagree about what a work says: a difference between them should be
+ * a difference of DESIGN, not of data.
+ *
+ * THE HOME PAGE IMPORTS IT FROM 2026-09-29, when ab-xr4d was applied. It is
+ * live code now. The note here used to read "NOTHING LIVE IMPORTS THIS" and
+ * it no longer does — a change to these four rows changes the site.
  *
  * ── WHERE EACH FACT COMES FROM ────────────────────────────────────
  *
