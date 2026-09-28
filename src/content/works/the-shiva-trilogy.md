@@ -15,7 +15,7 @@ description: >
   system, giving weight to environments, scale to action and credibility to
   performance while carrying the story from mystery to revelation to war.
 hover:
-  - { label: "Format", value: "Concept Trailer · Pitch Work" }
+  - { label: "Format", value: "Concept Trailer" }
   - { label: "Scope", value: "End-to-end Audio" }
   - { label: "Treatment", value: "Cinematic" }
   - { label: "Year", value: "2026" }

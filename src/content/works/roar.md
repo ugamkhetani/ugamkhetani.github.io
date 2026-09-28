@@ -14,7 +14,7 @@ description: >
   and found sound were shaped into a palette that gives the environments
   weight, distance, movement and tension.
 hover:
-  - { label: "Format", value: "Concept Trailer · Pitch Work" }
+  - { label: "Format", value: "Concept Trailer" }
   - { label: "Scope", value: "End-to-end Audio" }
   - { label: "Treatment", value: "Cinematic" }
   - { label: "Year", value: "2026" }

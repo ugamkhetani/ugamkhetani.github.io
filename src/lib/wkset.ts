@@ -29,9 +29,9 @@
  *
  * SEVEN LABELS NOW, NOT FOUR, and a work uses whichever four answer it:
  *
- *   FORMAT     on all 16.  8 distinct — AI Film and Vertical · Short-form
- *              x 3, Short Film, Web Series, Concept Trailer · Pitch Work
- *              and Single x 2, Feature Film and Micro Drama once.
+ *   FORMAT     on all 16.  9 distinct — AI Film x 3, then Short Film, Web
+ *              Series, Concept Trailer, Ad Campaign and Single x 2 each,
+ *              and Feature Film, Micro Drama and Branded Film once.
  *   PLATFORM   on 10.  6 distinct — YouTube x 4, Spotify x 2, then
  *              Theatrical, ZEE5, Netflix and JioHotstar once each.
  *   CHANNEL    on 3.   "Social-first" on all three.
@@ -56,6 +56,14 @@
  *
  * <- BOOK MY YAMRAJ STILL ANSWERS THREE ROWS, not four. It is the only one.
  *
+ * <- AND THE HOVER'S FORMAT HAS COME AWAY FROM THE COLOPHON'S on five works,
+ *   which is worth knowing before treating either as the work's "format".
+ *   The hover says Concept Trailer where the page says Concept Trailer ·
+ *   Pitch Work (The Shiva Trilogy, Roar); Ad Campaign where the page says
+ *   Vertical · Short-form (Aladdin, Dinshaw's); and Branded Film for the
+ *   same row on Bloody Bubbly Halloween Ad. The hover names the KIND OF JOB
+ *   and the colophon names the DELIVERY. Neither is derived from the other.
+ *
  * <- THE LABEL IS "Channel", SINGULAR, from the same pass. Anything looking
  *   the row up by its old plural finds nothing and drops it silently —
  *   src/lib/wkinfo.ts was changed with it for exactly that reason.
@@ -73,8 +81,8 @@
  *
  * <- WHAT THE SET IS GENUINELY GOOD FOR IS RARITY. Of the four facts on a
  *   typical work, one or two are shared with several others and the rest are
- *   nearly unique: TWELVE of the twenty-seven distinct label-and-value pairs
- *   in the hover reading are held by one work only. So "how characteristic is this?" is
+ *   nearly unique: THIRTEEN of the twenty-eight distinct label-and-value
+ *   pairs in the hover reading are held by one work only. So "how characteristic is this?" is
  *   a question with a different answer on every work, which is what fm1, fm2
  *   and fm4 are built on.
  */

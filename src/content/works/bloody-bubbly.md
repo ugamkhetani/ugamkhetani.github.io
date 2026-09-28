@@ -17,7 +17,7 @@
 # only honest value left would have restated the Role above it.
 # Nothing here is inferred any more.
 # ─────────────────────────────────────────────────────────────
-title: "Bloody Bubbly"
+title: "Bloody Bubbly Halloween Ad"
 year: 2025
 category: "Brand Work"
 opening: composition
@@ -31,7 +31,7 @@ description: >
   do much of the work, allowing tension to accumulate quietly before the
   image gives anything away.
 hover:
-  - { label: "Format", value: "Vertical · Short-form" }
+  - { label: "Format", value: "Branded Film" }
   - { label: "Channel", value: "Social-first" }
   - { label: "Scope", value: "Sound Design" }
   - { label: "Year", value: "2025" }

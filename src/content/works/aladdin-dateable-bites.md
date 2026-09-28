@@ -14,7 +14,7 @@ description: >
   direction were developed together, giving each reel its own rhythm while
   maintaining a consistent sonic character.
 hover:
-  - { label: "Format", value: "Vertical · Short-form" }
+  - { label: "Format", value: "Ad Campaign" }
   - { label: "Channel", value: "Social-first" }
   - { label: "Scope", value: "End-to-end Audio" }
   - { label: "Year", value: "2026" }
