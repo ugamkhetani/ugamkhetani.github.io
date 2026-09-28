@@ -1210,7 +1210,21 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     const pin = sec.querySelector('.wk__pin') as HTMLElement | null;
     if (!panel || !pin) return;
     if (!matchMedia('(hover: hover) and (pointer: fine)').matches) return;
-    if (!matchMedia('(min-width: 901px)').matches) return;
+    /* RE-ARMED ON RESIZE, exactly as initOpWorks arms itself. A window that
+       STARTS under 901px and is then widened would otherwise never bind: the
+       conveyor comes to life on the resize, the panel does not, and the
+       hover reading is silently dead for the rest of the session with every
+       precondition passing when you go looking. Found by loading a draft in
+       a narrow pane and widening it afterwards — the section reported
+       is-live, the panel and the pin were both found, sixteen cards were
+       there, and nothing was bound. */
+    if (!matchMedia('(min-width: 901px)').matches) {
+      if (!sec.dataset.hvArmed) {
+        sec.dataset.hvArmed = '1';
+        addEventListener('resize', () => initHvInfo(), { passive: true });
+      }
+      return;
+    }
     const cards = Array.from(sec.querySelectorAll('[data-card]')) as HTMLElement[];
     if (!cards.length) return;
     /* NOT `data-hv`: that is the panel's own marker, and a bound flag
