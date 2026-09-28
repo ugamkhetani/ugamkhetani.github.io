@@ -448,16 +448,31 @@ const FACTS: { k: string; v: string }[] = [
         </div>
       ) : (
         <div class="rec" aria-label="Recognition">
+          {/* THE BIG LINE ALWAYS RENDERS; THE SMALL ONE ONLY WHEN THERE IS A
+              BODY TO SET UNDER IT. .rec__where is the one thing on a row set
+              at size, because it is the one thing that differs from the row
+              above it — and on an award that names no awarding body, the
+              CITATION is that thing. Dinshaw's "India's First AI Rap Battle"
+              is the only one in the catalogue: it carries no middot, so
+              parseAwards gives it a null body, and it used to set in the 10px
+              accent mono alone while every other row carried a 2.35rem line.
+              It reads at size now, like Moholla's "Waves Film Bazaar 2025 ·
+              IFFI Goa". */}
           <ol class="rec__list">
             {CITES.map((c, i) => (
               <li class="rec__row" data-v>
                 <span class="mono rec__n">{String(i + 1).padStart(2, '0')}</span>
                 <span class="rec__body">
-                  <span class="mono rec__cit">
-                    {c.star && <span class="rec__star" aria-hidden="true">★</span>}
-                    {c.citation}
+                  {c.body && (
+                    <span class="mono rec__cit">
+                      {c.star && <span class="rec__star" aria-hidden="true">★</span>}
+                      {c.citation}
+                    </span>
+                  )}
+                  <span class="rec__where display">
+                    {!c.body && c.star && <span class="rec__star" aria-hidden="true">★</span>}
+                    {c.body ?? c.citation}
                   </span>
-                  {c.body && <span class="rec__where display">{c.body}</span>}
                 </span>
               </li>
             ))}
@@ -828,12 +843,19 @@ const FACTS: { k: string; v: string }[] = [
     will-change: opacity, transform;
   }
   /* The one thing on the row that differs from the row above it, so the one
-     thing set at size. */
+     thing set at size — which on an award naming no body is its citation.
+     See the note on the markup. */
   .rec__where {
     font-family: var(--display); font-weight: 500;
     font-size: clamp(1.3rem, 3vw, 2.35rem);
     line-height: 1.06; letter-spacing: -0.035em;
     color: var(--bone); text-wrap: balance;
+  }
+  /* A star that lands on the big line keeps the size it has on the small
+     one. Nothing in the catalogue is both starred and bodyless today; this
+     is so the first one that is does not arrive as a 2.35rem ★. */
+  .rec__where .rec__star {
+    font-size: var(--t-micro); vertical-align: 0.42em;
   }
   @media (max-width: 620px) {
     .tally__row { grid-template-columns: 1fr; }
