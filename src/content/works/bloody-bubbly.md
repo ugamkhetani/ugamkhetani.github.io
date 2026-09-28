@@ -25,7 +25,7 @@ ratio: "9:16"
 role: "Sound Design"
 quote: "Sometimes all a moment needs is a little unease."
 description: >
-  Sound design for a short-form Halloween campaign built around elements of
+  Sound design for a short-form Halloween ad built around elements of
   horror. The idea was to create unease within a format with very little
   time to establish it. Space, proximity, pauses and small shifts in sound
   do much of the work, allowing tension to accumulate quietly before the
