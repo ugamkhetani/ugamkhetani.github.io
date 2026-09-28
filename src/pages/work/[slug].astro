@@ -689,9 +689,16 @@ const FACTS: { k: string; v: string }[] = [
   .body { margin: 0; }
 
   /* THE STANDFIRST, AND WHY ITS SIZE IS DERIVED RATHER THAN SET.
-     The draft was drawn against Mumbai Standard Time, whose first sentence is
-     80 characters. Across the catalogue they run 55 to 166 — The Shiva
-     Trilogy's shortest, Aasha's longest — a spread of three to one. At the
+     The draft was drawn against Mumbai Standard Time, whose first sentence
+     was 80 characters when this was written and is 67 since it was rewritten
+     on 2026-09-29 — which is the rule working rather than a note going out
+     of date. Measured at 1280 before and after, with nothing here touched:
+     34.8px over a 516px measure became 35.2px over 437px, both three lines.
+     The size went UP because 67 characters reaches the 2.2rem ceiling and 80
+     did not; the sentence got shorter, so it is allowed to be bigger and to
+     sit on a narrower measure. Across the
+     catalogue the first sentences run 55 to 166 — The Shiva Trilogy's
+     shortest, Aasha's longest — a spread of three to one. At the
      draft's fixed 2.2rem over 24ch, Aasha's would have set SEVEN lines of
      35px display type, which is not a standfirst but a slab. A fixed size
      cannot serve both ends of that spread, so both the size and the measure
