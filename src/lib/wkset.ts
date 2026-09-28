@@ -61,7 +61,7 @@
  *   The hover says Concept Trailer where the page says Concept Trailer ·
  *   Pitch Work (The Shiva Trilogy, Roar); Ad Campaign where the page says
  *   Vertical · Short-form (Aladdin, Dinshaw's); and Branded Film for the
- *   same row on Bloody Bubbly Halloween Ad. The hover names the KIND OF JOB
+ *   same row on Bloody Bubbly. The hover names the KIND OF JOB
  *   and the colophon names the DELIVERY. Neither is derived from the other.
  *
  * <- THE LABEL IS "Channel", SINGULAR, from the same pass. Anything looking

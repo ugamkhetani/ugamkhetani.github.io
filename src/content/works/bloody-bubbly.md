@@ -17,7 +17,7 @@
 # only honest value left would have restated the Role above it.
 # Nothing here is inferred any more.
 # ─────────────────────────────────────────────────────────────
-title: "Bloody Bubbly Halloween Ad"
+title: "Bloody Bubbly"
 year: 2025
 category: "Brand Work"
 opening: composition
