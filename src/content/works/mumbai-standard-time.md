@@ -9,8 +9,6 @@ role: "Music · Sound · Voice Direction"
 awards:
   - star: true
     text: "First Prize · CinemAI Hackathon, MIFF 2026"
-  - star: true
-    text: "Best AI Film · IFFI Goa"
 quote: "Technology scales execution. Taste remains scarce."
 description: >
   A complete film made in 48 hours, from idea and script to final image and
