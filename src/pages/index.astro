@@ -2796,19 +2796,17 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     .po-list ul { margin-top: 14px; }
   }
 
-/* ══ MS3 · SMOKED ════════════════════════════════════════════════ */
-  .rg .mvt.po-sec {
-    background: color-mix(in srgb, var(--ground) 55%, transparent);
-    -webkit-backdrop-filter: blur(7px);
-    backdrop-filter: blur(7px);
-  }
+/* ══ MS3 · SMOKED ════════════════════════════════════════════════
+     WHAT WAS HERE IS IN ONE PANE BELOW. This section used to smoke the
+     poster by putting a translucent ground and a backdrop-filter on
+     .rg .mvt.po-sec itself. Both rules were dead from the day ONE PANE
+     landed beside them — it sets the same three sections transparent with
+     no backdrop-filter, from a later rule at equal specificity — and they
+     were removed on 2026-09-29. The mat and the label colours below were
+     never part of that and stay. */
   /* The mat would put a hard-edged rectangle in the middle of a page whose
      whole point is that there is no edge. */
   .rg .ap__mat { display: none; }
-  /* Where the pane cannot blur, it thickens instead. */
-  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .rg .mvt.po-sec { background: color-mix(in srgb, var(--ground) 76%, transparent); }
-  }
   /* A JUDGEMENT, NOT A FIX. I changed these expecting ab-d's #9B9B9B to fail
      here. Measured against the composited worst case it gives 5.71:1, which
      clears AA for small text with room to spare, so the grey was never in
@@ -2819,43 +2817,23 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
   .rg .po-sec .po-label--hi, .rg .po-sec .po-c1 { color: var(--bone); }
 
 
-  /* ══ THE SMOKE ═══════════════════════════════════════════════════
-     One registered number, inherited, driven by the opening's exit.
-     Registration is what makes it interpolate; an unregistered custom
-     property snaps at the halfway mark. */
-  @property --smoke { syntax: '<number>'; inherits: true; initial-value: 1; }
+  /* ══ THE SMOKE — REMOVED 2026-09-29 ═════════════════════════════
+     A whole second generation of this effect lived here and had never run.
+     It declared @property --smoke a second time, set --smoke on .rg a
+     second time, ran `animation: ms-smoke` on .rg at the same specificity
+     as ONE PANE's `animation: sm-haze, sm-ground`, and gave the three
+     sections a --smoke-driven ground with a backdrop-filter on two of them.
 
-  .rg { --smoke: 1; }
-  @supports (animation-timeline: scroll(root block)) {
-    @media (prefers-reduced-motion: no-preference) {
-      .rg {
-        animation: ms-smoke linear both;
-        animation-timeline: scroll(root block);
-        animation-range: 35vh 100vh;
-      }
-    }
-  }
-  @keyframes ms-smoke { from { --smoke: 0; } to { --smoke: 1; } }
+     ONE PANE WON EVERY ONE OF THOSE TIES BY BEING LATER IN THE SAME STYLE
+     BLOCK, which is ordinary cascade rather than luck — verified in the
+     emitted CSS, where both land in one file and ONE PANE's rules sit at a
+     higher offset. It was still worth deleting: three generations of the
+     same effect in one file, two of them inert, is a trap for whoever edits
+     it next, and moving either block between the file's three <style>
+     elements would have flipped the result for real.
 
-  /* Nothing is ever laid over the bed in the opening. */
-  .rg .ov { background: transparent; }
-
-  /* ONE VALUE, THREE SECTIONS. */
-  .rg .mvt.po-sec,
-  .rg .mvt.sec--works,
-  .rg .mvt.mvt--contact {
-    background: color-mix(in srgb, var(--ground) calc(var(--smoke) * 55%), transparent);
-  }
-  .rg .mvt.sec--works, .rg .mvt.mvt--contact {
-    -webkit-backdrop-filter: blur(7px); backdrop-filter: blur(7px);
-  }
-  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .rg .mvt.po-sec,
-    .rg .mvt.sec--works,
-    .rg .mvt.mvt--contact {
-      background: color-mix(in srgb, var(--ground) calc(var(--smoke) * 76%), transparent);
-    }
-  }
+     The live machinery is ONE PANE below, plus THE BLUR MOVES OFF THE
+     BACKDROP and THE BLUR, ONCE EARNED. See HANDOFF §5. */
 
   /* ══ CONTACT, IN THE POSTER'S FURNITURE ══════════════════════════
      The component's own grid is NOT touched: .ct__page keeps its two

@@ -758,6 +758,57 @@ be touched**; the eighteen partial ones were re-picked so no work sits beside
 itself and no still repeats from the centre twelve. Two are held by name —
 Shiva at cell 4 and Diwali at cell 27.
 
+**THE SMOKE AND THE BLUR — four moving parts, and none of them was written
+down until 2026-09-29.** The home page's mosaic bed is darkened and softened
+as you scroll off the opening. It is worth knowing all four, because three of
+them can look like the fourth having failed.
+
+1. **The pane.** `.sm` is `position: fixed; inset: 0; z-index: 1`, and it
+   carries the ground: `color-mix(in srgb, var(--ground) calc(var(--smoke) *
+   55%), transparent)`. The three sections — `.po-sec`, `.sec--works`,
+   `.mvt--contact` — hand it their own backgrounds and set `background:
+   transparent; backdrop-filter: none`. One surface instead of three.
+2. **The bed filter.** `.rg .ms__bed` carries
+   `brightness(0.30) saturate(0.7) contrast(1.05)`, and the thirty tiles carry
+   `filter: none` — one rasterised surface rather than thirty filtered ones.
+   The blur is NOT in that rule.
+3. **The two scroll-driven animations.** `sm-haze` drives `--haze` `0px ->
+   7px` over `animation-range: 30vh 96vh`, reaching full blur at 55% of its
+   own range; `sm-ground` drives `--smoke` `0 -> 1` over `30vh 104vh`, still
+   at 0.4 where the blur has finished — soft first, dark after. Both are
+   registered with `@property`, which is what makes them interpolate; an
+   unregistered custom property snaps at the halfway mark.
+4. **The probe, and the gate.** The blur is added by a SECOND rule,
+   `:root[data-blur] .rg .ms__bed { filter: ... blur(var(--haze)) }`, and
+   `data-blur` is set only by the inline frame-timing probe near the top of
+   `index.astro`. It throws away the first 10 frames, collects 40 clean ones
+   under 100ms, and passes only if the shortest is <= 20ms (50Hz or better)
+   AND median/shortest <= 1.35 — consistency alone is not health, since a
+   machine pinned at 30fps holds its cadence perfectly. **It caches its
+   verdict in `sessionStorage` under `blur-ok`,** and it never runs at all
+   under `prefers-reduced-motion: reduce`.
+
+**The failure direction is no blur, which is the state the page opens in
+anyway** — so a device that never runs the script still gets the full value
+range and simply loses the softness. Measured on the live page at 1280:
+`--haze` 0px at scrollY 230, 3.51px at 370, 6.996px at 509, 7px from ~509 on;
+`--smoke` reaches 1 at scrollY 800. The bed then reads
+`brightness(0.3) saturate(0.7) contrast(1.05) blur(7px)`.
+
+**There were THREE generations of this effect in `index.astro` and two of
+them had never run.** Both dead sets arrived with the op1 application
+(`65314bd`, 2026-09-20) and were removed on 2026-09-29. Generation one put
+the ground and a `backdrop-filter` straight on `.rg .mvt.po-sec`; generation
+two ("THE SMOKE") declared `@property --smoke` a second time, set `--smoke` on
+`.rg` a second time and ran `animation: ms-smoke` at the same specificity as
+the live `animation: sm-haze, sm-ground`. **One Pane won every tie by being
+later in the same `<style>` block** — ordinary cascade, verified in the
+emitted CSS, not the bundler's choice — but the file's three `<style>` blocks
+are emitted as four separate stylesheets, so moving either block between them
+would have flipped it for real. Five rules set a background or a
+`backdrop-filter` on those three sections before the cut; one does now, and it
+is byte-identical to the one that was already winning.
+
 **Aasha opens on a still and links out to ZEE5.** The YouTube embed is gone;
 `external` carries platform, label and url. ← The first link Ugam sent
 resolved to a different film — `deep_link_value`, `desktop_url` and `af_dp`
@@ -786,6 +837,37 @@ anywhere. Measured on /about: every child computed `1 / -1` while the
 stylesheet plainly said otherwise. **Place grid children by name, never with
 a `> *` blanket** — and when a media query has to override those, write the
 overrides at the same `.parent > .child` specificity or they lose too.
+
+**Read the bed's filter too early and you will conclude the blur is broken.**
+`getComputedStyle(document.querySelector('.ms__bed')).filter` is the right
+check, but the probe that gates it needs 40 clean frames after a 10-frame
+warm-up — up to 200 frames or 5 seconds. Read it at load and you get
+`brightness(0.30) saturate(0.7) contrast(1.05)` with no `blur()`, which is
+indistinguishable from a real failure. **Wait ~2s, then read it.** And read
+it while scrolled PAST the animation range: at the top of the page `--haze`
+is legitimately `0px`, so the filter correctly ends in `blur(0px)` — that is
+the design, not a fault. Scroll past 96vh before judging it.
+
+**The blur verdict is cached for the whole session and a single bad moment
+sticks.** `sessionStorage.getItem('blur-ok')` returns `"1"` or `"0"`, and
+`"0"` means the probe failed once and will not be retried until a new
+session. A page loaded in a background tab, during a heavy decode, on a
+throttled window or in Low Power Mode can cache `"0"` and lose the blur for
+the rest of that session — while the ground still darkens to full, so what
+you see is **darkened but perfectly sharp**, which reads as "the smoke looks
+wrong" rather than as a failure. Check the key before blaming the CSS;
+clearing it and reloading is the whole reset.
+
+**The preview pane fails the probe every time, and that is not a product
+bug.** Measured 2026-09-29 in a fresh pane tab: the probe saw 6 frames in
+5025ms and collected ZERO clean samples, so it cached `"0"` and no blur was
+applied. The pane throttles `requestAnimationFrame` hard when it is not the
+fronted, visible tab. For the same reason **scroll-driven animations stop
+being sampled there** — `getAnimations()[0].overallProgress` comes back
+`null` and `getComputedStyle` returns the DECLARED value (`--haze: 7px`,
+`--smoke: 1`) rather than the animated one, which looks like the ramp having
+jumped to its end. Front the pane before measuring either, or force
+`sessionStorage.setItem('blur-ok', '1')` and verify the rest another way.
 
 **`text-indent` inherits, and every inline-block re-applies it.** The hanging
 indent on /about's statements was inherited into each masked word, and since
