@@ -3133,6 +3133,42 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     text-transform: none; color: var(--po-grey, #9B9B9B);
   }
 
+  /* ══ SIX LABELS, ONE STEP UP ═════════════════════════════════════
+     2026-09-29, on Ugam's instruction: "Project details", "Your details",
+     "Tap as many as apply", "Name and email required", the standing line
+     and the copyright, 12px to 13 and 13 to 14.
+
+     NAMED ONE BY ONE RATHER THAN BY RAISING THE RULE ABOVE, because that
+     rule also carries .send__ink, summary and .q__n — the send's own words
+     and the question numbers — and none of those were asked for. Raising it
+     would have moved nine things to change six.
+
+     AND THE COPYRIGHT IS ADDRESSED BY ITS ROW. .mono--dim is worn by four
+     elements in this form: the Email, WhatsApp and Phone labels in the
+     direct block, and the copyright in .ft__row. Only the last was asked
+     for, so the selector says so.
+
+     <- .send__ink HAD TO COME WITH .send__note, and raising the note alone
+        did nothing visible. The note is a <p> holding TWO children: a
+        .visually-hidden span that carries the sentence for a screen reader,
+        and .send__ink, which is the same sentence split into one <i> per
+        character for the ink animation. The <i>s inherit their size from
+        .send__ink, so .send__ink is the element the reader actually sees
+        and the one the size has to be set on. Measured before catching it:
+        .send__note read 13px and the words on screen were still 12.
+        .send__ink is worn by nothing else in the form — checked. */
+  :root .rg .sm-form :global(.ct__grouphead),
+  :root .rg .sm-form :global(.q__hint),
+  :root .rg .sm-form :global(.send__note),
+  :root .rg .sm-form :global(.send__ink),
+  :root .rg .sm-form :global(.ft__row .mono--dim) {
+    font-size: 13px;
+  }
+  /* The standing line is not mono and was already a step above the rest. */
+  :root .rg .sm-form :global(.ft__prose--quiet) {
+    font-size: 14px;
+  }
+
   /* ══ ALL TWENTY-EIGHT ROUNDED BOXES, ONE STEP UP ═════════════════
      Options, fields and the notes area together, so the thing you type into
      never reads smaller than the thing you tap. Padding in em: the box grows
