@@ -3133,10 +3133,12 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     text-transform: none; color: var(--po-grey, #9B9B9B);
   }
 
-  /* ══ SIX LABELS, ONE STEP UP ═════════════════════════════════════
+  /* ══ SIX LABELS, TWO STEPS UP ════════════════════════════════════
      2026-09-29, on Ugam's instruction: "Project details", "Your details",
      "Tap as many as apply", "Name and email required", the standing line
-     and the copyright, 12px to 13 and 13 to 14.
+     and the copyright. 12px to 13 and 13 to 14 first, then a second step
+     the same day to 14 and 15 — so the five mono labels have gone 12 -> 14
+     and the standing line 13 -> 15.
 
      NAMED ONE BY ONE RATHER THAN BY RAISING THE RULE ABOVE, because that
      rule also carries .send__ink, summary and .q__n — the send's own words
@@ -3162,11 +3164,11 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
   :root .rg .sm-form :global(.send__note),
   :root .rg .sm-form :global(.send__ink),
   :root .rg .sm-form :global(.ft__row .mono--dim) {
-    font-size: 13px;
+    font-size: 14px;
   }
   /* The standing line is not mono and was already a step above the rest. */
   :root .rg .sm-form :global(.ft__prose--quiet) {
-    font-size: 14px;
+    font-size: 15px;
   }
 
   /* ══ ALL TWENTY-EIGHT ROUNDED BOXES, ONE STEP UP ═════════════════
