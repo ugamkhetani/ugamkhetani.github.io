@@ -2884,6 +2884,26 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
 
   .rg { --smoke: 1; --haze: 7px; --veil: 100%; --iris: 0%; }
 
+  /* THE RAMP IS KEYED TO SELECTED WORKS ENTERING, not to a count of
+     viewport heights. Applied 2026-09-29 from /preview/ab-sm2.
+
+     IT USED TO RUN 30vh..96vh ON scroll(root block), which resolved to
+     scrollY 230..799 — and the opening header is exactly one viewport tall,
+     0..768px, so the page began softening while the hero was still two
+     thirds on screen. The top section never got to be clean.
+
+     timeline-scope is the one declaration that needs explaining: a named
+     view timeline is visible to the element that declares it and to its
+     DESCENDANTS, and these animations live on .rg, which is an ANCESTOR of
+     .sec--works. The file's other named timeline, --nq on
+     #philosophy .po-step, needs no such thing because its consumer is a
+     child. This hoists the name so the ancestor can reach it. */
+  :root .rg { timeline-scope: --works; }
+  :root .rg .mvt.sec--works {
+    view-timeline-name: --works;
+    view-timeline-axis: block;
+  }
+
   .sm {
     position: fixed; inset: 0; z-index: 1; pointer-events: none;
     background: color-mix(in srgb, var(--ground) calc(var(--smoke) * 55%), transparent);
@@ -2916,8 +2936,14 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     @media (prefers-reduced-motion: no-preference) {
       .rg {
         animation: sm-haze linear both, sm-ground linear both;
-        animation-timeline: scroll(root block), scroll(root block);
-        animation-range: 30vh 96vh, 30vh 104vh;
+        animation-timeline: --works, --works;
+        /* entry 0% is the conveyor's top edge at the bottom of the screen,
+           entry 100% that edge at the top — scrollY 0..768 today, because
+           the opening is exactly one viewport tall. Starting at 50% leaves
+           the opening's whole first half clean and finishes the ramp as
+           Selected works takes the frame. Measured: full blur at scrollY
+           595, both values held from 768 to the document end at 15369. */
+        animation-range: entry 50% entry 100%, entry 50% entry 100%;
       }
     }
   }
@@ -2973,6 +2999,44 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
      which is the state the page opens in anyway. */
   :root[data-blur] .rg .ms__bed {
     filter: brightness(0.30) saturate(0.7) contrast(1.05) blur(var(--haze));
+  }
+
+  /* ══ THE FROSTED PANE ════════════════════════════════════════════
+     Applied 2026-09-29 from /preview/ab-sm2, chosen over ab-sm3.
+
+     THE BLUR GOES BACK ON THE BACKDROP, WHERE GLASS HAPPENS. The rules
+     above moved it onto the bed for a real reason — one rasterised surface
+     instead of a backdrop pass — and this moves it back, knowingly. What
+     that buys is a pane that behaves like glass rather than like a smoked
+     filter: it blurs what is behind it, and because it also saturates and
+     lifts, what is behind stays colour rather than going grey.
+
+     THE GROUND COMES DOWN FROM 55% TO 26%, because the blur is now doing
+     the separation the darkness was doing, and the bed gives up its own
+     blur so the page does not blur twice. The bed's grade lifts from 0.30
+     to 0.34 for the same reason.
+
+     THE CONTENT IS NOT BLURRED BY THIS, which is worth writing down because
+     a full-screen backdrop-filter sounds like it would be. Measured: the
+     bed is `fixed, z-index 0`, this pane is `fixed, z-index 1`, and every
+     section — .ov, .sec--works, .po-sec, .mvt--contact — is `relative,
+     z-index 2`. The sections sit ABOVE the pane, so the only thing in its
+     backdrop is the bed. Nothing the reader reads goes soft.
+
+     <- data-blur NOW HAS NO CONSUMER. The rule above is the last thing that
+        read it, and the bed no longer blurs, so the probe's verdict decides
+        nothing. The probe still runs and still writes sessionStorage. Left
+        in place deliberately: it is the hook if this backdrop should ever be
+        gated on weak hardware, which is the open question this change
+        leaves behind. See HANDOFF §5. */
+  :root .rg .sm {
+    background: color-mix(in srgb, var(--ground) calc(var(--smoke) * 26%), transparent);
+    -webkit-backdrop-filter: blur(calc(var(--haze) * 2)) saturate(1.2) brightness(0.86);
+    backdrop-filter: blur(calc(var(--haze) * 2)) saturate(1.2) brightness(0.86);
+  }
+  :root[data-blur] .rg .ms__bed,
+  :root .rg .ms__bed {
+    filter: brightness(0.34) saturate(0.78) contrast(1.05);
   }
 
   /* ══ THE WORK'S NAME, FROM ab-ty2 ════════════════════════════════

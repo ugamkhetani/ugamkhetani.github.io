@@ -763,37 +763,55 @@ down until 2026-09-29.** The home page's mosaic bed is darkened and softened
 as you scroll off the opening. It is worth knowing all four, because three of
 them can look like the fourth having failed.
 
-1. **The pane.** `.sm` is `position: fixed; inset: 0; z-index: 1`, and it
-   carries the ground: `color-mix(in srgb, var(--ground) calc(var(--smoke) *
-   55%), transparent)`. The three sections — `.po-sec`, `.sec--works`,
-   `.mvt--contact` — hand it their own backgrounds and set `background:
-   transparent; backdrop-filter: none`. One surface instead of three.
-2. **The bed filter.** `.rg .ms__bed` carries
-   `brightness(0.30) saturate(0.7) contrast(1.05)`, and the thirty tiles carry
-   `filter: none` — one rasterised surface rather than thirty filtered ones.
-   The blur is NOT in that rule.
+1. **The pane, which IS the glass.** `.sm` is `position: fixed; inset: 0;
+   z-index: 1`. It carries the ground at
+   `color-mix(in srgb, var(--ground) calc(var(--smoke) * 26%), transparent)`
+   and the blur, as
+   `backdrop-filter: blur(calc(var(--haze) * 2)) saturate(1.2) brightness(0.86)`.
+   The three sections — `.po-sec`, `.sec--works`, `.mvt--contact` — hand it
+   their own backgrounds and set `background: transparent; backdrop-filter:
+   none`. One surface instead of three.
+2. **The bed filter, which is grade only.** `.rg .ms__bed` carries
+   `brightness(0.34) saturate(0.78) contrast(1.05)`, and the thirty tiles
+   carry `filter: none` — one rasterised surface rather than thirty filtered
+   ones. **No blur lives here any more.**
 3. **The two scroll-driven animations.** `sm-haze` drives `--haze` `0px ->
-   7px` over `animation-range: 30vh 96vh`, reaching full blur at 55% of its
-   own range; `sm-ground` drives `--smoke` `0 -> 1` over `30vh 104vh`, still
-   at 0.4 where the blur has finished — soft first, dark after. Both are
-   registered with `@property`, which is what makes them interpolate; an
-   unregistered custom property snaps at the halfway mark.
-4. **The probe, and the gate.** The blur is added by a SECOND rule,
-   `:root[data-blur] .rg .ms__bed { filter: ... blur(var(--haze)) }`, and
-   `data-blur` is set only by the inline frame-timing probe near the top of
-   `index.astro`. It throws away the first 10 frames, collects 40 clean ones
-   under 100ms, and passes only if the shortest is <= 20ms (50Hz or better)
-   AND median/shortest <= 1.35 — consistency alone is not health, since a
-   machine pinned at 30fps holds its cadence perfectly. **It caches its
-   verdict in `sessionStorage` under `blur-ok`,** and it never runs at all
-   under `prefers-reduced-motion: reduce`.
+   7px` (the pane doubles it), reaching full at 55% of its own range;
+   `sm-ground` drives `--smoke` `0 -> 1`, still at 0.4 where the blur has
+   finished — soft first, dark after. Both are registered with `@property`,
+   which is what makes them interpolate; an unregistered custom property
+   snaps at the halfway mark. **Both run on a named VIEW timeline published
+   by `.sec--works`,** over `animation-range: entry 50% entry 100%`, so the
+   smoke arrives as Selected works does rather than at a count of viewport
+   heights. `timeline-scope: --works` on `.rg` is what lets an ANCESTOR see
+   a timeline a descendant declares.
+4. **The probe, which no longer decides anything.** The inline frame-timing
+   probe near the top of `index.astro` still runs, still sets `data-blur`
+   and still caches its verdict in `sessionStorage` under `blur-ok`. It
+   throws away the first 10 frames, collects 40 clean ones under 100ms, and
+   passes only if the shortest is <= 20ms (50Hz or better) AND
+   median/shortest <= 1.35 — consistency alone is not health, since a
+   machine pinned at 30fps holds its cadence perfectly. It never runs under
+   `prefers-reduced-motion: reduce`. **But nothing reads `data-blur` any
+   more**, because the rule that did was the bed's blur and the bed no
+   longer blurs. It is left in place as the hook if the backdrop should ever
+   be gated on weak hardware. ← That is the open question this change left
+   behind; see §7.
 
-**The failure direction is no blur, which is the state the page opens in
-anyway** — so a device that never runs the script still gets the full value
-range and simply loses the softness. Measured on the live page at 1280:
-`--haze` 0px at scrollY 230, 3.51px at 370, 6.996px at 509, 7px from ~509 on;
-`--smoke` reaches 1 at scrollY 800. The bed then reads
-`brightness(0.3) saturate(0.7) contrast(1.05) blur(7px)`.
+**The content is NOT blurred by the pane, and it is worth knowing why.** A
+full-screen `backdrop-filter` sounds like it would soften the type and the
+cards. Measured: the bed is `fixed, z-index 0`, the pane `fixed, z-index 1`,
+and every section `relative, z-index 2`. The sections sit ABOVE the pane, so
+the only thing in its backdrop is the bed.
+
+**Measured on the live page at 1280x800,** where the viewport is 768 and the
+opening header is exactly one viewport tall: the ramp resolves to
+`scrollY 384 .. 768` (`entry` spans 0..768, and the range starts at 50% of
+it). Below 384 both animations sit at 0 and the opening is clean. Full blur
+lands at 595. From 768 the pane computes
+`backdrop-filter: blur(14px) saturate(1.2) brightness(0.86)` over a 26%
+ground, and `fill-mode: both` holds it through Selected works, the four
+poster sections, contact and the footer to the document end at 15369px.
 
 **There were THREE generations of this effect in `index.astro` and two of
 them had never run.** Both dead sets arrived with the op1 application
