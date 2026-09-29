@@ -1,0 +1,373 @@
+---
+/**
+ * AB-RF4 · DROP
+ *
+ * ONE OF FOUR OPTIONS FOR THE REFUSAL — ab-rf1..rf4. The refusal is what the
+ * send block says when it is pressed on an incomplete form: "Name and email
+ * required". Nothing live is touched.
+ *
+ * ONLY THE REFUSAL DIFFERS ACROSS THESE FOUR. The waking of the action is
+ * deliberately the same quiet 200ms fade-and-lift in all of them, so that
+ * nothing competes with the thing being judged. ab-se1..se4 are where the
+ * WAKE was the subject; these four leave it alone.
+ *
+ * WHAT IS ALREADY TAKEN, and why none of these repeats it:
+ *   the live block  send-swell — the characters thicken 400 to 700 and back
+ *                   on a 25ms stagger, 1095ms end to end for twenty-three
+ *                   characters. Slow enough to have stopped reading it.
+ *   ab-se1          the note arrives whole and a rule is struck under it
+ *   ab-se2          weight and tracking spread, the mirror of the action
+ *   ab-se3          the note is drawn out of the margin under a clip
+ *   ab-rf4          the arrow recoils and the note takes the shove
+ *
+ * SO THESE FOUR GO ELSEWHERE: a ground rather than the type, the words that
+ * are actually missing, a caret, and the word as the unit rather than the
+ * character. All four finish under 260ms.
+ *
+ * THE STATES ARE THE SITE'S OWN: .is-asking on the shell is the refusal, and
+ * the script adds it on a click while the form is invalid.
+
+ * ── THIS ONE: DROP ──────────────────────────────────────────────
+ *
+ * THE WORD IS THE UNIT, AND NOTHING ELSE IN THIS LIBRARY USES IT. Every
+ * refusal so far moves characters — the live swell, ab-se2's spread,
+ * ab-rf4's jolt — or moves the sentence as one object, as ab-se3 does. This
+ * moves WORDS: four of them, dropping in from 0.5em above, 55ms apart,
+ * 170ms each. The whole refusal is over in 335ms.
+ *
+ * WHY THAT READS DIFFERENTLY. A character stagger is a texture — you see a
+ * wave, not letters. A word stagger is a RHYTHM: four discrete events, far
+ * enough apart to be counted, and the eye reads them as the sentence being
+ * assembled out of its own parts. "Name / and / email / required" lands like
+ * four keys rather than one gesture.
+ *
+ * THEY LAND HARD. cubic-bezier(0.3, 0, 0.2, 1) is quick out and almost
+ * stopped at the end, and the drop is only 0.5em, so each word arrives with
+ * a short fall and no bounce. A word that overshoots reads as a toy; this
+ * is meant to read as type being set.
+ *
+ * AND THE NOTE'S BASELINE NEVER MOVES. Each word travels inside its own
+ * inline-block and the line box is unchanged throughout, so nothing below
+ * the note shifts while the refusal assembles — which matters, because the
+ * note sits in a flex band with the action and a moving baseline there
+ * would drag the whole row.
+ *
+ * <- IT NEEDS THE SAME WORD-LEVEL DOM AS ab-rf2, and that is the cost the
+ *   two of them share: the live setNote splits the sentence into characters
+ *   only. ab-rf1 and ab-rf3 work on the markup that already exists.
+ */
+import Base from '../../layouts/Base.astro';
+const SEND = 'Send this enquiry';
+const REFUSE = 'Name and email required';
+---
+
+<Base title="Drop — send block draft" description="An isolated draft of the send block's animation.">
+  <main class="lab">
+      <nav class="sw" aria-label="Variation">
+        <span class="sw__t">Refusal · Drop</span>
+        <a class="sw__i" href="/preview/ab-rf1">RF1</a>
+        <a class="sw__i" href="/preview/ab-rf2">RF2</a>
+        <a class="sw__i" href="/preview/ab-rf3">RF3</a>
+        <a class="sw__i is-here" href="/preview/ab-rf4">RF4</a>
+        <a class="sw__i sw__i--src" href="/preview/ab-se1">SE1-4</a>
+      </nav>
+
+    <div class="lab__head">
+      <p class="lab__k">ab-rf4 · Drop</p>
+      <p class="lab__d">The word is the unit. Four words drop in from above, 55ms apart, each landing hard on the note's baseline. No character ever moves on its own.</p>
+    </div>
+
+    {/* The send block, markup faithful to ContactForm.astro: the sentence is
+        written once for assistive tech and once as letters, and the letters
+        are hidden from it. */}
+    <div class="send" data-send>
+      <div class="send__band">
+        <a class="send__act" id="send" href="#" aria-disabled="true">
+          <span class="visually-hidden">{SEND}</span>
+          <span class="send__chars" aria-hidden="true">{SEND.split('').map((c, i) => (
+            <i style={`--i:${i}`}>{c === ' ' ? '\u00A0' : c}</i>
+          ))}</span>
+          <span class="send__arrow" aria-hidden="true">→</span>
+        </a>
+        <p class="mono send__note" id="note"></p>
+      </div>
+    </div>
+
+    <div class="lab__ctl">
+      <button type="button" data-act="wake">Wake the action</button>
+      <button type="button" data-act="refuse">Refuse</button>
+      <button type="button" data-act="ready">Ready note</button>
+      <button type="button" data-act="reset">Reset</button>
+      <span class="lab__state" data-state></span>
+    </div>
+  </main>
+</Base>
+
+<script is:inline define:vars={{ REFUSE }}>
+  (function () {
+    const shell = document.querySelector('[data-send]');
+    const act = document.getElementById('send');
+    const note = document.getElementById('note');
+    const state = document.querySelector('[data-state]');
+    const READY = 'Opens as a draft. Send it when you\u2019re ready.';
+
+    /* ASTRO SCOPES THIS PAGE'S CSS BY STAMPING data-astro-cid-* ON EVERY
+       ELEMENT IN THE TEMPLATE, and compiling `.send__ink` to
+       `.send__ink[data-astro-cid-…]`. The note's characters are built here,
+       so they are not in the template and never get stamped — and every
+       rule below that targets .send__ink or .send__ink i would silently
+       fail to match. Measured before this was added: the refusal ran its
+       animation on nothing and the note stayed --dim.
+
+       ContactForm.astro solves it the same way. Copying the attribute off
+       the note itself keeps the stylesheet ordinary: no :global, no inline
+       styles. (HANDOFF §6.) */
+    const scope = Array.from(note.attributes).map((a) => a.name)
+      .find((n) => n.startsWith('data-astro-cid-'));
+    const stamp = (el) => { if (scope) el.setAttribute(scope, ''); return el; };
+
+    /* The same split ContactForm's setNote() uses: one span for a screen
+       reader, one per character for the ink. */
+    function setNote(text) {
+      note.textContent = '';
+      const said = stamp(document.createElement('span'));
+      said.className = 'visually-hidden';
+      said.textContent = text;
+      const ink = stamp(document.createElement('span'));
+      ink.className = 'send__ink';
+      ink.setAttribute('aria-hidden', 'true');
+      for (let i = 0; i < text.length; i++) {
+        const ch = stamp(document.createElement('i'));
+        ch.style.setProperty('--i', String(i));
+        ch.textContent = text[i];
+        ink.appendChild(ch);
+      }
+      note.append(said, ink);
+    }
+
+    function say(s) { state.textContent = s; }
+
+    function reset() {
+      act.classList.remove('is-ready', 'is-woken');
+      shell.classList.remove('is-asking');
+      act.setAttribute('aria-disabled', 'true');
+      setNote(REFUSE);
+      say('idle — not ready');
+    }
+
+    /* Re-adding a class does not restart an animation unless the element is
+       reflowed in between. */
+    function restart(el, cls) {
+      el.classList.remove(cls);
+      void el.offsetWidth;
+      el.classList.add(cls);
+    }
+
+    document.querySelector('.lab__ctl').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-act]');
+      if (!b) return;
+      const a = b.dataset.act;
+      if (a === 'reset') return reset();
+      if (a === 'wake') {
+        act.classList.add('is-ready');
+        act.setAttribute('aria-disabled', 'false');
+        shell.classList.remove('is-asking');
+        setNote(READY);
+        restart(act, 'is-woken');
+        say('woken — ready');
+      }
+      if (a === 'refuse') {
+        act.classList.remove('is-ready', 'is-woken');
+        act.setAttribute('aria-disabled', 'true');
+        setNote(REFUSE);
+        restart(shell, 'is-asking');
+        say('refused');
+      }
+      if (a === 'ready') { setNote(READY); say('ready note'); }
+    });
+
+    act.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (!act.classList.contains('is-ready')) {
+        setNote(REFUSE);
+        restart(shell, 'is-asking');
+        say('refused');
+      }
+    });
+
+
+    /* WORD-LEVEL REBUILD. The shell's setNote splits the sentence into
+       characters; this direction needs WORDS, so it rebuilds the note with a
+       span per word and the characters inside them. Everything is stamped
+       with the page's data-astro-cid attribute for the reason the shell's
+       setNote is — a scoped rule does not match an element built here
+       (HANDOFF §6). */
+    const WORDS = ['Name', 'and', 'email', 'required'];
+    function wordNote(missing) {
+      note.textContent = '';
+      const said = stamp(document.createElement('span'));
+      said.className = 'visually-hidden';
+      said.textContent = WORDS.join(' ');
+      const ink = stamp(document.createElement('span'));
+      ink.className = 'send__ink';
+      ink.setAttribute('aria-hidden', 'true');
+      let k = 0;
+      WORDS.forEach((w, wi) => {
+        const miss = (wi === 0 && missing.indexOf('name') >= 0)
+                  || (wi === 2 && missing.indexOf('email') >= 0);
+        const word = stamp(document.createElement('span'));
+        word.className = 'rfw' + (miss ? ' is-miss' : '');
+        word.style.setProperty('--w', String(wi));
+        for (const ch of w) {
+          const i = stamp(document.createElement('i'));
+          i.style.setProperty('--i', String(k++));
+          i.textContent = ch;
+          word.appendChild(i);
+        }
+        ink.appendChild(word);
+        if (wi < WORDS.length - 1) {
+          const sp = stamp(document.createElement('i'));
+          sp.style.setProperty('--i', String(k++));
+          sp.textContent = '\u00A0';
+          ink.appendChild(sp);
+        }
+      });
+      note.append(said, ink);
+      shell.classList.remove('is-asking');
+      void shell.offsetWidth;
+      shell.classList.add('is-asking');
+    }
+
+    /* rf4 ALWAYS rebuilds the note word-level, so it has to get in before
+       the harness's own handler.
+
+       THE FIRST ATTEMPT LISTENED ON THE BUTTON AND LOST. A listener on the
+       button fires in the target phase, before the harness's delegated one
+       on .lab__ctl fires in the bubble phase — so the words were built and
+       then immediately replaced by the character-level note, and .rfw did
+       not exist by the time anything could animate. Measured: zero words on
+       the page and no animation at all.
+
+       Capturing on .lab__ctl runs first and stopImmediatePropagation ends
+       the event there, so the harness's handler never sees the refuse
+       click. Every other control still reaches it. */
+    document.querySelector('.lab__ctl').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-act="refuse"]');
+      if (!b) return;
+      e.stopImmediatePropagation();
+      act.classList.remove('is-ready', 'is-woken');
+      act.setAttribute('aria-disabled', 'true');
+      wordNote([]);
+      say('refused');
+    }, true);
+
+    reset();
+  })();
+</script>
+
+<style>
+  /* ══ THE HARNESS ═════════════════════════════════════════════════
+     Not design. Enough page to judge the block on, and controls to replay
+     the states without filling a form at the bottom of a 15,000px page. */
+  .lab {
+    min-height: 100vh; padding: clamp(28px, 7vh, 80px) var(--margin);
+    display: flex; flex-direction: column; justify-content: center; gap: 44px;
+    max-width: 980px;
+  }
+  .lab__k {
+    margin: 0 0 8px; font-family: var(--mono); font-size: var(--t-micro);
+    letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent);
+  }
+  .lab__d { margin: 0; max-width: 62ch; color: var(--muted); font-size: var(--t-sm); line-height: 1.5; }
+  .lab__ctl { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .lab__ctl button {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--muted);
+    background: transparent; border: 1px solid var(--rule);
+    padding: 9px 14px; border-radius: 999px; cursor: pointer;
+    transition: color 140ms linear, border-color 140ms linear;
+  }
+  .lab__ctl button:hover { color: var(--bone); border-color: var(--bone-dim); }
+  .lab__state {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--dim); margin-left: 6px;
+  }
+  .sw {
+    position: fixed; top: 14px; right: 16px; z-index: 40;
+    display: flex; align-items: baseline; gap: 12px;
+    font-family: var(--mono); font-size: var(--t-micro);
+    letter-spacing: 0.16em; text-transform: uppercase;
+  }
+  .sw__t { color: var(--muted); }
+  .sw a { color: var(--dim); text-decoration: none; transition: color 140ms linear; }
+  .sw a:hover { color: var(--bone); }
+  .sw a.is-here { color: var(--accent); }
+  .sw a.sw__i--src { color: var(--muted); margin-left: 5px; }
+
+  /* ══ THE BLOCK, AS THE SITE HAS IT ═══════════════════════════════
+     Structure and type copied from ContactForm.astro so the draft is judged
+     at the real size and in the real layout. Everything the VARIATION
+     changes is in the block below this one. */
+  .send__band {
+    display: flex; align-items: baseline; gap: var(--s-2); flex-wrap: wrap;
+    border-top: 1px solid var(--rule); padding-top: 26px;
+  }
+  .send__act {
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.75rem, 3.06vw, 2.75rem);
+    letter-spacing: -0.035em; line-height: 1;
+    color: var(--bone); text-decoration: none; white-space: nowrap;
+    display: inline-flex; align-items: baseline; gap: 0.3em;
+    cursor: not-allowed;
+  }
+  .send__act.is-ready { cursor: pointer; }
+  .send__chars i, .send__ink i { display: inline-block; font-style: normal; }
+  .send__arrow { display: inline-block; }
+  .send__note {
+    margin: 0 0 0 auto; text-align: right;
+    color: var(--dim); font-size: 14px; line-height: 1.8; max-width: 32ch;
+  }
+  .send__ink { display: inline-block; white-space: pre-wrap; transform-origin: right center; }
+  @media (max-width: 620px) {
+    .send__band { flex-direction: column; gap: 18px; }
+    .send__note { margin-left: 0; text-align: left; }
+    .send__ink { transform-origin: left center; }
+    .send__act { white-space: normal; }
+  }
+
+  /* ══ THE WAKE, IDENTICAL IN ALL FOUR ═════════════════════════════
+     Quiet on purpose. The refusal is what is being judged here, so the
+     action's arrival is a 200ms fade and a 0.06em lift with a 6ms stagger —
+     present, over before it is noticed, and the same in rf1..rf4. */
+  .send__chars i { opacity: 0.32; transform: translateY(0.06em); }
+  .send__act.is-woken .send__chars i {
+    animation: rf-wake 200ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+    animation-delay: calc(var(--i) * 6ms);
+  }
+  @keyframes rf-wake {
+    from { opacity: 0.32; transform: translateY(0.06em); }
+    to   { opacity: 1; transform: none; }
+  }
+  .send__arrow { opacity: 0.32; }
+  .send__act.is-woken .send__arrow { opacity: 1; transition: opacity 200ms linear 110ms; }
+  .send__act.is-ready:hover { color: var(--accent); }
+  .send__act.is-ready:hover .send__arrow { transform: translateX(0.28em); transition: transform 140ms cubic-bezier(0.2, 0.9, 0.2, 1); }
+  .send.is-asking .send__act { color: var(--dim); }
+
+  /* ══ RF4 · DROP ══════════════════════════════════════════════════
+     Words, not characters. Each travels inside its own inline-block so the
+     line box — and everything in the flex band below it — never moves. */
+  .rfw { display: inline-block; }
+  .send.is-asking .send__ink { color: var(--bone); }
+  .send.is-asking .rfw {
+    animation: rf4-drop 170ms cubic-bezier(0.3, 0, 0.2, 1) both;
+    animation-delay: calc(var(--w) * 55ms);
+  }
+  @keyframes rf4-drop {
+    from { transform: translateY(-0.5em); opacity: 0; }
+    to   { transform: none; opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .send.is-asking .rfw { animation: none; transform: none; opacity: 1; }
+  }
+</style>
