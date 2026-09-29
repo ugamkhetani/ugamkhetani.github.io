@@ -1,0 +1,275 @@
+---
+/**
+ * AB-RR0 · THE ORIGINAL
+ *
+ * A REFINEMENT OF THE LIVE BLOCK, NOT A REPLACEMENT — ab-rr1..rr4, with
+ * ab-rr0 carrying the original verbatim so the two can be flipped between on
+ * the same harness. Nothing live is touched.
+ *
+ * WHAT THE ORIGINAL IDEA IS, and all four keep it: a WAVE OF LIGHT travels
+ * through type, and BRIGHTNESS IS HANDED from the action to its note. The
+ * refusal is the same voice at a smaller scale — ContactForm's own comment
+ * says the page should "answer a refusal and an opening in the same voice,
+ * at two different scales", and that is the thing worth keeping.
+ *
+ * WHAT IS WRONG WITH IT IS ALMOST ENTIRELY TIME. Measured from the live CSS:
+ *
+ *   send-open    520ms a letter on a 26ms stagger  ->  936ms end to end
+ *   send-swell   520ms a letter on a 25ms stagger  -> 1070ms end to end
+ *   the handover 90ms between the action losing white and the note taking it
+ *
+ * A WAVE THAT TAKES 936ms TO CROSS SEVENTEEN LETTERS IS A WAVE YOU WAIT FOR,
+ * and a refusal that takes 1070ms has finished long after you stopped
+ * reading it. Nothing about the idea requires those numbers. Every draft
+ * here crosses the action in about 300ms. The refusals differ because two of
+ * them buy sequence with time, and all four are measured, not intended:
+ * rr1 312ms, rr2 302ms, rr3 423ms, rr4 492ms.
+ *
+ * ab-se1..se4 replaced the gesture and ab-rf1..rf4 replaced the refusal.
+ * These four keep both and sharpen them.
+
+ * ── THIS ONE: THE ORIGINAL, VERBATIM ────────────────────────────
+ *
+ * Copied out of ContactForm.astro without a number changed, so the four
+ * refinements can be flipped against it on identical markup at identical
+ * size. It is a reference, not a proposal.
+ */
+import Base from '../../layouts/Base.astro';
+const SEND = 'Send this enquiry';
+const REFUSE = 'Name and email required';
+---
+
+<Base title="Original — send block draft" description="An isolated draft of the send block's animation.">
+  <main class="lab">
+      <nav class="sw" aria-label="Variation">
+        <span class="sw__t">Original</span>
+        <a class="sw__i is-here" href="/preview/ab-rr0">ORIG</a>
+        <a class="sw__i" href="/preview/ab-rr1">RR1</a>
+        <a class="sw__i" href="/preview/ab-rr2">RR2</a>
+        <a class="sw__i" href="/preview/ab-rr3">RR3</a>
+        <a class="sw__i" href="/preview/ab-rr4">RR4</a>
+      </nav>
+
+    <div class="lab__head">
+      <p class="lab__k">ab-rr0 · Original</p>
+      <p class="lab__d">The live block exactly as it is today, in the same harness — the thing the other four are refining. 936ms to wake, 1070ms to refuse.</p>
+    </div>
+
+    {/* The send block, markup faithful to ContactForm.astro: the sentence is
+        written once for assistive tech and once as letters, and the letters
+        are hidden from it. */}
+    <div class="send" data-send>
+      <div class="send__band">
+        <a class="send__act" id="send" href="#" aria-disabled="true">
+          <span class="visually-hidden">{SEND}</span>
+          <span class="send__chars" aria-hidden="true">{SEND.split('').map((c, i) => (
+            <i style={`--i:${i}`}>{c === ' ' ? '\u00A0' : c}</i>
+          ))}</span>
+          <span class="send__arrow" aria-hidden="true">→</span>
+        </a>
+        <p class="mono send__note" id="note"></p>
+      </div>
+    </div>
+
+    <div class="lab__ctl">
+      <button type="button" data-act="wake">Wake the action</button>
+      <button type="button" data-act="refuse">Refuse</button>
+      <button type="button" data-act="ready">Ready note</button>
+      <button type="button" data-act="reset">Reset</button>
+      <span class="lab__state" data-state></span>
+    </div>
+  </main>
+</Base>
+
+<script is:inline define:vars={{ REFUSE }}>
+  (function () {
+    const shell = document.querySelector('[data-send]');
+    const act = document.getElementById('send');
+    const note = document.getElementById('note');
+    const state = document.querySelector('[data-state]');
+    const READY = 'Opens as a draft. Send it when you\u2019re ready.';
+
+    /* ASTRO SCOPES THIS PAGE'S CSS BY STAMPING data-astro-cid-* ON EVERY
+       ELEMENT IN THE TEMPLATE, and compiling `.send__ink` to
+       `.send__ink[data-astro-cid-…]`. The note's characters are built here,
+       so they are not in the template and never get stamped — and every
+       rule below that targets .send__ink or .send__ink i would silently
+       fail to match. Measured before this was added: the refusal ran its
+       animation on nothing and the note stayed --dim.
+
+       ContactForm.astro solves it the same way. Copying the attribute off
+       the note itself keeps the stylesheet ordinary: no :global, no inline
+       styles. (HANDOFF §6.) */
+    const scope = Array.from(note.attributes).map((a) => a.name)
+      .find((n) => n.startsWith('data-astro-cid-'));
+    const stamp = (el) => { if (scope) el.setAttribute(scope, ''); return el; };
+
+    /* The same split ContactForm's setNote() uses: one span for a screen
+       reader, one per character for the ink. */
+    function setNote(text) {
+      note.textContent = '';
+      const said = stamp(document.createElement('span'));
+      said.className = 'visually-hidden';
+      said.textContent = text;
+      const ink = stamp(document.createElement('span'));
+      ink.className = 'send__ink';
+      ink.setAttribute('aria-hidden', 'true');
+      for (let i = 0; i < text.length; i++) {
+        const ch = stamp(document.createElement('i'));
+        ch.style.setProperty('--i', String(i));
+        ch.textContent = text[i];
+        ink.appendChild(ch);
+      }
+      note.append(said, ink);
+    }
+
+    function say(s) { state.textContent = s; }
+
+    function reset() {
+      act.classList.remove('is-ready', 'is-woken');
+      shell.classList.remove('is-asking');
+      act.setAttribute('aria-disabled', 'true');
+      setNote(REFUSE);
+      say('idle — not ready');
+    }
+
+    /* Re-adding a class does not restart an animation unless the element is
+       reflowed in between. */
+    function restart(el, cls) {
+      el.classList.remove(cls);
+      void el.offsetWidth;
+      el.classList.add(cls);
+    }
+
+    document.querySelector('.lab__ctl').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-act]');
+      if (!b) return;
+      const a = b.dataset.act;
+      if (a === 'reset') return reset();
+      if (a === 'wake') {
+        act.classList.add('is-ready');
+        act.setAttribute('aria-disabled', 'false');
+        shell.classList.remove('is-asking');
+        setNote(READY);
+        restart(act, 'is-woken');
+        say('woken — ready');
+      }
+      if (a === 'refuse') {
+        act.classList.remove('is-ready', 'is-woken');
+        act.setAttribute('aria-disabled', 'true');
+        setNote(REFUSE);
+        restart(shell, 'is-asking');
+        say('refused');
+      }
+      if (a === 'ready') { setNote(READY); say('ready note'); }
+    });
+
+    act.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (!act.classList.contains('is-ready')) {
+        setNote(REFUSE);
+        restart(shell, 'is-asking');
+        say('refused');
+      }
+    });
+
+    reset();
+  })();
+</script>
+
+<style>
+  /* ══ THE HARNESS ═════════════════════════════════════════════════
+     Not design. Enough page to judge the block on, and controls to replay
+     the states without filling a form at the bottom of a 15,000px page. */
+  .lab {
+    min-height: 100vh; padding: clamp(28px, 7vh, 80px) var(--margin);
+    display: flex; flex-direction: column; justify-content: center; gap: 44px;
+    max-width: 980px;
+  }
+  .lab__k {
+    margin: 0 0 8px; font-family: var(--mono); font-size: var(--t-micro);
+    letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent);
+  }
+  .lab__d { margin: 0; max-width: 62ch; color: var(--muted); font-size: var(--t-sm); line-height: 1.5; }
+  .lab__ctl { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .lab__ctl button {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--muted);
+    background: transparent; border: 1px solid var(--rule);
+    padding: 9px 14px; border-radius: 999px; cursor: pointer;
+    transition: color 140ms linear, border-color 140ms linear;
+  }
+  .lab__ctl button:hover { color: var(--bone); border-color: var(--bone-dim); }
+  .lab__state {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--dim); margin-left: 6px;
+  }
+  .sw {
+    position: fixed; top: 14px; right: 16px; z-index: 40;
+    display: flex; align-items: baseline; gap: 12px;
+    font-family: var(--mono); font-size: var(--t-micro);
+    letter-spacing: 0.16em; text-transform: uppercase;
+  }
+  .sw__t { color: var(--muted); }
+  .sw a { color: var(--dim); text-decoration: none; transition: color 140ms linear; }
+  .sw a:hover { color: var(--bone); }
+  .sw a.is-here { color: var(--accent); }
+  .sw a.sw__i--src { color: var(--muted); margin-left: 5px; }
+
+  /* ══ THE BLOCK, AS THE SITE HAS IT ═══════════════════════════════
+     Structure and type copied from ContactForm.astro so the draft is judged
+     at the real size and in the real layout. Everything the VARIATION
+     changes is in the block below this one. */
+  .send__band {
+    display: flex; align-items: baseline; gap: var(--s-2); flex-wrap: wrap;
+    border-top: 1px solid var(--rule); padding-top: 26px;
+  }
+  .send__act {
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.75rem, 3.06vw, 2.75rem);
+    letter-spacing: -0.035em; line-height: 1;
+    color: var(--bone); text-decoration: none; white-space: nowrap;
+    display: inline-flex; align-items: baseline; gap: 0.3em;
+    cursor: not-allowed;
+  }
+  .send__act.is-ready { cursor: pointer; }
+  .send__chars i, .send__ink i { display: inline-block; font-style: normal; }
+  .send__arrow { display: inline-block; }
+  .send__note {
+    margin: 0 0 0 auto; text-align: right;
+    color: var(--dim); font-size: 14px; line-height: 1.8; max-width: 32ch;
+  }
+  .send__ink { display: inline-block; white-space: pre-wrap; transform-origin: right center; }
+  @media (max-width: 620px) {
+    .send__band { flex-direction: column; gap: 18px; }
+    .send__note { margin-left: 0; text-align: left; }
+    .send__ink { transform-origin: left center; }
+    .send__act { white-space: normal; }
+  }
+
+  .send__chars i { display: inline-block; font-style: normal; }
+  .send__act.is-woken .send__chars i {
+    animation: send-open 520ms var(--ease);
+    animation-delay: calc(var(--i) * 26ms);
+  }
+  @keyframes send-open {
+    from { color: var(--dim); transform: translateY(0.06em); }
+    to   { color: inherit; transform: none; }
+  }
+  .send__arrow { transition: transform var(--d-micro) var(--ease); }
+  .send__act.is-ready:hover { color: var(--accent); }
+  .send__act.is-ready:hover .send__arrow { transform: translateX(0.28em); }
+
+  .send.is-asking .send__act { transform: translateX(-4px); color: var(--dim); }
+  .send__ink {
+    transform-origin: right center;
+    transition: color var(--d-micro) var(--ease) 90ms,
+                transform var(--d-micro) var(--ease) 90ms;
+  }
+  .send.is-asking .send__ink { color: var(--bone); transform: scale(1.08); }
+  @keyframes send-swell { 0%, 100% { font-weight: 400 } 45% { font-weight: 700 } }
+  .send.is-asking .send__ink i {
+    animation: send-swell 520ms var(--ease) both;
+    animation-delay: calc(var(--i) * 25ms);
+  }
+</style>
