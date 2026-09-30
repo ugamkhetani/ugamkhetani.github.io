@@ -3,11 +3,20 @@ title: "Ira"
 year: 2024
 category: "Short Film"
 opening: still
-# ← RATIO IS MEASURED, NOT STATED. Ugam's list gives no ratio. All eight
-#   frames are 1672x941 or 1671x941 — 1.7768 and 1.7758 against 16:9's
-#   1.7778, which is screenshot rounding rather than a different shape.
-#   Correct this if the film was finished in something else.
-ratio: "16:9"
+# ← RATIO IS MEASURED, NOT STATED, AND IT CHANGED ONCE THE BEZELS CAME OFF.
+#   The frames arrived 1672x941 and 1671x941 — 16:9 — but that was a 4:3
+#   picture pillarboxed into a 16:9 export. Measured by the test
+#   src/lib/frames.ts insists on, a threshold near zero read at the edge:
+#   columns 0..208 are flat black on all eight and column 209 steps straight
+#   into picture, 4.2 to 127.8. Symmetric, so 209 came off each side on
+#   2026-09-30 and the files are now 1254x941 and 1253x941 — 1.3326 and
+#   1.3316 against 4:3's 1.3333.
+#
+#   THE PICTURE ITSELF IS UNTOUCHED. The crop is centred and exact, so it
+#   removed only the bars: 4,992 sampled pixels across the eight frames are
+#   byte-identical to the originals at x+209, and PNG carries no loss through
+#   a re-encode. The originals are in git at 3c0cd89 if they are ever wanted.
+ratio: "4:3"
 role: "Composer"
 awards:
   - text: "Official Selection · Chicago South Asian Film Festival"

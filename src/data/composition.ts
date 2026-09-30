@@ -39,89 +39,100 @@ export interface Stanza {
 }
 
 export const composition: Stanza[] = [
+  /* REORDERED 2026-09-30 on Ugam's instruction, which gave the seventeen
+     works as a numbered list and nothing else. The ORDER below is his; the
+     stanzas, columns, spans, offsets and pauses are mine, because a linear
+     list does not say which works stand together or how wide any of them is.
+
+     THE GROUPING IS BY SHAPE, as it was before, and only consecutive works
+     can pair — so the list decides which pairings were available and the
+     ratios decided which of those to take. Two pairs survive from the old
+     score intact, Aladdin with Dinshaw's and the two records, because the
+     new order happens to keep them adjacent. */
+
   // ── Movement I ──────────────────────────────────────────────────
   {
-    // The award film, alone and centred. Eight columns.
-    items: [{ slug: 'mumbai-standard-time', col: 3, span: 8, tCol: 1, tSpan: 6 }],
+    // Diwali opens now. Alone and centred at eight columns — the treatment
+    // Mumbai had when it opened, because what that placement is for is
+    // giving the first frame nothing to be compared against.
+    items: [{ slug: 'diwali-ke-shor-mein', col: 3, span: 8, tCol: 1, tSpan: 6 }],
     pause: 20,
   },
   {
-    // Both leads are 16:9, so Diwali is separated from 001 by width and by
-    // company: seven columns, with the site's only 4:3 frame beside it.
+    // THE INVERSION: 16:9 against 9:16, the same ratio transposed. It was
+    // Book My Yamraj against Special Ops before and the new order breaks
+    // that adjacency, but it puts Mumbai next to Book My Yamraj instead,
+    // which is the same argument with a different pair of works.
     items: [
-      { slug: 'diwali-ke-shor-mein', col: 1, span: 7, tCol: 1, tSpan: 4 },
-      { slug: 'aasha', col: 9, span: 4, offset: 20, tCol: 5, tSpan: 2, tOffset: 14 },
+      { slug: 'mumbai-standard-time', col: 1, span: 7, tCol: 1, tSpan: 4 },
+      { slug: 'book-my-yamraj', col: 9, span: 3, offset: 20, tCol: 5, tSpan: 2, tOffset: 14 },
     ],
     pause: 24,
+  },
+  {
+    // Aasha alone and small after a loud pair. It is one of the two 4:3
+    // frames on the site now that Ira's bezels are off, and the other is
+    // four places further down, which is far enough apart that they read as
+    // a proportion recurring rather than as a pair split up.
+    items: [{ slug: 'aasha', col: 2, span: 5, tCol: 1, tSpan: 4 }],
+    pause: 18,
   },
   {
     // 3:2 edge-to-edge was 960px tall on a 1440 screen — taller than the
     // viewport, so you had to scroll to see one frame. Height is capped at
     // 78vh instead and the width follows from the ratio, so it always fits
-    // in one look and the stills keep their exact proportions.
+    // in one look and the stills keep their exact proportions. Unchanged.
     items: [{ slug: 'taskaree', col: 1, span: 12, maxVh: 78, tCol: 1, tSpan: 6 }],
     pause: 22,
-  },
-  {
-    // The inversion: 9:16 against 16:9. The same ratio, transposed.
-    items: [
-      { slug: 'book-my-yamraj', col: 1, span: 3, tCol: 1, tSpan: 2 },
-      { slug: 'special-ops-2', col: 5, span: 8, offset: 24, tCol: 3, tSpan: 4, tOffset: 16 },
-    ],
-    pause: 28,
   },
 
   // ── Movement II ─────────────────────────────────────────────────
   {
-    // Widest frame on the site. Opens the catalogue alone.
-    items: [{ slug: 'broken-reflections', col: 2, span: 8, tCol: 1, tSpan: 5 }],
+    // Two landscapes at different degrees of wide — 16:9 against 2.35:1.
+    // Broken Reflections opened the catalogue alone before and cannot now,
+    // because the order puts it directly after another wide frame; set
+    // beside one it becomes a comparison instead of an entrance, which is
+    // the better of the two things a 2.35 can do next to a 16:9.
+    items: [
+      { slug: 'special-ops-2', col: 1, span: 6, tCol: 1, tSpan: 3 },
+      { slug: 'broken-reflections', col: 8, span: 5, offset: 18, tCol: 4, tSpan: 3, tOffset: 12 },
+    ],
+    pause: 24,
+  },
+  {
+    // Ira's first appearance at its true proportion. 4:3 against 16:9, the
+    // narrow one held smaller so the two land at nearly the same height —
+    // 303px against 348 at 1440 — which is what makes the width difference
+    // read as width rather than as importance.
+    items: [
+      { slug: 'ira', col: 2, span: 4, tCol: 1, tSpan: 3 },
+      { slug: 'moholla', col: 7, span: 6, offset: 14, tCol: 4, tSpan: 3, tOffset: 10 },
+    ],
     pause: 20,
   },
   {
-    // IRA, ADDED 2026-09-30 between Broken Reflections and My Red Crayon on
-    // Ugam's instruction. It takes a stanza of its own rather than joining
-    // either neighbour, because both of those stanzas are arguments that a
-    // second frame would break: the one above says "opens the catalogue
-    // alone" and the one below is a scale study of two frames at the SAME
-    // ratio, which a third 16:9 at a third width would turn into a list.
-    //
-    // ← THE PLACEMENT IS MINE. Ugam gave the position in the score, not the
-    //   column or the width. Flush right at 8..12 answers the centred frame
-    //   above it and sets up My Red Crayon, which starts at column 1 — so
-    //   the eye crosses the page between the two rather than stepping down
-    //   the same edge. Five columns keeps it smaller than the frame it
-    //   follows, which is the widest on the site. No offset: offsets here
-    //   exist to break a baseline shared with a second frame in the same
-    //   stanza, and this stanza has none.
-    items: [{ slug: 'ira', col: 8, span: 5, tCol: 3, tSpan: 4 }],
-    pause: 18,
-  },
-  {
-    // The scale study: identical 16:9 proportion at four columns and seven.
+    // The inversion again, and deliberately not adjacent to the first one:
+    // 16:9 against 9:16 with four stanzas between them, so it reads as a
+    // rhyme rather than as a repeat.
     items: [
       { slug: 'my-red-crayon', col: 1, span: 4, tCol: 1, tSpan: 3 },
-      { slug: 'the-shiva-trilogy', col: 6, span: 7, offset: 16, tCol: 4, tSpan: 3, tOffset: 12 },
+      { slug: 'bloody-bubbly', col: 7, span: 3, offset: 16, tCol: 4, tSpan: 2, tOffset: 12 },
     ],
     pause: 24,
   },
   {
-    // A narrow upright against a wide landscape — 9:16 beside 3:2.
-    // Moholla keeps its own six-column width rather than inheriting the
-    // four Dinshaw's had: at 3:2 those columns would have made it squat,
-    // and at 9:16 Dinshaw's would have been over 1100px tall in Moholla's.
-    // Positions swap; each keeps a width that suits its shape.
+    // The widest frame on the site against a standard one. Roar at 2.39:1
+    // takes six columns and Shiva five, which puts them at 259px and 287px
+    // — the wider frame is the bigger object and still the shorter one.
     items: [
-      { slug: 'bloody-bubbly', col: 1, span: 3, tCol: 1, tSpan: 2 },
-      { slug: 'moholla', col: 6, span: 6, offset: 12, tCol: 3, tSpan: 4, tOffset: 10 },
+      { slug: 'the-shiva-trilogy', col: 1, span: 5, tCol: 1, tSpan: 3 },
+      { slug: 'roar', col: 7, span: 6, offset: 14, tCol: 4, tSpan: 3, tOffset: 10 },
     ],
-    pause: 20,
+    pause: 26,
   },
   {
-    items: [{ slug: 'roar', col: 3, span: 8, tCol: 1, tSpan: 5 }],
-    pause: 24,
-  },
-  {
-    // Two uprights at different degrees — 4:5 against 9:16.
+    // Two uprights at different degrees — 4:5 against 9:16. Unchanged from
+    // the old score; the new order keeps these two adjacent.
     items: [
       { slug: 'aladdin-dateable-bites', col: 1, span: 4, tCol: 1, tSpan: 3 },
       { slug: 'dinshaws-dildaari-battles', col: 8, span: 4, offset: 10, tCol: 4, tSpan: 3, tOffset: 8 },
@@ -130,6 +141,7 @@ export const composition: Stanza[] = [
   },
   {
     // Two records, small and square, closing the catalogue quietly.
+    // Unchanged.
     items: [
       { slug: 've-maahi', col: 2, span: 3, tCol: 1, tSpan: 2 },
       { slug: 'mere-ho', col: 6, span: 3, offset: 7, tCol: 3, tSpan: 2, tOffset: 6 },

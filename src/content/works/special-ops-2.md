@@ -19,10 +19,18 @@ description: >
   to the shifting tension, pace and emotional perspective of each sequence.
   Cues were developed directly against picture, balancing continuity with
   enough variation to keep the score evolving across the series.
+# ← THE HOVER'S ROLE IS SHORTER THAN THE COLOPHON'S, ON PURPOSE. Ugam asked
+#   on 2026-09-30 for "Additional Production" alone here so the four facts
+#   fit one line in Selected works; at "Assistant Composer · Additional
+#   Production" this was the widest fact in the catalogue at 336.5px and the
+#   only work that took two rows on its own account. THE WORK PAGE IS NOT
+#   AFFECTED — `role` below still carries the full credit, and that is what
+#   the colophon sets. This is the second place the two readings differ by
+#   intent, after the five works whose hover Format is not their colophon's.
 hover:
   - { label: "Format", value: "Web Series" }
   - { label: "Platform", value: "JioHotstar" }
-  - { label: "Role", value: "Assistant Composer · Additional Production" }
+  - { label: "Role", value: "Additional Production" }
   - { label: "Year", value: "2025" }
 meta:
   - { label: "Directors", value: "Neeraj Pandey · Shivam Nair" }

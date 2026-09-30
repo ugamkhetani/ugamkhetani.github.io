@@ -25,11 +25,21 @@
  * three cells.
  */
 export const BED_SWAPS: Record<string, string> = {
-  /* Measured against the cells that are actually seen, both land well: Aasha
-     takes the cell clear of the aperture edge and of every panel 0.47 of the
-     time — second best on the bed — and Diwali one at 0.29. */
+  /* Measured against the cells that are actually seen, both landed well:
+     Aasha took the cell clear of the aperture edge and of every panel 0.47 of
+     the time — second best on the bed — and Diwali one at 0.29.
+
+     <- VE MAAHI'S TARGET IS BROKEN REFLECTIONS NOW, NOT AASHA, and it was
+       forced rather than preferred. After the 2026-09-30 reorder this swap
+       put Aasha in cell 15 while the unswapped cycle put it in cell 20, and
+       those two are diagonal neighbours — a violation between TWO CENTRE
+       CELLS, which BED_CELLS may not reach. The swap target is the only lever
+       that moves a centre cell, so it had to move. Broken Reflections carries
+       ten frames and a BED_CROP correction proven across all of them, and it
+       lands inside the ring's two-use ceiling. What is lost is the 0.47
+       measurement above, which was about Aasha in particular. */
   'dinshaws-dildaari-battles': 'diwali-ke-shor-mein',
-  've-maahi': 'aasha',
+  've-maahi': 'broken-reflections',
 
   /* THESE THREE ROTATE, they are not two independent exchanges — and because
      the table is keyed on the SCORE'S slug rather than on the current occupant,
@@ -199,10 +209,16 @@ export const BED_GRADE: Record<string, { contrast: number }> = {
  *
  * <- FOURTEEN SINCE IRA, not fifteen, and the two-use ceiling still holds.
  *   Recasting cells 4 and 17 took Shiva and Bloody Bubbly out of the ring and
- *   put Ira in and Broken Reflections up to two. Across the whole bed it is
- *   sixteen works of seventeen, Mere Ho being the one absent -- which is the
- *   arrangement agreeing with BED_SWAPS rather than contradicting it, since
- *   that table already routes Mere Ho away from every cell anyone sees.
+ *   put Ira in and Broken Reflections up to two.
+ *
+ * <- AND AFTER THE REORDER IT IS BETTER THAN IT WAS. Cell 18 is Shiva again
+ *   and cell 28 is Book My Yamraj, which puts ALL SEVENTEEN WORKS in the bed
+ *   and twelve distinct works across the twelve centre cells -- where before
+ *   the reorder it was sixteen of seventeen with Mere Ho absent and the
+ *   centre down to eleven. The ring is still fourteen distinct and still
+ *   under the two-use ceiling. Aladdin and Broken Reflections each hold
+ *   three cells across the whole bed, two of them in the ring, which is what
+ *   the ceiling actually constrains.
  *
  * TONALLY they run 6.3 to 30.4 by the same measurement that puts the twelve
  * centre tiles at 5.9 to 29.7 -- so the partial ring now sits inside the
@@ -262,6 +278,29 @@ export const BED_GRADE: Record<string, { contrast: number }> = {
  *   any frame of that work, so the worry does not bite here.
  */
 /**
+ * THE REORDER, 2026-09-30, AND WHY THIS TABLE KEEPS MOVING.
+ *
+ * Ugam gave a new order for Selected works the same day Ira was added. The
+ * bed walks `order`, so a REORDER perturbs it exactly as an addition does —
+ * and it did, immediately after the repair below: three fresh violations,
+ * cells 15 and 20 both Aasha, 18 and 19 both Book My Yamraj, 21 and 28 both
+ * Taskaree.
+ *
+ * ONE OF THE THREE WAS BETWEEN TWO CENTRE CELLS, which is the case this
+ * table cannot touch, and that is what forced BED_SWAPS to change rather
+ * than only BED_CELLS. Ve Maahi's swap target moved from Aasha to Broken
+ * Reflections; cell 18 took Shiva back and cell 28 took Book My Yamraj.
+ * Verified after, against the table and again in the rendered DOM: 0
+ * violations, all seventeen works in the bed, twelve distinct centre cells.
+ *
+ * <- THE REAL LESSON IS THAT THIS ARRANGEMENT IS COUPLED TO THE SCORE and
+ *   nothing warns you. The centre twelve are whatever `order` puts there,
+ *   the ring is pinned, and only the pair of them together satisfies the
+ *   adjacency rule — so ANY reordering or addition in composition.ts can
+ *   break it silently, and did twice in one day. Nothing in the build
+ *   checks it. If this happens a third time, the fix is probably to make
+ *   the check part of the build rather than to keep re-searching by hand.
+ *
  * IRA, AND WHAT A SEVENTEENTH WORK DID TO THIS ARRANGEMENT.
  *
  * 2026-09-30. The bed walks `order` and repeats it to fill thirty tiles, so
@@ -289,8 +328,14 @@ export const BED_GRADE: Record<string, { contrast: number }> = {
  * looked at first, then measured. Graded at the bed's own brightness(0.30)
  * saturate(0.7) contrast(1.05):
  *
- *   Ira 06                  10.4 mean, brightest 55.3, 0 pixels over #4C4C4C
+ *   Ira 06                  14.0 mean, brightest 62.6, 0 pixels over #4C4C4C
  *   Broken Reflections 09   26.6 mean, brightest 66.1, 0 pixels over #4C4C4C
+ *
+ * <- IRA 06 READ 10.4 WHEN IT WAS PICKED AND READS 14.0 NOW. Nothing about
+ *   the tile changed: its frames were pillarboxed 16:9 when it was measured
+ *   and the black bars were carried into the mean. They came off the same
+ *   day and the figure above is the picture's own. It is still inside the
+ *   bed's band and still clears the ceiling, so the choice stands.
  *
  * Both sit inside the bed's own 6.3..30.4 band and neither breaks the
  * readability ceiling. Ira's other frames were rejected on sight or on tone:
@@ -315,7 +360,7 @@ export const BED_CELLS: Record<number, { slug: string; frame: string; note: stri
   1:  { slug: 've-maahi',             frame: '01.JPG',  note: 'bangles, hands, gold, 18.0' },
   2:  { slug: 'mumbai-standard-time', frame: '10.png',  note: 'an alarm clock, still life, 13.5' },
   3:  { slug: 'dinshaws-dildaari-battles', frame: '08.png', note: 'a crowd in identical masks, 20.8' },
-  4:  { slug: 'ira',                  frame: '06.png',  note: 'a tent, a courtyard, a small red figure, 10.4 - was Shiva 02, see IRA below' },
+  4:  { slug: 'ira',                  frame: '06.png',  note: 'a tent, a courtyard, a small red figure, 14.0 - was Shiva 02, see IRA below' },
   5:  { slug: 'my-red-crayon',        frame: '05.png',  note: 'two children and a red ribbon, 27.8' },
 
   /* side middles, 0.336 visible */
@@ -323,7 +368,7 @@ export const BED_CELLS: Record<number, { slug: string; frame: string; note: stri
   11: { slug: 'aasha',                frame: '05.png',  note: 'blinds, black and white, 20.6' },
   12: { slug: 'roar',                 frame: '02.png',  note: "a tiger's eye, 9.5" },
   17: { slug: 'broken-reflections',   frame: '09.png',  note: 'a lens filling the frame, 26.6 - was Bloody Bubbly 02, see IRA below' },
-  18: { slug: 'book-my-yamraj',       frame: '07.png',  note: '11.8' },
+  18: { slug: 'the-shiva-trilogy',    frame: '02.png',  note: 'an archer against fire, 21.5 - was Book My Yamraj 07, see THE REORDER below' },
   23: { slug: 'aladdin-dateable-bites', frame: '03.png', note: '21.5' },
 
   /* bottom row */
@@ -331,7 +376,7 @@ export const BED_CELLS: Record<number, { slug: string; frame: string; note: stri
   25: { slug: 'moholla',              frame: '02.png',  note: 'a courtyard from above at night, 14.1' },
   26: { slug: 'broken-reflections',   frame: '02.png',  note: 'a face behind glass, 13.9' },
   27: { slug: 'diwali-ke-shor-mein',  frame: '10.jpg',  note: '30.4 - HELD, the tile below the original Special Ops still' },
-  28: { slug: 'taskaree',             frame: '06.webp', note: 'fire behind the figure, 23.2' },
+  28: { slug: 'book-my-yamraj',       frame: '07.png',  note: '11.0 - was Taskaree 06, see THE REORDER below' },
   29: { slug: 'roar',                 frame: '04.png',  note: 'claw marks raked down bark, 9.4' },
 };
 
