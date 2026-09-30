@@ -829,23 +829,46 @@ const lines = questions.map((q) => [q.key, q.line]);
      No fill on the animation. It has to release every letter back to
      `inherit`, or the first hover after activation would find seventeen
      letters holding a colour of their own and the accent would never
-     arrive. */
+     arrive.
+     AND THE LETTER OVERSHOOTS ITS OWN COLOUR. Applied 2026-09-30 from
+     /preview/ab-rr2, which stays as the draft of record. Before it, each
+     letter ran from --dim to white and STOPPED there, so at any instant
+     the sentence was a gradient from done to not-done: the eye read a
+     boundary travelling through it, not a crest. Nothing in it was ever
+     brighter than its destination.
+
+     One extra keyframe stop fixes that. The letter goes --dim, past white,
+     into the accent, and settles back — which produces a moving band of
+     orange three or four letters wide, and THAT is a wave. The accent is
+     already the colour of the arriving light in this block; this lets it
+     touch the letters instead of stopping short of them.
+
+     THE OVERSHOOT IS IN COLOUR AND NOT IN POSITION, deliberately. An
+     overshoot in translateY would be a bounce, and a bouncing letter is a
+     toy. Colour can overshoot without anything moving.
+
+     210ms A LETTER ON A 9ms STAGGER — 354ms end to end against the 936ms
+     it was. The stagger has to stay tight or the crest stops being a band
+     and becomes a single letter blinking orange, which reads as a fault. */
   .send__chars i {
     display: inline-block; font-style: normal;
   }
   .send__act.is-woken .send__chars i {
-    animation: send-open 520ms var(--ease);
-    animation-delay: calc(var(--i) * 26ms);
+    animation: rr2-crest 210ms cubic-bezier(0.2, 0.9, 0.2, 1);
+    animation-delay: calc(var(--i) * 9ms);
   }
-  @keyframes send-open {
-    from { color: var(--dim); transform: translateY(0.06em); }
-    to   { color: inherit; transform: none; }
+  @keyframes rr2-crest {
+    0%   { color: var(--dim); transform: translateY(0.06em); }
+    34%  { color: var(--accent); }
+    100% { color: inherit; transform: none; }
   }
   @media (prefers-reduced-motion: reduce) {
     .send__act.is-woken .send__chars i { animation: none; }
   }
 
-  .send__arrow { display: inline-block; transition: transform var(--d-micro) var(--ease); }
+  /* On the wake's own curve and clock now, so the nudge belongs to the
+     same gesture rather than to the page's default micro-transition. */
+  .send__arrow { display: inline-block; transition: transform 140ms cubic-bezier(0.2, 0.9, 0.2, 1); }
   .send__act.is-ready:hover .send__arrow { transform: translateX(0.28em); }
 
   /* Refused: the action steps back and goes quiet, and the note it was
@@ -854,8 +877,13 @@ const lines = questions.map((q) => [q.key, q.line]);
   .send.is-asking .send__act { transform: translateX(-4px); color: var(--dim); }
 
   /* The handover: the action gives up its white immediately, the note takes
-     it 90ms later, so the brightness reads as moving from one to the other
-     rather than as two things changing at once. */
+     it 60ms later, so the brightness reads as moving from one to the other
+     rather than as two things changing at once.
+
+     THE COLOUR HAS MOVED OFF THIS ELEMENT AND INTO THE CHARACTERS. It used
+     to transition to --bone here while the per-character animation only
+     thickened the stroke; the crest below needs the colour keyframe by
+     keyframe, so only the scale is transitioned here. */
   .send__ink {
     /* pre-wrap, not pre. Every character is its own <i>, spaces included, so
        plain `normal` would collapse the spaces and run the words together —
@@ -868,19 +896,41 @@ const lines = questions.map((q) => [q.key, q.line]);
     display: inline-block; white-space: pre-wrap;
     /* Grows toward the action, not away from it. */
     transform-origin: right center;
-    transition: color var(--d-micro) var(--ease) 90ms,
-                transform var(--d-micro) var(--ease) 90ms;
+    transition: transform 160ms cubic-bezier(0.2, 0.9, 0.2, 1) 60ms;
   }
   .send__ink i { display: inline-block; font-style: normal; }
+  /* THE COLOUR IS A FLOOR, AND ON THIS SITE'S ONE PAGE IT IS NOT REACHED.
+     rr2 drops it from this element because the crest below carries it; it
+     is kept so a character whose animation never runs does not stay dim.
+
+     BUT MEASURE BEFORE TRUSTING IT. The home page sets
+     `:root .rg .sm-form :global(.send__ink) { color: var(--po-grey) }`,
+     which has outranked this declaration since 2026-09-20 (d54f129) — so
+     the handover's colour change had been dead there for nine days before
+     the crest arrived, and the refusal was a font-weight pulse and a scale
+     with no colour in it at all. The crest fixes that, because an
+     animation outranks both. What it does NOT fix is the reduced-motion
+     path, where the animation is off and this floor still loses; that is
+     handled next to the override itself, in index.astro. */
   .send.is-asking .send__ink { color: var(--bone); transform: scale(1.08); }
 
-  /* And a wave through the letters. Mono holds a fixed advance width, so the
-     stroke thickens inside a box that never changes size — the line gains
-     motion without gaining movement. */
-  @keyframes send-swell { 0%, 100% { font-weight: 400 } 45% { font-weight: 700 } }
+  /* AND THE REFUSAL CRESTS IN THE SAME VOICE, at its own scale — which is
+     the sentence this whole block is built on. Its characters run --dim,
+     through the accent, and settle at bone, 170ms on a 6ms stagger: 302ms
+     end to end against the 1070ms it was.
+
+     The stroke still thickens with it, 400 to 600 rather than 400 to 700.
+     Where this note is set in a face with a fixed advance width the box
+     never changes size; where --mono resolves to the display face, as it
+     does on this page, 600 moves the line less than 700 did. */
+  @keyframes rr2-crest-note {
+    0%   { color: var(--dim); font-weight: 400; }
+    38%  { color: var(--accent); font-weight: 600; }
+    100% { color: var(--bone); font-weight: 400; }
+  }
   .send.is-asking .send__ink i {
-    animation: send-swell 520ms var(--ease) both;
-    animation-delay: calc(var(--i) * 25ms);
+    animation: rr2-crest-note 170ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+    animation-delay: calc(var(--i) * 6ms);
   }
 
   .send__note {

@@ -3133,6 +3133,27 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     text-transform: none; color: var(--po-grey, #9B9B9B);
   }
 
+  /* ── AND THE REFUSAL HAS TO SURVIVE THAT ────────────────────────
+     Added 2026-09-30 with ab-rr2's crest. The rule above is the reason
+     ContactForm's `.send.is-asking .send__ink { color: var(--bone) }` has
+     never taken effect on this page: it has outranked it since 2026-09-20,
+     so a refused enquiry moved its weight and its scale and never changed
+     colour. The crest carries the colour in keyframes, which outrank both,
+     so the default path now reads --po-grey -> accent -> white.
+
+     UNDER prefers-reduced-motion THE KEYFRAMES ARE OFF and the override is
+     not, which would leave the refusal saying nothing whatever — the state
+     the page was already in, now with nothing else to fall back on. This
+     restores the one thing that has to be visible. It cannot affect the
+     default path, where the animation always wins. Delete this block to
+     put the silence back. */
+  @media (prefers-reduced-motion: reduce) {
+    :root .rg .sm-form :global(.send.is-asking .send__ink),
+    :root .rg .sm-form :global(.send.is-asking .send__ink i) {
+      color: var(--bone);
+    }
+  }
+
   /* ══ SIX LABELS, TWO STEPS UP ════════════════════════════════════
      2026-09-29, on Ugam's instruction: "Project details", "Your details",
      "Tap as many as apply", "Name and email required", the standing line
