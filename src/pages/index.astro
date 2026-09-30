@@ -485,6 +485,17 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
                  top to the strut IS the baseline offset, measured rather than assumed,
                  and it follows the caption if its type ever changes. -->
             <span class="hvr__probe" data-hvr-probe aria-hidden="true">H<i class="hvr__strut" data-hvr-strut></i></span>
+            <!-- AND THE SAME TRICK FOR THE CREDITS' OWN LAST LINE. The block's
+                 BOTTOM EDGE is what sits on the caption's baseline, and a line
+                 box is taller than its baseline, so the words rode 4.03px high
+                 — measured on the live page before this was added, caption
+                 615.03 against value 611.00. This probe is set in the value's
+                 own face and size; the gap from its line box's foot to its
+                 strut is how far the block has to come down. In CSS because
+                 the rule below is ours: nothing is copied off another element,
+                 unlike the caption probe, which has to follow type it does
+                 not own. -->
+            <span class="hvr__probe hvr__vprobe" data-hvr-vprobe aria-hidden="true">H<i class="hvr__strut" data-hvr-vstrut></i></span>
             <div class="hvr__left"><span class="hvr__box"><i class="hvr__e hvr__e--t"></i><i class="hvr__e hvr__e--l"></i><i class="hvr__e hvr__e--b"></i><i class="hvr__e hvr__e--r"></i></span><span class="hvr__num" data-hvr-num></span></div>
             <div class="hvr__right">
               <span class="hvr__f" data-hv-row><span class="hvr__l" data-hv-l></span><span class="hvr__v" data-hv-v></span></span>
@@ -1202,6 +1213,8 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     const capEl = sec.querySelector('.rl__cap') as HTMLElement | null;
     const probe = panel.querySelector('[data-hvr-probe]') as HTMLElement;
     const strut = panel.querySelector('[data-hvr-strut]') as HTMLElement;
+    const vprobe = panel.querySelector('[data-hvr-vprobe]') as HTMLElement;
+    const vstrut = panel.querySelector('[data-hvr-vstrut]') as HTMLElement;
     const nameEl = sec.querySelector('[data-w-title]') as HTMLElement | null;
     const readout = sec.querySelector('[data-readout]') as HTMLElement | null;
 
@@ -1319,6 +1332,24 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
         const cb = capEl.getBoundingClientRect().top + (st - pt) - pin.getBoundingClientRect().top;
         panel.style.setProperty('--cb', `${cb.toFixed(1)}px`);
       }
+
+      /* AND HOW FAR THE CREDITS SIT ABOVE THEIR OWN BOX'S FOOT.
+         `bottom` places an EDGE, and a line box is taller than its baseline,
+         so putting the block's foot on the caption's baseline left the words
+         4.03px high — measured on the live page, caption 615.03 against
+         value 611.00, which is what Ugam saw. The vprobe is set in the
+         value's own face and size by CSS, so this needs no copying: the gap
+         from its line box's foot to its strut IS the correction, and the
+         block is shifted down by it so the VALUE'S baseline lands on the
+         caption's.
+
+         READ HERE RATHER THAN IN fill(), and for the same reason --cb is:
+         the value's size is clamp(14px, 1.33vw, 17px), so it changes with
+         the width, and a number taken once on hover would be stale after a
+         resize. Two rect reads a frame while something is held, which is
+         what the caption probe above already costs. */
+      const vb = vprobe.getBoundingClientRect().bottom - vstrut.getBoundingClientRect().top;
+      panel.style.setProperty('--vb', `${vb.toFixed(2)}px`);
     };
 
     const place = (_c: HTMLElement) => { anchor(); };
@@ -3919,6 +3950,9 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
   :root .rg .hvr__strut {
     display: inline-block; width: 0; height: 0; vertical-align: baseline;
   }
+  /* The value probe takes .hvr__v's setting from the shared rule further
+     down; it needs nothing of its own but the line-height it inherits with
+     it. Kept as its own selector so the pairing is findable from here. */
 
   :root .rg .hvr__left {
     position: absolute; top: auto; bottom: calc(100% - var(--cb, 618px));
@@ -3984,12 +4018,26 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
      narrowest gap any title leaves, so the block simply takes a third row
      when it needs one and grows UPWARD, because the baseline is the fixed
      thing here. */
+  /* --vb IS WHY THIS DOES NOT SIT ON --cb ALONE. The block's bottom EDGE
+     used to be put on the caption's baseline, but the last line's baseline
+     is not its line box's foot — measured on the live page, the caption sat
+     at 615.03 and the credits' own baseline at 611.00, so the words rode
+     4.03px high against the name they belong to. Ugam saw it before it was
+     measured. --vb is that gap, read off the vprobe every frame the block is
+     placed, so the VALUE'S BASELINE lands on the caption's rather than the
+     box around it. It follows the type: the value is clamped between 14 and
+     17px, so the number is different at different widths and a constant
+     would only be right at one of them. */
   :root .rg .hvr__right {
-    position: absolute; top: auto; bottom: calc(100% - var(--cb, 618px));
+    position: absolute; top: auto;
+    bottom: calc(100% - var(--cb, 618px) - var(--vb, 0px));
     left: var(--tr, 700px); right: var(--margin);
     padding-left: 18px;
     display: flex; flex-wrap: wrap; align-content: flex-end;
-    column-gap: clamp(14px, 1.7vw, 26px); row-gap: 3px;
+    /* ACROSS: fm5's own 18-34px. DOWN: 8px, which is neither page's — fm5
+       never wraps and so has no row-gap, and the 3px here was written for
+       facts one line tall. Two-line stacks need more. */
+    column-gap: clamp(18px, 2.2vw, 34px); row-gap: 8px;
     opacity: 0; visibility: hidden;
     transition: opacity 120ms linear, visibility 0s linear 120ms;
   }
@@ -3997,21 +4045,74 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     opacity: 1; visibility: visible;
     transition: opacity 70ms linear, visibility 0s;
   }
-  /* Wiped rightward out of the title's right edge, two rows 50ms apart. */
+  /* ── THE FACTS, SET AND ARRIVING AS ab-fm5 DOES ─────────────────
+     Applied 2026-09-30 from /preview/ab-tf1, which stays as the draft of
+     record and carries the full measurements. Copied from fm5's .fm5__f,
+     .fm5__l and .fm5__v. THE DRAFT DOES NOT HAVE THE BASELINE CORRECTION
+     BELOW — --vb was added here on application, on Ugam's instruction, and
+     ab-tf1 still rides 4.03px high the way the live page did before it. The rectangle, the numerals and the circuit above
+     already came from fm5 when ab-xr4d was applied on 2026-09-29, so this
+     finishes a half-done job: the shape spoke fm5 and the words beside it
+     still spoke ab-xr4's.
+
+     A STACK, NOT A LINE. The label sits above the value rather than beside
+     it, so the label reads as a label and the VALUE READS AS TYPE — 17px of
+     the display face, mixed case, tight — instead of as a second specimen of
+     the same 10px lettering told apart only by its colour.
+
+     <- SO THE VALUES ARE NO LONGER UPPERCASE. text-transform sat on .hvr__f
+        and applied to both halves; fm5 puts it on the label alone. Mixed
+        case is the reason to be on the display face at all, so this is not
+        separable from the rest.
+
+     <- AND THE LABEL BARELY MOVES. It was already 10px of the display face,
+        uppercase, --muted, because :root .rg redefines --mono as --display
+        across this whole page. Only its tracking goes 0.15em to 0.16 and
+        its line-height 1.5 to 1.4.
+
+     IT IS TALLER AND ALSO NARROWER. Measured over all sixteen at 1280x800:
+     a fact is 37.4px against 15.0, but stacked it is as wide as its wider
+     half rather than both plus a gap, so the block WRAPS LESS — ten works
+     take one row where two did, and nothing takes three. It still grows
+     upward into the conveyor's band: a two-row work climbs from y 582 to
+     y 532.2.
+
+     THE ARRIVAL HAS NO STAGGER, which is fm5's and not an omission. All
+     four rise 5px and fade together at 180ms — and 180ms is the number that
+     matters, because the circuit above takes 390ms to close, so the box is
+     46% drawn when the words start. That is the relationship fm5's own
+     header describes, and it survives the transplant because the circuit
+     here already runs on fm5's numbers.
+
+     <- --i IS STILL MEASURED AND NOW GOES UNUSED. fill() ranks the distinct
+        offsetTops to find each fact's real row; nothing reads it any more.
+        Kept because restoring a per-row stagger is then one line rather
+        than a re-measurement. */
   :root .rg .hvr__f {
-    display: inline-flex; align-items: baseline; gap: 6px;
-    font-family: var(--mono); font-size: 10px;
-    letter-spacing: 0.15em; text-transform: uppercase; line-height: 1.5;
+    display: flex; flex-direction: column; align-items: flex-start; gap: 3px;
     white-space: nowrap;
-    clip-path: inset(0 100% 0 0);
-    transition: clip-path 120ms cubic-bezier(0.4, 0, 1, 1);
+    opacity: 0; transform: translateY(5px);
+    transition: opacity 90ms linear, transform 90ms cubic-bezier(0.4, 0, 1, 1);
   }
   :root .rg .hvr__f[hidden] { display: none; }
   :root .rg .sec--works.is-hv .hvr__f {
-    clip-path: inset(0 -3px 0 0);
-    transition: clip-path 300ms cubic-bezier(0.22, 1, 0.36, 1) calc(var(--i, 0) * 50ms);
+    opacity: 1; transform: none;
+    transition: opacity 200ms linear 180ms,
+                transform 260ms cubic-bezier(0.22, 1, 0.36, 1) 180ms;
   }
-  :root .rg .hvr__l { color: var(--muted); }
+  :root .rg .hvr__l {
+    font-family: var(--mono); font-size: var(--t-micro);
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--muted); line-height: 1.4;
+  }
+  /* The value's own setting, and the vprobe above must match it exactly or
+     the baseline shift is measured against the wrong line box. */
+  :root .rg .hvr__v,
+  :root .rg .hvr__vprobe {
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(14px, 1.33vw, 17px);
+    letter-spacing: -0.01em; line-height: 1.2;
+  }
   :root .rg .hvr__v { color: var(--bone); }
 
   /* The instrument stands down and the name does not. `animation: none` on
@@ -4023,7 +4124,11 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
 
   @media (prefers-reduced-motion: reduce) {
     :root .rg .hvr__e, :root .rg .sec--works.is-hv .hvr__e { transition: none; transform: none; }
-    :root .rg .hvr__f, :root .rg .sec--works.is-hv .hvr__f { transition: none; clip-path: inset(0 -3px 0 0); }
+    /* The clip-path this used to reset is gone with the wipe; what has to
+       be reset now is the opacity and the 5px the facts rise from, or
+       reduced motion leaves the whole reading invisible rather than
+       still. */
+    :root .rg .hvr__f, :root .rg .sec--works.is-hv .hvr__f { transition: none; opacity: 1; transform: none; }
     :root .rg .hvr__num { transition: none; opacity: 1; }
   }
   @media (max-width: 900px) { :root .rg .hvr { display: none; } }
