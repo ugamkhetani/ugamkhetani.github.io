@@ -1,4 +1,5 @@
 ---
+import { href } from '../lib/href';
 /**
  * Four items, spread edge to edge, no wordmark — the reference's structure.
  *
@@ -28,6 +29,18 @@
    The `overlay` branch below is kept for the same reason — it costs one
    ternary and is the only thing that would have to be rewritten to put a
    view back in an overlay — but nothing uses it today. */
+/* THE THREE HREFS BELOW ARE LOGICAL PATHS AND `href()` MAKES THEM REAL ONES.
+   They are written from the site root, so served from a subpath — which is
+   what GitHub Pages does to a project repository — every one of them would
+   leave the site. href() prefixes whatever base the build was given; with no
+   base it returns them unchanged, which is every case but that one.
+
+   <- `data-path` IS DELIBERATELY LEFT UNPREFIXED. It is not a URL, it is the
+      marker markCurrent() in src/scripts/main.ts compares, and that function
+      explicitly skips the value "/" and tests the rest against
+      location.pathname — where "/#about" can never match anyway, which the
+      note below already says. Prefixing it would change nothing it reads and
+      would make an internal marker look like a link. */
 const ITEMS: { label: string; href?: string; overlay?: string; home?: boolean }[] = [
   { label: 'Works', href: '/', home: true },
   /* SECTIONS OF THE HOME PAGE, NOT PAGES. Both were standalone pages, and
@@ -64,7 +77,7 @@ const ITEMS: { label: string; href?: string; overlay?: string; home?: boolean }[
         return item.href ? (
           <a
             class="itm"
-            href={item.href}
+            href={href(item.href)}
             aria-label={item.label}
             data-path={item.href}
             data-home={item.home ? '' : undefined}

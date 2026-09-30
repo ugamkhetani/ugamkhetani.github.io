@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import { framesFor, sizesFor, cropFor } from '../lib/frames';
 import { RATIO, numberFor } from '../data/composition';
+import { href } from '../lib/href';
 
 interface Props {
   slug: string;
@@ -26,7 +27,7 @@ const sizes = sizesFor(span);
 <a
   class="frame"
   class:list={[{ 'frame--single': count === 1 }]}
-  href={`/work/${slug}`}
+  href={href(`work/${slug}`)}
   data-frame
   data-count={count}
   style={[`--ar:${RATIO[ratio]}`, cropFor(slug)].filter(Boolean).join(';')}

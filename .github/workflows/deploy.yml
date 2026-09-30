@@ -1,0 +1,84 @@
+# Build the site and publish it to GitHub Pages.
+#
+# NOTHING HERE NAMES A DOMAIN, and that is the point. `actions/configure-pages`
+# asks GitHub where this repository is actually published and hands back the
+# origin and the base path, which are passed straight into the build:
+#
+#   a user site   ugam.github.io          origin=https://ugam.github.io  base=/
+#   a project     ugam.github.io/site     origin=https://ugam.github.io  base=/site
+#   a custom      ugamkhetani.com         origin=https://ugamkhetani.com base=/
+#
+# astro.config.mjs reads both from the environment, so all three build
+# correctly with no edit. Adding a domain later is a change in the repository's
+# Pages settings and a CNAME file — not a change here.
+#
+# FIRST RUN NEEDS ONE MANUAL STEP: in Settings -> Pages, set Source to
+# "GitHub Actions". Until that is done this workflow builds and then fails at
+# the deploy step, which is GitHub telling you Pages is not switched on rather
+# than anything being wrong with the site.
+
+name: Deploy site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time, and never cancel one that is part-way through
+# publishing — a half-written Pages deployment serves a half-written site.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+        with:
+          # The repository carries ~360MB of source stills and its history is
+          # larger again. The build only ever needs the current commit, and a
+          # shallow checkout is the difference between a fast job and a slow
+          # one on every run.
+          fetch-depth: 1
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Ask GitHub where this site lives
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Build
+        env:
+          SITE_URL: ${{ steps.pages.outputs.origin }}
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
+        run: npm run build
+
+      - name: Upload the built site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -13,6 +13,7 @@ import { EMAIL, PHONE, CALL_URL, CALL_LABEL, WHATSAPP, FIELDS, ELSEWHERE, asked,
    being invented as a second field in the data file. */
 const WA_HANDLE = '@ugam.wav';
 import { total } from '../data/composition';
+import { href } from '../lib/href';
 
 interface Props {
   questions?: Question[];
@@ -209,10 +210,10 @@ const lines = questions.map((q) => [q.key, q.line]);
         bottom edge so the sentence and "The work" sit on one line. */}
     <div class="ft__band">
       <p class="ft__prose ft__prose--quiet">
-        Based in Mumbai, working across time zones. <a class="ft__count" href="/">{total} works</a>.
+        Based in Mumbai, working across time zones. <a class="ft__count" href={href()}>{total} works</a>.
       </p>
 
-      <a class="ft__next" href="/">
+      <a class="ft__next" href={href()}>
         <span class="mono ft__nextlbl">Return to</span>
         <span class="ft__nexttitle display">The work <span class="ft__arrow" aria-hidden="true">→</span></span>
       </a>

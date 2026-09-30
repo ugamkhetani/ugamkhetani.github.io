@@ -33,7 +33,13 @@ const { title, description, intro = false } = Astro.props;
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+    {/* A canonical URL has to be absolute, so it needs `site` — and `site`
+        is deliberately unset until the domain is decided (see
+        astro.config.mjs). Emitting it against an undefined base throws at
+        build time; emitting a relative one would be worse than none. So it
+        appears the moment SITE_URL is set for a build and is absent until
+        then, which is the honest state of a site with no address yet. */}
+    {Astro.site && <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />}
     {fontFace && <style is:inline set:html={fontFace} />}
 
     {

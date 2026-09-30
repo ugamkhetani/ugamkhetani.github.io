@@ -39,9 +39,14 @@ pnpm-debug.log*
 # earlier generator workflow. build12.py imports a module (inner7) that is not
 # in the folder, so it cannot even run. Kept for history, safe to delete.
 #
-# src/media/ is ~279MB of stills. That is source material, not build
+# src/media/ is ~360MB of stills. That is source material, not build
 # output: every work page and the mosaic bed are built from it, Astro
 # optimises it at build time into dist/, and there is no other copy. It
-# has to be in the history. No single file exceeds 7.5MB, so nothing here
-# comes near GitHub's 100MB limit — but the repo is large, so a first
-# clone will take a while.
+# has to be in the history.
+#
+# RE-MEASURED 2026-09-30: the largest single file is 23.8MB — Diwali's
+# frame 03 — not the 7.5MB this note used to claim. Still far inside
+# GitHub's 100MB per-file limit, and the repository as a whole is around
+# 480MB of history, which GitHub accepts without complaint. But a first
+# push and a fresh clone are both slow, and CI checks out shallow for
+# exactly that reason.

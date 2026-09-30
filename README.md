@@ -172,9 +172,56 @@ All sixteen works have real stills. No stand-ins remain.
 
 ## Publishing
 
-Push to GitHub, connect the repository to Vercel or Netlify, take the defaults
-— both detect Astro. Build command `npm run build`, output directory `dist`.
-Every push republishes.
+The repository is set up for **GitHub Pages** and needs no domain to work.
+
+1. Create an empty repository on GitHub and push this one to it.
+2. In **Settings → Pages**, set **Source** to **GitHub Actions**.
+3. That is all. `.github/workflows/deploy.yml` builds and publishes on every
+   push to `main`, and the first run gives you the URL.
+
+**No domain is hard-coded anywhere.** The workflow asks GitHub where the
+repository is published and passes the answer into the build, so a user site,
+a project site under `/<repo>/`, and a custom domain added later all build
+correctly with nothing to edit. To check a subpath build locally:
+
+```
+BASE_PATH=/portfolio/ npm run build
+```
+
+Verified across 1,756 absolute URLs in the output: every one carries the base.
+
+### Adding a domain later
+
+Put the bare domain in `public/CNAME` (one line, no protocol), set it in
+**Settings → Pages → Custom domain**, and point DNS at GitHub — four `A`
+records for an apex domain, or a `CNAME` to `<user>.github.io` for `www`.
+Nothing in `astro.config.mjs` changes; the workflow picks the new origin up on
+the next run and canonical tags start being emitted.
+
+### What is published
+
+**21 pages** — the home page, seventeen work pages and three redirects. The
+75-page draft library in `src/pages/preview/` is **deliberately not built**
+(see `astro.config.mjs`); it stays in the repository and on the dev server,
+where `npm run dev` serves it exactly as before. To publish it anyway, or just
+to check the drafts still compile:
+
+```
+PREVIEW=1 npm run build
+```
+
+### Other hosts
+
+The same repository works unchanged on Vercel, Netlify or Cloudflare Pages —
+build command `npm run build`, output directory `dist`, and they all serve
+from the root so no base is needed.
+
+### One thing to expect on the first push
+
+The repository is large: about **360MB** of source stills, and the history is
+larger again. GitHub accepts it, but the first push takes a while and a fresh
+clone is slow. The CI checkout is shallow (`fetch-depth: 1`) so this only
+costs you once.
 
 ---
 
