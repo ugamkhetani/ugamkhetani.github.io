@@ -148,8 +148,9 @@ export const BED_GRADE: Record<string, { contrast: number }> = {
  * the viewport, the corners showing 0.149 of themselves, the top and bottom
  * middles 0.442 and the side middles 0.336. Measured, not assumed.
  *
- * THE PROBLEM THIS SOLVES. The cast cycles sixteen works into thirty cells, so
- * fourteen works come round twice -- and because the bed takes frame 1 only,
+ * THE PROBLEM THIS SOLVES. The cast cycled sixteen works into thirty cells --
+ * seventeen since Ira was added on 2026-09-30 -- so fourteen works came round
+ * twice, thirteen now. Because the bed takes frame 1 only,
  * coming round twice meant the SAME PHOTOGRAPH twice. Fourteen of the eighteen
  * partial cells were repeating a picture already fully visible in the centre,
  * and the remaining four were two pairs -- Roar twice, Aladdin twice --
@@ -176,18 +177,32 @@ export const BED_GRADE: Record<string, { contrast: number }> = {
  * for, most-constrained-cell-first, and then checked in code against the
  * table and again against the rendered DOM. 0 violations both times.
  *
- * TWO CELLS ARE HELD BY HAND and the search works around them. Cell 4, the
- * tile directly above Mere Ho, keeps the archer against fire; cell 27,
- * directly below the original Special Ops still, keeps Diwali 10. Holding
- * them also constrains their neighbours -- cells 3, 5 and 11 cannot be
- * Shiva, and 26 and 28 cannot be Diwali -- which is why they are stated here
- * rather than buried in the table.
+ * TWO CELLS WERE HELD BY HAND and the search worked around them. Cell 4, the
+ * tile directly above Mere Ho, kept the archer against fire; cell 27, directly
+ * below the original Special Ops still, keeps Diwali 10. Holding them also
+ * constrains their neighbours -- 26 and 28 cannot be Diwali -- which is why
+ * they are stated here rather than buried in the table.
+ *
+ * <- BOTH HOLDS WERE POSITIONAL AND THE SEVENTEEN-WORK CYCLE VOIDED BOTH
+ *   PREMISES. Each names a cell by what sits NEXT to it, and the cycle moved
+ *   what sits next to it: Mere Ho is no longer in the bed at all, so cell 4
+ *   is no longer above it, and cell 21 is Book My Yamraj now, so cell 27 is
+ *   no longer below the Special Ops still. Cell 4 was recast for that reason
+ *   and because it was in violation; cell 27 keeps Diwali 10 because nothing
+ *   forced it and a held tile with a stale reason is still a chosen tile.
  *
  * THE SPREAD IS DELIBERATE. Fifteen different works across the eighteen
  * cells and NO WORK USED MORE THAN TWICE, which is tighter than the previous
  * arrangement managed at twelve works and three uses. Ve Maahi keeps its
  * place: BED_SWAPS casts that work out of the cycle entirely, so naming a
  * cell is the only way it is ever seen, and it has exactly one frame.
+ *
+ * <- FOURTEEN SINCE IRA, not fifteen, and the two-use ceiling still holds.
+ *   Recasting cells 4 and 17 took Shiva and Bloody Bubbly out of the ring and
+ *   put Ira in and Broken Reflections up to two. Across the whole bed it is
+ *   sixteen works of seventeen, Mere Ho being the one absent -- which is the
+ *   arrangement agreeing with BED_SWAPS rather than contradicting it, since
+ *   that table already routes Mere Ho away from every cell anyone sees.
  *
  * TONALLY they run 6.3 to 30.4 by the same measurement that puts the twelve
  * centre tiles at 5.9 to 29.7 -- so the partial ring now sits inside the
@@ -246,20 +261,68 @@ export const BED_GRADE: Record<string, { contrast: number }> = {
  *   115 top and bottom, 21.3 per cent of the frame. The correction holds for
  *   any frame of that work, so the worry does not bite here.
  */
+/**
+ * IRA, AND WHAT A SEVENTEENTH WORK DID TO THIS ARRANGEMENT.
+ *
+ * 2026-09-30. The bed walks `order` and repeats it to fill thirty tiles, so
+ * the cycle's LENGTH is the number of works — and adding one shifted every
+ * cell the table does not name. Measured before and after, in the rendered
+ * DOM as well as against this table:
+ *
+ *   all twelve centre cells changed cast, each moving one place along
+ *   the centre went from twelve distinct works to eleven, Aasha twice
+ *   TWO ADJACENCY VIOLATIONS APPEARED — cell 4 and cell 9 both Shiva,
+ *     cells 16 and 17 both Bloody Bubbly
+ *
+ * THE VIOLATIONS ARE THE ONLY PART THAT HAD TO BE FIXED, and both were
+ * between a cell this table names and a centre cell it may not. The centre
+ * is out of reach by the rule above, so the fix is on the ring: cell 4 from
+ * Shiva 02 to Ira 06, cell 17 from Bloody Bubbly 02 to Broken Reflections
+ * 09. Checked after, both ways: 0 violations.
+ *
+ * CELL 4 WAS A HELD CELL AND ITS PREMISE HAD ALREADY GONE. It was held for
+ * being the tile above Mere Ho, and the seventeen-work cycle takes Mere Ho
+ * out of the bed entirely — so the hold was naming a relationship that no
+ * longer existed. That is why it could move without overruling anyone.
+ *
+ * THE FRAMES WERE PICKED THE WAY THIS TABLE'S OWN NOTE SAYS TO PICK THEM —
+ * looked at first, then measured. Graded at the bed's own brightness(0.30)
+ * saturate(0.7) contrast(1.05):
+ *
+ *   Ira 06                  10.4 mean, brightest 55.3, 0 pixels over #4C4C4C
+ *   Broken Reflections 09   26.6 mean, brightest 66.1, 0 pixels over #4C4C4C
+ *
+ * Both sit inside the bed's own 6.3..30.4 band and neither breaks the
+ * readability ceiling. Ira's other frames were rejected on sight or on tone:
+ * 01 is a head-and-shoulders, which this note says goes to mush at a fifth of
+ * the viewport's width, and 03, 04, 07 and 08 grade to 0.7..4.1, below the
+ * darkest tile in the bed. 06 is the widest of the set — a tent, a courtyard,
+ * a patterned floor, the figure small — which is the texture-and-light this
+ * table asks for. Broken Reflections 10 was rejected for the same reason as
+ * Ira 01; 09 is a camera lens filling the frame, a hard geometric form that
+ * survives the scale. BED_CROP's letterbox correction holds for it: all ten
+ * of that work's frames are 1998x1080 with bars of exactly 115.
+ *
+ * <- WHAT WAS NOT FIXED, BECAUSE IT IS NOT BROKEN. Aasha now holds three
+ *   cells rather than two — 11 in the ring and 15 and 19 in the centre, no
+ *   two of them adjacent. The two-use ceiling this file states is a ring
+ *   rule and the ring still obeys it. Pinning a centre cell to correct it
+ *   would break the one rule the table has about itself.
+ */
 export const BED_CELLS: Record<number, { slug: string; frame: string; note: string }> = {
   /* top row. Corners see 0.149 of themselves, the middles 0.442. */
   0:  { slug: 'mumbai-standard-time', frame: '04.png',  note: 'the clock carried through a crowd, 20.5' },
   1:  { slug: 've-maahi',             frame: '01.JPG',  note: 'bangles, hands, gold, 18.0' },
   2:  { slug: 'mumbai-standard-time', frame: '10.png',  note: 'an alarm clock, still life, 13.5' },
   3:  { slug: 'dinshaws-dildaari-battles', frame: '08.png', note: 'a crowd in identical masks, 20.8' },
-  4:  { slug: 'the-shiva-trilogy',    frame: '02.png',  note: 'an archer against fire, 28.6 - HELD, the tile above Mere Ho' },
+  4:  { slug: 'ira',                  frame: '06.png',  note: 'a tent, a courtyard, a small red figure, 10.4 - was Shiva 02, see IRA below' },
   5:  { slug: 'my-red-crayon',        frame: '05.png',  note: 'two children and a red ribbon, 27.8' },
 
   /* side middles, 0.336 visible */
   6:  { slug: 'special-ops-2',        frame: '07.JPG',  note: 'a call at night, the city behind in bokeh, 6.3' },
   11: { slug: 'aasha',                frame: '05.png',  note: 'blinds, black and white, 20.6' },
   12: { slug: 'roar',                 frame: '02.png',  note: "a tiger's eye, 9.5" },
-  17: { slug: 'bloody-bubbly',        frame: '02.png',  note: 'a can among candles, 10.9' },
+  17: { slug: 'broken-reflections',   frame: '09.png',  note: 'a lens filling the frame, 26.6 - was Bloody Bubbly 02, see IRA below' },
   18: { slug: 'book-my-yamraj',       frame: '07.png',  note: '11.8' },
   23: { slug: 'aladdin-dateable-bites', frame: '03.png', note: '21.5' },
 

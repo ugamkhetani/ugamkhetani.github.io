@@ -78,6 +78,25 @@ export const composition: Stanza[] = [
     pause: 20,
   },
   {
+    // IRA, ADDED 2026-09-30 between Broken Reflections and My Red Crayon on
+    // Ugam's instruction. It takes a stanza of its own rather than joining
+    // either neighbour, because both of those stanzas are arguments that a
+    // second frame would break: the one above says "opens the catalogue
+    // alone" and the one below is a scale study of two frames at the SAME
+    // ratio, which a third 16:9 at a third width would turn into a list.
+    //
+    // ← THE PLACEMENT IS MINE. Ugam gave the position in the score, not the
+    //   column or the width. Flush right at 8..12 answers the centred frame
+    //   above it and sets up My Red Crayon, which starts at column 1 — so
+    //   the eye crosses the page between the two rather than stepping down
+    //   the same edge. Five columns keeps it smaller than the frame it
+    //   follows, which is the widest on the site. No offset: offsets here
+    //   exist to break a baseline shared with a second frame in the same
+    //   stanza, and this stanza has none.
+    items: [{ slug: 'ira', col: 8, span: 5, tCol: 3, tSpan: 4 }],
+    pause: 18,
+  },
+  {
     // The scale study: identical 16:9 proportion at four columns and seven.
     items: [
       { slug: 'my-red-crayon', col: 1, span: 4, tCol: 1, tSpan: 3 },

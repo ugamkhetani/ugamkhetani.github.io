@@ -79,6 +79,29 @@
  *   year is only useful here as a COUNT — nine of sixteen — or as one of the
  *   four segmentations in fm7.
  *
+ * RECOUNTED 2026-09-30, when Ira was added as the seventeenth work. Its four
+ * rows are Format "Short Film", Role "Composer", Scope "Original Score" and
+ * Year "2024", and the counts above move as follows:
+ *
+ *   FORMAT     on 17 now, still 9 distinct — Short Film joins AI Film at 3
+ *   ROLE       on 9, Composer at 4
+ *   SCOPE      on 9, 4 distinct — "Original Score" is new and held by Ira alone
+ *   YEAR       THREE values now, not two: 2025 x 9, 2026 x 7, 2024 x 1
+ *   PLATFORM, CHANNEL, TREATMENT  unchanged; Ira names no platform
+ *
+ *   30 distinct label-and-value pairs, 15 of them held by one work
+ *
+ * <- IRA IS THE FIRST WORK TO ANSWER BOTH ROLE AND SCOPE, which breaks the
+ *   eight-and-eight split recorded above. That split was an observation about
+ *   sixteen works, not a rule, and the note below still holds: a draft that
+ *   assumes four fixed labels is wrong. Ugam's list for Ira names no platform,
+ *   so the row it would have taken went to Scope.
+ *
+ * <- AND THE YEAR IS STILL NOT A POSITION. Three points is not a range either,
+ *   and 2024 sits alone below a pair that are adjacent — so a timeline would
+ *   now draw one dot far from two touching ones, which says less than the
+ *   numerals do rather than more.
+ *
  * <- WHAT THE SET IS GENUINELY GOOD FOR IS RARITY. Of the four facts on a
  *   typical work, one or two are shared with several others and the rest are
  *   nearly unique: THIRTEEN of the twenty-eight distinct label-and-value
