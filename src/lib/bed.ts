@@ -39,7 +39,14 @@ export const BED_SWAPS: Record<string, string> = {
        lands inside the ring's two-use ceiling. What is lost is the 0.47
        measurement above, which was about Aasha in particular. */
   'dinshaws-dildaari-battles': 'diwali-ke-shor-mein',
-  've-maahi': 'broken-reflections',
+  've-maahi': 'the-shiva-trilogy',
+  /* IRA IS CAST OUT OF THE CYCLE ENTIRELY, on Ugam's instruction 2026-09-30:
+     the background goes back to what it was, without him in it. This is the
+     same mechanism Ve Maahi has always used — a work named by no cell and
+     swapped out of the cycle is a work the bed never shows. Broken
+     Reflections takes the slots: ten frames, and the BED_CROP correction
+     below is proven across all of them. Delete this line to put Ira back. */
+  'ira': 'broken-reflections',
 
   /* THESE THREE ROTATE, they are not two independent exchanges — and because
      the table is keyed on the SCORE'S slug rather than on the current occupant,
@@ -278,6 +285,40 @@ export const BED_GRADE: Record<string, { contrast: number }> = {
  *   any frame of that work, so the worry does not bite here.
  */
 /**
+ * THE REVERT, 2026-09-30 — "revert to the previous background without Ira".
+ *
+ * Ugam asked for the bed he had back, without the new work in it, together
+ * with a second reordering of the score. THREE OF THE FOUR CELLS WENT BACK
+ * EXACTLY: 4 is the archer again, 18 is Book My Yamraj 07 again, 28 is
+ * Taskaree 06 again. Ira is cast out of the cycle in BED_SWAPS above, so it
+ * appears nowhere — verified in the rendered DOM, not only here.
+ *
+ * TWO THINGS COULD NOT GO BACK, AND THE REASON IS THE SCORE, NOT THE TABLE.
+ * The centre twelve are whatever `order` puts there, and `order` is not what
+ * it was when those cells were chosen. Restoring all four and casting Ira out
+ * still left two violations: cells 15 and 21 both Aasha, cells 16 and 17 both
+ * Bloody Bubbly. The first is between TWO CENTRE CELLS, which this table may
+ * not reach, so a swap had to move; the second is a centre cell against a
+ * named one, so the named one had to.
+ *
+ *   Ve Maahi's swap target  Aasha -> The Shiva Trilogy
+ *   cell 17                 Bloody Bubbly 02 -> Taskaree 08
+ *
+ * Everything else is as it was. Checked after, against this table and again
+ * in the rendered DOM: 0 violations, sixteen works in the bed, twelve
+ * distinct works across the twelve centre cells.
+ *
+ * <- WHAT IS LOST IS THE 0.47 MEASUREMENT on the Ve Maahi swap above, which
+ *   was about Aasha in particular, and Bloody Bubbly's can-among-candles at
+ *   cell 17. Taskaree 08 is hands over gold in a case — objects and light,
+ *   which is what this note asks a partial cell for — and grades to 19.9
+ *   mean, 66.5 brightest, 0 pixels over #4C4C4C. Cell 17's neighbours run
+ *   14.1, 20.6 and 21.5, so it sits among them rather than against them.
+ *
+ * <- AND TASKAREE NOW HOLDS THREE CELLS, 17, 19 and 28, no two adjacent and
+ *   all three different photographs — 08 here, the cycle's 01 at 19, and 06
+ *   at 28. Two of the three are in the ring, so the two-use ceiling holds.
+ *
  * THE REORDER, 2026-09-30, AND WHY THIS TABLE KEEPS MOVING.
  *
  * Ugam gave a new order for Selected works the same day Ira was added. The
@@ -297,9 +338,11 @@ export const BED_GRADE: Record<string, { contrast: number }> = {
  *   nothing warns you. The centre twelve are whatever `order` puts there,
  *   the ring is pinned, and only the pair of them together satisfies the
  *   adjacency rule — so ANY reordering or addition in composition.ts can
- *   break it silently, and did twice in one day. Nothing in the build
- *   checks it. If this happens a third time, the fix is probably to make
- *   the check part of the build rather than to keep re-searching by hand.
+ *   break it silently. It did FOUR TIMES on 2026-09-30 alone: once on the
+ *   addition, once on each of two reorders, and once more on the revert.
+ *   Nothing in the build checks it and every repair so far has been a hand
+ *   search. The fix is a build-time assertion over BED_CELLS, BED_SWAPS and
+ *   `order`; it has been offered and not yet asked for.
  *
  * IRA, AND WHAT A SEVENTEENTH WORK DID TO THIS ARRANGEMENT.
  *
@@ -360,15 +403,15 @@ export const BED_CELLS: Record<number, { slug: string; frame: string; note: stri
   1:  { slug: 've-maahi',             frame: '01.JPG',  note: 'bangles, hands, gold, 18.0' },
   2:  { slug: 'mumbai-standard-time', frame: '10.png',  note: 'an alarm clock, still life, 13.5' },
   3:  { slug: 'dinshaws-dildaari-battles', frame: '08.png', note: 'a crowd in identical masks, 20.8' },
-  4:  { slug: 'ira',                  frame: '06.png',  note: 'a tent, a courtyard, a small red figure, 14.0 - was Shiva 02, see IRA below' },
+  4:  { slug: 'the-shiva-trilogy',    frame: '02.png',  note: 'an archer against fire, 21.5 - restored, see THE REVERT below' },
   5:  { slug: 'my-red-crayon',        frame: '05.png',  note: 'two children and a red ribbon, 27.8' },
 
   /* side middles, 0.336 visible */
   6:  { slug: 'special-ops-2',        frame: '07.JPG',  note: 'a call at night, the city behind in bokeh, 6.3' },
   11: { slug: 'aasha',                frame: '05.png',  note: 'blinds, black and white, 20.6' },
   12: { slug: 'roar',                 frame: '02.png',  note: "a tiger's eye, 9.5" },
-  17: { slug: 'broken-reflections',   frame: '09.png',  note: 'a lens filling the frame, 26.6 - was Bloody Bubbly 02, see IRA below' },
-  18: { slug: 'the-shiva-trilogy',    frame: '02.png',  note: 'an archer against fire, 21.5 - was Book My Yamraj 07, see THE REORDER below' },
+  17: { slug: 'taskaree',             frame: '08.webp', note: 'hands over gold, 19.9 - see THE REVERT below; this one could NOT go back' },
+  18: { slug: 'book-my-yamraj',       frame: '07.png',  note: '11.0 - restored, see THE REVERT below' },
   23: { slug: 'aladdin-dateable-bites', frame: '03.png', note: '21.5' },
 
   /* bottom row */
@@ -376,7 +419,7 @@ export const BED_CELLS: Record<number, { slug: string; frame: string; note: stri
   25: { slug: 'moholla',              frame: '02.png',  note: 'a courtyard from above at night, 14.1' },
   26: { slug: 'broken-reflections',   frame: '02.png',  note: 'a face behind glass, 13.9' },
   27: { slug: 'diwali-ke-shor-mein',  frame: '10.jpg',  note: '30.4 - HELD, the tile below the original Special Ops still' },
-  28: { slug: 'book-my-yamraj',       frame: '07.png',  note: '11.0 - was Taskaree 06, see THE REORDER below' },
+  28: { slug: 'taskaree',             frame: '06.webp', note: 'fire behind the figure, 23.7 - restored, see THE REVERT below' },
   29: { slug: 'roar',                 frame: '04.png',  note: 'claw marks raked down bark, 9.4' },
 };
 

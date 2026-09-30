@@ -39,42 +39,31 @@ export interface Stanza {
 }
 
 export const composition: Stanza[] = [
-  /* REORDERED 2026-09-30 on Ugam's instruction, which gave the seventeen
-     works as a numbered list and nothing else. The ORDER below is his; the
-     stanzas, columns, spans, offsets and pauses are mine, because a linear
-     list does not say which works stand together or how wide any of them is.
+  /* REORDERED AGAIN 2026-09-30, second pass, on Ugam's instruction. As
+     before he gave the sequence and nothing else, so the stanzas, columns,
+     spans, offsets and pauses are mine.
 
-     THE GROUPING IS BY SHAPE, as it was before, and only consecutive works
-     can pair — so the list decides which pairings were available and the
-     ratios decided which of those to take. Two pairs survive from the old
-     score intact, Aladdin with Dinshaw's and the two records, because the
-     new order happens to keep them adjacent. */
+     THE GROUPING IS BY SHAPE and only consecutive works can pair, so the
+     list decides which pairings are available and the ratios decide which of
+     those to take. Four groupings survive this pass unchanged because the
+     order keeps their works adjacent: Ira with Moholla, My Red Crayon with
+     Bloody Bubbly, Shiva with Roar, Aladdin with Dinshaw's, and the two
+     records. Mumbai is back at the head, alone and centred, where it was
+     before the first reorder. */
 
   // ── Movement I ──────────────────────────────────────────────────
   {
-    // Diwali opens now. Alone and centred at eight columns — the treatment
-    // Mumbai had when it opened, because what that placement is for is
-    // giving the first frame nothing to be compared against.
-    items: [{ slug: 'diwali-ke-shor-mein', col: 3, span: 8, tCol: 1, tSpan: 6 }],
+    // The award film, alone and centred. Eight columns.
+    items: [{ slug: 'mumbai-standard-time', col: 3, span: 8, tCol: 1, tSpan: 6 }],
     pause: 20,
   },
   {
-    // THE INVERSION: 16:9 against 9:16, the same ratio transposed. It was
-    // Book My Yamraj against Special Ops before and the new order breaks
-    // that adjacency, but it puts Mumbai next to Book My Yamraj instead,
-    // which is the same argument with a different pair of works.
-    items: [
-      { slug: 'mumbai-standard-time', col: 1, span: 7, tCol: 1, tSpan: 4 },
-      { slug: 'book-my-yamraj', col: 9, span: 3, offset: 20, tCol: 5, tSpan: 2, tOffset: 14 },
-    ],
-    pause: 24,
-  },
-  {
-    // Aasha alone and small after a loud pair. It is one of the two 4:3
-    // frames on the site now that Ira's bezels are off, and the other is
-    // four places further down, which is far enough apart that they read as
-    // a proportion recurring rather than as a pair split up.
-    items: [{ slug: 'aasha', col: 2, span: 5, tCol: 1, tSpan: 4 }],
+    // BOTH LEADS ARE 16:9, so Diwali is separated from 001 by width and by
+    // alignment rather than by company — seven columns flush left against
+    // eight centred. The old score separated them with Aasha standing beside
+    // Diwali; this order puts Aasha four places away, so the separation has
+    // to come from the placement itself.
+    items: [{ slug: 'diwali-ke-shor-mein', col: 1, span: 7, tCol: 1, tSpan: 5 }],
     pause: 18,
   },
   {
@@ -85,25 +74,32 @@ export const composition: Stanza[] = [
     items: [{ slug: 'taskaree', col: 1, span: 12, maxVh: 78, tCol: 1, tSpan: 6 }],
     pause: 22,
   },
+  {
+    // 16:9 against 4:3 — the two landscape proportions everything else on
+    // the site is measured against, set side by side once.
+    items: [
+      { slug: 'special-ops-2', col: 1, span: 6, tCol: 1, tSpan: 3 },
+      { slug: 'aasha', col: 8, span: 4, offset: 18, tCol: 4, tSpan: 3, tOffset: 12 },
+    ],
+    pause: 24,
+  },
 
   // ── Movement II ─────────────────────────────────────────────────
   {
-    // Two landscapes at different degrees of wide — 16:9 against 2.35:1.
-    // Broken Reflections opened the catalogue alone before and cannot now,
-    // because the order puts it directly after another wide frame; set
-    // beside one it becomes a comparison instead of an entrance, which is
-    // the better of the two things a 2.35 can do next to a 16:9.
+    // The extremes of the catalogue in one stanza: 9:16 against 2.35:1, the
+    // tallest frame beside one of the two widest. At three columns and six
+    // they come out 528px and 263px, which is the largest height difference
+    // anywhere in the score and the reason this pair opens the movement.
     items: [
-      { slug: 'special-ops-2', col: 1, span: 6, tCol: 1, tSpan: 3 },
-      { slug: 'broken-reflections', col: 8, span: 5, offset: 18, tCol: 4, tSpan: 3, tOffset: 12 },
+      { slug: 'book-my-yamraj', col: 1, span: 3, tCol: 1, tSpan: 2 },
+      { slug: 'broken-reflections', col: 6, span: 6, offset: 20, tCol: 3, tSpan: 4, tOffset: 14 },
     ],
     pause: 24,
   },
   {
-    // Ira's first appearance at its true proportion. 4:3 against 16:9, the
-    // narrow one held smaller so the two land at nearly the same height —
-    // 303px against 348 at 1440 — which is what makes the width difference
-    // read as width rather than as importance.
+    // 4:3 against 16:9, the narrow one held smaller so the two land at
+    // nearly the same height — 303px against 348 at 1440 — which is what
+    // makes the width difference read as width rather than as importance.
     items: [
       { slug: 'ira', col: 2, span: 4, tCol: 1, tSpan: 3 },
       { slug: 'moholla', col: 7, span: 6, offset: 14, tCol: 4, tSpan: 3, tOffset: 10 },
@@ -111,9 +107,7 @@ export const composition: Stanza[] = [
     pause: 20,
   },
   {
-    // The inversion again, and deliberately not adjacent to the first one:
-    // 16:9 against 9:16 with four stanzas between them, so it reads as a
-    // rhyme rather than as a repeat.
+    // The inversion: 16:9 against 9:16, the same ratio transposed.
     items: [
       { slug: 'my-red-crayon', col: 1, span: 4, tCol: 1, tSpan: 3 },
       { slug: 'bloody-bubbly', col: 7, span: 3, offset: 16, tCol: 4, tSpan: 2, tOffset: 12 },
@@ -131,8 +125,7 @@ export const composition: Stanza[] = [
     pause: 26,
   },
   {
-    // Two uprights at different degrees — 4:5 against 9:16. Unchanged from
-    // the old score; the new order keeps these two adjacent.
+    // Two uprights at different degrees — 4:5 against 9:16.
     items: [
       { slug: 'aladdin-dateable-bites', col: 1, span: 4, tCol: 1, tSpan: 3 },
       { slug: 'dinshaws-dildaari-battles', col: 8, span: 4, offset: 10, tCol: 4, tSpan: 3, tOffset: 8 },
@@ -141,7 +134,6 @@ export const composition: Stanza[] = [
   },
   {
     // Two records, small and square, closing the catalogue quietly.
-    // Unchanged.
     items: [
       { slug: 've-maahi', col: 2, span: 3, tCol: 1, tSpan: 2 },
       { slug: 'mere-ho', col: 6, span: 3, offset: 7, tCol: 3, tSpan: 2, tOffset: 6 },
