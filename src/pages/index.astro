@@ -2489,6 +2489,32 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
        shorter phone will still scroll, which is correct; the point is that
        the card and its reading are one view, not two. */
     :root .rg .mvt.sec--works { padding-block: clamp(52px, 9vh, 96px) clamp(40px, 7vh, 72px); }
+
+    /* ── THE THREE SHORT HEADINGS COME UP A STEP ───────────────────
+       Ugam, 2026-10-04: slightly bigger on mobile, these three only.
+
+       WHY THEY NEEDED IT AND WHAT I WORK ACROSS DID NOT. All four are one
+       size — that is ab-hs1's whole idea — but one size means unequal
+       width, and on a 375px screen the measure is only 327. Measured
+       there before this: WHO I AM filled 51.9 per cent of the measure,
+       HOW I WORK 68.8 and WHAT I'M AFTER 86.1, while WHAT I WORK ACROSS
+       filled 120.9 and ran past both edges as it is meant to. The three
+       short ones were not filling the line; the long one was.
+
+       10.162vw -> 12.2vw, a fifth larger. WHAT I WORK ACROSS is left
+       alone, as asked, so on a phone the four are no longer one size —
+       a deliberate departure from ab-hs1, and the reason it is written
+       here rather than changed at the source.
+
+       <- SPECIFICITY, NOT ORDER. The sizes are set by `:root .rg #r-who`
+          at (1,2,0) some two thousand lines BELOW this block, and a media
+          query adds no weight — an equal-specificity rule here would lose
+          on order, which is the trap that already cost a pass on .fr--over
+          and another on .hvr. Appending .po-giant takes these to (1,3,0),
+          so they win wherever the bundler puts them. */
+    :root .rg #r-who.po-giant,
+    :root .rg #r-how.po-giant,
+    :root .rg #r-close.po-giant { font-size: 12.2vw; }
   }
 
   /* ── TWO IDEAS, ONE PAGE ─────────────────────────────────────────
