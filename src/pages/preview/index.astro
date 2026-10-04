@@ -28,15 +28,41 @@ const pages = Object.keys(import.meta.glob('./*.astro', { eager: false }))
 
 /** slug → [group, title, note]. Anything missing falls back to its filename. */
 const NOTES: Record<string, [string, string, string]> = {
-  /* EMPTIED 2026-10-04, on Ugam's instruction to clear the library. Every
-     entry here keyed a draft that no longer exists, so every one of them was
-     dead the moment the files went. They are not lost — `git show
-     d45bbfe:src/pages/preview/index.astro` has all sixty-three, and the
-     drafts themselves are in the same commit.
+  /* THE LIBRARY WAS EMPTIED 2026-10-04 on Ugam's instruction and has been
+     rebuilt since. The sixty-three entries that used to be here keyed drafts
+     that no longer exist — `git show d45bbfe:src/pages/preview/index.astro`
+     has all of them, and the drafts themselves are in the same commit.
 
      A note is a courtesy, not a requirement: a draft with no entry still
      lists, under a title derived from its filename. */
-};const pretty = (s: string) =>
+
+  /* ── AASHA · STILLS ─────────────────────────────────────────────
+     Eight directions for the stills section of the work page, built
+     2026-10-04. Each one is a different claim about what a sequence of
+     frames IS, not a different arrangement of the same claim, and each
+     carries the Aasha page's own header, statement and lede so it can be
+     judged in context. The production section is untouched. */
+  'ab-st1': ['Aasha · Stills', 'ST1 · The select', 'A contact sheet with one frame promoted — curation made visible. Click or arrow through the eight.'],
+  'ab-st2': ['Aasha · Stills', 'ST2 · The gate', 'One frame, pinned, and the scroll CUTS between them. No dissolve anywhere.'],
+  'ab-st3': ['Aasha · Stills', 'ST3 · The dark', 'No borders. The frames are masked at all four edges so their own blackness joins the page.'],
+  'ab-st4': ['Aasha · Stills', 'ST4 · The reel', 'One continuous full-bleed band, read sideways. The ruler of numbers is also the scrub bar.'],
+  'ab-st5': ['Aasha · Stills', 'ST5 · The pair', 'Four diptychs on a shared seam, numbered I–IV. The unit is the pair, not the frame.'],
+  'ab-st6': ['Aasha · Stills', 'ST6 · The index', 'A catalogue set in type; the plate answers whichever row you are on. Readable with no images.'],
+  'ab-st7': ['Aasha · Stills', 'ST7 · The fall', 'Five widths down one column, with the numerals enormous in the empty gutters. The subject is timing.'],
+  'ab-st8': ['Aasha · Stills', 'ST8 · The aperture', 'A fixed hole; the eight frames slide through it as one strip. The opposite of ST2.'],
+
+  /* ── ABOUT · HEADINGS ───────────────────────────────────────────
+     The four About headings and how far they travel. ab-pn1 is applied to
+     the live site; the other two are its alternatives and ab-live is what
+     the site looked like before it went in. */
+  'ab-hs1': ['About · Headings', 'HS1 · One size', 'All four About headings at 10.162vw, matching WHAT I WORK ACROSS. The starting point for the pan drafts.'],
+  'ab-pn1': ['About · Headings', 'PN1 · Later exit', 'APPLIED LIVE. The three short headings start further right so they hold the screen longer.'],
+  'ab-pn2': ['About · Headings', 'PN2 · Slower', 'The same entry points as PN1 with the travel slowed instead of shortened.'],
+  'ab-pn3': ['About · Headings', 'PN3 · Matched ends', 'Speeds left variable, but all three enter and leave exactly where WHAT I WORK ACROSS does.'],
+  'ab-live': ['About · Headings', 'The site before PN1', 'A snapshot of index.astro taken before PN1 was applied, kept so the change can be read both ways.'],
+};
+
+const pretty = (s: string) =>
   s.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 
 const groups = new Map<string, { slug: string; title: string; note: string }[]>();

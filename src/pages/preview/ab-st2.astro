@@ -1,0 +1,267 @@
+---
+/**
+ * ST2 · THE GATE — one frame at a time, and the scroll cuts.
+ *
+ * THE IDEA: the film gate holds exactly one frame. This section does the same
+ * — a single window, fixed in the viewport, and scrolling does not move it or
+ * fade it. It CUTS. Frame 03 is replaced by 04 in one rendered frame, with no
+ * transition at all, which is the only transition that film actually has.
+ *
+ * WHY THE CUT AND NOT A DISSOLVE: a dissolve is a claim that two images belong
+ * to one continuous thing. A cut is a claim that they are separate and were
+ * put next to each other. The second claim is the true one about a stills
+ * section, and it is also the thing a composer scoring a cut has to answer to.
+ *
+ * WHAT IT COSTS: no two frames are ever visible together, so the set cannot be
+ * compared, only read in order. ST5 is the direct opposite of that choice.
+ *
+ * THE SCROLL IS A JS READ, NOT AN ANIMATION. There is no scroll-timeline here:
+ * it maps a position to an index and toggles a class, so it behaves the same
+ * in a throttled renderer as it does at 120Hz. Reduced motion unpins the whole
+ * thing and prints the eight as a plain column — see the media query.
+ */
+import Base from '../../layouts/Base.astro';
+import OpNav from '../../components/OpNav.astro';
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import { framesFor } from '../../lib/frames';
+import { href } from '../../lib/href';
+
+/* THE REAL WORK AND THE REAL STILLS. Nothing on this page is mocked: the
+   collection is the same one /work/aasha renders from, so the frames, the
+   title, the roles, the statement and the standfirst are the page's own, and
+   the harness around the draft — header, quote, lede, colophon — is the work
+   page's own CSS, condensed. The ONLY variable between ab-st1 and ab-st8 is
+   the section below the "03 · Stills" rule.
+
+   THE PRODUCTION PAGE IS NOT TOUCHED. src/pages/work/[slug].astro is
+   untouched by all eight; these are additive preview routes and
+   `withoutPreview()` keeps them out of the built site. */
+const works = await getCollection('works');
+const work = works.find((w) => w.id === 'aasha')!;
+const d = work.data;
+const images = framesFor('aasha', d.frames);
+const LEDE = (d.description.trim().match(/^[^.!?]+[.!?]/) ?? [d.description.trim()])[0];
+const ROLES = d.role.split('·').map((r) => r.trim());
+const nn = (i: number) => String(i + 1).padStart(2, '0');
+
+const DRAFTS: [string, string, string][] = [
+  ['st1', 'The select', 'Curation made visible'],
+  ['st2', 'The gate', 'One frame; the scroll cuts'],
+  ['st3', 'The dark', 'No borders; the black joins'],
+  ['st4', 'The reel', 'One continuous band'],
+  ['st5', 'The pair', 'Four diptychs'],
+  ['st6', 'The index', 'A catalogue in type'],
+  ['st7', 'The fall', 'Sequencing as rhythm'],
+  ['st8', 'The aperture', 'The film moves behind'],
+];
+const ME = 'st2';
+const MINE = DRAFTS.find(([id]) => id === ME)!;
+
+---
+
+<Base title={`${d.title} · ${MINE[1]} — stills draft ${ME.toUpperCase()}`} description={`A design direction for the stills section of the Aasha project page: ${MINE[2]}.`}>
+  <OpNav variant="bracket" base={href()} />
+
+  <nav class="sw" aria-label="Stills drafts">
+    <span class="sw__id">{ME.toUpperCase()}</span>
+    <span class="sw__nm">{MINE[1]}</span>
+    <span class="sw__su">{MINE[2]}</span>
+    <span class="sw__set">
+      {DRAFTS.map(([id, name, sub]) => (
+        <a class:list={['sw__i', { 'is-here': id === ME }]} href={href(`preview/ab-${id}`)}
+          title={`${name} — ${sub}`} aria-current={id === ME ? 'page' : undefined}>{id.slice(2)}</a>
+      ))}
+    </span>
+  </nav>
+
+  <article class="sc" style={`--ar:${d.ratio.replace(':', ' / ')}`}>
+    <header class="hd">
+      <p class="mono hd__over">{d.category} · {d.year}</p>
+      <h1 class="hd__t">{d.title}</h1>
+      <p class="mono hd__meta"><span class="hd__roles">{ROLES.map((r) => <span>{r}</span>)}</span></p>
+    </header>
+
+    {d.quote && (
+      <section class="q" aria-label="Statement">
+        <p class="q__t">{d.quote}</p>
+      </section>
+    )}
+
+    <section class="blk body" aria-label="About">
+      <p class="body__lede" style={`--n:${LEDE.length}`}>{LEDE}</p>
+    </section>
+
+    <!-- ══ 03 · STILLS — THE DRAFT ═══════════════════════════════════ -->
+    <section class="blk st" aria-label="Stills">
+      <p class="mono st__lbl"><span>03</span><i aria-hidden="true"></i><span>Stills · {MINE[1]}</span></p>
+      <div class="ga" data-ga style={`--n:${images.length}`}>
+        <div class="ga__rail">
+          <div class="ga__stick">
+            <div class="ga__win">
+              {images.map((img, i) => (
+                <span class:list={['ga__f', { 'is-on': i === 0 }]} data-ga-f={i}>
+                  <Image src={img} alt={i === 0 ? d.alt : ''} aria-hidden={i === 0 ? undefined : 'true'}
+                    widths={[720, 1080, 1440]} sizes="(max-width: 820px) 92vw, 640px"
+                    loading={i < 3 ? 'eager' : 'lazy'} decoding="async" />
+                </span>
+              ))}
+            </div>
+            <div class="ga__foot">
+              <p class="mono ga__read"><b data-ga-no>01</b><span>of {nn(images.length - 1)}</span></p>
+              <div class="ga__bar" aria-hidden="true">
+                {images.map((_, i) => <i class:list={['ga__seg', { 'is-on': i === 0 }]} data-ga-seg={i}></i>)}
+              </div>
+            </div>
+            <ol class="visually-hidden">
+              {images.map((_, i) => <li>Frame {nn(i)} of {nn(images.length - 1)}</li>)}
+            </ol>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="cl">
+      <hr class="rule" />
+      <p class="mono cl__p"><span>{MINE[0].toUpperCase()} · {MINE[1]}</span><i aria-hidden="true"></i><span>{d.awards}</span></p>
+    </footer>
+  </article>
+</Base>
+
+<script>
+  /* POSITION -> INDEX. Nothing animates; the only state is which of the eight
+     carries .is-on, so a dropped frame costs a late cut and never a blank. */
+  const ga = document.querySelector<HTMLElement>('[data-ga]');
+  if (ga && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const rail = ga.querySelector<HTMLElement>('.ga__rail')!;
+    const frames = [...ga.querySelectorAll<HTMLElement>('[data-ga-f]')];
+    const segs = [...ga.querySelectorAll<HTMLElement>('[data-ga-seg]')];
+    const no = ga.querySelector<HTMLElement>('[data-ga-no]');
+    const n = frames.length;
+    let at = -1;
+    let queued = false;
+
+    const read = () => {
+      queued = false;
+      const box = rail.getBoundingClientRect();
+      const travel = box.height - innerHeight;
+      const p = travel <= 0 ? 0 : Math.min(1, Math.max(0, -box.top / travel));
+      /* floor(p * n) lands on n exactly at the bottom — clamp it back. */
+      const i = Math.min(n - 1, Math.floor(p * n));
+      if (i === at) return;
+      at = i;
+      frames.forEach((f, k) => f.classList.toggle('is-on', k === i));
+      segs.forEach((s, k) => s.classList.toggle('is-on', k === i));
+      if (no) no.textContent = String(i + 1).padStart(2, '0');
+    };
+
+    const tick = () => { if (!queued) { queued = true; requestAnimationFrame(read); } };
+    addEventListener('scroll', tick, { passive: true });
+    addEventListener('resize', tick);
+    read();
+    /* Expose for measurement — the pane throttles rAF and withholds scroll
+       events from a background tab, so verification calls this directly. */
+    (window as any).gaRead = read;
+  }
+</script>
+
+<style>
+  /* ══ THE HARNESS ═══════════════════════════════════════════════════
+     Deliberately the work page's own type and rhythm, so the only thing
+     being judged below the rule is the stills section. Shared verbatim by
+     all eight drafts. */
+  .sw {
+    position: fixed; inset: 0 0 auto; z-index: 900;
+    display: flex; align-items: baseline; gap: 12px;
+    padding: 9px clamp(16px, 4vw, 40px);
+    background: color-mix(in srgb, var(--ground) 86%, transparent);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--mono); font-size: var(--t-micro);
+    letter-spacing: 0.16em; text-transform: uppercase;
+  }
+  .sw__id { color: var(--accent); }
+  .sw__nm { color: var(--bone); }
+  .sw__su { color: var(--dim); margin-right: auto; }
+  .sw__set { display: flex; gap: 1px; }
+  .sw__i {
+    color: var(--dim); text-decoration: none; padding: 3px 7px;
+    border: 1px solid transparent; font-variant-numeric: tabular-nums;
+  }
+  .sw__i:hover { color: var(--bone); }
+  .sw__i.is-here { color: var(--accent); border-color: var(--rule); }
+  @media (max-width: 720px) { .sw__su { display: none; } .sw__nm { margin-right: auto; } }
+  @media (max-width: 460px) { .sw__nm { display: none; } }
+
+  .sc { padding: clamp(84px, 13vh, 150px) var(--margin) 0; }
+  .hd { text-align: center; margin-bottom: clamp(38px, 6.6vh, 80px); }
+  .hd__over { font-size: var(--t-micro); letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin: 0 0 clamp(16px, 2.6vh, 30px); }
+  .hd__t { margin: 0; font-family: var(--display); font-weight: 500; font-size: clamp(2.6rem, 7vw, 5.6rem); line-height: 0.94; letter-spacing: -0.04em; color: var(--bone); }
+  .hd__meta { margin: clamp(14px, 2.2vh, 26px) 0 0; font-size: var(--t-micro); letter-spacing: 0.18em; text-transform: uppercase; color: var(--bone-dim); }
+  .hd__roles { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 0 14px; }
+  .hd__roles span + span::before { content: '·'; margin-right: 14px; color: var(--dim); }
+  .q { max-width: 34ch; margin: 0 auto clamp(50px, 8vh, 110px); text-align: center; }
+  .q__t { margin: 0; font-family: var(--serif); font-style: italic; font-weight: 300; font-size: clamp(1.25rem, 2.4vw, 1.9rem); line-height: 1.26; letter-spacing: -0.012em; color: var(--bone-dim); }
+  .body { max-width: var(--measure); margin-inline: auto; }
+  .body__lede { margin: 0 auto; max-width: clamp(20ch, calc(var(--n, 90) / 3 * 1ch), 44ch); font-family: var(--display); font-weight: 500; font-size: clamp(1.2rem, min(calc(2.35rem - (var(--n, 90) - 55) * 0.007rem), calc(1.05rem + 2.1vw)), 2.2rem); line-height: 1.12; letter-spacing: -0.025em; color: var(--bone); text-wrap: balance; }
+  .blk { margin: 0 auto clamp(104px, 18vh, 240px); }
+
+  /* The section label matches whatever width the draft chose for itself. */
+  .st { --w: var(--measure); }
+  .st__lbl {
+    display: flex; align-items: center; gap: 12px;
+    width: var(--w); margin: 0 auto clamp(24px, 4vh, 50px);
+    font-size: var(--t-micro); letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted);
+  }
+  .st__lbl i { flex: 1; height: 1px; background: var(--rule); }
+
+  .cl { max-width: var(--measure); margin: 0 auto; padding-bottom: clamp(48px, 9vh, 110px); }
+  .rule { border: 0; border-top: 1px solid var(--rule); margin: 0 0 16px; }
+  .cl__p {
+    display: flex; align-items: baseline; gap: 14px; margin: 0;
+    font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim);
+  }
+  .cl__p i { flex: 1; height: 1px; background: var(--rule); transform: translateY(-3px); }
+  .cl__p span:last-child { text-align: right; }
+  @media (max-width: 620px) { .cl__p { flex-direction: column; gap: 6px; } .cl__p i { display: none; } .cl__p span:last-child { text-align: left; } }
+
+  /* ── ST2 · THE GATE ────────────────────────────────────────── */
+  .st { --w: min(calc(100vw - 2 * var(--margin)), 640px); }
+  .ga { --step: 64vh; }
+  /* One viewport to hold the gate, plus one step of travel per cut. */
+  .ga__rail { height: calc(100vh + (var(--n) - 1) * var(--step)); }
+  .ga__stick {
+    position: sticky; top: 0; height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: clamp(14px, 2.2vh, 24px);
+  }
+
+  .ga__win {
+    position: relative; width: var(--w); aspect-ratio: var(--ar);
+    background: var(--ground-lift); overflow: hidden;
+  }
+  /* NO TRANSITION, and that is the design. */
+  .ga__f { position: absolute; inset: 0; opacity: 0; }
+  .ga__f.is-on { opacity: 1; }
+  .ga__f img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .ga__foot { width: var(--w); display: flex; align-items: center; gap: 16px; }
+  .ga__read {
+    margin: 0; display: flex; align-items: baseline; gap: 7px;
+    font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim);
+  }
+  .ga__read b { font-weight: 400; color: var(--bone); font-variant-numeric: tabular-nums; }
+  .ga__bar { flex: 1; display: flex; gap: 3px; }
+  .ga__seg { flex: 1; height: 1px; background: var(--rule); }
+  .ga__seg.is-on { background: var(--accent); }
+
+  /* The gate cannot pin without a scroll, so without one it is a column. */
+  @media (prefers-reduced-motion: reduce) {
+    .ga__rail { height: auto; }
+    .ga__stick { position: static; height: auto; display: block; }
+    .ga__win { aspect-ratio: auto; height: auto; margin-bottom: 18px; }
+    .ga__f { position: static; opacity: 1; display: block; margin-bottom: 10px; }
+    .ga__f img { aspect-ratio: var(--ar); }
+    .ga__foot { display: none; }
+  }
+</style>

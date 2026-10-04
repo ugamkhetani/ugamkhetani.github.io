@@ -1,0 +1,340 @@
+---
+/**
+ * ST4 · THE REEL — one continuous band, read left to right.
+ *
+ * THE IDEA: the eight frames are not eight pictures, they are one strip. So
+ * they are laid edge to edge with no gaps at all — only a hairline between
+ * them, the way a contact strip has a line and not a margin — and the band
+ * breaks out of the page's measure to the full viewport width, because a reel
+ * does not fit on a page and should not pretend to.
+ *
+ * THE RULER IS THE CONTROL, not decoration. The eight numbers above the band
+ * are a scrub bar: the one in view is lit, and clicking any of them runs the
+ * band to that frame. So the furniture that tells you where you are is the
+ * same furniture that moves you, which is the one idea here that none of the
+ * other seven use.
+ *
+ * WHY IT SUITS THIS WORK: this is the only direction that puts the set in a
+ * fixed order and refuses to let you leave it. 01 to 08 reads as a pass
+ * through the film rather than a selection from it.
+ *
+ * WHAT IT COSTS: horizontal reading is native on a trackpad and a phone and
+ * awkward with a mouse wheel, which is why there is pointer-drag and why the
+ * ruler is clickable. It also means the frames are never large.
+ */
+import Base from '../../layouts/Base.astro';
+import OpNav from '../../components/OpNav.astro';
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import { framesFor } from '../../lib/frames';
+import { href } from '../../lib/href';
+
+/* THE REAL WORK AND THE REAL STILLS. Nothing on this page is mocked: the
+   collection is the same one /work/aasha renders from, so the frames, the
+   title, the roles, the statement and the standfirst are the page's own, and
+   the harness around the draft — header, quote, lede, colophon — is the work
+   page's own CSS, condensed. The ONLY variable between ab-st1 and ab-st8 is
+   the section below the "03 · Stills" rule.
+
+   THE PRODUCTION PAGE IS NOT TOUCHED. src/pages/work/[slug].astro is
+   untouched by all eight; these are additive preview routes and
+   `withoutPreview()` keeps them out of the built site. */
+const works = await getCollection('works');
+const work = works.find((w) => w.id === 'aasha')!;
+const d = work.data;
+const images = framesFor('aasha', d.frames);
+const LEDE = (d.description.trim().match(/^[^.!?]+[.!?]/) ?? [d.description.trim()])[0];
+const ROLES = d.role.split('·').map((r) => r.trim());
+const nn = (i: number) => String(i + 1).padStart(2, '0');
+
+const DRAFTS: [string, string, string][] = [
+  ['st1', 'The select', 'Curation made visible'],
+  ['st2', 'The gate', 'One frame; the scroll cuts'],
+  ['st3', 'The dark', 'No borders; the black joins'],
+  ['st4', 'The reel', 'One continuous band'],
+  ['st5', 'The pair', 'Four diptychs'],
+  ['st6', 'The index', 'A catalogue in type'],
+  ['st7', 'The fall', 'Sequencing as rhythm'],
+  ['st8', 'The aperture', 'The film moves behind'],
+];
+const ME = 'st4';
+const MINE = DRAFTS.find(([id]) => id === ME)!;
+
+---
+
+<Base title={`${d.title} · ${MINE[1]} — stills draft ${ME.toUpperCase()}`} description={`A design direction for the stills section of the Aasha project page: ${MINE[2]}.`}>
+  <OpNav variant="bracket" base={href()} />
+
+  <nav class="sw" aria-label="Stills drafts">
+    <span class="sw__id">{ME.toUpperCase()}</span>
+    <span class="sw__nm">{MINE[1]}</span>
+    <span class="sw__su">{MINE[2]}</span>
+    <span class="sw__set">
+      {DRAFTS.map(([id, name, sub]) => (
+        <a class:list={['sw__i', { 'is-here': id === ME }]} href={href(`preview/ab-${id}`)}
+          title={`${name} — ${sub}`} aria-current={id === ME ? 'page' : undefined}>{id.slice(2)}</a>
+      ))}
+    </span>
+  </nav>
+
+  <article class="sc" style={`--ar:${d.ratio.replace(':', ' / ')}`}>
+    <header class="hd">
+      <p class="mono hd__over">{d.category} · {d.year}</p>
+      <h1 class="hd__t">{d.title}</h1>
+      <p class="mono hd__meta"><span class="hd__roles">{ROLES.map((r) => <span>{r}</span>)}</span></p>
+    </header>
+
+    {d.quote && (
+      <section class="q" aria-label="Statement">
+        <p class="q__t">{d.quote}</p>
+      </section>
+    )}
+
+    <section class="blk body" aria-label="About">
+      <p class="body__lede" style={`--n:${LEDE.length}`}>{LEDE}</p>
+    </section>
+
+    <!-- ══ 03 · STILLS — THE DRAFT ═══════════════════════════════════ -->
+    <section class="blk st" aria-label="Stills">
+      <p class="mono st__lbl"><span>03</span><i aria-hidden="true"></i><span>Stills · {MINE[1]}</span></p>
+      <div class="re" data-re>
+        <div class="re__ruler" role="group" aria-label="Go to frame">
+          {images.map((_, i) => (
+            <button class:list={['re__tk', { 'is-on': i === 0 }]} type="button"
+              data-re-tk={i} aria-label={`Frame ${nn(i)}`}>
+              <i aria-hidden="true"></i><b class="mono">{nn(i)}</b>
+            </button>
+          ))}
+        </div>
+
+        <div class="re__band" data-re-band tabindex="0" role="group"
+          aria-label={`${images.length} stills, arranged as a strip — scroll or drag sideways`}>
+          {images.map((img, i) => (
+            <figure class="re__f" data-re-f={i}>
+              <Image src={img} alt={i === 0 ? d.alt : ''} aria-hidden={i === 0 ? undefined : 'true'}
+                widths={[560, 900, 1300]} sizes="(max-width: 760px) 86vw, 52vh"
+                loading={i < 4 ? 'eager' : 'lazy'} decoding="async" />
+            </figure>
+          ))}
+        </div>
+
+        <p class="mono re__hint">
+          <b data-re-no>01</b><span>/ {nn(images.length - 1)}</span>
+          <i aria-hidden="true"></i>
+          <span>Scroll, drag or pick a number</span>
+        </p>
+      </div>
+    </section>
+
+    <footer class="cl">
+      <hr class="rule" />
+      <p class="mono cl__p"><span>{MINE[0].toUpperCase()} · {MINE[1]}</span><i aria-hidden="true"></i><span>{d.awards}</span></p>
+    </footer>
+  </article>
+</Base>
+
+<script>
+  /* THE RULER AND THE BAND ARE ONE CONTROL. */
+  const re = document.querySelector<HTMLElement>('[data-re]');
+  if (re) {
+    const band = re.querySelector<HTMLElement>('[data-re-band]')!;
+    const figs = [...re.querySelectorAll<HTMLElement>('[data-re-f]')];
+    const ticks = [...re.querySelectorAll<HTMLButtonElement>('[data-re-tk]')];
+    const no = re.querySelector<HTMLElement>('[data-re-no]');
+    let at = -1, queued = false;
+
+    /* NEAREST CENTRE BY LAYOUT, NOT BY OBSERVER. An IntersectionObserver
+       keyed on a zero-width root is degenerate and an rootMargin trick
+       misses on variable widths; offsetLeft is exact and cheap. */
+    const nearest = () => {
+      const mid = band.scrollLeft + band.clientWidth / 2;
+      let best = 0, bd = Infinity;
+      figs.forEach((f, i) => {
+        const dist = Math.abs(f.offsetLeft + f.offsetWidth / 2 - mid);
+        if (dist < bd) { bd = dist; best = i; }
+      });
+      return best;
+    };
+
+    const read = () => {
+      queued = false;
+      const i = nearest();
+      if (i === at) return;
+      at = i;
+      ticks.forEach((t, k) => t.classList.toggle('is-on', k === i));
+      if (no) no.textContent = String(i + 1).padStart(2, '0');
+    };
+    const tick = () => { if (!queued) { queued = true; requestAnimationFrame(read); } };
+
+    band.addEventListener('scroll', tick, { passive: true });
+    addEventListener('resize', tick);
+
+    const goTo = (i: number, smooth = true) => {
+      const f = figs[Math.max(0, Math.min(figs.length - 1, i))];
+      if (!f) return;
+      const left = f.offsetLeft + f.offsetWidth / 2 - band.clientWidth / 2;
+      band.scrollTo({ left, behavior: smooth && !matchMedia('(prefers-reduced-motion: reduce)').matches ? 'smooth' : 'auto' });
+    };
+    ticks.forEach((t, i) => t.addEventListener('click', () => goTo(i)));
+
+    band.addEventListener('keydown', (e) => {
+      const k = (e as KeyboardEvent).key;
+      if (k === 'ArrowRight') { e.preventDefault(); goTo(at + 1); }
+      else if (k === 'ArrowLeft') { e.preventDefault(); goTo(at - 1); }
+      else if (k === 'Home') { e.preventDefault(); goTo(0); }
+      else if (k === 'End') { e.preventDefault(); goTo(figs.length - 1); }
+    });
+
+    /* Drag to pan, so a mouse is not stuck. Pointer capture means the drag
+       survives leaving the band. */
+    let px = 0, sx = 0, held = false;
+    band.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'touch') return;
+      held = true; px = e.clientX; sx = band.scrollLeft;
+      band.classList.add('is-held'); band.setPointerCapture(e.pointerId);
+    });
+    band.addEventListener('pointermove', (e) => {
+      if (!held) return;
+      e.preventDefault();
+      band.scrollLeft = sx - (e.clientX - px);
+    });
+    const drop = (e: PointerEvent) => {
+      if (!held) return;
+      held = false; band.classList.remove('is-held');
+      try { band.releasePointerCapture(e.pointerId); } catch {}
+      goTo(nearest());
+    };
+    band.addEventListener('pointerup', drop);
+    band.addEventListener('pointercancel', drop);
+    /* A click that was really a drag must not count as picking a frame. */
+    band.addEventListener('click', (e) => { if (Math.abs(band.scrollLeft - sx) > 4) e.preventDefault(); });
+
+    read();
+    addEventListener('load', read);
+    document.fonts?.ready.then(read);
+    (window as any).reRead = read;
+    (window as any).reGoTo = goTo;
+  }
+</script>
+
+<style>
+  /* ══ THE HARNESS ═══════════════════════════════════════════════════
+     Deliberately the work page's own type and rhythm, so the only thing
+     being judged below the rule is the stills section. Shared verbatim by
+     all eight drafts. */
+  .sw {
+    position: fixed; inset: 0 0 auto; z-index: 900;
+    display: flex; align-items: baseline; gap: 12px;
+    padding: 9px clamp(16px, 4vw, 40px);
+    background: color-mix(in srgb, var(--ground) 86%, transparent);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--mono); font-size: var(--t-micro);
+    letter-spacing: 0.16em; text-transform: uppercase;
+  }
+  .sw__id { color: var(--accent); }
+  .sw__nm { color: var(--bone); }
+  .sw__su { color: var(--dim); margin-right: auto; }
+  .sw__set { display: flex; gap: 1px; }
+  .sw__i {
+    color: var(--dim); text-decoration: none; padding: 3px 7px;
+    border: 1px solid transparent; font-variant-numeric: tabular-nums;
+  }
+  .sw__i:hover { color: var(--bone); }
+  .sw__i.is-here { color: var(--accent); border-color: var(--rule); }
+  @media (max-width: 720px) { .sw__su { display: none; } .sw__nm { margin-right: auto; } }
+  @media (max-width: 460px) { .sw__nm { display: none; } }
+
+  .sc { padding: clamp(84px, 13vh, 150px) var(--margin) 0; }
+  .hd { text-align: center; margin-bottom: clamp(38px, 6.6vh, 80px); }
+  .hd__over { font-size: var(--t-micro); letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin: 0 0 clamp(16px, 2.6vh, 30px); }
+  .hd__t { margin: 0; font-family: var(--display); font-weight: 500; font-size: clamp(2.6rem, 7vw, 5.6rem); line-height: 0.94; letter-spacing: -0.04em; color: var(--bone); }
+  .hd__meta { margin: clamp(14px, 2.2vh, 26px) 0 0; font-size: var(--t-micro); letter-spacing: 0.18em; text-transform: uppercase; color: var(--bone-dim); }
+  .hd__roles { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 0 14px; }
+  .hd__roles span + span::before { content: '·'; margin-right: 14px; color: var(--dim); }
+  .q { max-width: 34ch; margin: 0 auto clamp(50px, 8vh, 110px); text-align: center; }
+  .q__t { margin: 0; font-family: var(--serif); font-style: italic; font-weight: 300; font-size: clamp(1.25rem, 2.4vw, 1.9rem); line-height: 1.26; letter-spacing: -0.012em; color: var(--bone-dim); }
+  .body { max-width: var(--measure); margin-inline: auto; }
+  .body__lede { margin: 0 auto; max-width: clamp(20ch, calc(var(--n, 90) / 3 * 1ch), 44ch); font-family: var(--display); font-weight: 500; font-size: clamp(1.2rem, min(calc(2.35rem - (var(--n, 90) - 55) * 0.007rem), calc(1.05rem + 2.1vw)), 2.2rem); line-height: 1.12; letter-spacing: -0.025em; color: var(--bone); text-wrap: balance; }
+  .blk { margin: 0 auto clamp(104px, 18vh, 240px); }
+
+  /* The section label matches whatever width the draft chose for itself. */
+  .st { --w: var(--measure); }
+  .st__lbl {
+    display: flex; align-items: center; gap: 12px;
+    width: var(--w); margin: 0 auto clamp(24px, 4vh, 50px);
+    font-size: var(--t-micro); letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted);
+  }
+  .st__lbl i { flex: 1; height: 1px; background: var(--rule); }
+
+  .cl { max-width: var(--measure); margin: 0 auto; padding-bottom: clamp(48px, 9vh, 110px); }
+  .rule { border: 0; border-top: 1px solid var(--rule); margin: 0 0 16px; }
+  .cl__p {
+    display: flex; align-items: baseline; gap: 14px; margin: 0;
+    font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim);
+  }
+  .cl__p i { flex: 1; height: 1px; background: var(--rule); transform: translateY(-3px); }
+  .cl__p span:last-child { text-align: right; }
+  @media (max-width: 620px) { .cl__p { flex-direction: column; gap: 6px; } .cl__p i { display: none; } .cl__p span:last-child { text-align: left; } }
+
+  /* ── ST4 · THE REEL ────────────────────────────────────────── */
+  .st { --w: 100vw; }
+  /* OUT OF THE MEASURE AND OUT OF .sc'S PADDING. */
+  .re { width: 100vw; margin-left: calc(var(--margin) * -1); }
+  .st__lbl { max-width: calc(100vw - 2 * var(--margin)); }
+
+  .re__ruler {
+    display: grid; grid-template-columns: repeat(8, minmax(0, 1fr));
+    margin: 0 0 10px; padding: 0 var(--margin);
+  }
+  .re__tk {
+    display: flex; flex-direction: column; gap: 5px; align-items: flex-start;
+    padding: 0; border: 0; background: none; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .re__tk i { display: block; width: 100%; height: 1px; background: var(--rule); }
+  .re__tk b {
+    font-weight: 400; font-size: var(--t-micro); letter-spacing: 0.16em;
+    color: var(--dim); font-variant-numeric: tabular-nums;
+  }
+  .re__tk:hover b { color: var(--bone-dim); }
+  .re__tk:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
+  .re__tk.is-on i { background: var(--accent); height: 2px; }
+  .re__tk.is-on b { color: var(--bone); }
+
+  .re__band {
+    display: flex; height: clamp(230px, 52vh, 560px);
+    overflow-x: auto; overflow-y: hidden;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none; -ms-overflow-style: none;
+    /* The first and last frame can reach the middle of the viewport. */
+    padding-inline: calc(50vw - 26vh);
+    cursor: grab;
+  }
+  .re__band::-webkit-scrollbar { display: none; }
+  .re__band.is-held { cursor: grabbing; scroll-snap-type: none; }
+  .re__band:focus-visible { outline: 1px solid var(--accent); outline-offset: -1px; }
+
+  .re__f {
+    flex: 0 0 auto; margin: 0; height: 100%; aspect-ratio: var(--ar);
+    background: var(--ground-lift); scroll-snap-align: center;
+    position: relative;
+  }
+  /* A line, not a gap: the strip stays continuous. */
+  .re__f + .re__f { border-left: 1px solid rgba(255, 255, 255, 0.16); }
+  .re__f img { width: 100%; height: 100%; object-fit: cover; display: block; -webkit-user-drag: none; user-select: none; }
+
+  .re__hint {
+    display: flex; align-items: baseline; gap: 8px;
+    margin: 12px 0 0; padding: 0 var(--margin);
+    font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim);
+  }
+  .re__hint b { font-weight: 400; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .re__hint i { flex: 1; height: 1px; background: var(--rule); transform: translateY(-3px); }
+
+  @media (max-width: 760px) {
+    .re__band { height: clamp(200px, 40vh, 340px); padding-inline: 7vw; }
+    .re__ruler { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+    .re__tk b { letter-spacing: 0.04em; }
+  }
+</style>
