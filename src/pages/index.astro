@@ -2431,9 +2431,24 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
       left: auto; right: auto; bottom: auto;
       padding-inline: var(--margin); padding-left: var(--margin);
       margin-top: 2px;
+      /* THE COLUMNS TAKE THEIR CONTENT'S WIDTH AND THE PAIR IS CENTRED,
+         rather than two halves of the measure with the text left-aligned
+         inside them. At 1fr each, the block spanned 24..351 but the INK
+         only reached 24..261.9 — column two's content started at its own
+         left edge and left 89px of empty column after it, so the reading
+         centred on x 143 while the caption above it centred on 187.5.
+         Measured: 44.5px to the left, which is what reads as "off to one
+         side" when everything above it is centred.
+
+         max-content keeps the labels aligned down two edges — the thing
+         that makes this read as a colophon rather than four loose pairs —
+         while justify-content centres the block as a unit. minmax(0, ...)
+         rather than bare max-content so a long value shrinks instead of
+         pushing the block past the margin. */
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      column-gap: clamp(16px, 5vw, 28px); row-gap: 10px;
+      grid-template-columns: repeat(2, minmax(0, max-content));
+      justify-content: center;
+      column-gap: clamp(20px, 7vw, 40px); row-gap: 10px;
       align-content: start;
       opacity: 1; visibility: visible;
       transition: none;
