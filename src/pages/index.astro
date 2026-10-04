@@ -2636,7 +2636,23 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
 
   @media (max-width: 900px) {
     .ms__bed { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    .cn { position: static; display: inline-block; margin: 0 10px 10px 0; }
+    /* ── THE FOUR CORNERS STAY CORNERS ─────────────────────────────
+       They were `position: static; display: inline-block` here, which
+       dropped all four out of the frame and stacked them as a four-row
+       run above the name — each keeping its own alignment, so the column
+       alternated left, right, left, right. Measured at 375: four full-
+       width blocks at y 65, 106, 147 and 188, with the mast pushed down
+       to 229. It read as a list of labels rather than as a frame.
+
+       Absolute again, which is the desktop placement: 00/OPENING and the
+       place at the top two corners, the range and SELECTED WORKS at the
+       bottom two, with the name and statement between them. The frame is
+       the point of the opening and a phone is wide enough for it — the
+       widest pair is the bottom two at about 190px of a 327px measure,
+       so the two columns never meet.
+
+       <- THE TYPE IS NOT CHANGED. Same 10px, same 0.16em, same shadow
+          over the bed. Only the placement comes back. */
     .fr { padding-inline: 0; }
     .s__body { columns: 1; }
     .s__cols { grid-template-columns: 1fr; }
