@@ -45,6 +45,9 @@ const images = framesFor('aasha', d.frames);
 const LEDE = (d.description.trim().match(/^[^.!?]+[.!?]/) ?? [d.description.trim()])[0];
 const ROLES = d.role.split('·').map((r) => r.trim());
 const nn = (i: number) => String(i + 1).padStart(2, '0');
+/* `awards` is {text, star?}[], not a string — interpolating the array
+   itself renders "[object Object]" in the colophon. */
+const AWARDS = (d.awards ?? []).map((a: { text: string }) => a.text).join(' · ');
 
 const DRAFTS: [string, string, string][] = [
   ['st1', 'The select', 'Curation made visible'],
@@ -139,7 +142,7 @@ const DESCR = [
 
     <footer class="cl">
       <hr class="rule" />
-      <p class="mono cl__p"><span>{MINE[0].toUpperCase()} · {MINE[1]}</span><i aria-hidden="true"></i><span>{d.awards}</span></p>
+      <p class="mono cl__p"><span>{MINE[0].toUpperCase()} · {MINE[1]}</span><i aria-hidden="true"></i><span>{AWARDS}</span></p>
     </footer>
   </article>
 </Base>

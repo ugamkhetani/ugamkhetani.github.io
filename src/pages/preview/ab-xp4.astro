@@ -50,6 +50,9 @@ const images = framesFor('aasha', d.frames);
 const LEDE = (d.description.trim().match(/^[^.!?]+[.!?]/) ?? [d.description.trim()])[0];
 const ROLES = d.role.split('·').map((r) => r.trim());
 const nn = (i: number) => String(i + 1).padStart(2, '0');
+/* `awards` is {text, star?}[], not a string — interpolating the array
+   itself renders "[object Object]" in the colophon. */
+const AWARDS = (d.awards ?? []).map((a: { text: string }) => a.text).join(' · ');
 
 /* Optimised URLs for the drafts that need the frame inside a CSS property —
    a mask, a background, a band — where <Image> cannot reach. Astro emits
@@ -164,7 +167,7 @@ const SPAN = { w: 330, h: 230 };
 
     <footer class="cl">
       <hr class="rule" />
-      <p class="mono cl__p"><span>{MINE[0].toUpperCase()} · {MINE[1]}</span><i aria-hidden="true"></i><span>{d.awards}</span></p>
+      <p class="mono cl__p"><span>{MINE[0].toUpperCase()} · {MINE[1]}</span><i aria-hidden="true"></i><span>{AWARDS}</span></p>
     </footer>
   </article>
 </Base>
@@ -398,7 +401,9 @@ const SPAN = { w: 330, h: 230 };
     left: calc(var(--x) * var(--u)); top: calc(var(--y) * var(--u));
     width: calc(var(--fwid) * var(--u));
   }
-  .fl__f img { display: block; width: 100%; aspect-ratio: var(--ar); object-fit: cover; }
+  /* height:auto — see the note in XP2; Astro's intrinsic height attribute
+     otherwise defeats aspect-ratio. */
+  .fl__f img { display: block; width: 100%; height: auto; aspect-ratio: var(--ar); object-fit: cover; }
   .fl__f figcaption {
     margin-top: 6px; font-size: var(--t-micro); letter-spacing: 0.18em;
     color: color-mix(in srgb, var(--dim) 64%, var(--ground)); font-variant-numeric: tabular-nums;
