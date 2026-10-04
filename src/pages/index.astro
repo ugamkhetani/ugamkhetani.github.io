@@ -3487,6 +3487,15 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
      .fr__t in Selected works is, and resized so the composition does not
      move.
 
+     <- HALF OF THIS NOTE IS HISTORY AS OF 2026-10-04. The case and the
+        tracking below are still in force and still the reason these are
+        capitals. THE SIZES ARE NOT: ab-pn1 put all four on one type size,
+        so the width-solving described next — and WHO I AM's correction,
+        which is the subtlest decision on the page — no longer applies to
+        anything. It is kept because it is the argument the next person
+        will need if the ragged right edge turns out to be wrong, and
+        because /preview/ab-live still renders exactly what it describes.
+
      THE RESIZE IS NOT COSMETIC. Measured before, the four render 1350.3,
      1349.9, 1356.3 and 1310.8px of ink at 1280 — one common width of about
      1.06 viewports, solved four times for four word-lengths, which is the
@@ -3517,10 +3526,11 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
      other, caps having flatter sidebearings and nothing between them to
      hold the gap open. The sizes below are solved WITH -0.045em.
 
-     THE PAN IS UNTOUCHED. po-pan is on .po-pan, the span inside each h2;
-     this sets font-size, text-transform and letter-spacing on the h2. Its
-     keyframes are in vw, 6 to -18, so it is independent of type size and
-     travels exactly as far, at exactly the same rate, as before.
+     THE PAN WAS UNTOUCHED BY ab-uc1 — po-pan is on .po-pan, the span
+     inside each h2, while this sets font-size, text-transform and
+     letter-spacing on the h2 — AND IT IS NOT UNTOUCHED ANY MORE. ab-pn1
+     overrides its keyframes further down. The rate is still independent of
+     type size and still identical across the four; only the start moves.
 
      Set as font-size rather than --gs, because --gs is written inline on
      each h2 and an inline custom property beats a stylesheet one. */
@@ -3528,11 +3538,70 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     text-transform: uppercase;
     letter-spacing: -0.045em;
   }
-  /* Solved for the common width this would be 23.673vw; see above. */
-  :root .rg #r-who    { font-size: 21.800vw; }
+  /* ── ONE SIZE, NOT ONE WIDTH ────────────────────────────────────
+     Applied 2026-10-04 from /preview/ab-pn1, on Ugam's instruction. The
+     four take WHAT I WORK ACROSS's size, and the width equation above is
+     no longer being solved — so 21.800, 17.950 and 13.853 go rather than
+     being scaled. They were solutions; there is nothing left to solve.
+
+     WHAT IT TRADES. Every letter on all four lines is now the same size,
+     which the common-width system could never give — eight characters and
+     eighteen held to one width put one at 303px of type and the other at
+     130. What goes is the shared right edge: the four ran 1243.4, 1349.9,
+     1356.3 and 1310.7px of ink, a spread of 113px, and now run 579.6,
+     1349.9, 767.8 and 961.5, a spread of 770. The edge becomes a rag.
+
+     THE PAGE BEFORE THIS IS AT /preview/ab-live, byte for byte. */
+  :root .rg #r-who    { font-size: 10.162vw; }
   :root .rg #r-across { font-size: 10.162vw; }
-  :root .rg #r-how    { font-size: 17.950vw; }
-  :root .rg #r-close  { font-size: 13.853vw; }
+  :root .rg #r-how    { font-size: 10.162vw; }
+  :root .rg #r-close  { font-size: 10.162vw; }
+
+  /* ── AND THE PAN STARTS FURTHER RIGHT ON THE THREE SHORT ONES ───
+     Applied with the sizes above and inseparable from them. Every h2 sits
+     at the margin, so every heading's ink begins at x 76.8 untransformed,
+     and the pan was the same +6vw to -18vw for all four — which means
+     every heading's ink ended at x -153.6 whatever it said. A constant
+     153.6px loss is a near-constant PROPORTION only while the widths are
+     near-constant, which is exactly what the sizes above stopped being:
+
+       WHO I AM             579.6px of ink   lost 153.6   26.5 per cent
+       HOW I WORK           767.8            lost 153.6   20.0
+       WHAT I'M AFTER       961.5            lost 153.6   16.0
+       WHAT I WORK ACROSS  1349.9            lost 153.6   11.4
+
+     Each start is now solved so all four end having lost 11.4 per cent —
+     the long heading's own figure, the one that reads right. The travel
+     stays 24vw on all four, so only the start moves and the RATE is
+     untouched; changing the distance would have changed the speed, and the
+     speed was not what was wrong.
+
+     <- EXACT TO ABOUT 1467px, THEN DRIFTING SLIGHTLY. The margin is
+        clamp(24px, 6vw, 88px) and 6vw passes 88px at 1466.7px of viewport;
+        above that the margin stops growing while the travel keeps scaling.
+        Measured, the spread between the four goes 0.0 points at 1280, 0.6
+        at 1600, 1.8 at 1920 — against the 15.1 it replaces.
+
+     <- GUARDED BY THE SAME @supports AND @media AS .po-pan ITSELF, and it
+        has to be. .po-pan only gets `animation` inside both; setting
+        animation-name outside them would hand a scroll-driven animation to
+        a browser with no timeline for it, and it would run on the document
+        timeline instead — panning the headings on load, unscrolled.
+
+     /preview/ab-pn2 and ab-pn3 are the two this was chosen over. */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      :root .rg .po-pan { animation-name: pn-pan; }
+      :root .rg #r-who   .po-pan { --pan-a:  12.848vw; --pan-b: -11.152vw; }
+      :root .rg #r-how   .po-pan { --pan-a:  11.175vw; --pan-b: -12.825vw; }
+      :root .rg #r-close .po-pan { --pan-a:   9.453vw; --pan-b: -14.547vw; }
+      /* WHAT I WORK ACROSS keeps 6vw / -18vw, which the fallbacks give it. */
+    }
+  }
+  @keyframes pn-pan {
+    from { transform: translateX(var(--pan-a, 6vw)); }
+    to   { transform: translateX(var(--pan-b, -18vw)); }
+  }
 
   /* ══ THE MONO TEXT, IN THE PAGE'S OWN FACE — FROM ab-hn1 ══════════════
      Applied 2026-09-21. Every string that was rendering in JetBrains Mono
