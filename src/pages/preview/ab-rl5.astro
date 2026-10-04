@@ -1,0 +1,429 @@
+---
+/**
+ * RL5 · THE WIND — a reel is a spiral, and this one fills as you scroll.
+ *
+ * THE IDEA: every other reading of the reel in these drafts has been linear —
+ * a strip, a band, a run through a gate. But film is only ever a line while it
+ * is being projected. For the rest of its life it is a SPIRAL, wound on a
+ * core, and the whole film occupies one disc. This section is that disc: the
+ * frames arrive along a tangent and wind on, and the coil grows under them
+ * until the entire film is a single object you could pick up.
+ *
+ * WHAT ACCUMULATION BUYS THAT TRAVEL DOES NOT. ab-rl1 paid film out and the
+ * frames left; nothing was left at the end but an empty curve. Winding is the
+ * opposite gesture: nothing is spent, the thing grows, and the last state is
+ * the most complete one. For a set of eight stills that is the better ending —
+ * you finish holding the whole film rather than having watched it go past.
+ *
+ * THE GEOMETRY IS THE ARGUMENT. The first frame to arrive ends up nearest the
+ * core and the last one lies outermost, which is physically what a wind does
+ * and also means the sequence is readable as a radius: how deep in the roll a
+ * frame sits IS how early it is. Nothing has to be numbered for that to be
+ * legible, though the numbers are there.
+ *
+ * IT SHARES ONE TECHNIQUE WITH ab-rl1 AND NOTHING ELSE. Both thread the
+ * frames onto a single path with offset-path and offset-rotate, because that
+ * is the honest way to put something ON a curve rather than near it. The path
+ * here is generated — a tangent into an Archimedean spiral, built in script
+ * because no hand-written d attribute is going to be a true spiral — and the
+ * motion, the geometry and the gesture are not the same at all.
+ *
+ * HOVER LIFTS A FRAME OUT OF THE WIND, perpendicular to the strip, the way
+ * you would thumb up one wrap to read it. Its measured luminance comes with it.
+ */
+import Base from '../../layouts/Base.astro';
+import OpNav from '../../components/OpNav.astro';
+import { Image, getImage } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import { framesFor } from '../../lib/frames';
+import { href } from '../../lib/href';
+
+/* THE REAL WORK AND THE REAL STILLS, and the work page's own harness around
+   them, so the only variable between ab-sq1 and ab-sq8 is the section below
+   the "03 · Stills" rule.
+
+   NOTHING ON THESE PAGES IS CLICKABLE. Scroll and hover only: no buttons, no
+   controls, no navigation, nothing draggable. Every state is either a
+   function of scroll position or a CSS :hover. If you find a cursor:pointer
+   in here it is a mistake.
+
+   AND NOTHING HERE IS INVENTED FILM PRODUCTION DATA. These four take the reel
+   as their system, which makes it tempting to print key numbers, footage
+   counts and lab marks that would look right and mean nothing. Every figure
+   on these pages is either a property of the page itself — how far the film
+   has paid out, which frame is in the gate, how much slack is in the loop —
+   or a luminance measured off the actual files. There is no fake edge print.
+
+   THE PRODUCTION PAGE IS NOT TOUCHED — src/pages/work/[slug].astro is
+   untouched by all eight, and `withoutPreview()` keeps these out of the
+   built site. */
+const works = await getCollection('works');
+const work = works.find((w) => w.id === 'aasha')!;
+const d = work.data;
+const images = framesFor('aasha', d.frames);
+const LEDE = (d.description.trim().match(/^[^.!?]+[.!?]/) ?? [d.description.trim()])[0];
+const ROLES = d.role.split('·').map((r) => r.trim());
+const nn = (i: number) => String(i + 1).padStart(2, '0');
+/* `awards` is {text, star?}[], not a string. */
+const AWARDS = (d.awards ?? []).map((a: { text: string }) => a.text).join(' · ');
+
+/* Optimised URLs for the drafts that need a frame inside a CSS property — a
+   background, a band, a blended layer — where <Image> cannot reach. */
+const WEB = await Promise.all(
+  images.map((src) => getImage({ src, width: 1400, format: 'webp', quality: 80 })),
+);
+
+/* MEASURED FROM THE FILES, NOT ASSERTED. Mean luminance of each frame, read
+   off a 128x96 canvas by ab-xp1 and reproduced independently by ab-xp7 — the
+   two agree to three decimals. Several drafts in this round art-direct from
+   it (which frame is big, which is held longest, what order the composite
+   resolves in), so it is recorded here rather than re-derived at runtime:
+   these eight do no work in the browser that scroll and hover do not need.
+      01 .147   02 .179   03 .078   04 .075
+      05 .338   06 .214   07 .159   08 .313
+   The film never exceeds .489 anywhere, and 03 and 04 are the floor. */
+const LUMA = [0.147, 0.179, 0.078, 0.075, 0.338, 0.214, 0.159, 0.313];
+
+const DRAFTS: [string, string, string][] = [
+  ['rl5', 'The wind', 'A reel is a spiral, not a line'],
+  ['rl6', 'The rack', 'The section lives between two frames'],
+  ['rl7', 'The changeover', 'Two projectors, one handover'],
+  ['rl8', 'The sheet', 'The whole roll at once; only the reading moves'],
+];
+const ME = 'rl5';
+const MINE = DRAFTS.find(([id]) => id === ME)!;
+
+/* The disc is authored at 1000 x 1000 and scaled to the measure, so the SVG
+   and the generated offset-path share one coordinate system. Everything about
+   the spiral — where it starts, how tightly it winds, how much film fits — is
+   derived from these three numbers at runtime rather than drawn by hand. */
+const DISC = 1000;
+const R_OUT = 430;   /* outermost wrap */
+const R_CORE = 96;   /* the core the film is wound on */
+---
+
+<Base title={`${d.title} · ${MINE[1]} — stills ${ME.toUpperCase()}`} description={`An editorial direction for the stills section of the Aasha project page: ${MINE[2]}.`}>
+  <OpNav variant="bracket" base={href()} />
+
+  <nav class="sw" aria-label="Stills drafts">
+    <span class="sw__id">{ME.toUpperCase()}</span>
+    <span class="sw__nm">{MINE[1]}</span>
+    <span class="sw__su">{MINE[2]}</span>
+    <span class="sw__set">
+      {DRAFTS.map(([id, name, sub]) => (
+        <a class:list={['sw__i', { 'is-here': id === ME }]} href={href(`preview/ab-${id}`)}
+          title={`${name} — ${sub}`} aria-current={id === ME ? 'page' : undefined}>{id.slice(2)}</a>
+      ))}
+      <a class="sw__prev" href={href('preview/ab-st1')} title="Round one — eight arrangements">ST</a>
+      <a class="sw__prev" href={href('preview/ab-xp1')} title="Round two — eight interactions">XP</a>
+      <a class="sw__prev" href={href('preview/ab-sq1')} title="Round three — eight editorial">SQ</a>
+      <a class="sw__prev" href={href('preview/ab-rl1')} title="The reel, first four">RL1–4</a>
+    </span>
+  </nav>
+
+  <article class="sc" style={`--ar:${d.ratio.replace(':', ' / ')}`}>
+    <header class="hd">
+      <p class="mono hd__over">{d.category} · {d.year}</p>
+      <h1 class="hd__t">{d.title}</h1>
+      <p class="mono hd__meta"><span class="hd__roles">{ROLES.map((r) => <span>{r}</span>)}</span></p>
+    </header>
+
+    {d.quote && (
+      <section class="q" aria-label="Statement">
+        <p class="q__t">{d.quote}</p>
+      </section>
+    )}
+
+    <section class="blk body" aria-label="About">
+      <p class="body__lede" style={`--n:${LEDE.length}`}>{LEDE}</p>
+    </section>
+
+    <!-- ══ 03 · STILLS — THE DRAFT ═══════════════════════════════════ -->
+    <section class="blk st" aria-label="Stills">
+      <p class="mono st__lbl"><span>03</span><i aria-hidden="true"></i><span>Stills · {MINE[1]}</span></p>
+      <div class="wd" data-wd>
+        <div class="wd__rail" data-wd-rail>
+          <div class="wd__hold">
+            <div class="wd__fit" data-wd-fit>
+              <div class="wd__stage" data-wd-stage>
+                <svg class="wd__svg" viewBox={`0 0 ${DISC} ${DISC}`} fill="none" aria-hidden="true">
+                  <circle class="wd__core" cx={DISC / 2} cy={DISC / 2} r={R_CORE} />
+                  <circle class="wd__core wd__core--in" cx={DISC / 2} cy={DISC / 2} r="22" />
+                  <path class="wd__track" data-wd-track d="" />
+                  <path class="wd__film" data-wd-film d="" />
+                </svg>
+
+                {images.map((img, i) => (
+                  <figure class="wd__f" data-wd-f={i} style={`--i:${i}`}>
+                    <span class="wd__in">
+                      <Image src={img} alt={i === 0 ? d.alt : ''} aria-hidden={i === 0 ? undefined : 'true'}
+                        widths={[240, 440, 700]} sizes="140px"
+                        loading={i < 4 ? 'eager' : 'lazy'} decoding="async" />
+                      <figcaption class="mono wd__cap"><b>{nn(i)}</b><em>{LUMA[i].toFixed(3)}</em></figcaption>
+                    </span>
+                  </figure>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p class="mono note">
+          <em>Scroll winds the film on</em>
+          <b data-wd-pc>00</b><span>per cent wound · <b data-wd-wraps>0.0</b> wraps</span>
+          <i aria-hidden="true"></i>
+          <span>Rest on a frame to thumb it up</span>
+        </p>
+      </div>
+    </section>
+
+    <footer class="cl">
+      <hr class="rule" />
+      <p class="mono cl__p"><span>{MINE[0].toUpperCase()} · {MINE[1]}</span><i aria-hidden="true"></i><span>{AWARDS}</span></p>
+    </footer>
+  </article>
+</Base>
+
+<script>
+  /* ONE LISTENER, ONE FRAME'S WORK. Every draft in this round reads scroll
+     the same way and writes custom properties; nothing here animates on a
+     timeline, so a throttled or stalled renderer shows a stale position
+     rather than an empty page. */
+  const HANDLERS = [];
+  /* Every registered reader, run synchronously. The preview pane throttles
+     requestAnimationFrame hard, so a scripted scroll can land six positions
+     before one rAF callback fires and the page measures as if it were
+     stuck — the behaviour is correct at 60fps and unmeasurable here without
+     this. It costs one array and is the only reason it exists. */
+  window.sqTick = () => HANDLERS.forEach((f) => f());
+
+  function onScroll(fn) {
+    HANDLERS.push(fn);
+    let queued = false;
+    const tick = () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => { queued = false; fn(); });
+    };
+    addEventListener('scroll', tick, { passive: true });
+    addEventListener('resize', tick);
+    addEventListener('load', fn);
+    document.fonts && document.fonts.ready.then(fn);
+    fn();
+    return fn;
+  }
+
+  /** 0 as the element's top reaches the bottom of the viewport, 1 as its
+      bottom leaves the top. The whole of its passage across the screen. */
+  function through(el) {
+    const b = el.getBoundingClientRect();
+    const span = b.height + innerHeight;
+    return span <= 0 ? 0 : Math.min(1, Math.max(0, Math.round(innerHeight - b.top) / span));
+  }
+
+  /** 0 at the top of a pinning rail, 1 at the bottom. For sticky sections,
+      where the travel is the rail's height less one viewport. */
+  function along(rail) {
+    const b = rail.getBoundingClientRect();
+    const travel = b.height - innerHeight;
+    return travel <= 0 ? 0 : Math.min(1, Math.max(0, Math.round(-b.top) / travel));
+  }
+
+  /** -1 below the fold, 0 at the viewport's centre, +1 above the top. */
+  function about(el) {
+    const b = el.getBoundingClientRect();
+    const mid = b.top + b.height / 2;
+    return Math.min(1, Math.max(-1, (innerHeight / 2 - mid) / (innerHeight / 2 + b.height / 2)));
+  }
+  const wd = document.querySelector('[data-wd]');
+  if (wd) {
+    const fit = wd.querySelector('[data-wd-fit]');
+    const stage = wd.querySelector('[data-wd-stage]');
+    const rail = wd.querySelector('[data-wd-rail]');
+    const figs = [...wd.querySelectorAll('[data-wd-f]')];
+    const track = wd.querySelector('[data-wd-track]');
+    const film = wd.querySelector('[data-wd-film]');
+    const pcEl = wd.querySelector('[data-wd-pc]');
+    const wrEl = wd.querySelector('[data-wd-wraps]');
+    const DISC = 1000, C = DISC / 2, R_OUT = 430, R_CORE = 96;
+    const FRAME_W = 140, GAP = 2;
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    /* THE SPIRAL, GENERATED. A tangent comes in from the right at the height
+       of the outermost wrap and meets the coil at its top; from there the path
+       winds inward to the core. Built in script because a hand-written d
+       attribute is never actually a spiral, and because every number below —
+       the wrap count, the spacing, how much film fits — has to come off its
+       real length. */
+    const WRAPS = (R_OUT - R_CORE) / 46;
+    const build = () => {
+      const pts = [];
+      const steps = 340;
+      for (let s = 0; s <= steps; s++) {
+        const t = s / steps;
+        const th = -Math.PI / 2 + t * WRAPS * Math.PI * 2;
+        const rad = R_OUT - t * (R_OUT - R_CORE);
+        pts.push(`${(C + rad * Math.cos(th)).toFixed(2)} ${(C + rad * Math.sin(th)).toFixed(2)}`);
+      }
+      /* Travelled start to end, a frame goes from off-canvas to the core —
+         so the first to arrive ends up innermost, which is what a wind does. */
+      return `M ${C + 980} ${C - R_OUT} L ${pts[0]} L ` + pts.slice(1).join(' L ');
+    };
+
+    const dPath = build();
+    track.setAttribute('d', dPath);
+    film.setAttribute('d', dPath);
+    figs.forEach((f) => { f.style.offsetPath = `path("${dPath}")`; });
+
+    const L = track.getTotalLength ? track.getTotalLength() : 0;
+    const SPACING = L > 0 ? ((FRAME_W + GAP) / L) * 100 : 9;
+    const SPAN = 100 + SPACING * figs.length;
+
+    const fitStage = () => {
+      const k = fit.clientWidth / DISC;
+      stage.style.setProperty('--k', k.toFixed(5));
+    };
+    new ResizeObserver(fitStage).observe(fit);
+    fitStage();
+
+    const paint = (run) => {
+      let lead = 0;
+      figs.forEach((f, i) => {
+        const dd = Math.min(100, Math.max(0, run * SPAN - i * SPACING));
+        f.style.setProperty('--d', dd.toFixed(3));
+        lead = Math.max(lead, dd);
+      });
+      /* Only the film that has actually been wound is drawn; the rest of the
+         path stays a ghost, so the coil visibly fills rather than being there
+         from the start. */
+      const trailing = Math.min(100, Math.max(0, run * SPAN - (figs.length - 1) * SPACING));
+      const a = (trailing / 100) * L, b = (lead / 100) * L;
+      film.setAttribute('stroke-dasharray', `${Math.max(0, b - a).toFixed(1)} ${L.toFixed(1)}`);
+      film.setAttribute('stroke-dashoffset', `${(-a).toFixed(1)}`);
+      if (pcEl) pcEl.textContent = String(Math.round(run * 100)).padStart(2, '0');
+      if (wrEl) wrEl.textContent = (Math.max(0, b - a) / L * WRAPS).toFixed(1);
+    };
+
+    if (reduced) paint(0.62);
+    else onScroll(() => paint(along(rail)));
+
+    window.wdPath = () => ({ length: Math.round(L), spacing: +SPACING.toFixed(3), wraps: +WRAPS.toFixed(2) });
+    window.wdAt = () => figs.map((f) => +f.style.getPropertyValue('--d'));
+  }
+</script>
+
+<style>
+  /* ══ THE HARNESS ═══════════════════════════════════════════════════
+     The work page's own type and rhythm, shared verbatim by all eight. */
+  .sw {
+    position: fixed; inset: 0 0 auto; z-index: 900;
+    display: flex; align-items: baseline; gap: 12px;
+    padding: 9px clamp(16px, 4vw, 40px);
+    background: color-mix(in srgb, var(--ground) 86%, transparent);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--mono); font-size: var(--t-micro);
+    letter-spacing: 0.16em; text-transform: uppercase;
+  }
+  .sw__id { color: var(--accent); }
+  .sw__nm { color: var(--bone); }
+  .sw__su { color: var(--dim); margin-right: auto; }
+  .sw__set { display: flex; gap: 1px; align-items: baseline; }
+  .sw__i { color: var(--dim); text-decoration: none; padding: 3px 7px; border: 1px solid transparent; font-variant-numeric: tabular-nums; }
+  .sw__i:hover { color: var(--bone); }
+  .sw__i.is-here { color: var(--accent); border-color: var(--rule); }
+  .sw__prev { color: color-mix(in srgb, var(--dim) 70%, var(--ground)); text-decoration: none; padding: 3px 6px; margin-left: 4px; }
+  .sw__prev:first-of-type { border-left: 1px solid var(--rule); margin-left: 8px; padding-left: 11px; }
+  .sw__prev:hover { color: var(--bone-dim); }
+  @media (max-width: 860px) { .sw__su { display: none; } .sw__nm { margin-right: auto; } }
+  @media (max-width: 560px) { .sw__nm { display: none; } }
+
+  .sc { padding: clamp(84px, 13vh, 150px) var(--margin) 0; }
+  .hd { text-align: center; margin-bottom: clamp(38px, 6.6vh, 80px); }
+  .hd__over { font-size: var(--t-micro); letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin: 0 0 clamp(16px, 2.6vh, 30px); }
+  .hd__t { margin: 0; font-family: var(--display); font-weight: 500; font-size: clamp(2.6rem, 7vw, 5.6rem); line-height: 0.94; letter-spacing: -0.04em; color: var(--bone); }
+  .hd__meta { margin: clamp(14px, 2.2vh, 26px) 0 0; font-size: var(--t-micro); letter-spacing: 0.18em; text-transform: uppercase; color: var(--bone-dim); }
+  .hd__roles { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 0 14px; }
+  .hd__roles span + span::before { content: '·'; margin-right: 14px; color: var(--dim); }
+  .q { max-width: 34ch; margin: 0 auto clamp(50px, 8vh, 110px); text-align: center; }
+  .q__t { margin: 0; font-family: var(--serif); font-style: italic; font-weight: 300; font-size: clamp(1.25rem, 2.4vw, 1.9rem); line-height: 1.26; letter-spacing: -0.012em; color: var(--bone-dim); }
+  .body { max-width: var(--measure); margin-inline: auto; }
+  .body__lede { margin: 0 auto; max-width: clamp(20ch, calc(var(--n, 90) / 3 * 1ch), 44ch); font-family: var(--display); font-weight: 500; font-size: clamp(1.2rem, min(calc(2.35rem - (var(--n, 90) - 55) * 0.007rem), calc(1.05rem + 2.1vw)), 2.2rem); line-height: 1.12; letter-spacing: -0.025em; color: var(--bone); text-wrap: balance; }
+  .blk { margin: 0 auto clamp(104px, 18vh, 240px); }
+
+  .st { --w: var(--measure); }
+  .st__lbl {
+    display: flex; align-items: center; gap: 12px;
+    width: var(--w); margin: 0 auto clamp(24px, 4vh, 50px);
+    font-size: var(--t-micro); letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted);
+  }
+  .st__lbl i { flex: 1; height: 1px; background: var(--rule); }
+
+  /* One line of mono per draft saying what the composition responds to.
+     Scroll and hover are invisible affordances; naming them is not a crutch,
+     it is the caption on a piece of behaviour. */
+  .note {
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+    width: var(--w); margin: clamp(16px, 2.4vh, 28px) auto 0;
+    font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim);
+  }
+  .note b { font-weight: 400; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .note em { font-style: normal; color: var(--muted); }
+  .note i { flex: 1; min-width: 20px; height: 1px; background: var(--rule); transform: translateY(-3px); }
+
+  .cl { max-width: var(--measure); margin: 0 auto; padding-bottom: clamp(48px, 9vh, 110px); }
+  .rule { border: 0; border-top: 1px solid var(--rule); margin: 0 0 16px; }
+  .cl__p { display: flex; align-items: baseline; gap: 14px; margin: 0; font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); }
+  .cl__p i { flex: 1; height: 1px; background: var(--rule); transform: translateY(-3px); }
+  .cl__p span:last-child { text-align: right; }
+  @media (max-width: 620px) { .cl__p { flex-direction: column; gap: 6px; } .cl__p i { display: none; } .cl__p span:last-child { text-align: left; } }
+
+  /* ── RL5 · THE WIND ────────────────────────────────────────── */
+  .st { --w: min(calc(100vw - 2 * var(--margin)), 1180px); }
+  .wd { width: var(--w); margin-inline: auto; }
+  .wd__rail { height: 300vh; }
+  .wd__hold { position: sticky; top: 0; height: 100vh; display: flex; align-items: center; justify-content: center; }
+  /* One coordinate system for the disc, the spiral and the frames on it. */
+  .wd__fit { position: relative; width: min(100%, 86vh); aspect-ratio: 1; }
+  .wd__stage { position: absolute; inset: 0; width: 1000px; height: 1000px; transform: scale(var(--k, 1)); transform-origin: 0 0; }
+  .wd__svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+
+  .wd__core { stroke: var(--rule); stroke-width: 2; }
+  .wd__core--in { stroke: color-mix(in srgb, var(--bone) 20%, transparent); }
+  /* The unwound path, barely there, and the film that is actually on it. */
+  .wd__track { stroke: color-mix(in srgb, var(--bone) 5%, transparent); stroke-width: 1; }
+  .wd__film { stroke: color-mix(in srgb, var(--accent) 34%, transparent); stroke-width: 1.5; }
+
+  .wd__f {
+    position: absolute; top: 0; left: 0; margin: 0; width: 140px;
+    offset-rotate: auto; offset-anchor: 50% 50%;
+    offset-distance: calc(var(--d, 0) * 1%);
+  }
+  .wd__in { display: block; position: relative; }
+  .wd__f img { display: block; width: 100%; height: auto; aspect-ratio: var(--ar); object-fit: cover; }
+
+  .wd__cap {
+    position: absolute; inset: auto auto 4px 5px; display: flex; align-items: baseline; gap: 6px; margin: 0;
+    font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--bone);
+    text-shadow: 0 0 8px rgba(0, 0, 0, 0.92), 0 0 3px rgba(0, 0, 0, 0.95);
+    font-variant-numeric: tabular-nums;
+  }
+  .wd__cap b { font-weight: 400; }
+  .wd__cap em { font-style: normal; opacity: 0; color: var(--accent); }
+
+  /* The lift is inside the rotated box, so a frame leaves along the wind's
+     own normal rather than straight up the page. */
+  .wd__f:hover .wd__in { transform: translateY(-13px); }
+  .wd__f:hover .wd__cap em { opacity: 1; }
+  @media (prefers-reduced-motion: no-preference) {
+    .wd__in { transition: transform 300ms cubic-bezier(0.2, 0.85, 0.25, 1); }
+    .wd__cap em { transition: opacity 200ms linear; }
+  }
+
+  @media (max-width: 760px) { .wd__fit { width: min(100%, 64vh); } .wd__f { width: 110px; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wd__rail { height: auto; }
+    .wd__hold { position: static; height: auto; }
+  }
+</style>
