@@ -331,10 +331,17 @@ const ARC: { w: number; off: number; ts: number; t: string }[] = [
     letter-spacing: calc(-0.03em + var(--ls) * 0.055em);
     color: var(--bone-dim); max-width: 26ch; text-wrap: balance;
   }
-  .ap__f:nth-child(-n + 4) { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: clamp(16px, 2.6vw, 44px); width: auto; }
-  .ap__f:nth-child(-n + 4) .ap__t { order: 2; margin: 0 0 4px; }
-  .ap__f:nth-child(-n + 4) .ap__win { order: 1; width: var(--fw); }
-  .ap__f:nth-child(-n + 4) .ap__cap { order: 3; grid-column: 1 / -1; }
+  /* THE EARLY FOUR PUT THE LINE BESIDE THE PICTURE, and the type is taken out
+     of flow to do it rather than given a grid column. A column makes --fw
+     resolve against the COLUMN instead of the measure, which broke the arc
+     outright: the widths came out 170, 104, 243, 240 where they should have
+     been 203, 293, 405, 541 — frame 02 ended up smaller than 01 and the whole
+     crescendo stopped being one. Out of flow, every figure keeps its width as
+     a share of the measure and the arc is monotonic. */
+  .ap__f:nth-child(-n + 4) .ap__t {
+    position: absolute; left: calc(100% + clamp(18px, 2.8vw, 48px)); bottom: 0;
+    width: min(42vw, 30ch); margin: 0;
+  }
 
   .ap__cap {
     display: flex; align-items: baseline; gap: 12px; margin-top: 9px;
@@ -358,8 +365,8 @@ const ARC: { w: number; off: number; ts: number; t: string }[] = [
        below 44 per cent of a phone a frame is a postage stamp and the
        handover stops being about scale and starts being about nothing. */
     .ap__f { width: calc(44% + var(--fw) * 0.52) !important; margin-left: calc(var(--off) * 0.4); }
-    .ap__f:nth-child(-n + 4) { display: block; width: auto !important; }
-    .ap__f:nth-child(-n + 4) .ap__win { width: calc(44% + var(--fw) * 0.52); }
+    /* No room beside a phone-width picture, so the line goes back above it. */
+    .ap__f:nth-child(-n + 4) .ap__t { position: static; width: auto; margin: 0 0 10px; }
     .ap__t { font-size: max(var(--ts) * 0.62, var(--t-micro)); }
   }
 
