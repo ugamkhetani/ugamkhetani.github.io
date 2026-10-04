@@ -274,10 +274,15 @@ const LOCK = 0.78;
        locked and collapses on the pull. */
     const drawLoop = (el, slack, down) => {
       if (!el) return;
-      const bulge = 8 + slack * 62;
+      /* The run is vertical and the loop is a bulge in it, so both ends sit on
+         the gate's own centre line at x=60 of the 120-unit box. Anchoring them
+         at x=24 put the slack off to one side of the column, where it read as
+         a stray curve rather than as film leaving the sprocket and entering
+         the gate. The two loops bulge opposite ways, as they are threaded. */
+      const bulge = 6 + slack * 46;
       el.setAttribute('d', down
-        ? `M 24 0 C ${24 - bulge} 38, ${24 - bulge} 62, 24 100`
-        : `M 24 0 C ${24 + bulge} 38, ${24 + bulge} 62, 24 100`);
+        ? `M 60 0 C ${60 - bulge} 34, ${60 - bulge} 66, 60 100`
+        : `M 60 0 C ${60 + bulge} 34, ${60 + bulge} 66, 60 100`);
     };
 
     onScroll(() => {
@@ -298,8 +303,13 @@ const LOCK = 0.78;
       it.style.setProperty('--phase', phase.toFixed(4));
 
       /* The slack is the difference between the two motions, which is exactly
-         what a projector's loop absorbs. */
-      const slack = Math.min(1, Math.max(0, cont - pull));
+         what a projector's loop absorbs. Capped at LOCK because that IS its
+         mechanical range: measured over one cycle it builds linearly to 0.784
+         and collapses on the pull. Without the cap the last frame reads 1.0 —
+         the gate has nowhere left to advance while the sprockets keep feeding
+         — and the loop draws deeper at the end of the reel than it ever does
+         in use, which is a real projector fault and not something to show. */
+      const slack = Math.min(LOCK, Math.max(0, cont - pull));
       it.style.setProperty('--slack', slack.toFixed(4));
       drawLoop(loopA, slack, true);
       drawLoop(loopB, 1 - slack, false);
@@ -395,8 +405,10 @@ const LOCK = 0.78;
   .it__rail { height: 560vh; }
   .it__stick { position: sticky; top: 0; height: 100vh; display: flex; align-items: center; }
   .it__rig {
-    display: grid; grid-template-columns: minmax(120px, 0.5fr) minmax(0, 1fr) minmax(110px, 0.42fr);
-    gap: clamp(18px, 3vw, 54px); align-items: center; width: 100%;
+    /* The gate carries the picture, so it gets the width; the machine and the
+       readout are margins on it. */
+    display: grid; grid-template-columns: minmax(96px, 0.3fr) minmax(0, 1.45fr) minmax(96px, 0.26fr);
+    gap: clamp(16px, 2.4vw, 42px); align-items: center; width: 100%;
   }
 
   /* The machine's own column: two sprocket wheels turning continuously with
@@ -420,7 +432,7 @@ const LOCK = 0.78;
   .it:hover .it__lbl { opacity: 1; color: var(--muted); }
   @media (prefers-reduced-motion: no-preference) { .it__lbl { transition: opacity 260ms linear, color 260ms linear; } }
 
-  .it__path { display: grid; grid-template-rows: clamp(26px, 5vh, 54px) auto clamp(26px, 5vh, 54px); }
+  .it__path { display: grid; grid-template-rows: clamp(42px, 9vh, 94px) auto clamp(42px, 9vh, 94px); }
   .it__loop { width: 100%; height: 100%; overflow: visible; }
   .it__loop path { fill: none; stroke: var(--rule); stroke-width: 1.5; }
 

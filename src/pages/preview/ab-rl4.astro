@@ -347,9 +347,15 @@ const ROWS = images.map((_, i) => ({ frame: i, roll: i % 2 === 0 ? 'a' : 'b' }))
   /* Black leader is opaque and prints as nothing, so it has to LOOK like a
      real cell while the rolls are apart and disappear once they are on the
      same axis — otherwise it would print over the opposite roll's picture. */
+  /* Leader has to be gone BEFORE the rolls overlap, not merely by the end.
+     The rolls begin overlapping at about 6 per cent of the conform, and each
+     one is a transformed element and so its own stacking context — which
+     means z-index cannot lift a frame on roll A above a leader cell on roll
+     B. Fading it out by 38 per cent is the fix that needs no stacking at all,
+     and it is also what leader does: it prints as nothing. */
   .cb__cell--ld {
     border: 1px solid var(--rule); display: grid; place-content: center;
-    opacity: calc(1 - var(--merge));
+    opacity: max(0, calc(1 - var(--merge) * 2.6));
   }
   .cb__cell--ld span {
     font-size: var(--t-micro); letter-spacing: 0.26em; text-transform: uppercase;
