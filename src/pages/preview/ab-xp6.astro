@@ -339,7 +339,13 @@ const MINE = DRAFTS.find(([id]) => id === ME)!;
   .at__reset:hover { border-color: var(--accent); color: var(--bone); }
 
   @media (max-width: 760px) {
-    .at__band { height: clamp(220px, 40vh, 340px); }
+    /* THE BAND TURNS VERTICAL, and it has to. Eight columns across 375px is
+       eight 40px slivers — measured — and eight slivers of a dark film is not
+       a portrait of anything, because you cannot tell the frames apart before
+       you have looked at them. Rotated, each frame is a full-width letterbox
+       slice at rest and grows in HEIGHT with attention. The concept and the
+       arithmetic are identical; only the axis changes. */
+    .at__band { flex-direction: column; height: clamp(430px, 72vh, 640px); }
     .at__ledger { grid-template-columns: 1fr; }
   }
 </style>

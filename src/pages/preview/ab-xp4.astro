@@ -4,10 +4,15 @@
  *
  * THE IDEA: the film is about a boy searching for something, and the search
  * is what costs him. So this section refuses to hand the frames over. They
- * are not on a page; they are at positions in a field roughly three screens
- * wide and two deep, at wildly different scales, and the only way to see them
- * is to move. Nothing is hidden and nothing is dark — it is simply elsewhere,
- * which is a different and more honest kind of withholding.
+ * are not on a page; they are at positions in a field about two and a half
+ * screens wide and two and a half deep, at wildly different scales, and the
+ * only way to see them is to move. Nothing is hidden and nothing is dark — it
+ * is simply elsewhere, which is a more honest kind of withholding.
+ *
+ * THE UNIT SCALES WITH THE VIEWPORT, and it has to. The first build fixed it
+ * at 3.4px, which measured 1.5 screens in a narrow pane and 0.996 at 1280 —
+ * the field came out SMALLER than the window, and a field you can see all of
+ * is not a field. --u is a vw clamp now, so the ratio holds at every width.
  *
  * SCALE CARRIES THE ARGUMENT. 07, the full room, is laid down nearly four
  * times the width of 03, the tap on the floor. In a grid those two are the
@@ -81,10 +86,10 @@ const MINE = DRAFTS.find(([id]) => id === ME)!;
    The eight are spread rather than clustered on purpose: the emptiness
    between them is the part that makes it a search. */
 const FIELD: [number, number, number][] = [
-  [14, 22, 86], [128, 8, 44], [238, 40, 30], [86, 96, 34],
-  [172, 74, 58], [16, 132, 52], [196, 136, 92], [110, 158, 40],
+  [14, 16, 86], [128, 6, 44], [238, 30, 30], [86, 71, 34],
+  [172, 55, 58], [16, 98, 52], [196, 100, 92], [110, 117, 40],
 ];
-const SPAN = { w: 330, h: 230 };
+const SPAN = { w: 330, h: 170 };
 ---
 
 <Base title={`${d.title} · ${MINE[1]} — stills ${ME.toUpperCase()}`} description={`An experimental direction for the stills section of the Aasha project page: ${MINE[2]}.`}>
@@ -131,7 +136,7 @@ const SPAN = { w: 330, h: 230 };
               <figure class="fl__f" data-fl-f={i}
                 style={`--x:${FIELD[i][0]}; --y:${FIELD[i][1]}; --fwid:${FIELD[i][2]}`}>
                 <Image src={img} alt={i === 0 ? d.alt : ''} aria-hidden={i === 0 ? undefined : 'true'}
-                  widths={[380, 680, 1100]} sizes={`${Math.round(FIELD[i][2] * 3.4)}px`}
+                  widths={[380, 680, 1100]} sizes={`${Math.round(FIELD[i][2] * 9)}px`}
                   loading={i < 3 ? 'eager' : 'lazy'} decoding="async" />
                 <figcaption class="mono">{nn(i)}</figcaption>
               </figure>
@@ -377,7 +382,10 @@ const SPAN = { w: 330, h: 230 };
 
   /* ── XP4 · THE FIELD ───────────────────────────────────────── */
   .st { --w: min(calc(100vw - 2 * var(--margin)), 1180px); }
-  .fl { width: var(--w); margin-inline: auto; --u: 3.4px; }
+  /* ONE FIELD UNIT. Tied to the viewport so the plane stays ~2.5 screens
+     across at every width — see the note in the header about why a fixed
+     value collapsed the idea at 1280. */
+  .fl { width: var(--w); margin-inline: auto; --u: clamp(2.4px, 0.66vw, 9px); }
 
   .fl__port {
     position: relative; height: clamp(330px, 62vh, 660px);
@@ -448,7 +456,7 @@ const SPAN = { w: 330, h: 230 };
   .fl.is-touring .fl__tour { border-color: var(--accent); color: var(--accent); }
 
   @media (max-width: 620px) {
-    .fl { --u: 2.3px; }
+    .fl { --u: clamp(2.3px, 0.78vw, 3.2px); }
     .fl__bar { grid-template-columns: 1fr; gap: 12px; }
     .fl__map { max-width: 190px; }
   }

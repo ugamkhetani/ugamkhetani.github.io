@@ -234,7 +234,6 @@ const AXES: [string, string, string][] = [
         let lane = 0;
         while (laneEnd[lane] !== undefined && o.x < laneEnd[lane] + 10) lane++;
         laneEnd[lane] = o.x + cw;
-        const lanes = Math.max(1, Math.min(4, laneEnd.length));
         o.lane = lane;
       });
       const used = laneEnd.length;
