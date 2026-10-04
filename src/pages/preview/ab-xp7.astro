@@ -1,0 +1,402 @@
+---
+/**
+ * XP7 · THE SORT — the film's own order against the order its light implies.
+ *
+ * THE IDEA: can eight stills be a system rather than a collection? Only if
+ * something about them is measurable. So the browser measures all eight —
+ * mean luminance, contrast, and detail — and then lays them out ON those
+ * axes. Switching the axis is not a filter and not a sort order; it is a
+ * different claim about what the set IS, and the frames travel to their new
+ * positions so you can watch which ones move and which barely do.
+ *
+ * THE SCATTER IS THE POINT, NOT A ROW. A sorted row spaces everything evenly
+ * and hides the only interesting fact: these frames CLUSTER. Most of this
+ * film sits in a narrow dark band with one or two frames a long way off on
+ * their own. A row would draw that as 1-2-3-4-5-6-7-8 and say nothing. The
+ * scatter shows the gaps, and the gaps are the finding.
+ *
+ * SEQUENCE IS ONE OF THE AXES, deliberately — it is the only one that is
+ * perfectly even, and putting it beside the measured ones is the whole
+ * argument. The film's running order is a decision; its light is a fact; they
+ * are not the same shape, and you can flip between them in one click.
+ *
+ * NOTHING HERE IS INVENTED. Every number on the page was computed from the
+ * actual frames when the page loaded, and the measurement is printed under
+ * each card so it can be checked. If the pixels cannot be read, the section
+ * says so and falls back to sequence rather than drawing a plausible lie.
+ *
+ * WHY IT SUITS THIS WORK: a composer reads a cue sheet exactly this way —
+ * not "what happens" but "how much, and where does it sit relative to the
+ * rest". This is that reading, applied to light.
+ */
+import Base from '../../layouts/Base.astro';
+import OpNav from '../../components/OpNav.astro';
+import { Image, getImage } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import { framesFor } from '../../lib/frames';
+import { href } from '../../lib/href';
+
+/* THE REAL WORK AND THE REAL STILLS. The collection is the same one
+   /work/aasha renders from, so the frames, title, roles, statement and
+   standfirst are the page's own, and the harness around the experiment is the
+   work page's own type and rhythm. The ONLY variable between ab-xp1 and
+   ab-xp8 is the section below the "03 · Stills" rule.
+
+   THE PRODUCTION PAGE IS NOT TOUCHED. src/pages/work/[slug].astro is
+   untouched by all eight, and `withoutPreview()` keeps these routes out of
+   the built site. */
+const works = await getCollection('works');
+const work = works.find((w) => w.id === 'aasha')!;
+const d = work.data;
+const images = framesFor('aasha', d.frames);
+const LEDE = (d.description.trim().match(/^[^.!?]+[.!?]/) ?? [d.description.trim()])[0];
+const ROLES = d.role.split('·').map((r) => r.trim());
+const nn = (i: number) => String(i + 1).padStart(2, '0');
+
+/* Optimised URLs for the drafts that need the frame inside a CSS property —
+   a mask, a background, a band — where <Image> cannot reach. Astro emits
+   these into the same /_astro/ directory as everything else. */
+const WEB = await Promise.all(
+  images.map((src) => getImage({ src, width: 1200, format: 'webp', quality: 78 })),
+);
+
+const DRAFTS: [string, string, string][] = [
+  ['xp1', 'The score', 'The film’s light, measured and scrubbed'],
+  ['xp2', 'The splice', 'You author the cut — 64 of them'],
+  ['xp3', 'The sentence', 'The words are the apertures'],
+  ['xp4', 'The field', 'A space larger than the window'],
+  ['xp5', 'The persistence', 'It coheres only when you stop'],
+  ['xp6', 'The attention', 'The band divides by how you looked'],
+  ['xp7', 'The sort', 'Sequence against what the light implies'],
+  ['xp8', 'The bath', 'Latent until it crosses the surface'],
+];
+const ME = 'xp7';
+const MINE = DRAFTS.find(([id]) => id === ME)!;
+
+const AXES: [string, string, string][] = [
+  ['seq', 'Sequence', 'the order the film puts them in'],
+  ['lum', 'Light', 'mean luminance, 0 to 1'],
+  ['con', 'Contrast', 'standard deviation of luminance'],
+  ['det', 'Detail', 'mean edge energy across the frame'],
+];
+---
+
+<Base title={`${d.title} · ${MINE[1]} — stills ${ME.toUpperCase()}`} description={`An experimental direction for the stills section of the Aasha project page: ${MINE[2]}.`}>
+  <OpNav variant="bracket" base={href()} />
+
+  <nav class="sw" aria-label="Stills experiments">
+    <span class="sw__id">{ME.toUpperCase()}</span>
+    <span class="sw__nm">{MINE[1]}</span>
+    <span class="sw__su">{MINE[2]}</span>
+    <span class="sw__set">
+      {DRAFTS.map(([id, name, sub]) => (
+        <a class:list={['sw__i', { 'is-here': id === ME }]} href={href(`preview/ab-${id}`)}
+          title={`${name} — ${sub}`} aria-current={id === ME ? 'page' : undefined}>{id.slice(2)}</a>
+      ))}
+      <a class="sw__prev" href={href('preview/ab-st1')} title="The first eight directions">ST1–8</a>
+    </span>
+  </nav>
+
+  <article class="sc" style={`--ar:${d.ratio.replace(':', ' / ')}`}>
+    <header class="hd">
+      <p class="mono hd__over">{d.category} · {d.year}</p>
+      <h1 class="hd__t">{d.title}</h1>
+      <p class="mono hd__meta"><span class="hd__roles">{ROLES.map((r) => <span>{r}</span>)}</span></p>
+    </header>
+
+    {d.quote && (
+      <section class="q" aria-label="Statement">
+        <p class="q__t">{d.quote}</p>
+      </section>
+    )}
+
+    <section class="blk body" aria-label="About">
+      <p class="body__lede" style={`--n:${LEDE.length}`}>{LEDE}</p>
+    </section>
+
+    <!-- ══ 03 · STILLS — THE EXPERIMENT ══════════════════════════════ -->
+    <section class="blk st" aria-label="Stills">
+      <p class="mono st__lbl"><span>03</span><i aria-hidden="true"></i><span>Stills · {MINE[1]}</span></p>
+      <div class="so" data-so>
+        <div class="so__axes mono" role="group" aria-label="Choose an axis">
+          {AXES.map(([k, name, note], i) => (
+            <button class:list={['so__ax', { 'is-on': i === 0 }]} type="button" data-so-ax={k}
+              aria-pressed={i === 0 ? 'true' : 'false'} title={note}>{name}</button>
+          ))}
+          <span class="so__what mono" data-so-what>the order the film puts them in</span>
+        </div>
+
+        <div class="so__plot" data-so-plot>
+          {images.map((img, i) => (
+            <figure class="so__card" data-so-c={i} style="--tx:0; --ty:0">
+              <span class="so__win">
+                <Image src={img} alt={i === 0 ? d.alt : ''} aria-hidden={i === 0 ? undefined : 'true'}
+                  widths={[220, 420]} sizes="150px" loading="eager" decoding="async" />
+              </span>
+              <figcaption class="mono so__cap"><b>{nn(i)}</b><em data-so-v={i}>—</em></figcaption>
+            </figure>
+          ))}
+        </div>
+
+        <div class="so__ruler mono" aria-hidden="true">
+          <span data-so-lo>—</span><i></i><span data-so-mid></span><i></i><span data-so-hi>—</span>
+        </div>
+
+        <p class="mono hint">
+          <em>Switch the axis · watch what moves</em>
+          <i aria-hidden="true"></i>
+          <span data-so-note>Measuring the eight frames…</span>
+        </p>
+      </div>
+    </section>
+
+    <footer class="cl">
+      <hr class="rule" />
+      <p class="mono cl__p"><span>{MINE[0].toUpperCase()} · {MINE[1]}</span><i aria-hidden="true"></i><span>{d.awards}</span></p>
+    </footer>
+  </article>
+</Base>
+
+<script>
+  /* MEASURED, NOT ASSERTED. The browser reads the actual frames into a
+     128x96 canvas and computes from the pixels. Same-origin, so getImageData
+     is not tainted; if anything throws, the caller falls back and says so on
+     the page rather than showing a made-up curve. */
+  async function measure(nodes, W = 128, H = 96) {
+    const c = document.createElement('canvas');
+    c.width = W; c.height = H;
+    const x = c.getContext('2d', { willReadFrequently: true });
+    const out = [];
+    for (const im of nodes) {
+      try { if (im.decode) await im.decode(); } catch (e) { /* fall through */ }
+      x.clearRect(0, 0, W, H);
+      x.drawImage(im, 0, 0, W, H);
+      const px = x.getImageData(0, 0, W, H).data;
+      const lum = (o) => (0.2126 * px[o] + 0.7152 * px[o + 1] + 0.0722 * px[o + 2]) / 255;
+      const cols = new Array(W).fill(0);
+      let sum = 0, sq = 0, grad = 0;
+      for (let cx = 0; cx < W; cx++) {
+        let s = 0;
+        for (let cy = 0; cy < H; cy++) {
+          const v = lum((cy * W + cx) * 4);
+          s += v; sum += v; sq += v * v;
+          if (cx) grad += Math.abs(v - lum((cy * W + cx - 1) * 4));
+        }
+        cols[cx] = s / H;
+      }
+      const n = W * H;
+      const mean = sum / n;
+      out.push({
+        cols, mean,
+        sd: Math.sqrt(Math.max(0, sq / n - mean * mean)),
+        detail: grad / ((W - 1) * H),
+      });
+    }
+    return out;
+  }
+  const so = document.querySelector('[data-so]');
+  if (so) {
+    const cards = [...so.querySelectorAll('[data-so-c]')];
+    const vals = [...so.querySelectorAll('[data-so-v]')];
+    const btns = [...so.querySelectorAll('[data-so-ax]')];
+    const plot = so.querySelector('[data-so-plot]');
+    const note = so.querySelector('[data-so-note]');
+    const what = so.querySelector('[data-so-what]');
+    const lo = so.querySelector('[data-so-lo]'), mid = so.querySelector('[data-so-mid]'), hi = so.querySelector('[data-so-hi]');
+    const NOTES = { seq: 'the order the film puts them in', lum: 'mean luminance, 0 to 1', con: 'standard deviation of luminance', det: 'mean edge energy across the frame' };
+    const N = cards.length;
+    let data = null, axis = 'seq';
+
+    const valueOf = (i) => {
+      if (axis === 'seq' || !data) return i / (N - 1);
+      return axis === 'lum' ? data[i].mean : axis === 'con' ? data[i].sd : data[i].detail;
+    };
+
+    const layout = () => {
+      const raw = cards.map((_, i) => valueOf(i));
+      const min = Math.min(...raw), max = Math.max(...raw);
+      const span = max - min || 1;
+      const cw = cards[0].offsetWidth;
+      const ch = cards[0].offsetHeight;
+      const W = Math.max(1, plot.clientWidth - cw);
+      const H = Math.max(1, plot.clientHeight - ch);
+
+      /* LANES BY COLLISION, NOT BY INDEX. Place left to right and drop a card
+         to the next lane only when it would overlap the one before it, so a
+         cluster stacks and an outlier stays on the top line where it reads as
+         an outlier. */
+      const order = raw.map((v, i) => ({ i, x: ((v - min) / span) * W })).sort((a, b) => a.x - b.x);
+      const laneEnd = [];
+      order.forEach((o) => {
+        let lane = 0;
+        while (laneEnd[lane] !== undefined && o.x < laneEnd[lane] + 10) lane++;
+        laneEnd[lane] = o.x + cw;
+        const lanes = Math.max(1, Math.min(4, laneEnd.length));
+        o.lane = lane;
+      });
+      const used = laneEnd.length;
+      const gap = used > 1 ? Math.min(H / (used - 1), ch * 0.42) : 0;
+      order.forEach((o) => {
+        cards[o.i].style.setProperty('--tx', o.x.toFixed(1));
+        cards[o.i].style.setProperty('--ty', (o.lane * gap).toFixed(1));
+      });
+
+      vals.forEach((el, i) => { el.textContent = axis === 'seq' ? String(i + 1).padStart(2, '0') : raw[i].toFixed(3); });
+      if (lo) lo.textContent = axis === 'seq' ? 'First' : min.toFixed(3);
+      if (hi) hi.textContent = axis === 'seq' ? 'Last' : max.toFixed(3);
+      if (mid) mid.textContent = axis === 'seq' ? 'Running order' : NOTES[axis];
+    };
+
+    const setAxis = (k) => {
+      axis = k;
+      btns.forEach((b) => {
+        const on = b.dataset.soAx === k;
+        b.classList.toggle('is-on', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      if (what) what.textContent = NOTES[k];
+      layout();
+    };
+    btns.forEach((b) => b.addEventListener('click', () => setAxis(b.dataset.soAx)));
+    addEventListener('resize', layout);
+
+    layout();
+    measure(cards.map((c) => c.querySelector('img')), 128, 96)
+      .then((out) => {
+        data = out;
+        if (note) note.textContent = 'Measured in your browser · 8 frames at 128×96';
+        layout();
+      })
+      .catch(() => {
+        btns.forEach((b) => { if (b.dataset.soAx !== 'seq') b.disabled = true; });
+        if (note) note.textContent = 'The frames could not be read — sequence only';
+      });
+
+    window.soAxis = setAxis;
+    window.soState = () => ({ axis, data, pos: cards.map((c) => [+c.style.getPropertyValue('--tx'), +c.style.getPropertyValue('--ty')]) });
+  }
+</script>
+
+<style>
+  /* ══ THE HARNESS ═══════════════════════════════════════════════════
+     The work page's own type and rhythm, shared verbatim by all eight, so
+     the only thing being judged below the rule is the stills section. */
+  .sw {
+    position: fixed; inset: 0 0 auto; z-index: 900;
+    display: flex; align-items: baseline; gap: 12px;
+    padding: 9px clamp(16px, 4vw, 40px);
+    background: color-mix(in srgb, var(--ground) 86%, transparent);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--mono); font-size: var(--t-micro);
+    letter-spacing: 0.16em; text-transform: uppercase;
+  }
+  .sw__id { color: var(--accent); }
+  .sw__nm { color: var(--bone); }
+  .sw__su { color: var(--dim); margin-right: auto; }
+  .sw__set { display: flex; gap: 1px; align-items: baseline; }
+  .sw__i {
+    color: var(--dim); text-decoration: none; padding: 3px 7px;
+    border: 1px solid transparent; font-variant-numeric: tabular-nums;
+  }
+  .sw__i:hover { color: var(--bone); }
+  .sw__i.is-here { color: var(--accent); border-color: var(--rule); }
+  .sw__prev { color: color-mix(in srgb, var(--dim) 70%, var(--ground)); text-decoration: none; padding: 3px 0 3px 12px; margin-left: 6px; border-left: 1px solid var(--rule); }
+  .sw__prev:hover { color: var(--bone-dim); }
+  @media (max-width: 860px) { .sw__su { display: none; } .sw__nm { margin-right: auto; } }
+  @media (max-width: 560px) { .sw__nm, .sw__prev { display: none; } }
+
+  .sc { padding: clamp(84px, 13vh, 150px) var(--margin) 0; }
+  .hd { text-align: center; margin-bottom: clamp(38px, 6.6vh, 80px); }
+  .hd__over { font-size: var(--t-micro); letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin: 0 0 clamp(16px, 2.6vh, 30px); }
+  .hd__t { margin: 0; font-family: var(--display); font-weight: 500; font-size: clamp(2.6rem, 7vw, 5.6rem); line-height: 0.94; letter-spacing: -0.04em; color: var(--bone); }
+  .hd__meta { margin: clamp(14px, 2.2vh, 26px) 0 0; font-size: var(--t-micro); letter-spacing: 0.18em; text-transform: uppercase; color: var(--bone-dim); }
+  .hd__roles { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 0 14px; }
+  .hd__roles span + span::before { content: '·'; margin-right: 14px; color: var(--dim); }
+  .q { max-width: 34ch; margin: 0 auto clamp(50px, 8vh, 110px); text-align: center; }
+  .q__t { margin: 0; font-family: var(--serif); font-style: italic; font-weight: 300; font-size: clamp(1.25rem, 2.4vw, 1.9rem); line-height: 1.26; letter-spacing: -0.012em; color: var(--bone-dim); }
+  .body { max-width: var(--measure); margin-inline: auto; }
+  .body__lede { margin: 0 auto; max-width: clamp(20ch, calc(var(--n, 90) / 3 * 1ch), 44ch); font-family: var(--display); font-weight: 500; font-size: clamp(1.2rem, min(calc(2.35rem - (var(--n, 90) - 55) * 0.007rem), calc(1.05rem + 2.1vw)), 2.2rem); line-height: 1.12; letter-spacing: -0.025em; color: var(--bone); text-wrap: balance; }
+  .blk { margin: 0 auto clamp(104px, 18vh, 240px); }
+
+  .st { --w: var(--measure); }
+  .st__lbl {
+    display: flex; align-items: center; gap: 12px;
+    width: var(--w); margin: 0 auto clamp(24px, 4vh, 50px);
+    font-size: var(--t-micro); letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted);
+  }
+  .st__lbl i { flex: 1; height: 1px; background: var(--rule); }
+
+  /* The one piece of furniture every experiment shares: a line of mono that
+     says what the thing in front of you responds to. An experimental
+     interaction that nobody can find is a failed one. */
+  .hint {
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+    width: var(--w); margin: 14px auto 0;
+    font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim);
+  }
+  .hint b { font-weight: 400; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .hint em { font-style: normal; color: var(--muted); }
+  .hint i { flex: 1; min-width: 20px; height: 1px; background: var(--rule); transform: translateY(-3px); }
+
+  .cl { max-width: var(--measure); margin: 0 auto; padding-bottom: clamp(48px, 9vh, 110px); }
+  .rule { border: 0; border-top: 1px solid var(--rule); margin: 0 0 16px; }
+  .cl__p { display: flex; align-items: baseline; gap: 14px; margin: 0; font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); }
+  .cl__p i { flex: 1; height: 1px; background: var(--rule); transform: translateY(-3px); }
+  .cl__p span:last-child { text-align: right; }
+  @media (max-width: 620px) { .cl__p { flex-direction: column; gap: 6px; } .cl__p i { display: none; } .cl__p span:last-child { text-align: left; } }
+
+  /* ── XP7 · THE SORT ────────────────────────────────────────── */
+  .st { --w: min(calc(100vw - 2 * var(--margin)), 1180px); }
+  .so { width: var(--w); margin-inline: auto; --cw: clamp(96px, 12vw, 152px); }
+
+  .so__axes { display: flex; flex-wrap: wrap; align-items: baseline; gap: 1px; margin-bottom: clamp(16px, 2.4vh, 26px); }
+  .so__ax {
+    border: 1px solid var(--rule); background: none; cursor: pointer; padding: 6px 13px;
+    font: inherit; font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim);
+  }
+  .so__ax:hover { color: var(--bone); }
+  .so__ax:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
+  .so__ax.is-on { color: var(--accent); border-color: var(--accent); }
+  .so__what { margin-left: 14px; font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase; color: color-mix(in srgb, var(--dim) 70%, var(--ground)); }
+
+  .so__plot { position: relative; height: clamp(300px, 52vh, 560px); border-top: 1px solid var(--rule); }
+  .so__card {
+    position: absolute; top: 0; left: 0; margin: 0; width: var(--cw);
+    transform: translate3d(calc(var(--tx) * 1px), calc(var(--ty) * 1px), 0);
+  }
+  /* The travel is the readable part of this direction — which frames move a
+     long way when the axis changes, and which hardly move at all. */
+  @media (prefers-reduced-motion: no-preference) {
+    .so__card { transition: transform 780ms cubic-bezier(0.22, 0.85, 0.24, 1); }
+    .so__card:nth-child(2) { transition-delay: 20ms; }
+    .so__card:nth-child(3) { transition-delay: 40ms; }
+    .so__card:nth-child(4) { transition-delay: 60ms; }
+    .so__card:nth-child(5) { transition-delay: 80ms; }
+    .so__card:nth-child(6) { transition-delay: 100ms; }
+    .so__card:nth-child(7) { transition-delay: 120ms; }
+    .so__card:nth-child(8) { transition-delay: 140ms; }
+  }
+  .so__win { display: block; aspect-ratio: var(--ar); overflow: hidden; background: var(--ground-lift); }
+  .so__win img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .so__cap {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-top: 6px;
+    font-size: var(--t-micro); letter-spacing: 0.14em; color: var(--dim);
+  }
+  .so__cap b { font-weight: 400; color: var(--bone-dim); font-variant-numeric: tabular-nums; }
+  .so__cap em { font-style: normal; color: var(--accent); font-variant-numeric: tabular-nums; }
+
+  .so__ruler {
+    display: flex; align-items: center; gap: 10px; margin-top: 10px;
+    font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase;
+    color: color-mix(in srgb, var(--dim) 72%, var(--ground));
+  }
+  .so__ruler i { flex: 1; height: 1px; background: var(--rule); }
+  .so__ruler span { font-variant-numeric: tabular-nums; }
+
+  @media (max-width: 620px) {
+    .so { --cw: clamp(78px, 24vw, 110px); }
+    .so__plot { height: clamp(300px, 56vh, 440px); }
+    .so__what { display: none; }
+  }
+</style>
