@@ -173,7 +173,16 @@ const BY_LIGHT = [...images.keys()].sort((a, b) => LUMA[a] - LUMA[b]);
      the same way and writes custom properties; nothing here animates on a
      timeline, so a throttled or stalled renderer shows a stale position
      rather than an empty page. */
+  const HANDLERS = [];
+  /* Every registered reader, run synchronously. The preview pane throttles
+     requestAnimationFrame hard, so a scripted scroll can land six positions
+     before one rAF callback fires and the page measures as if it were
+     stuck — the behaviour is correct at 60fps and unmeasurable here without
+     this. It costs one array and is the only reason it exists. */
+  window.sqTick = () => HANDLERS.forEach((f) => f());
+
   function onScroll(fn) {
+    HANDLERS.push(fn);
     let queued = false;
     const tick = () => {
       if (queued) return;

@@ -16,9 +16,10 @@
  *
  * THE SIX ARE DELIBERATELY UNALIKE: a full bleed with the type reversed into
  * the picture; a half-page with a column of metadata and a great deal of air;
- * a pause — one small frame, the darkest in the film, between two lines of
- * display type; a tall offset pair with the type running vertically in the
- * gutter; a split page; and a close that lets two frames overlap.
+ * a pause — the darkest frame in the film, set small and centred over a
+ * single line, with a hairline so that it still has an edge; a tall offset
+ * pair with the type running vertically in the gutter; a split page; and a
+ * close that lets two frames overlap.
  *
  * HOVER IS THE TYPE GETTING OUT OF THE WAY. Rest on any frame and that
  * spread's typography drops to a fifth while the frame's own caption comes
@@ -291,9 +292,15 @@ const SPREADS: { k: string; f: number[]; t: string }[] = [
   .sp--half { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 80px); align-items: center; }
   .sp--half .sp__type { align-self: end; padding-bottom: 6%; }
 
-  /* III · The pause. One small frame between two lines of display type. */
+  /* III · The pause. The quietest frame in the film, small, over one line.
+     THE HAIRLINE IS NOT DECORATION. 03 measures .078 mean luminance — the
+     floor of the whole set — so at this size on a near-black ground it has no
+     visible edge at all and reads as absent rather than as quiet. A one-pixel
+     rule gives the picture its extent back without touching the photograph,
+     which is what a frame is for. */
   .sp--pause { justify-items: center; text-align: center; gap: clamp(22px, 4vh, 48px); }
-  .sp--pause .sp__art { width: min(46%, 330px); }
+  .sp--pause .sp__art { width: min(56%, 420px); }
+  .sp--pause .sp__f img { box-shadow: 0 0 0 1px var(--rule); }
   .sp--pause .sp__type { justify-items: center; gap: 14px; }
   .sp--pause .sp__t { font-size: clamp(1.9rem, 5.4vw, 4.2rem); max-width: 16ch; }
   .sp--pause .sp__cap { justify-content: center; }

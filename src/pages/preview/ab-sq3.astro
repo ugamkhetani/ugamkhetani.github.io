@@ -181,7 +181,16 @@ const TOTAL = HOLD.reduce((a, b) => a + b, 0);
      the same way and writes custom properties; nothing here animates on a
      timeline, so a throttled or stalled renderer shows a stale position
      rather than an empty page. */
+  const HANDLERS = [];
+  /* Every registered reader, run synchronously. The preview pane throttles
+     requestAnimationFrame hard, so a scripted scroll can land six positions
+     before one rAF callback fires and the page measures as if it were
+     stuck — the behaviour is correct at 60fps and unmeasurable here without
+     this. It costs one array and is the only reason it exists. */
+  window.sqTick = () => HANDLERS.forEach((f) => f());
+
   function onScroll(fn) {
+    HANDLERS.push(fn);
     let queued = false;
     const tick = () => {
       if (queued) return;
@@ -313,13 +322,22 @@ const TOTAL = HOLD.reduce((a, b) => a + b, 0);
 
   /* ── SQ3 · THE DURATION ────────────────────────────────────── */
   .st { --w: min(calc(100vw - 2 * var(--margin)), 1180px); }
-  .du { width: var(--w); margin-inline: auto; position: relative; }
+  /* A RESERVED GUTTER, NOT A FLOAT. The strip was floated first and a sticky
+     frame slid straight under it — the lit segment ended up sitting on the
+     photograph, which is the one thing the furniture must never do. A grid
+     column cannot be overlapped. */
+  .du {
+    width: var(--w); margin-inline: auto;
+    display: grid; grid-template-columns: 58px minmax(0, 1fr); gap: 0 22px; align-items: start;
+  }
+  .du__run { min-width: 0; }
+  .du .note { grid-column: 1 / -1; }
 
   /* THE CUTTING STRIP. Segment heights are the holds themselves, so the
      rhythm is a shape you can read before you scroll it. */
   .du__strip {
-    position: sticky; top: 16vh; float: left; width: 58px; height: 68vh;
-    display: flex; flex-direction: column; gap: 3px; margin-right: 22px; z-index: 2;
+    position: sticky; top: 16vh; height: 68vh;
+    display: flex; flex-direction: column; gap: 3px;
   }
   .du__slbl { margin: 0 0 6px; font-size: var(--t-micro); letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
   .du__seg { flex: var(--h) 1 0; display: flex; align-items: flex-start; gap: 7px; min-height: 0; }
@@ -355,7 +373,8 @@ const TOTAL = HOLD.reduce((a, b) => a + b, 0);
   @media (prefers-reduced-motion: no-preference) { .du__held { transition: opacity 240ms linear, color 240ms linear; } }
 
   @media (max-width: 760px) {
-    .du__strip { width: 34px; margin-right: 12px; height: 54vh; top: 13vh; }
+    .du { grid-template-columns: 34px minmax(0, 1fr); gap: 0 12px; }
+    .du__strip { height: 54vh; top: 13vh; }
     .du__f { width: calc(62% + var(--hold) / 1.6 * 36%) !important; margin-inline: 0 auto; }
     .du__rail { height: calc((var(--hold) * 0.72 + 0.7) * 100vh); }
   }
@@ -363,7 +382,8 @@ const TOTAL = HOLD.reduce((a, b) => a + b, 0);
   @media (prefers-reduced-motion: reduce) {
     .du__rail { height: auto; margin-bottom: clamp(40px, 7vh, 90px); }
     .du__f { position: static; transform: none; }
-    .du__strip { position: static; float: none; width: auto; height: auto; flex-direction: row; margin: 0 0 20px; }
+    .du { display: block; }
+    .du__strip { position: static; height: auto; flex-direction: row; margin: 0 0 20px; }
     .du__seg { flex-direction: column; }
   }
 </style>

@@ -156,6 +156,8 @@ const TOPS = CARDS.reduce<number[]>((a, c, i) => [...a, (a[i - 1] ?? 86) + (i ? 
           </article>
         ))}
 
+        <div class="sk__hold" aria-hidden="true"></div>
+
         <p class="mono note">
           <em>Scroll · nothing leaves, it piles up</em>
           <b data-sk-n>0</b><span>of 8 on the stack</span>
@@ -177,7 +179,16 @@ const TOPS = CARDS.reduce<number[]>((a, c, i) => [...a, (a[i - 1] ?? 86) + (i ? 
      the same way and writes custom properties; nothing here animates on a
      timeline, so a throttled or stalled renderer shows a stale position
      rather than an empty page. */
+  const HANDLERS = [];
+  /* Every registered reader, run synchronously. The preview pane throttles
+     requestAnimationFrame hard, so a scripted scroll can land six positions
+     before one rAF callback fires and the page measures as if it were
+     stuck — the behaviour is correct at 60fps and unmeasurable here without
+     this. It costs one array and is the only reason it exists. */
+  window.sqTick = () => HANDLERS.forEach((f) => f());
+
   function onScroll(fn) {
+    HANDLERS.push(fn);
     let queued = false;
     const tick = () => {
       if (queued) return;
@@ -303,7 +314,25 @@ const TOPS = CARDS.reduce<number[]>((a, c, i) => [...a, (a[i - 1] ?? 86) + (i ? 
 
   /* ── SQ5 · THE STACK ───────────────────────────────────────── */
   .st { --w: min(calc(100vw - 2 * var(--margin)), 980px); }
+  /* TRAILING ROOM, AND IT IS THE POINT OF THE DIRECTION. A sticky box is
+     constrained to its parent's padding box, so without this the container
+     ended on the last card and the finished pile — eight edges and the live
+     frame — was pushed out of view in the same scroll that completed it.
+     PADDING ON THE CONTAINER DOES NOT DO IT, which cost an hour. A sticky box
+     stops being stuck when its containing block runs out, and padding-bottom
+     does not buy it any room: probed at ten scroll positions with 3000px of
+     padding, the eighth card tracked the scroll one-for-one and never pinned
+     once — the trace was identical to no padding at all. A real element after
+     the last card does: same probe, same 3000px, and it held at exactly 364
+     for every sample. So the room has to be in the flow, not in the padding.
+     The first seven always stacked; only the last one, with nothing after it,
+     had nowhere to be held. */
   .sk { width: var(--w); margin-inline: auto; }
+  .sk__hold { height: 130vh; }
+  /* The note was sticky to the bottom of the viewport for a while and had to
+     stop being so: with the container ending above the fold it rode UP into
+     the live frame and printed mono across the photograph, which is the one
+     thing the furniture in these drafts may never do. It sits at the end. */
 
   .sk__c {
     position: sticky; top: var(--top);
