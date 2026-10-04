@@ -8,8 +8,8 @@ ratio: "3:2"
 role: "Additional Composer"
 quote: "A series score has to breathe beyond the scene."
 description: >
-  Score and additional production for a flagship Indian streaming series,
-  working with Advait Nemlekar. Long-form work demands continuity. A cue has
+  Score and additional production for Neeraj Pandey’s flagship Indian
+  streaming series. Long-form work demands continuity. A cue has
   to serve the scene in front of it while belonging to a larger musical
   language that can sustain itself across episodes. The work was developed
   directly against picture and delivered to platform specifications within
