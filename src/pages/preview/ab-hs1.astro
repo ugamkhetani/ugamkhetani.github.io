@@ -1,37 +1,63 @@
 ---
 /**
- * ABOUT, REDESIGNED — D · POSTER
+ * AB-HS1 · ONE SIZE, NOT ONE WIDTH
  *
- * One of six asked for on 2026-09-17: the About section (movements 02 to 05)
- * redesigned from scratch, content unchanged. Nothing here is on the live site.
+ * 2026-10-04, on Ugam's instruction: the four About headings set at the font
+ * size WHAT I WORK ACROSS already has. One change, four numbers.
  *
- * THE ABOUT SECTION AS A RUN OF SWISS POSTERS. The site's own grotesk set at
- * architectural scale: each movement's name so large the screen crops it, and
- * drifting sideways as you scroll past, like a slow camera pan across a wall of
- * type. Everything else hangs off a strict twelve-column grid, flush left,
- * ragged right, one family.
+ *   #r-who     WHO I AM            21.800vw  ->  10.162vw
+ *   #r-across  WHAT I WORK ACROSS  10.162vw  ->  unchanged
+ *   #r-how     HOW I WORK          17.950vw  ->  10.162vw
+ *   #r-close   WHAT I'M AFTER      13.853vw  ->  10.162vw
  *
- *   ground   the site's #0A0908
- *   white    #FFFFFF
- *   grey     #9B9B9B   labels; 7.2:1
- *   rule     rgba(255,255,255,0.2)
- *   orange   the site's #E85D2C on the full stops, and nowhere else. base.css
- *            already calls the trailing period "the most recognisable mark in
- *            the identity"; here every statement ends on it.
- *   type     var(--display) alone — Neue Haas Grotesk Display where the licensed
- *            files are installed, Helvetica Neue until then, which is what this
- *            machine renders. The draft commits to the brand's own face rather
- *            than bringing a new one.
+ * ── WHAT THIS REPLACES, BECAUSE IT IS A SYSTEM AND NOT FOUR NUMBERS ──
  *
- * THE SIGNATURE IS THE PAN. The giant words run on a CSS scroll-driven
- * animation (animation-timeline: view()), from 6vw right of their rest to 18vw
- * left of it across the time the word is on screen. No script. Where
- * view timelines are unsupported, or motion is reduced, the words simply sit.
- * The section clips horizontally so the crop never becomes a scrollbar.
+ * THE LIVE PAGE HOLDS THE FOUR TO A COMMON INK WIDTH, NOT A COMMON SIZE, and
+ * that is the whole idea those sizes encode. Measured at 1280 the four render
+ * about 1243, 1356, 1350 and 1311 pixels of ink — one width of roughly 1.06
+ * viewports, solved four times for four word-lengths. The sizes look
+ * arbitrary because they are answers: each one is its heading's target width
+ * divided by that heading's own measured uppercase ink-per-pixel.
  *
- * ← ASSUMED: the corner labels are not repeated per movement; the section
- *   number sits under every giant word and place and year range once, in the
- *   first poster's label row.
+ * SETTING THEM ALL TO ONE SIZE INVERTS THAT. Equal size means unequal width,
+ * necessarily, because the lines have 8, 18, 10 and 14 characters. The
+ * right-hand edge stops being a shared edge and becomes a rag.
+ *
+ * <- AND IT REVERSES A CORRECTION THE LIVE PAGE MAKES ON PURPOSE. WHO I AM
+ *   is deliberately 7.9 per cent under its solved width, because equal ink
+ *   width is NOT equal apparent size: holding eight characters and eighteen
+ *   to the same 1350px puts the first at 303px of type and the second at
+ *   130, a 2.3-to-1 difference in the size of an actual letter. The live
+ *   page pulls the shortest heading down so it does not shout.
+ *
+ *   At one common size that correction has nothing to correct — every
+ *   letter is the same size by construction, which is the one thing the old
+ *   system could not give. So the problem WHO I AM's 21.8vw was solving
+ *   does not exist here. That is the honest case for this draft and it is a
+ *   real one: it trades a shared right edge for letters that actually match.
+ *
+ * ── WHAT IS NOT TOUCHED ──────────────────────────────────────────
+ *
+ * THE PAN IS INDEPENDENT AND STAYS EXACTLY AS IT IS. po-pan's keyframes are
+ * written in vw — 6 to -18 — so the travel is a fraction of the viewport and
+ * owes nothing to type size. All four headings still pan the same distance
+ * at the same rate, which is also why shrinking three of them cannot pull
+ * anything out of its container.
+ *
+ * THE CASE AND THE TRACKING STAY. Uppercase at -0.045em, which is .fr__t's
+ * setting in Selected works and the reason these headings are capitals at
+ * all. Only font-size moves.
+ *
+ * THE MARKUP IS UNTOUCHED. The inline --gs on each h2 is still 27/13.5/23/18
+ * vw and still overridden by the font-size rule, exactly as on the live page
+ * — an inline custom property beats a stylesheet one, which is why these are
+ * set as font-size rather than as --gs. Nothing in this draft changes that
+ * mechanism; it changes four values inside it.
+ *
+ * <- HONEST LIMIT. The measurements in the header below were taken in the
+ *   settled state at 1280 x 800 with every animation finished, because the
+ *   preview pane freezes transitions at their start value (HANDOFF §6) and
+ *   the pan is a scroll-driven animation it does not sample.
  */
 import Base from '../../layouts/Base.astro';
 import OpNav from '../../components/OpNav.astro';
@@ -43,8 +69,9 @@ import { composition, numberFor, total, RATIO_NUM } from '../../data/composition
 import { getCollection } from 'astro:content';
 import Opening from '../../components/Opening.astro';
 import { framesFor } from '../../lib/frames';
-import { BED_SWAPS, BED_CROP, BED_GRADE, BED_TILES } from '../../lib/bed';
+import { BED_SWAPS, BED_CROP, BED_GRADE, BED_TILES, BED_CELLS } from '../../lib/bed';
 import { cardK, type CardMode } from '../../lib/cards';
+import { infoRows } from '../../lib/wkinfo';
 
 /* HOW BIG AN UPRIGHT WORK IS IN THE CONVEYOR — draft E · Draw, applied.
    Chosen from five built as real pages and judged in the browser; those pages
@@ -188,12 +215,26 @@ const bedCast = wnodes.map((n) => {
 });
 
 /* The catalogue as a bed behind the whole document. It comes round more than
-   once on purpose: a wall of work should read as more than you can count. */
-const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => bedCast[i % bedCast.length]);
+   once on purpose: a wall of work should read as more than you can count.
+
+   BED_CELLS overrides individual cells with a named work AND a named FILE.
+   The cycle alone put the same photograph in a partial cell that was already
+   fully visible in the centre, fourteen times over; the table breaks those
+   repeats by reaching for a different frame rather than a different work. A
+   cell it does not name falls through to the cycle exactly as before, which
+   is what keeps the twelve centre tiles untouched. */
+const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => {
+  const pick = BED_CELLS[i];
+  if (pick) return { w: bySlug.get(pick.slug)!, frames: [pick.frame], set: true };
+  const n = bedCast[i % bedCast.length];
+  return { w: n.w, frames: n.w.data.frames, set: false };
+});
 
 /* D · Poster: splits a statement's trailing full stop off so it can take the
    site's orange. The words themselves are untouched. */
 const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -1), '.'] : [s, '']);
+/* The opening letter, split off so it can be set as a versal. */
+const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
 ---
 
 <Base
@@ -223,14 +264,18 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
             style={[
               BED_CROP[c.w.id] &&
                 `--crop-s:${BED_CROP[c.w.id].scale};--crop-y:${BED_CROP[c.w.id].shiftY}%`,
-              BED_GRADE[c.w.id] && `--bed-k:${BED_GRADE[c.w.id].contrast}`,
+              /* The grade is frame-specific -- it exists to rescue Bloody
+                 Bubbly's FIRST frame, which graded to a hole. A cell that
+                 names its own file is measured on that file and does not
+                 inherit it; see BED_CELLS in src/lib/bed.ts. */
+              !c.set && BED_GRADE[c.w.id] && `--bed-k:${BED_GRADE[c.w.id].contrast}`,
             ]
               .filter(Boolean)
               .join(';') || undefined}
           >
             <Still slug={c.w.id} title={c.w.data.title} year={c.w.data.year}
               category={c.w.data.category} ratio={c.w.data.ratio}
-              frames={c.w.data.frames} alt={c.w.data.alt}
+              frames={c.frames} alt={c.w.data.alt}
               sizes="20vw" eager={false} max={1} free={true} />
           </span>
         ))}
@@ -238,6 +283,114 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
     </div>
 
     <div class="ap__mat" aria-hidden="true"></div>
+
+    {/* One pane for the whole page. See the stylesheet. */}
+    {/* THE BLUR IS EARNED, NOT GUESSED.
+
+        What this replaced was a guess in three parts — cores, memory and a
+        900px width rule — and measured, it pointed the wrong way. The bed is
+        1.2x the viewport in each axis, so an iPhone 15 Pro blurs 4.34
+        physical megapixels and a 1512x982 MacBook blurs 8.55. The phone did
+        half the work and was switched off; the laptop did twice as much and
+        was let through. Width is not a capability test.
+
+        Nor could a static test be fixed: deviceMemory does not exist in
+        Safari, so no iPhone can ever pass it, and what iOS reports for
+        hardwareConcurrency could not be determined here — guessing wrong
+        gates every iPhone, which is the exact outcome this is meant to
+        avoid.
+
+        So it is measured, and the design pays for the window. The blur is
+        0px until 240px of scroll — the opening is blur-free by construction
+        — which is long enough to discard the first ten frames, watch the
+        next forty and decide before anything expensive is wanted. Nothing is
+        shown and then taken away. The loop is bounded at two hundred frames
+        or five seconds, whichever comes first, and running out is itself a
+        verdict: no blur.
+
+        THE BAR IS THE DISPLAY'S OWN CADENCE, not a millisecond count. The
+        shortest frame observed is taken as the refresh period and the device
+        passes if its median frame sits within 1.35 of it, which reads the
+        same on a 60Hz phone and a 120Hz laptop where one fixed threshold
+        would have had to pick one and be wrong about the other.
+
+        AND THE CADENCE ITSELF HAS TO BE A HEALTHY ONE. Testing the ratio
+        alone let a device pinned at 30fps through — it holds 33.3ms
+        perfectly, ratio 1.01, which reads as a device in complete control of
+        itself. Consistency is not health. The period must also be 20ms or
+        better, which is 50Hz: 60 and 120 pass, a throttled or low-power
+        device does not.
+
+        FAILS TO THE CHEAP STATE. No script, no attribute, no blur. */}
+    <script is:inline>
+      (function () {
+        var d = document.documentElement;
+        /* A stated preference, not a capability. Never probe, never blur. */
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        /* The verdict survives client-side navigation, so this runs once a
+           session rather than once a page. */
+        try {
+          var seen = sessionStorage.getItem('blur-ok');
+          if (seen === '1') { d.setAttribute('data-blur', ''); return; }
+          if (seen === '0') return;
+        } catch (e) {}
+
+        /* THE FIRST FRAMES ARE THROWN AWAY, and this is the difference
+           between letting a good phone through and failing it. The probe
+           starts at load, which is when image decoding is heaviest — a
+           capable phone can easily spend its first ten frames behind and
+           then hold 60 perfectly. Judging it on those frames would fail
+           exactly the device this measurement exists to let through. */
+        var dts = [], last = 0, seen = 0, t0 = 0;
+        var WARMUP = 10, N = 40, MAX_FRAMES = 200, MAX_MS = 5000;
+        requestAnimationFrame(function tick(now) {
+          if (!t0) t0 = now;
+          seen++;
+          if (last && seen > WARMUP) {
+            var dt = now - last;
+            /* Over 100ms is a tab switch or an image decode, not a verdict
+               on the device. */
+            if (dt < 100) dts.push(dt);
+          }
+          last = now;
+
+          /* BOUNDED TWO WAYS, and it has to be. Waiting only for N clean
+             samples means a device whose frames are mostly OVER 100ms never
+             collects them — and the loop then runs for the life of the page,
+             on precisely the hardware least able to spare it. It costs 7
+             nanoseconds a frame, so this is untidy rather than harmful, but
+             an unbounded loop is not something to leave in. Frames cap the
+             fast case, wall clock caps the slow one: at 5fps, 200 frames
+             would be 40 seconds. */
+          if (dts.length < N && seen < MAX_FRAMES && now - t0 < MAX_MS) {
+            requestAnimationFrame(tick);
+            return;
+          }
+
+          var ok = false;
+          /* Falling out of the loop without enough clean samples IS the
+             verdict: the device could not produce forty frames under 100ms
+             inside two hundred attempts or five seconds. No blur, and it is
+             cached like any other answer so the probe does not run again. */
+          if (dts.length >= N) {
+            var sorted = dts.slice().sort(function (a, b) { return a - b; });
+            var period = sorted[0];
+            var median = sorted[sorted.length >> 1];
+            /* TWO TESTS, AND THE SECOND ONE MATTERS. The ratio alone says
+               the device is holding whatever cadence it has — and a machine
+               pinned at 30fps holds 33.3ms perfectly, ratio 1.01, and sails
+               through. Consistency is not health. The period itself has to
+               be a healthy one: 20ms is 50Hz, which lets 60 and 120 through
+               and stops a throttled or low-power device from calling itself
+               capable. */
+            ok = period > 0 && period <= 20 && median / period <= 1.35;
+          }
+          if (ok) d.setAttribute('data-blur', '');
+          try { sessionStorage.setItem('blur-ok', ok ? '1' : '0'); } catch (e) {}
+        });
+      })();
+    </script>
+    <div class="sm" aria-hidden="true"></div>
 
     <header class="ov ov--cm" id="top">
       <div class="fr fr--hero">
@@ -273,11 +426,8 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
     </header>
 
     <section class="mvt mvt--a2 sec--works" id="works" aria-labelledby="r-works" data-mv="0" style={`--count:${wnodes.length}`}>
+      <p class="po-label po-c1 wk-no">01</p>
       <div class="fr fr--over">
-        <p class="mono cn cn--tl">01<br />Selected works</p>
-        <p class="mono cn cn--tr">{HERO.place[0]}<br />{HERO.place[1]}</p>
-        <p class="mono cn cn--bl">01/06<br />{RANGE}</p>
-        <p class="mono cn cn--br">Selected works<br /><span class="ov__cue">Scroll &darr;</span></p>
         <div class="fr__mid">
           <h2 class="fr__t" id="r-works">
             <span class="line" data-reveal><span class="line__in">Selected works</span></span>
@@ -291,6 +441,8 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
             <div class="wk__world">
               {wnodes.map((n) => (
                 <div class="wcard" data-card data-no={n.no} data-title={n.w.data.title} data-year={n.w.data.year}
+                  data-rows={JSON.stringify(infoRows(n.w.data))}
+                  data-ratio={n.w.data.ratio}
                   style={`--arn:${RATIO_NUM[n.w.data.ratio]};--card-k:${cardK(CARD_MODE, RATIO_NUM[n.w.data.ratio])}`}>
                   <Still slug={n.w.id} title={n.w.data.title} year={n.w.data.year}
                     category={n.w.data.category} ratio={n.w.data.ratio}
@@ -310,6 +462,32 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
             </div>
             <p class="rl__date"><span data-w-year>{wnodes[0].w.data.year}</span></p>
           </div>
+
+          <div class="hv hvr" data-hv aria-hidden="true">
+            <!-- The baseline probe. An inline-block of zero size on the baseline of a
+                 line set in the caption's own font: the distance from the line box's
+                 top to the strut IS the baseline offset, measured rather than assumed,
+                 and it follows the caption if its type ever changes. -->
+            <span class="hvr__probe" data-hvr-probe aria-hidden="true">H<i class="hvr__strut" data-hvr-strut></i></span>
+            <!-- AND THE SAME TRICK FOR THE CREDITS' OWN LAST LINE. The block's
+                 BOTTOM EDGE is what sits on the caption's baseline, and a line
+                 box is taller than its baseline, so the words rode 4.03px high
+                 — measured on the live page before this was added, caption
+                 615.03 against value 611.00. This probe is set in the value's
+                 own face and size; the gap from its line box's foot to its
+                 strut is how far the block has to come down. In CSS because
+                 the rule below is ours: nothing is copied off another element,
+                 unlike the caption probe, which has to follow type it does
+                 not own. -->
+            <span class="hvr__probe hvr__vprobe" data-hvr-vprobe aria-hidden="true">H<i class="hvr__strut" data-hvr-vstrut></i></span>
+            <div class="hvr__left"><span class="hvr__box"><i class="hvr__e hvr__e--t"></i><i class="hvr__e hvr__e--l"></i><i class="hvr__e hvr__e--b"></i><i class="hvr__e hvr__e--r"></i></span><span class="hvr__num" data-hvr-num></span></div>
+            <div class="hvr__right">
+              <span class="hvr__f" data-hv-row><span class="hvr__l" data-hv-l></span><span class="hvr__v" data-hv-v></span></span>
+              <span class="hvr__f" data-hv-row><span class="hvr__l" data-hv-l></span><span class="hvr__v" data-hv-v></span></span>
+              <span class="hvr__f" data-hv-row><span class="hvr__l" data-hv-l></span><span class="hvr__v" data-hv-v></span></span>
+              <span class="hvr__f" data-hv-row><span class="hvr__l" data-hv-l></span><span class="hvr__v" data-hv-v></span></span>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -318,10 +496,12 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
       <h2 class="po-giant" id="r-who" style="--gs:27vw"><span class="po-pan">Who I am</span></h2>
       <div class="po-grid">
         <p class="po-label po-c1">02</p>
-        <p class="po-label po-c2">{HERO.place[0]}<br />{HERO.place[1]}</p>
-        <p class="po-label po-c3">{RANGE}</p>
         <h3 class="po-state">{stopOf(WHO.head)[0]}<span class="po-stop">{stopOf(WHO.head)[1]}</span></h3>
-        <div class="po-body">{WHO.body.map((p) => <p>{p}</p>)}</div>
+        <div class="po-body">
+          {WHO.body.map((p, i) => (i === 0
+            ? <p class="po-open"><span class="po-versal" aria-hidden="true">{versalOf(p)[0]}</span><span class="po-versal-sr">{versalOf(p)[0]}</span>{versalOf(p)[1]}</p>
+            : <p>{p}</p>))}
+        </div>
       </div>
     </section>
 
@@ -376,16 +556,10 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
         heading was the only thing that id pointed at, and a dangling
         aria-labelledby names a section after nothing at all. The corner
         still reads 06 / Contact, and the form opens on "Let's talk." */}
-    <section class="mvt mvt--a2 mvt--contact" id="contact" aria-label="Contact" data-mv="5">
-      <div class="fr">
-        <p class="mono cn cn--tl">06<br />Contact</p>
-        <p class="mono cn cn--tr">{HERO.place[0]}<br />{HERO.place[1]}</p>
-        <p class="mono cn cn--bl">06/06<br />{RANGE}</p>
-        <p class="mono cn cn--br">Selected works<br /><span class="ov__cue">Enquiries</span></p>
-      </div>
-
-      <div class="ms__panel">
-      <div class="s__enq"><ContactForm /></div>
+    <section class="mvt po-sec sm-sec mvt--contact" id="contact" aria-label="Contact" data-mv="5">
+      <div class="po-grid sm-grid">
+        <p class="po-label po-c1">06</p>
+        <div class="sm-form"><ContactForm /></div>
       </div>
     </section>
   </div>
@@ -597,6 +771,13 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
        work, which by definition has not happened yet. Measured before this
        line existed: no mark lit at all through the whole first work. */
     if (ticks[0]) ticks[0].classList.add('is-on');
+    /* WHICH WORK IS CENTRED, IN A PLACE THE HOVER READING CAN READ IT. The
+       caption is server-rendered from wnodes[0] and `written` starts at 0,
+       so the block in paint() that would set this is guarded on a CHANGE
+       that has not happened yet — the same reason the first mark is lit by
+       hand above. Without the seed, leaving a hover before the first scroll
+       restores a caption to an empty string. */
+    sec.dataset.wkTitle = cards[0].dataset.title || '';
 
     /* Natural, unscaled heights. offsetHeight is layout height and is blind
        to transforms, which is exactly what the stack needs — and it is read
@@ -844,7 +1025,15 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
          animate — never one that lies about which work you are looking at. */
       if (readout && written !== best) {
         written = best;
-        if (title) title.textContent = cards[best].dataset.title || '';
+        sec.dataset.wkTitle = cards[best].dataset.title || '';
+        /* THE POINTER OUTRANKS THE SCROLL ON THE CAPTION, AND ONLY THE
+           CAPTION. While a work is held, --hv-title carries its name and the
+           caption belongs to it; the year, the lit mark and the arc below
+           all keep answering for the CENTRED work, because those are the
+           instrument and the instrument reports where the conveyor is. Only
+           the name is in dispute, because only the name is also the subject
+           of the reading hanging off it. */
+        if (title) title.textContent = sec.dataset.hvTitle || sec.dataset.wkTitle || '';
         if (year) year.textContent = cards[best].dataset.year || '';
         /* The lit mark belongs HERE and not with the rotation above: which
            work you are on is a discrete fact that changes sixteen times in
@@ -911,10 +1100,283 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
     paint();
   }
 
+  /* ══ THE HOVER READING ═══════════════════════════════════════════
+     ONE PANEL, NOT SIXTEEN, AND IT IS NOT A CHILD OF THE CARD. Every
+     .wcard carries `transform: scale(var(--s))` — the conveyor's depth is a
+     scale, not a translateZ, because the placement needs each work's
+     rendered height before it places it. Anything inside a card is scaled
+     with it, and across the gate below that is a factor of two: the same
+     13px label would set at 6.5px on one work and 12.7px on another. So the
+     panel lives outside .wk__world and is positioned from the hovered
+     card's own getBoundingClientRect().
+
+     A POSITIVE z-index HERE BEATS THE WHOLE SCENE. .wk__scene carries
+     `perspective: 1250px` and .wk__world carries `transform-style:
+     preserve-3d`; both create a stacking context, so a card's z-index is
+     only ever compared against its fifteen siblings. The panel is a SIBLING
+     of .wk__scene, so anything it draws is above every card — and nothing a
+     card does can climb over it.
+
+     THE GATE IS --op >= 0.5, read off the card's own inline style. That
+     property is written every frame by paint() above and is the one number
+     that already says how visible a work is. Measured at 1280x800 mid
+     section it admits exactly three works — 0.607, 0.975 and 0.818 — and
+     refuses the next one out at 0.484, which is 302px wide and half round
+     the turn. Putting a crisp reading on that would claim a prominence its
+     picture does not have. The gate is IDENTICAL in all eight drafts so a
+     difference between them is never a difference of which works answer.
+
+     IT IS RE-CHECKED ON SCROLL, in the panel's own rAF rather than inside
+     paint(): the row keeps moving under a stationary pointer, so a held
+     work can fall through the gate without the pointer ever leaving it.
+
+     THE MARGIN AND GUTTER ARE COMPUTED, NOT READ. `--margin` is
+     `clamp(24px, 6vw, 88px)` and getPropertyValue hands back that string
+     unresolved, so parseFloat returns NaN and a JS clamp written against it
+     silently becomes no clamp at all (HANDOFF §6). Both are recomputed from
+     innerWidth here, which is what the stylesheet's own clamp resolves to.
+
+     KEYBOARD GETS IT TOO. focusin/focusout run the same path as the
+     pointer. The panel itself is aria-hidden — it is a pointer affordance,
+     and the same four facts are set in the four-column block on the work
+     page, which is what a screen reader follows the card's own link to.
+     <- FLAGGED: say the word and it becomes a live region instead.
+
+     BELOW 901px NOTHING BINDS. The conveyor is not live there — .wk__pin
+     goes static and .wk__world becomes a plain two-column grid — so there
+     is no hovered work to read, and on a touch pointer there is no hover.
+
+     See the file header. */
+  function initHvInfo() {
+    const sec = document.querySelector('.sec--works') as HTMLElement | null;
+    if (!sec || sec.dataset.hvBound) return;
+    const panel = sec.querySelector('[data-hv]') as HTMLElement | null;
+    const pin = sec.querySelector('.wk__pin') as HTMLElement | null;
+    if (!panel || !pin) return;
+    if (!matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    /* RE-ARMED ON RESIZE, exactly as initOpWorks arms itself. A window that
+       STARTS under 901px and is then widened would otherwise never bind: the
+       conveyor comes to life on the resize, the panel does not, and the
+       hover reading is silently dead for the rest of the session with every
+       precondition passing when you go looking. Found by loading a draft in
+       a narrow pane and widening it afterwards — the section reported
+       is-live, the panel and the pin were both found, sixteen cards were
+       there, and nothing was bound. */
+    if (!matchMedia('(min-width: 901px)').matches) {
+      if (!sec.dataset.hvArmed) {
+        sec.dataset.hvArmed = '1';
+        addEventListener('resize', () => initHvInfo(), { passive: true });
+      }
+      return;
+    }
+    const cards = Array.from(sec.querySelectorAll('[data-card]')) as HTMLElement[];
+    if (!cards.length) return;
+    /* NOT `data-hv`: that is the panel's own marker, and a bound flag
+       sharing the name makes a document-wide query for it return the
+       SECTION rather than the panel. */
+    sec.dataset.hvBound = '1';
+
+    const GATE = 0.5;
+    const opOf = (c: HTMLElement) => {
+      const v = parseFloat(c.style.getPropertyValue('--op'));
+      return isNaN(v) ? 1 : v;
+    };
+    const rowsOf = (c: HTMLElement): { label: string; value: string }[] => {
+      try { return JSON.parse(c.dataset.rows || '[]'); } catch { return []; }
+    };
+    const MARGIN = () => Math.min(88, Math.max(24, innerWidth * 0.06));
+    const GUTTER = () => Math.min(24, Math.max(12, innerWidth * 0.016));
+
+    let held: HTMLElement | null = null;
+    let raf = 0;
+
+    const slots = Array.from(panel.querySelectorAll('[data-hv-row]')) as HTMLElement[];
+
+    const CAP = 26;
+    const numOut = panel.querySelector('[data-hvr-num]') as HTMLElement;
+    const capEl = sec.querySelector('.rl__cap') as HTMLElement | null;
+    const probe = panel.querySelector('[data-hvr-probe]') as HTMLElement;
+    const strut = panel.querySelector('[data-hvr-strut]') as HTMLElement;
+    const vprobe = panel.querySelector('[data-hvr-vprobe]') as HTMLElement;
+    const vstrut = panel.querySelector('[data-hvr-vstrut]') as HTMLElement;
+    const nameEl = sec.querySelector('[data-w-title]') as HTMLElement | null;
+    const readout = sec.querySelector('[data-readout]') as HTMLElement | null;
+
+    /* THE NAME FOLLOWS THE POINTER, WHICH IT DID NOT IN THE DRAFT.
+
+       The gate admits any work at --op >= 0.5 — three at once, measured —
+       and the readout names the CENTRED work. So pointing at either of the
+       two neighbours put one work's name over another work's format,
+       platform, role and year, which is the one thing a colophon may never
+       do. The draft never showed it because a draft is read by hovering
+       whatever is in front of you, and what is in front of you is usually
+       centred.
+
+       So the caption is written from the HELD card while a work is held, and
+       restored to the centred one when the pointer leaves. --hv-title is the
+       flag paint() reads, so the two writers cannot fight: while it is set,
+       the scroll loop leaves the caption alone and updates only the year,
+       the lit mark and the arc.
+
+       IT FADES THE WAY THE CONVEYOR'S OWN TURN FADES, by restarting
+       `is-turning` — the same 190ms rl-in the readout already uses when the
+       centred work changes. A name that changed without it would be the one
+       hard cut on the page. */
+    /* THE FALLBACK IS SEEDED HERE TOO, because initOpWorks may never run.
+       It returns early under prefers-reduced-motion, and this does not — so
+       on that path sec.dataset.wkTitle is never written and leaving a hover
+       would have restored the caption to an empty string, wiping the only
+       name on the section. The caption is server-rendered from the first
+       work, so its own text is the right fallback at bind time. */
+    if (!sec.dataset.wkTitle && nameEl) sec.dataset.wkTitle = nameEl.textContent || '';
+
+    const setName = (name: string) => {
+      if (!nameEl || nameEl.textContent === name) return;
+      nameEl.textContent = name;
+      if (readout) {
+        readout.classList.remove('is-turning');
+        void readout.offsetWidth;          /* restart the animation */
+        readout.classList.add('is-turning');
+      }
+    };
+
+    const fill = (c: HTMLElement) => {
+      const rows = rowsOf(c);
+      const arn = parseFloat(c.style.getPropertyValue('--arn')) || 1.7778;
+      panel.style.setProperty('--bw', (CAP * arn).toFixed(1));
+      numOut.textContent = c.dataset.ratio || '';
+
+      anchor();
+
+      slots.forEach((s, i) => {
+        const row = rows[i];
+        s.hidden = !row;
+        if (!row) return;
+        (s.querySelector('[data-hv-l]') as HTMLElement).textContent = row.label;
+        (s.querySelector('[data-hv-v]') as HTMLElement).textContent = row.value;
+      });
+
+      /* THE STAGGER IS BY ROW, AND THE ROW IS NOW A MEASUREMENT. It was
+         written into the markup as 0,0,1,1 while the block was a fixed 2 x 2
+         grid; once the facts wrap to the space the name leaves, the markup
+         cannot know which row a fact lands on — Book My Yamraj takes one row
+         and Special Ops 2.0 takes three. Ranking the distinct offsetTops
+         after the text is in gives the real row, so the claim in the header
+         is the behaviour. */
+      const vis = slots.filter((s) => !s.hidden);
+      const tops = Array.from(new Set(vis.map((s) => s.offsetTop))).sort((a, b) => a - b);
+      vis.forEach((s) => s.style.setProperty('--i', String(tops.indexOf(s.offsetTop))));
+    };
+
+    /* WHERE THE NAME IS, MEASURED — and re-measured whenever the frame
+       moves. It lived inside fill() in the draft, which runs on hover and
+       never again, so a conveyor that kept moving under a held pointer left
+       the shape and the particulars hanging off a caption that had drifted.
+       The readout's own `bottom` is derived from --lit, which changes with
+       scroll, so this is a real drift and not a theoretical one. place() is
+       called by the panel's rAF on every scroll and resize while a work is
+       held, so hanging it here costs one Range read a frame and only while
+       something is actually held. */
+    const anchor = () => {
+      /* THE TITLE'S INK, NOT ITS BOX. .rl__cap is a block filling the
+         readout's 720px, so its rect says nothing about the name — a Range
+         over the contents gives the painted width. The composition is locked
+         to the NAME, so this is the number everything else is placed from,
+         and reading the box instead would centre the whole thing on a
+         constant and lose the point. */
+      let l = 0, r = 0;
+      if (capEl) {
+        const rg = document.createRange();
+        rg.selectNodeContents(capEl);
+        const rects = Array.from(rg.getClientRects());
+        if (rects.length) {
+          const p = pin.getBoundingClientRect();
+          l = Math.min(...rects.map((x) => x.left)) - p.left;
+          r = Math.max(...rects.map((x) => x.right)) - p.left;
+        }
+      }
+      panel.style.setProperty('--tl', `${l.toFixed(1)}px`);
+      panel.style.setProperty('--tr', `${r.toFixed(1)}px`);
+
+      /* THE CAPTION'S BASELINE, MEASURED. Both blocks hang off it, and it
+         was a hardcoded 592px first. Two things were wrong with that. The
+         rectangle landed 2.6px below the baseline on fifteen works — close
+         enough to look deliberate and still not the claim the header makes.
+         And on Mere Ho the readout sits at y 539.9 rather than 578, so the
+         shape stood 40.7px below the name it is supposed to be set with.
+         A constant cannot follow an element that moves. */
+      if (capEl) {
+        const cs = getComputedStyle(capEl);
+        probe.style.fontFamily = cs.fontFamily;
+        probe.style.fontSize = cs.fontSize;
+        probe.style.fontWeight = cs.fontWeight;
+        probe.style.lineHeight = cs.lineHeight;
+        const pt = probe.getBoundingClientRect().top;
+        const st = strut.getBoundingClientRect().top;
+        const cb = capEl.getBoundingClientRect().top + (st - pt) - pin.getBoundingClientRect().top;
+        panel.style.setProperty('--cb', `${cb.toFixed(1)}px`);
+      }
+
+      /* AND HOW FAR THE CREDITS SIT ABOVE THEIR OWN BOX'S FOOT.
+         `bottom` places an EDGE, and a line box is taller than its baseline,
+         so putting the block's foot on the caption's baseline left the words
+         4.03px high — measured on the live page, caption 615.03 against
+         value 611.00, which is what Ugam saw. The vprobe is set in the
+         value's own face and size by CSS, so this needs no copying: the gap
+         from its line box's foot to its strut IS the correction, and the
+         block is shifted down by it so the VALUE'S baseline lands on the
+         caption's.
+
+         READ HERE RATHER THAN IN fill(), and for the same reason --cb is:
+         the value's size is clamp(14px, 1.33vw, 17px), so it changes with
+         the width, and a number taken once on hover would be stale after a
+         resize. Two rect reads a frame while something is held, which is
+         what the caption probe above already costs. */
+      const vb = vprobe.getBoundingClientRect().bottom - vstrut.getBoundingClientRect().top;
+      panel.style.setProperty('--vb', `${vb.toFixed(2)}px`);
+    };
+
+    const place = (_c: HTMLElement) => { anchor(); };
+    const show = (c: HTMLElement) => {
+      held = c;
+      /* THE NAME FIRST, because everything below is measured off its ink. */
+      sec.dataset.hvTitle = c.dataset.title || '';
+      setName(c.dataset.title || '');
+      place(c);
+      fill(c);
+      sec.classList.add('is-hv');
+    };
+    const hide = () => {
+      delete sec.dataset.hvTitle;
+      setName(sec.dataset.wkTitle || '');
+      held = null;
+      sec.classList.remove('is-hv');
+    };
+
+    cards.forEach((c) => {
+      const on = () => { if (held !== c && opOf(c) >= GATE) show(c); };
+      const off = () => { if (held === c) hide(); };
+      c.addEventListener('pointerenter', on);
+      c.addEventListener('pointerleave', off);
+      c.addEventListener('focusin', on);
+      c.addEventListener('focusout', off);
+    });
+
+    const track = () => {
+      raf = 0;
+      if (!held) return;
+      if (opOf(held) < GATE) { hide(); return; }
+      place(held);
+    };
+    addEventListener('scroll', () => { if (held && !raf) raf = requestAnimationFrame(track); }, { passive: true });
+    addEventListener('resize', () => { if (held && !raf) raf = requestAnimationFrame(track); }, { passive: true });
+  }
+
   initOpWorks();
   initRunningHead();
   initDrift();
-  document.addEventListener('astro:page-load', () => { initOpWorks(); initRunningHead(); initDrift(); });
+  initHvInfo();
+  document.addEventListener('astro:page-load', () => { initOpWorks(); initRunningHead(); initDrift(); initHvInfo(); });
 </script>
 
 <style>
@@ -2348,4 +2810,1317 @@ const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -
     .po-step { row-gap: 14px; }
     .po-list ul { margin-top: 14px; }
   }
+
+/* ══ MS3 · SMOKED ════════════════════════════════════════════════
+     WHAT WAS HERE IS IN ONE PANE BELOW. This section used to smoke the
+     poster by putting a translucent ground and a backdrop-filter on
+     .rg .mvt.po-sec itself. Both rules were dead from the day ONE PANE
+     landed beside them — it sets the same three sections transparent with
+     no backdrop-filter, from a later rule at equal specificity — and they
+     were removed on 2026-09-29. The mat and the label colours below were
+     never part of that and stay. */
+  /* The mat would put a hard-edged rectangle in the middle of a page whose
+     whole point is that there is no edge. */
+  .rg .ap__mat { display: none; }
+  /* A JUDGEMENT, NOT A FIX. I changed these expecting ab-d's #9B9B9B to fail
+     here. Measured against the composited worst case it gives 5.71:1, which
+     clears AA for small text with room to spare, so the grey was never in
+     trouble. They are lifted anyway because a 12px label wants more presence
+     over a picture than over flat ground — which is a taste, and is written
+     down as one. */
+  .rg .po-sec .po-label { color: var(--bone-dim); }
+  .rg .po-sec .po-label--hi, .rg .po-sec .po-c1 { color: var(--bone); }
+
+
+  /* ══ THE SMOKE — REMOVED 2026-09-29 ═════════════════════════════
+     A whole second generation of this effect lived here and had never run.
+     It declared @property --smoke a second time, set --smoke on .rg a
+     second time, ran `animation: ms-smoke` on .rg at the same specificity
+     as ONE PANE's `animation: sm-haze, sm-ground`, and gave the three
+     sections a --smoke-driven ground with a backdrop-filter on two of them.
+
+     ONE PANE WON EVERY ONE OF THOSE TIES BY BEING LATER IN THE SAME STYLE
+     BLOCK, which is ordinary cascade rather than luck — verified in the
+     emitted CSS, where both land in one file and ONE PANE's rules sit at a
+     higher offset. It was still worth deleting: three generations of the
+     same effect in one file, two of them inert, is a trap for whoever edits
+     it next, and moving either block between the file's three <style>
+     elements would have flipped the result for real.
+
+     The live machinery is ONE PANE below, plus THE BLUR MOVES OFF THE
+     BACKDROP and THE BLUR, ONCE EARNED. See HANDOFF §5. */
+
+  /* ══ CONTACT, IN THE POSTER'S FURNITURE ══════════════════════════
+     The component's own grid is NOT touched: .ct__page keeps its two
+     columns, .ct__head keeps its sticky 80vh left column, .divide keeps its
+     hairline down the gutter. Only the type and the rules change. */
+  .rg .sm-form { grid-column: 1 / -1; grid-row: 2; }
+  .rg .sm-form :global(.ct__page) { padding-top: clamp(26px, 4.4vh, 52px); }
+
+  /* The gutter rule joins the poster's hairline family. */
+  .rg .sm-form :global(.divide) { background: var(--po-rule); }
+  .rg .sm-form :global(.ct__rule) { border-top-color: var(--po-rule); }
+  .rg .sm-form :global(.opt), .rg .sm-form :global(.pill) { border-color: var(--po-rule); }
+
+  /* Mono out, the poster's 12px display-face label in. This is the one
+     change that does most of the work: the posters above never set a word
+     in the mono face, and the contact column was full of it. */
+  .rg .sm-form :global(.mono--dim),
+  .rg .sm-form :global(.ct__grouphead),
+  .rg .sm-form :global(.q__n),
+  .rg .sm-form :global(.q__hint) {
+    font-family: var(--display); font-weight: 500;
+    font-size: 12px; letter-spacing: 0.005em; text-transform: none;
+    color: var(--po-grey);
+  }
+  .rg .sm-form :global(.ct__statement) { letter-spacing: -0.04em; }
+  .rg .sm-form :global(.ct__lede) { color: var(--po-grey); }
+
+.rg .sm-grid { row-gap: clamp(26px, 4.4vh, 52px); }
+  @media (min-width: 901px) {
+    /* The poster's own fold, not a half. */
+    .rg .sm-form :global(.ct__page) { grid-template-columns: 5fr 7fr; }
+    /* .divide is at left: 50%; the gutter is no longer there. Same
+       arithmetic as the grid: (100% - gap) * 5/12 + half the gap. */
+    .rg .sm-form :global(.divide) {
+      left: calc((100% - 3.4em) * 0.41667 + 1.7em);
+    }
+  }
+
+
+  /* ══ ONE PANE ════════════════════════════════════════════════════
+     Registered so every one of these interpolates. An unregistered custom
+     property snaps at the halfway mark, which on a blur radius is very
+     visible and on a mask position is the whole effect lost. */
+  @property --smoke { syntax: '<number>'; inherits: true; initial-value: 1; }
+  @property --haze { syntax: '<length>'; inherits: true; initial-value: 7px; }
+  @property --veil { syntax: '<percentage>'; inherits: true; initial-value: 100%; }
+  @property --iris { syntax: '<percentage>'; inherits: true; initial-value: 0%; }
+
+  .rg { --smoke: 1; --haze: 7px; --veil: 100%; --iris: 0%; }
+
+  /* THE RAMP IS KEYED TO SELECTED WORKS ENTERING, not to a count of
+     viewport heights. Applied 2026-09-29 from /preview/ab-sm2.
+
+     IT USED TO RUN 30vh..96vh ON scroll(root block), which resolved to
+     scrollY 230..799 — and the opening header is exactly one viewport tall,
+     0..768px, so the page began softening while the hero was still two
+     thirds on screen. The top section never got to be clean.
+
+     timeline-scope is the one declaration that needs explaining: a named
+     view timeline is visible to the element that declares it and to its
+     DESCENDANTS, and these animations live on .rg, which is an ANCESTOR of
+     .sec--works. The file's other named timeline, --nq on
+     #philosophy .po-step, needs no such thing because its consumer is a
+     child. This hoists the name so the ancestor can reach it. */
+  :root .rg { timeline-scope: --works; }
+  :root .rg .mvt.sec--works {
+    view-timeline-name: --works;
+    view-timeline-axis: block;
+  }
+
+  .sm {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background: color-mix(in srgb, var(--ground) calc(var(--smoke) * 55%), transparent);
+    -webkit-backdrop-filter: blur(var(--haze));
+    backdrop-filter: blur(var(--haze));
+  }
+  /* Where the pane cannot blur it thickens instead, so the page never loses
+     the separation the blur was providing. */
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .sm { background: color-mix(in srgb, var(--ground) calc(var(--smoke) * 76%), transparent); }
+  }
+
+  /* The sections hand their ground to the pane. The conveyor's own
+     var(--ground) goes with them — it was the last opaque thing between the
+     content and the bed. */
+  .rg .mvt.po-sec,
+  .rg .mvt.sec--works,
+  .rg .mvt.mvt--contact {
+    background: transparent;
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+  }
+  .rg .ov { background: transparent; }
+
+  /* Reduced motion gets the destination, not the journey. */
+  @media (prefers-reduced-motion: reduce) {
+    .rg { --smoke: 1; --haze: 7px; --veil: 100%; --iris: 0%; }
+  }
+
+@supports (animation-timeline: scroll(root block)) {
+    @media (prefers-reduced-motion: no-preference) {
+      .rg {
+        animation: sm-haze linear both, sm-ground linear both;
+        animation-timeline: --works, --works;
+        /* entry 0% is the conveyor's top edge at the bottom of the screen,
+           entry 100% that edge at the top — scrollY 0..768 today, because
+           the opening is exactly one viewport tall. Starting at 50% leaves
+           the opening's whole first half clean and finishes the ramp as
+           Selected works takes the frame. Measured: full blur at scrollY
+           595, both values held from 768 to the document end at 15369. */
+        animation-range: entry 50% entry 100%, entry 50% entry 100%;
+      }
+    }
+  }
+  /* Soft first: full blur by 55 per cent of its own range. */
+  @keyframes sm-haze {
+    0%   { --haze: 0px; }
+    55%  { --haze: 7px; }
+    100% { --haze: 7px; }
+  }
+  /* Dark after: still at two fifths where the blur has finished. */
+  @keyframes sm-ground {
+    0%   { --smoke: 0; }
+    55%  { --smoke: 0.4; }
+    100% { --smoke: 1; }
+  }
+
+
+  /* ══ THE BLUR MOVES OFF THE BACKDROP ═════════════════════════════ */
+
+  /* The pane keeps the ground and gives up the backdrop-filter. Its
+     @supports fallback above raised the ground to 76 per cent when
+     backdrop-filter was missing; that no longer applies to anything, and
+     this rule is one class deeper so it wins in both branches. */
+  .rg .sm {
+    background: color-mix(in srgb, var(--ground) calc(var(--smoke) * 55%), transparent);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  /* One filter for the whole bed: the grade the tiles were each running,
+     plus the blur the pane was running on the backdrop. Rasterised once;
+     --prog then only transforms the result. */
+  /* Grade only. The blur is added below and only once it is earned, so a
+     device that never runs the script, or never passes, still gets the
+     page's full value range and simply loses its softness. */
+  .rg .ms__bed {
+    filter: brightness(0.30) saturate(0.7) contrast(1.05);
+  }
+  /* Thirty filtered surfaces down to none. */
+  .rg .ms__tile { filter: none; }
+  /* Except the one BED_GRADE names. Targeted on the inline custom property
+     the bed markup already writes, so no markup changes: contrast composes
+     multiplicatively, so 1.05 on the parent and 1/1.05 here is 1.0. */
+  .rg .ms__tile[style*="--bed-k"] { filter: contrast(calc(var(--bed-k) / 1.05)); }
+
+  /* The bed is inset -10% inside an overflow:hidden .ms__ground, so the
+     blur's soft edge — about three times its radius — falls well outside
+     the clip and no fringe can reach the viewport. */
+
+/* ══ THE BLUR, ONCE EARNED ═══════════════════════════════
+     Set by the probe above, which measures the device instead of reading
+     its spec sheet. Opt-in on purpose: the failure direction is no blur,
+     which is the state the page opens in anyway. */
+  :root[data-blur] .rg .ms__bed {
+    filter: brightness(0.30) saturate(0.7) contrast(1.05) blur(var(--haze));
+  }
+
+  /* ══ THE FROSTED PANE ════════════════════════════════════════════
+     Applied 2026-09-29 from /preview/ab-sm2, chosen over ab-sm3.
+
+     THE BLUR GOES BACK ON THE BACKDROP, WHERE GLASS HAPPENS. The rules
+     above moved it onto the bed for a real reason — one rasterised surface
+     instead of a backdrop pass — and this moves it back, knowingly. What
+     that buys is a pane that behaves like glass rather than like a smoked
+     filter: it blurs what is behind it, and because it also saturates and
+     lifts, what is behind stays colour rather than going grey.
+
+     THE GROUND COMES DOWN FROM 55% TO 26%, because the blur is now doing
+     the separation the darkness was doing, and the bed gives up its own
+     blur so the page does not blur twice. The bed's grade lifts from 0.30
+     to 0.34 for the same reason.
+
+     THE CONTENT IS NOT BLURRED BY THIS, which is worth writing down because
+     a full-screen backdrop-filter sounds like it would be. Measured: the
+     bed is `fixed, z-index 0`, this pane is `fixed, z-index 1`, and every
+     section — .ov, .sec--works, .po-sec, .mvt--contact — is `relative,
+     z-index 2`. The sections sit ABOVE the pane, so the only thing in its
+     backdrop is the bed. Nothing the reader reads goes soft.
+
+     <- data-blur NOW HAS NO CONSUMER. The rule above is the last thing that
+        read it, and the bed no longer blurs, so the probe's verdict decides
+        nothing. The probe still runs and still writes sessionStorage. Left
+        in place deliberately: it is the hook if this backdrop should ever be
+        gated on weak hardware, which is the open question this change
+        leaves behind. See HANDOFF §5. */
+  :root .rg .sm {
+    background: color-mix(in srgb, var(--ground) calc(var(--smoke) * 26%), transparent);
+    -webkit-backdrop-filter: blur(calc(var(--haze) * 2)) saturate(1.2) brightness(0.86);
+    backdrop-filter: blur(calc(var(--haze) * 2)) saturate(1.2) brightness(0.86);
+  }
+  :root[data-blur] .rg .ms__bed,
+  :root .rg .ms__bed {
+    filter: brightness(0.34) saturate(0.78) contrast(1.05);
+  }
+
+  /* ══ THE WORK'S NAME, FROM ab-ty2 ════════════════════════════════
+     Applied 2026-09-20. The readout under the conveyor names the work you
+     are looking at, and it was the one piece of type in Selected works that
+     disagreed with the poster run about CASE.
+
+     MEASURED, LIVE AGAINST ab-ty2, BEFORE CHANGING ANYTHING. The typeface
+     was never the difference — both are Neue Haas Grotesk Display at 19.2px,
+     weight 500, line-height 22.272, in the bone. What differs is two things:
+
+         case       uppercase     ->  none
+         tracking   -0.288px      ->  0.096px   (-0.015em -> 0.005em)
+
+     Uppercase wants letters opened up and lowercase does not, which is why
+     the negative tracking went with the capitals and why 0.005em comes back
+     with them: it is the poster label's own value, and the name is a label
+     for the work. Sentence case also matches every poster giant on the page,
+     which are the only other place a title is set large.
+
+     THE YEAR IS DELIBERATELY NOT TOUCHED. ab-ty2 also moves .rl__date off
+     JetBrains Mono, but the note above it in this file argues the year
+     should read as the third and smallest voice in the readout, and that is
+     a separate decision from the one that was asked for here.
+
+     :root, NOT .rg ALONE. This file has three <style> blocks and Astro does
+     not emit them in written order — HANDOFF §6 — so a rule written last can
+     still lose a tie. The two .rl__cap rules above are (0,1,0); this is
+     (0,3,0) and cannot lose to them however the blocks are bundled. */
+  :root .rg .rl__cap {
+    letter-spacing: 0.005em;
+    text-transform: none;
+  }
+
+  /* ══ CONTACT, FROM ab-ee1 · FITTED ══════════════════════════════
+     Applied 2026-09-20. Typography only — nothing below sets display, grid,
+     position, width or margin, and every one of the 24 selectors is scoped
+     inside .sm-form, so no other section of the page can be reached by it.
+
+     THE TWO STATEMENTS ARE SIZED BY MEASUREMENT, NOT BY CHOICE. That is the
+     whole of this draft and the reason it was the one to take.
+
+         "Let's talk."        3.969px of width per px of type
+                              447px column  ->  112.6px   (8.8vw)
+         "Send this enquiry"  8.736px per px
+                              625px column  ->   71.5px   (5.59vw)
+
+     Verified after: the greeting's ink measures 445 in its 447 column and
+     the action's 618 in its 625. Both reach their edges; neither overhangs.
+     The send's ratio is worth noting — ContactForm's own comment quotes
+     8.71px per px, arrived at independently, and the measurement here says
+     8.736. The same number.
+
+     WHY FITTING RATHER THAN A SIZE THAT LOOKED RIGHT. Every giant in the
+     About run is sized in vw until the screen crops it, which is fitting to
+     the viewport. This is the same idea against a column instead. It also
+     means these numbers can be re-derived rather than re-argued: change the
+     copy or the column and the two ratios give the new sizes.
+
+     ALL TWENTY-EIGHT ROUNDED CONTROLS MOVE TOGETHER, one step — 22 option
+     pills, 5 field pills and the notes area — so the box you type into never
+     reads smaller than the box you tap. 16px to 18.2, with padding in em so
+     the box grows in proportion rather than staying 10px tall while the word
+     gets bigger: 135x48 to 151x54, 119x44 to 132x50, 625x80 to 625x90.
+
+     THE SEND PASSES ITS DOCUMENTED 44px CEILING, deliberately. That comment
+     in ContactForm says 44 is the largest that lets "Name and email
+     required" sit BESIDE the action on one row at 1440 — and says in the
+     same breath that below about 1400 the pair wraps at any size and that
+     flex-wrap handles it. At 1280 it already wraps. The note also moves off
+     11px mono onto the 12px label here, which is narrower, so some of that
+     row is bought back rather than only spent.
+
+     AND THE FIELDS LEAVE INTER. They were the only Inter on the page — a
+     third family inside a section whose neighbours use one. */
+
+/* One family: the fields were Inter, the note and summary mono. */
+  :root .rg .sm-form :global(.pill__in),
+  :root .rg .sm-form :global(.send__note),
+  :root .rg .sm-form :global(.send__ink),
+  :root .rg .sm-form :global(.send__ink i),
+  :root .rg .sm-form :global(summary),
+  :root .rg .sm-form :global(.mono) {
+    font-family: var(--display); font-variant-numeric: tabular-nums;
+  }
+  :root .rg .sm-form :global(.send__note),
+  :root .rg .sm-form :global(.send__ink),
+  :root .rg .sm-form :global(summary),
+  :root .rg .sm-form :global(.ct__grouphead),
+  :root .rg .sm-form :global(.q__n),
+  :root .rg .sm-form :global(.q__hint),
+  :root .rg .sm-form :global(.mono--dim) {
+    font-size: 12px; font-weight: 500; letter-spacing: 0.005em;
+    text-transform: none; color: var(--po-grey, #9B9B9B);
+  }
+
+  /* ── AND THE REFUSAL HAS TO SURVIVE THAT ────────────────────────
+     Added 2026-09-30 with ab-rr2's crest. The rule above is the reason
+     ContactForm's `.send.is-asking .send__ink { color: var(--bone) }` has
+     never taken effect on this page: it has outranked it since 2026-09-20,
+     so a refused enquiry moved its weight and its scale and never changed
+     colour. The crest carries the colour in keyframes, which outrank both,
+     so the default path now reads --po-grey -> accent -> white.
+
+     UNDER prefers-reduced-motion THE KEYFRAMES ARE OFF and the override is
+     not, which would leave the refusal saying nothing whatever — the state
+     the page was already in, now with nothing else to fall back on. This
+     restores the one thing that has to be visible. It cannot affect the
+     default path, where the animation always wins. Delete this block to
+     put the silence back. */
+  @media (prefers-reduced-motion: reduce) {
+    :root .rg .sm-form :global(.send.is-asking .send__ink),
+    :root .rg .sm-form :global(.send.is-asking .send__ink i) {
+      color: var(--bone);
+    }
+  }
+
+  /* ══ SIX LABELS, TWO STEPS UP ════════════════════════════════════
+     2026-09-29, on Ugam's instruction: "Project details", "Your details",
+     "Tap as many as apply", "Name and email required", the standing line
+     and the copyright. 12px to 13 and 13 to 14 first, then a second step
+     the same day to 14 and 15 — so the five mono labels have gone 12 -> 14
+     and the standing line 13 -> 15.
+
+     NAMED ONE BY ONE RATHER THAN BY RAISING THE RULE ABOVE, because that
+     rule also carries .send__ink, summary and .q__n — the send's own words
+     and the question numbers — and none of those were asked for. Raising it
+     would have moved nine things to change six.
+
+     AND THE COPYRIGHT IS ADDRESSED BY ITS ROW. .mono--dim is worn by four
+     elements in this form: the Email, WhatsApp and Phone labels in the
+     direct block, and the copyright in .ft__row. Only the last was asked
+     for, so the selector says so.
+
+     <- .send__ink HAD TO COME WITH .send__note, and raising the note alone
+        did nothing visible. The note is a <p> holding TWO children: a
+        .visually-hidden span that carries the sentence for a screen reader,
+        and .send__ink, which is the same sentence split into one <i> per
+        character for the ink animation. The <i>s inherit their size from
+        .send__ink, so .send__ink is the element the reader actually sees
+        and the one the size has to be set on. Measured before catching it:
+        .send__note read 13px and the words on screen were still 12.
+        .send__ink is worn by nothing else in the form — checked. */
+  :root .rg .sm-form :global(.ct__grouphead),
+  :root .rg .sm-form :global(.q__hint),
+  :root .rg .sm-form :global(.send__note),
+  :root .rg .sm-form :global(.send__ink),
+  :root .rg .sm-form :global(.ft__row .mono--dim) {
+    font-size: 14px;
+  }
+  /* The standing line is not mono and was already a step above the rest. */
+  :root .rg .sm-form :global(.ft__prose--quiet) {
+    font-size: 15px;
+  }
+
+  /* ══ ALL TWENTY-EIGHT ROUNDED BOXES, ONE STEP UP ═════════════════
+     Options, fields and the notes area together, so the thing you type into
+     never reads smaller than the thing you tap. Padding in em: the box grows
+     with its word instead of staying 10px while the type does. */
+  :root .rg .sm-form :global(.opt span),
+  :root .rg .sm-form :global(.pill),
+  :root .rg .sm-form :global(.pill__in) {
+    font-size: clamp(1.05rem, 1.42vw, 1.2rem);
+    letter-spacing: -0.008em;
+  }
+  :root .rg .sm-form :global(.opt span) { padding: 0.63em 1.06em; }
+  :root .rg .sm-form :global(.pill) { padding: 0.63em 1.06em; }
+  :root .rg .sm-form :global(.pill--area) { padding: 0.72em 1.1em; }
+
+/* THE GREETING, SLIGHTLY LARGER, STILL ON ONE LINE.
+     WHAT DECIDES THE WRAP IS THE LAYOUT WIDTH, NOT THE PAINTED INK, and
+     the two are not the same here. "Let's talk." is eleven characters, so
+     its layout box carries eleven letter-spaces while only ten fall
+     between the glyphs. Solved from a measured painted 3.989px per px of
+     size at -0.042em: the untracked advance is 4.409, the painted ink is
+     4.409 + 10t and the LAYOUT ink 4.409 + 11t, which at -0.042em is
+     3.947. So the line breaks the moment the size passes box / 3.947.
+
+     IN ITS OWN COLUMN THERE IS NOTHING LEFT. 446.7 / 3.947 = 113.17px
+     against the 112.64 it was already set at -- half a per cent, which is
+     not a change. That is why the previous pass broke it over two lines:
+     it was the only way to make it meaningfully bigger without moving
+     something else.
+
+     IT BORROWS NOTHING, AND IS SIZED BY THE PAINTED INK RATHER THAN THE
+     LAYOUT BOX. Earlier passes widened the greeting's box with a negative
+     right margin so it could reach into .ct__page's 54.4px column-gap --
+     half of it, then a quarter. That margin is gone. column / 3.989 is
+     the size at which the PAINTED ink lands exactly on the column edge --
+     111.97px at 1280 -- and the 0.85 takes it 15 per cent below that.
+
+     STILL GRID-TRACKED, JUST NOT FILLING. The factor multiplies the
+     COLUMN, not a frozen pixel value, so the greeting stays a fixed
+     proportion of its own column at every width rather than drifting:
+
+       1280   column 446.7   95.18px   painted 379.7   67.0px of air
+       1440   column 505.3  107.68px   painted 429.5   75.8px of air
+       1024   column 352.8   75.18px   painted 299.9   52.9px of air
+        901   column 307.7   65.57px   painted 261.5   46.2px of air
+
+     -15.5 per cent on the 112.64 the greeting started at, one line at
+     every width, and the gap to the form column is now the air in the
+     column plus the whole 54.4px gutter -- 121.4px at 1280.
+
+     THE LADDER, for whenever this moves again. Everything from 111.97 up
+     is anchored to the grid; 0.85 of it is a chosen proportion:
+       0.85 of the column               95.18px   -15.5% on the original
+                                                  <- set here
+       painted ink flush to the column 111.97px    -0.6%
+       layout box flush                113.17px    +0.5%, painted
+                                                   overhangs by 4.7px
+       a quarter of the gutter         116.62px    +3.5%
+       a third                         117.77px    +4.6%
+       half                            120.07px    +6.6%
+       the whole gutter                126.96px   painted overruns the
+                                                  form column by 5.3px 
+
+     Nothing else is touched: the tracking stays at -0.042em, and the 5fr
+     7fr fold, which this file calls the poster's own fold rather than a
+     half, stays as it is. Only the greeting's own box reaches past its
+     column, and its right edge is ragged anyway -- it is one line ending
+     in a full stop, aligned to nothing.
+
+     Below 901 .ct__page collapses to one column, the greeting has the
+     whole measure and the old clamp stands untouched. */
+  :root .rg .sm-form :global(.ct__statement) {
+    font-size: clamp(2.9rem, 8.8vw, 7.4rem); font-weight: 500;
+    line-height: 0.96; letter-spacing: -0.042em;
+  }
+  @media (min-width: 901px) {
+    :root .rg .sm-form :global(.ct__statement) {
+      --lt-col: calc((100vw - 2 * var(--margin) - 3.4rem) * 5 / 12);
+      font-size: calc(var(--lt-col) * 0.85 / 3.989);
+      white-space: nowrap;
+    }
+  }
+  /* THE SEND ACTION, SIZED FROM ITS COLUMN.
+     It was clamp(2.2rem, 5.59vw, 5.9rem) -- 71.55px at 1280 -- under a
+     comment claiming it filled the form column. It did not: "Send this
+     enquiry" runs 7.3595px of ink per px of size, measured and constant
+     across widths, so at 71.55 it was 526.5px of ink in a 625.3px column.
+     0.842 of it, with 98.8px of slack.
+
+     0.78 now, which is 66.28px at 1280 and 7.4 per cent down.
+
+     DERIVED FROM THE COLUMN RATHER THAN FROZEN AS A vw, so the fraction
+     holds at every width instead of drifting: .ct__page is 5fr 7fr above
+     900 with a column-gap of 3.4em against an inherited 16px root, so the
+     form's column is (measure - 54.4) x 7/12 and the size is that times
+     0.78 over the ink constant.
+
+     <- IT WAS MATCHING THE GREETING AND NO LONGER IS. "Let's talk." sits at
+       0.85 of its own 5fr column; this sat at 0.842 of the 7fr one, so the
+       two display lines in this section filled their columns to within a
+       per cent of each other. That was either deliberate or a happy
+       accident, and it is worth knowing which before this is taken further
+       down -- the pair is now 0.85 against 0.78. */
+  :root .rg .sm-form :global(.send__act) {
+    font-size: clamp(2.2rem, 5.59vw, 5.9rem);
+    line-height: 0.98; letter-spacing: -0.04em;
+  }
+  @media (min-width: 901px) {
+    :root .rg .sm-form :global(.send__act) {
+      --send-col: calc((100vw - 2 * var(--margin) - 3.4rem) * 7 / 12);
+      font-size: calc(var(--send-col) * 0.78 / 7.3595);
+    }
+  }
+
+  :root .rg .sm-form :global(.q__q) {
+    font-size: clamp(1.35rem, 2.05vw, 1.75rem); font-weight: 500;
+    line-height: 1.06; letter-spacing: -0.026em; color: var(--po-white, #FFF);
+  }
+  :root .rg .sm-form :global(.ct__direct a) {
+    font-size: clamp(1.15rem, 1.6vw, 1.4rem); font-weight: 500; letter-spacing: -0.018em;
+  }
+  :root .rg .sm-form :global(.ct__lede) {
+    font-size: clamp(1.05rem, 1.28vw, 1.26rem); line-height: 1.42;
+    letter-spacing: -0.006em; color: var(--po-grey, #9B9B9B);
+  }
+
+  /* ══ THE OPENING VERSAL, FROM ab-vs4 ════════════════════════════
+     Applied 2026-09-20. Only the letter — vs4's heading scale, question
+     leading and second-voice colours are NOT brought across.
+
+     CUT BY ARITHMETIC, NOT BY EYE. A cap spanning N lines runs from line
+     one's cap-top to line N's baseline, so its height is
+     (N-1) x line-height + one cap-height. The body leads at 1.42 and Neue
+     Haas' cap-height is 0.6616 of its em — measured off the loaded file with
+     canvas, not taken from a spec sheet. Two lines is 23.86 + 11.11 = 34.97px,
+     and over the cap ratio that is 52.85px: 3.146em of the 16.8px body. The
+     float's own height is then simply 0.6616em, its own cap, which is what
+     makes two lines wrap around it.
+
+     THE SHIFT IS MEASURED FOR THIS CAP AND IS NOT PORTABLE. The paragraph's
+     ink top is fixed while the cap's grows with its size, so an em value
+     correct at one cap is wrong at another — 0.4091em, borrowed from a
+     three-line cap in another draft, left this one 0.23px high. 0.4135em
+     puts it on its text. The glyph is placed by transform, which changes no
+     layout, so being wrong costs a re-measure and not a re-flow.
+
+     AND IT IS DOUBLED FOR SCREEN READERS. A floated letter read aloud is a
+     letter, not a word: "I" then "'m Ugam" is two utterances of something
+     that is one. The drawn cap is aria-hidden and the same character is
+     repeated in a visually hidden span, so the sentence is spoken whole.
+     Verified both ways — visible text and spoken text each unchanged. */
+  :root .rg .po-versal-sr {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+  }
+  :root .rg .po-open .po-versal {
+    float: left; font-size: 3.146em; height: 0.6616em;
+    line-height: 0; font-weight: 500; letter-spacing: -0.03em;
+    color: var(--po-white, #FFF); margin: 0 0.1em 0 0;
+    --vs-shift: 0.4135em; transform: translateY(var(--vs-shift));
+  }
+
+  /* ══ THE READOUT'S TYPE, FROM ab-vx DIRECTION 02 · THE MEASURE ══════
+     Applied 2026-09-21. Direction 2 derives every size from the About
+     body's own line, 23.856px. The work's name takes 1.5 of those units,
+     35.784px, on a 2-unit line of 47.712; the year takes half a unit,
+     11.928, on a 1-unit line. Measured before: 19.2/22.272 and 10/10.6.
+
+     THE READOUT DOES NOT MOVE. Direction 2 shows it at the grid's left
+     edge, but that came from the shared floor in ab-vx, not from the
+     Measure, and it was not what was asked for. .rl keeps left: 50% with
+     translateX(-50%), text-align: center and its fixed width — which its
+     own comment insists on, having measured the playhead run 61, 46.5, 32,
+     55.5, 69, 72.5 and 127px down a scroll when the block was allowed to
+     shrink-wrap.
+
+     THE TRACKING IS NOT TAKEN. Direction 2 also tightens the name to
+     -0.024em, which large type usually wants. 0.005em here is ab-ty2's,
+     applied on 2026-09-20 and approved then; changing it was not part of
+     this request, so it stands.
+
+     THE RULER IS UNCHANGED, because the Measure does not change it: its
+     42px height and its angular tick geometry are the same in direction 2
+     as on the live page. */
+  :root .rg .rl__cap {
+    font-size: 35.784px;
+    line-height: 47.712px;
+  }
+  :root .rg .rl__date {
+    font-size: 11.928px;
+    line-height: 23.856px;
+  }
+  /* .rl is min(720px, 72vw), and .rl__cap carries text-overflow: ellipsis,
+     so a name wider than the block is truncated silently — which nothing
+     does today and nothing should start doing here.
+
+     MEASURED, AND THE FIRST NUMBER WAS WRONG. A canvas estimate put the
+     longest of the sixteen titles at 411px; rendered, "Dinshaw's Dildaari
+     Battles" is 437 — 26px more, because the estimate was fed the wrong
+     letter-spacing sign. 437 needs 72vw, so it fits only above a 607px
+     viewport, not the 572 the first breakpoint used: at 600 the title was
+     measured truncating. The switch is at 640, which leaves 9px of margin
+     at the narrowest width that still shows the large size. Below it the
+     name keeps the 19.2 it has today, which fits all sixteen down to 375. */
+  @media (max-width: 639px) {
+    :root .rg .rl__cap { font-size: 19.2px; line-height: 22.272px; }
+  }
+
+  /* ══ THE READOUT SITS LOWER ═══════════════════════════════════
+     Applied 2026-09-21. The name, the ruler and the year drop together.
+
+     THE EXPRESSION IS NOT REWRITTEN, ONLY OFFSET. .rl's bottom is
+     11vh + (1 - --lit) * 15vh + clamp(14px, 2.4vh, 30px), and its own
+     comment explains why: the aperture's window is inset by the first two
+     terms, and deriving the readout's offset from the same expression is
+     what stops the two drifting apart when the window breathes. A new
+     --rl-drop is SUBTRACTED from that rather than replacing it, so the
+     lit-dependent behaviour is untouched and the whole block simply sits
+     lower at every value of --lit.
+
+     THERE WAS ROOM, AND THE MEASUREMENT SAYS WHERE. At 1280x800 the
+     readout ran 1363 to 1493 inside a pin of 800 to 1600, with the first
+     card ending at 1360 — a 3px gap above it and 107px of unused space
+     below. Moving down opens the tight side and spends the loose one.
+
+     AND ONE TERM IS GUARDING NOTHING. .ap__mat is display: none on this
+     page — MS3 removed it, on the grounds that a hard-edged rectangle in
+     the middle of a page whose whole point is that there is no edge was
+     wrong. So the 11vh that clears the mat now clears an element that is
+     not drawn. It is LEFT IN ANYWAY: the mat is hidden, not deleted, and
+     re-deriving this offset from an element that may come back is a
+     bigger change than was asked for. The drop is a clean subtraction on
+     top of it. */
+  /* THE DROP IS TWO THINGS, AND max() TAKES WHICHEVER IS LARGER.
+
+     ONE, A DESIGN DROP: 2.6vh, which is 20.8px at 800 and puts the block
+     midway between where it started (bottom 107.2) and where the first
+     pass left it (65.6).
+
+     TWO, A CLEARANCE, because the readout collides with the cards and
+     always did. Measured with the drop removed, the gap above the first
+     card is -26px at a 600 viewport height, -11 at 700, -3 at 760, +3 at
+     800 and +31 at 900 — negative below roughly 790, which is not an
+     unusual window, it is a 13-inch laptop with browser chrome. The
+     shortfall closes at about 14.5px per 100px of height, so
+     129px - 14.5vh is what is needed, and it reaches zero by itself once
+     the layout has room.
+
+     max() means the design drop governs wherever there is space and the
+     clearance takes over where there is not — no height media query, and
+     no pair of numbers that has to be kept in step by hand. */
+  :root .rg .rl {
+    --rl-drop: max(2.6vh, calc(129px - 14.5vh));
+    bottom: calc(
+      11vh + (1 - var(--lit, 1)) * 15vh
+      + clamp(14px, 2.4vh, 30px)
+      - var(--rl-drop)
+    );
+  }
+
+  /* ══ THE ABOUT HEADINGS IN CAPITALS, FROM ab-uc1 ═══════════════════
+     Applied 2026-09-21. The four headings set entirely uppercase, the way
+     .fr__t in Selected works is, and resized so the composition does not
+     move.
+
+     THE RESIZE IS NOT COSMETIC. Measured before, the four render 1350.3,
+     1349.9, 1356.3 and 1310.8px of ink at 1280 — one common width of about
+     1.06 viewports, solved four times for four word-lengths, which is the
+     system these headings are built on. Capitals do not widen a line by a
+     constant: "Who I am" grows by 1.114, being already mostly caps and
+     short words, while "What I work across" grows by 1.299. Uppercased at
+     their old sizes the four would run 1504, 1753, 1700 and 1661 — a
+     spread of 249px where there was 45, and the common width would be gone.
+
+     So each size is SOLVED, not scaled: its own ink width divided by its
+     own measured uppercase ink-per-pixel. Three of the four land on their
+     own width to within 0.1px — 1349.9, 1356.3 and 1310.7.
+
+     WHO I AM IS DELIBERATELY BELOW ITS SOLVED SIZE, applied from ab-uc1 on
+     2026-09-21. Solving for width gave 23.673vw; it is set at 21.800.
+     Equal ink width is not equal apparent size: WHO I AM is eight
+     characters and WHAT I WORK ACROSS is eighteen, so holding both to
+     1350px puts the first at 303px of type and the second at 130 — a 2.3
+     to 1 difference in the size of an actual letter, which makes the
+     shortest heading the loudest of the four however well the widths
+     match. At 21.8vw it is 279.04px and 1243.4px of ink, 7.9 per cent
+     under the other three, which reads as a correction to that rather
+     than as a heading that has fallen out of the system.
+
+     THE TRACKING COMES WITH THE CASE. .fr__t is uppercase at -0.045em;
+     .po-giant was at -0.058, which is a lowercase setting — tight tracking
+     suits a line broken up by ascenders and closes capitals into each
+     other, caps having flatter sidebearings and nothing between them to
+     hold the gap open. The sizes below are solved WITH -0.045em.
+
+     THE PAN IS UNTOUCHED. po-pan is on .po-pan, the span inside each h2;
+     this sets font-size, text-transform and letter-spacing on the h2. Its
+     keyframes are in vw, 6 to -18, so it is independent of type size and
+     travels exactly as far, at exactly the same rate, as before.
+
+     Set as font-size rather than --gs, because --gs is written inline on
+     each h2 and an inline custom property beats a stylesheet one. */
+  :root .rg .po-giant {
+    text-transform: uppercase;
+    letter-spacing: -0.045em;
+  }
+  /* ── ONE SIZE, NOT ONE WIDTH ────────────────────────────────────
+     ab-hs1, 2026-10-04. All four take WHAT I WORK ACROSS's size. The three
+     numbers above it were solutions to a width equation — 23.673vw solved,
+     21.800 set, for WHO I AM alone — and that equation is not being solved
+     any more, so they go rather than being scaled. Every letter on all four
+     lines is now the same size; the right edge is a rag instead of an edge.
+     See the header for what that costs and what it buys. */
+  :root .rg #r-who    { font-size: 10.162vw; }
+  :root .rg #r-across { font-size: 10.162vw; }
+  :root .rg #r-how    { font-size: 10.162vw; }
+  :root .rg #r-close  { font-size: 10.162vw; }
+
+  /* ══ THE MONO TEXT, IN THE PAGE'S OWN FACE — FROM ab-hn1 ══════════════
+     Applied 2026-09-21. Every string that was rendering in JetBrains Mono
+     Variable now sets in the display stack. Case and size are untouched:
+     nothing lowercased, nothing resized, tracking left where it was.
+
+     ELEVEN KINDS OF ELEMENT were in it, found by scanning the rendered
+     page rather than by reading this stylesheet: the running head's four
+     spans, the four corner labels twice over (the opening frame and
+     works), the Scroll cue twice, the contact form's email preview, and
+     one unclassed span. All inside .rg, and all resolving their family
+     through var(--mono) — so redefining that one property switches every
+     one of them and cannot miss a rule naming the stack directly, because
+     none does.
+
+     var(--display), NOT A LITERAL "Helvetica Neue", so these labels are
+     declared exactly as the rest of the page is. Measured, the named
+     "Neue Haas Grotesk Display" sets a test string at 702.69px — the same
+     as a deliberately invented family name — while "Helvetica Neue" gives
+     781.7 and the page gives 781.7, so on this machine it renders
+     Helvetica Neue. On a machine that HAS Neue Haas installed these
+     labels follow the page into it; naming the fallback directly would
+     pin them there while everything around them moved.
+
+     THE WIDTH CHANGE IS NOT A UNIFORM NARROWING. At a fixed 10px the
+     opening frame's labels measured 53.2 to 56.0, 121.6 to 126.7, 83.6 to
+     77.6 and 106.4 to 112.4px: two grow and two shrink, because mono
+     digits are wide and mono capitals relatively narrow. The label
+     carrying "00/06 2025 — 2026" loses 6px and the one carrying "SELECTED
+     WORKS" gains 6. All four are absolutely positioned in corners, so
+     nothing else moves.
+
+     ← .peek__body IS INCLUDED AND IS THE ONE TO RECONSIDER. It is a <pre>
+       holding the contact form's email preview, where a monospace face
+       was arguably doing semantic work — it read as a mail client because
+       it was set like one. Changed here because the request was the whole
+       page; recorded because it is the one place the mono carried meaning
+       rather than style, and exempting it is one selector. */
+  :root .rg { --mono: var(--display); }
+
+  /* ══ THE EMAIL, LOWERCASE AND IN HELVETICA NEUE ═══════════════════
+     Applied 2026-09-21. It was already RENDERING Helvetica Neue — measured,
+     its stack sets a test string at 781.7px, "Helvetica Neue" alone gives
+     781.7, and the named "Neue Haas Grotesk Display" gives 702.69, the
+     same as an invented family name — so only the case actually changes
+     here. The family is named outright anyway, so the intent survives a
+     future change to --mono. Reached with :global() because .ft__mail
+     belongs to ContactForm, which is shared with the work pages and is
+     never edited from this file. */
+  :root .rg .sm-form :global(.ft__mail) {
+    text-transform: none;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  }
+
+  /* ══ SELECTED WORKS, WHOLLY ON SCREEN AND PARTLY UNDER THE WORK ═══
+     Applied 2026-09-21 from preview/ab-wh3e, THE LINTEL, chosen from four.
+
+     WHAT IT WAS. The heading at clamp(1.5rem, min(6vw, 8vh), 4.2rem) —
+     67.2px at 1280 — small enough to sit inside the frame with room to
+     spare, and painted OVER the conveyor at z-index 6.
+
+     WHAT IT IS NOW. The size is declared from the GRID rather than as a vw
+     number: the word is NINE of the twelve columns wide, so it gives up
+     three columns and their gutters. 97.83px and 839.7px of ink at 1280,
+     measured against a nine-column span of 839.7, and 7.643vw at every
+     desktop width. It sits behind the stills, and the top of the card
+     band cuts across its feet.
+
+     THE COLUMNS IT GIVES UP ARE SPLIT, NOT HUNG AT ONE END. .mvt sets
+     text-align: center and .fr inherits it, so the word stays centred on
+     the measure and the 286.7px it no longer fills opens as 143.36px at
+     each side. Worth stating because "eleven
+     of twelve columns" sounds like a left-aligned word ending a column
+     short, and it is not.
+
+     IT WAS THE FULL MEASURE UNTIL 2026-09-22 -- 131.24px, 1126.4px of ink,
+     flush to both margins. Taking it to eleven columns is 8.5 per cent
+     down and, because the column is itself derived from the measure and
+     the gutter, it is the same 8.5 per cent at every width rather than a
+     ratio that drifts: 120.10px at 1280, 96.08 at 1024, 34.81 at 375.
+
+     THE BITE LOOKS AFTER ITSELF. top is calculated FROM --wk-size, not set
+     beside it, so shrinking the size moves the frame down by exactly the
+     amount that keeps the card band cutting the same fraction of the cap.
+     The cap goes 95.93 -> 87.79px and the bite 19.19 -> 17.56px, both 0.20
+     of the cap. Nothing about the overlap had to be re-solved.
+
+     THE INK CONSTANT IS 8.583px OF PAINTED INK PER PIXEL OF SIZE, and the
+     arithmetic is worth writing down because the obvious version is wrong.
+     "SELECTED WORKS" is fourteen characters and the canvas sets it at 9.168
+     per px untracked; -0.045em takes 0.045 off per spacing. Measured with
+     letter-spacing toggled off and on, the layout box moves by 96.77px =
+     14 x 6.912 exactly — so all FOURTEEN spacings are inside the box. But
+     the trailing one pulls the box in while the final K still paints out to
+     where it was, so the INK loses only thirteen: 9.168 - 13 x 0.045 =
+     8.583. 8.538 is the box; 8.583 is what you can see. At this size the
+     difference is one clipped letter, which is why it is spelled out.
+
+     THE TRAILING SPACE IS PAID BACK. .mvt sets text-align: center (line
+     1787) and .fr inherits it, so the word is centred — and the box that
+     centring uses is 0.045em narrower than the ink. That puts the painted
+     word half of that, 0.0225em or 2.95px here, RIGHT of true centre:
+     overhanging the right margin with a gap at the left. It did this before
+     this change as well, at the old size, where it was too small to notice.
+     padding-right: 0.045em makes the box as wide as the ink again, so what
+     gets centred is what you can see.
+
+     Z-INDEX 0 IS WHAT PUTS THE TYPE BEHIND THE WORK. .wcard carries
+     z-index 100 and .fr--over only 6, which looks as though the cards
+     already win. They do not: .wk__pin is position: sticky, and sticky
+     ALWAYS creates a stacking context, so the cards' 100 is scoped inside
+     the pin and never competes with the frame. What competes is the pin's
+     own z-index, which is auto. Dropping .fr--over from 6 to 0 puts it
+     level with the pin, and the pin comes later in the document, so the
+     work paints over the word.
+
+     THE VERTICAL PUSH, AND WHY THE ANCHOR IS NOT 30vh. Z-index alone
+     changed nothing, because the heading's baseline was TANGENT to the top
+     of the card band: 880 + 40 + 0.78 x 153.6 = 1039.81 against 1040.000,
+     two tenths of a pixel. The word CLEARED the stills. So the frame comes
+     down. A card is min(40vh, 26vw) x --card-k placed top: 50% and pulled
+     back half its height, so the common card's top edge is
+     50vh - min(20vh, 13vw). That equals 30vh ONLY at 1280 x 800, where
+     26vw and 40vh cross; anchored to a flat 30vh the bite measured
+     -11.94px at 1024 — the word clear of the work all over again. With
+     .fr's clamp(30px, 5vh, 66px) of top padding, a baseline 0.78em below
+     the content top (line-height 0.8 against a 1.20em font box) and a cap
+     of 0.731em, a bite of beta cap heights is
+         top = 50vh - min(20vh, 13vw) - pad - s (0.78 - 0.731 beta)
+     and beta is 0.20 here: 19.2px of a 95.9px cap, four fifths of the
+     letter still showing. Measured 19.4, 19.5, 19.6 and 19.4 per cent at
+     1280x800, 1024x800, 1440x900 and 1280x700.
+
+     ← THE BITE IS NOT UNIFORM ACROSS THE RUN, which is the conveyor's
+       design rather than a fault here. --card-k enlarges anything narrower
+       than a square by ratio^-0.75, so a 9:16 work stands 492.7px tall
+       against the common 320 and its top edge reaches 153.6px — above the
+       cap top. The figure above is the bite against the COMMON height,
+       twelve of the sixteen works. When one of the four verticals passes it
+       cuts deeper, through a 277px-wide slice of the word rather than all
+       of it.
+
+     THE PUSH IS ABOVE 900px ONLY: below that .wk__pin goes position: static
+     and .fr loses its padding-inline, so there is no pinned band to be
+     behind. The SIZE still applies there, which is what keeps the word on
+     screen on a phone — 34.81px at 375, 298.7px of ink into a measure of
+     327.0px. The eleven-column span there computes to 298.0 and the ink
+     lands 0.7px over it, because --gutter is on its 12px clamp floor at
+     that width rather than on 1.6vw; it still leaves 14.14px of air each
+     side, so nothing is at risk.
+
+     ← overflow-x: clip ON .sec--works IS A GUARD, NOT LOAD-BEARING. It was
+       load-bearing in ab-wh3, where the heading ran 159px off the right of
+       the screen; at this size nothing overruns, and the conveyor's own
+       horizontal excess is already contained by .wk__pin's overflow: hidden.
+       It is carried over because it is what was verified, and because clip
+       on one axis leaves the other visible and so does not make a scroll
+       container that would break the pin — checked: .wk__pin still sticks,
+       the cards hold at 240 while the frame rises past them. */
+  :root .rg .sec--works { overflow-x: clip; }
+
+  :root .rg .fr--over {
+    /* NINE of the twelve columns: the measure, less three columns and
+       their gutters, over the ink constant. The column is derived here
+       rather than assumed so it tracks --gutter's own clamp. It was the
+       full measure until 2026-09-22, then eleven, then ten, now nine --
+       each step is exactly one column, which is why the reduction is the
+       same fraction at every width instead of a ratio that drifts. */
+    --wk-measure: calc(100vw - 2 * var(--margin));
+    --wk-col: calc((var(--wk-measure) - 11 * var(--gutter)) / 12);
+    --wk-size: calc((var(--wk-measure) - 3 * (var(--wk-col) + var(--gutter))) / 8.583);
+    z-index: 0;
+    padding-inline: 0;
+  }
+  :root .rg .fr--over .fr__t {
+    font-size: var(--wk-size);
+    line-height: 0.8;
+    white-space: nowrap;
+    margin: 0;
+    padding-right: 0.045em;
+  }
+
+  @media (min-width: 901px) {
+    :root .rg .fr--over {
+      top: calc(50vh - min(20vh, 13vw) - clamp(30px, 5vh, 66px) - var(--wk-size) * 0.6338);
+    }
+  }
+
+  /* ══ THE NUMBERING SYSTEM, AND THE HOW I WORK SPREAD ══════════
+     Applied 2026-09-22 from four drafts in one pass: the section numbers
+     from ab-sy4, the How I work body layout from ab-fs1, the three step
+     numbers from ab-nm1, and the About body-text drift from ab-mo6. The
+     page exactly as it stood before is kept at preview/ab-live-prior.
+
+     THE DIM FLOOR, WHICH GOVERNS ALL OF IT. These labels sit over the
+     smoked mosaic, whose brightest frame this file already records as
+     #4C4C4C: --bone 8.59:1, --bone-dim 6.02:1, #C0C0C0 4.72:1 (AA for
+     12px), #A8A8A8 3.61:1 and --po-grey 3.09:1 both failing. */
+
+  /* ── 1 · THE SECTION NUMBERS, from ab-sy4 ────────────────────
+     Bigger and lighter: 18px at weight 100 against 12px at 500. The axis
+     is real and it is not obvious, because the digits are TABULAR -- the
+     advance is 111.2 per 100px at every weight from 100 to 900, so width
+     proves nothing. Rendering "02" to a canvas and integrating the alpha
+     at the ACTUAL sizes (scaling a 100px sample by area does not work;
+     antialiasing and hinting are not linear) gives 57 units here against
+     65 as it was: an eighth less ink at one and a half times the size.
+     Weight 900 is never worth asking for in this face -- it renders
+     identically to 700, same ink to the unit.
+
+     Set at --bone-dim, not the quiet grey: contrast ratio counts
+     luminance and not stroke width, and a 100-weight hairline needs the
+     6.02:1 to survive a bright frame behind it. */
+  :root .rg .po-sec .po-c1,
+  :root .rg .sec--works .wk-no {
+    font-size: 18px;
+    font-weight: 100;
+    letter-spacing: 0.06em;
+    line-height: 1.1;
+    color: var(--bone-dim);
+  }
+
+  /* ← 01 IS PUT BACK ON SELECTED WORKS. Removing the four corner labels
+     took it with them, so the page counted 00, --, 02, 03, 04, 05, 06.
+     One absolutely positioned <p>, clear of the heading: the frame's top
+     is 116.823px and this sits at 40. THIS IS THE ONE PIECE OF CONTENT
+     ADDED; delete the <p> and this rule and nothing else is affected. */
+  :root .rg .sec--works .wk-no {
+    position: absolute;
+    top: clamp(30px, 5vh, 66px);
+    left: var(--margin);
+    z-index: 7;
+    margin: 0;
+  }
+
+  /* ── 2 · HOW I WORK KEEPS ITS ORIGINAL LAYOUT ───────────────
+     ab-fs1's verso/recto spread was applied here and is now reverted, so
+     the step is back to the base sheet: .po-stepn at 1 / span 2,
+     .po-steptitle at 3 / span 6, .po-steplines at 9 / -1, and no gutter
+     rule. Nothing is left behind -- the border, the half-gutter margin and
+     padding, the .po-step::after that drew the rule for one pass, and the
+     820px cancel that went with it have all gone. The step numbers in item
+     3 below are unaffected: they were never fs1's. */
+
+  /* ── 3 · THE THREE STEP NUMBERS, from ab-nq6 ────────────────
+     THE RECESSION. The figure is half the step title's rank and it gets
+     QUIETER as the step is read: opacity 0.85 while the step is arriving,
+     0.25 as it passes the middle of the screen, 0.85 again as it leaves.
+
+     An inversion of what motion usually does. The number is an aid on
+     approach -- it says where you are in the process before you have
+     started reading -- and then withdraws while the words have your
+     attention, which is the one moment it has no job to do.
+
+     WAS ab-nm1: the title's own clamp, 53.76px, baselines coincident. That
+     was a good solution and a flat one, the number and the title being the
+     same size, weight and white side by side. This is half the size and
+     never at full strength.
+
+     .po-stepn also carries .po-label--hi, which .rg colours at (0,3,0).
+     This selector is (1,3,0) -- an id beats any number of classes -- so it
+     wins on specificity rather than on order, which matters because the
+     blocks in this file are not emitted in the order they are written.
+
+     ← THE TROUGH IS BELOW THE CONTRAST FLOOR, and it is worth knowing.
+       Opacity composites the figure with whatever is behind it, so the
+       effective tone is not --bone. Against the brightest frame the mosaic
+       can produce (#4C4C4C, the figure this file already records) the
+       number measures about 6.8:1 at 0.85, 3.9:1 at the resting 0.55 and
+       roughly 2.0:1 at the 0.25 trough -- so at the bottom of the cycle it
+       is under the 3:1 that applies to text this size. It is transient, it
+       is a locator rather than content, and the scrim over the bed makes
+       the real ground darker than the worst case; but if the trough should
+       hold 3:1 against even the brightest still, 0.25 becomes 0.43 in the
+       keyframes below and nothing else changes. */
+  :root .rg #philosophy .po-step {
+    view-timeline-name: --nq;
+    view-timeline-axis: block;
+  }
+  :root .rg #philosophy .po-stepn {
+    font-size: calc(0.5 * clamp(2rem, 4.2vw, 4.5rem));
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    padding-top: 0.3em;
+    color: var(--bone);
+    opacity: 0.55;
+  }
+
+  /* Guarded twice: @supports because a browser without scroll-driven
+     timelines would otherwise hold the from-state and park the figure at
+     0.85 for good, and prefers-reduced-motion because this is motion
+     nobody asked for. Either way it falls back to the 0.55 resting value
+     declared above. */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      :root .rg #philosophy .po-stepn {
+        animation: nq-recede linear both;
+        animation-timeline: --nq;
+        animation-range: cover 0% cover 100%;
+      }
+    }
+  }
+  @keyframes nq-recede {
+    0%   { opacity: 0.85; }
+    50%  { opacity: 0.25; }
+    100% { opacity: 0.85; }
+  }
+
+  /* Below 820 the step is one column, the figure stacks above its title
+     and there is no reading position to recede from. Full strength, at a
+     size that suits one column, in the quiet grey rather than white. */
+  @media (max-width: 820px) {
+    :root .rg #philosophy .po-stepn {
+      font-size: clamp(1.4rem, 6vw, 2rem);
+      padding-top: 0;
+      opacity: 1;
+      animation: none;
+      color: #C0C0C0;
+    }
+  }
+
+  /* ── 4 · THE ABOUT BODY TEXT, from ab-mo6 ──────────────────
+     A counter-scroll: the body drifts 32px against the page across its own
+     cover range. The HEADINGS ARE NOT TOUCHED -- mo6 also restyles
+     .po-giant and moves .po-body to the full measure, and neither is
+     brought across; only the animation is.
+
+     The three selectors are mo6's own and between them they are the body
+     text of all four About movements: .po-body is Who I am, .po-lede is
+     What I work across and, via .po-lede--end, What I'm after, and
+     .po-steplines is How I work.
+
+     .po-steplines WAS TAKEN OUT OF THIS LIST for one pass, while How I
+     work carried fs1's gutter rule as a border on that same element --
+     animating it would have swung the hairline 32px across a 20.48px
+     gutter. The rule is gone with the layout, so there is nothing left for
+     the drift to carry and the element is back.
+
+     Guarded twice. @supports because a browser without scroll-driven
+     timelines would otherwise hold the from-state and leave the text
+     parked 16px to the left; and prefers-reduced-motion because this is
+     motion nobody asked for. */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      :root .rg .po-body,
+      :root .rg .po-lede,
+      :root .rg .po-steplines {
+        animation: mo6-counter linear both;
+        animation-timeline: view();
+        animation-range: cover;
+      }
+    }
+  }
+  @keyframes mo6-counter {
+    from { transform: translateX(-16px); }
+    to   { transform: translateX(16px); }
+  }
+
+  /* ══ THE THREE QUESTIONS IN FIND THE LANGUAGE ════════════════
+     Applied 2026-09-22. "What does it feel like? What is its texture? What
+     does it leave unsaid?" is ONE line in the data; clauses() splits it on
+     the question marks and asks() tags each piece, so the three arrive as
+     three <p class="po-ask"> in a row. Every paragraph in .po-steplines
+     carries margin: 0 0 1em, which put a uniform 16.8px between all five
+     paragraphs of the step -- measured -- so the questions read as three
+     separate statements rather than as one asked in three ways.
+
+     TIGHTENED ONLY BETWEEN THEMSELVES. :has(+ .po-ask) matches a question
+     that is FOLLOWED by a question, which is the first two and not the
+     third, so the 16.8px above "What does it feel like?" (owned by the
+     paragraph before it) and the 16.8px below "What does it leave unsaid?"
+     (owned by the third question) are both untouched. 0.25em is 4.2px, so
+     the three lines sit 28.06px apart against 40.66px before. :has() is
+     supported here -- checked with CSS.supports('selector(...)') rather
+     than assumed.
+
+     ITALIC IS A REAL FACE, NOT A SLANT. The stack falls through to
+     Helvetica Neue, which has a true Italic: the advance for "What does it
+     feel like?" is 390.4px italic against 393.4px roman at 40px, and a
+     synthetic oblique is a pure shear that leaves advances identical. So
+     this is the drawn face.
+
+     ← AND THE COLOUR IS LIFTED, which was not asked for. .po-ask sits at
+       --po-grey, #9B9B9B, which measures 3.09:1 against the brightest
+       frame the mosaic can produce (#4C4C4C) and fails AA -- the only text
+       on the page below the floor. Since the request is to make these
+       stand out, #C0C0C0 takes them to 4.72:1 while still reading quieter
+       than the #FFFFFF body around them. Drop this one declaration to keep
+       the old grey. */
+  :root .rg .po-steplines .po-ask {
+    font-style: italic;
+    color: #C0C0C0;
+  }
+  :root .rg .po-steplines .po-ask:has(+ .po-ask) {
+    margin-bottom: 0.25em;
+  }
+  /* ══ THE HOVER READING ══════════════════════════════════════════
+     Applied to the live page 2026-09-29 from /preview/ab-xr4d, which
+     stays as the draft of record. The class prefix was xr4 there and is
+     hvr here; nothing else in this block was rewritten.
+     :root on every selector for the reason HANDOFF §6 gives.
+
+     EVERYTHING IS PLACED FROM THE TITLE'S INK. --tl and --tr are the
+     painted left and right edges of the name, written from script because
+     the caption's own box is the readout's full 720px and says nothing
+     about the word in it. The baseline is the caption's: it sits at
+     y 578..625.7 and the cap height of 35.784px type is about 26px, so the
+     shape stands on y 618 with the type. */
+  :root .rg .hvr { position: absolute; inset: 0; z-index: 200; pointer-events: none; }
+  :root .rg .hvr__probe {
+    position: absolute; top: 0; left: 0;
+    visibility: hidden; white-space: nowrap; pointer-events: none;
+  }
+  :root .rg .hvr__strut {
+    display: inline-block; width: 0; height: 0; vertical-align: baseline;
+  }
+  /* The value probe takes .hvr__v's setting from the shared rule further
+     down; it needs nothing of its own but the line-height it inherits with
+     it. Kept as its own selector so the pairing is findable from here. */
+
+  :root .rg .hvr__left {
+    position: absolute; top: auto; bottom: calc(100% - var(--cb, 618px));
+    left: 0; width: var(--tl, 500px);
+    display: flex; align-items: flex-end; justify-content: flex-end; gap: 9px;
+    padding-right: 16px;
+    opacity: 0; visibility: hidden;
+    transition: opacity 120ms linear, visibility 0s linear 120ms;
+  }
+  :root .rg .sec--works.is-hv .hvr__left {
+    opacity: 1; visibility: visible;
+    transition: opacity 70ms linear, visibility 0s;
+  }
+  /* ── THE CIRCUIT ────────────────────────────────────────────────
+     FOUR EDGES, NOT A BORDER, borrowed from ab-fm5. A border cannot be
+     drawn in sequence; four absolutely positioned 1px children can, each
+     scaling from the corner the one before it finished at. The chained
+     origins are the whole effect — they are what make this read as one
+     continuous line going round a shape rather than as four rules
+     appearing near each other.
+
+     MIRRORED FROM ab-fm5's T, R, B, L. The rectangle sits to the LEFT of
+     the name here, so the circuit starts at the corner nearest the name —
+     top-right — and runs T, L, B, R. Swap the four origins and the four
+     delays to put it back exactly as ab-fm5 has it; nothing else depends
+     on them. */
+  :root .rg .hvr__box {
+    position: relative; display: block;
+    width: calc(var(--bw, 46) * 1px); height: 26px;
+  }
+  :root .rg .hvr__e { position: absolute; background: var(--bone-dim); }
+  :root .rg .hvr__e--t { top: 0; left: 0; right: 0; height: 1px; transform: scaleX(0); transform-origin: right center; }
+  :root .rg .hvr__e--l { top: 0; left: 0; bottom: 0; width: 1px; transform: scaleY(0); transform-origin: center top; }
+  :root .rg .hvr__e--b { bottom: 0; left: 0; right: 0; height: 1px; transform: scaleX(0); transform-origin: left center; }
+  :root .rg .hvr__e--r { top: 0; right: 0; bottom: 0; width: 1px; transform: scaleY(0); transform-origin: center bottom; }
+  :root .rg .hvr__e { transition: transform 110ms cubic-bezier(0.4, 0, 1, 1); }
+  :root .rg .sec--works.is-hv .hvr__e--t,
+  :root .rg .sec--works.is-hv .hvr__e--b { transform: scaleX(1); }
+  :root .rg .sec--works.is-hv .hvr__e--l,
+  :root .rg .sec--works.is-hv .hvr__e--r { transform: scaleY(1); }
+  :root .rg .sec--works.is-hv .hvr__e--t { transition: transform 150ms cubic-bezier(0.22, 1, 0.36, 1) 0ms; }
+  :root .rg .sec--works.is-hv .hvr__e--l { transition: transform 150ms cubic-bezier(0.22, 1, 0.36, 1) 80ms; }
+  :root .rg .sec--works.is-hv .hvr__e--b { transition: transform 150ms cubic-bezier(0.22, 1, 0.36, 1) 160ms; }
+  :root .rg .sec--works.is-hv .hvr__e--r { transition: transform 150ms cubic-bezier(0.22, 1, 0.36, 1) 240ms; }
+  /* LINE-HEIGHT 1, because the block is bottom-aligned on the caption's
+     baseline. At 1.9 the numerals sat centred in a line box twice their own
+     height and floated well above the rectangle they label. */
+  :root .rg .hvr__num {
+    font-family: var(--mono); font-size: var(--t-micro);
+    letter-spacing: 0.16em; color: var(--dim); line-height: 1;
+    opacity: 0; transition: opacity 90ms linear;
+  }
+  /* 300ms, which is ab-fm5's relationship rather than ab-xr4's 260: the
+     figure is still closing when its label appears. */
+  :root .rg .sec--works.is-hv .hvr__num { opacity: 1; transition: opacity 180ms linear 300ms; }
+
+  /* WRAPPED TO WHAT THE NAME LEAVES, NOT SET TO TWO COLUMNS. As a 2 x 2
+     grid of max-content columns the block ignored its own right edge and ran
+     past the margin on five of the sixteen works — worst, Special Ops 2.0
+     needed 515px where the name left 432.2, putting ink at x 1286, six
+     pixels past the frame itself. Wrapping inside a box bounded by the
+     margin cannot overflow: the widest single fact is 10px type and fits the
+     narrowest gap any title leaves, so the block simply takes a third row
+     when it needs one and grows UPWARD, because the baseline is the fixed
+     thing here. */
+  /* --vb IS WHY THIS DOES NOT SIT ON --cb ALONE. The block's bottom EDGE
+     used to be put on the caption's baseline, but the last line's baseline
+     is not its line box's foot — measured on the live page, the caption sat
+     at 615.03 and the credits' own baseline at 611.00, so the words rode
+     4.03px high against the name they belong to. Ugam saw it before it was
+     measured. --vb is that gap, read off the vprobe every frame the block is
+     placed, so the VALUE'S BASELINE lands on the caption's rather than the
+     box around it. It follows the type: the value is clamped between 14 and
+     17px, so the number is different at different widths and a constant
+     would only be right at one of them. */
+  :root .rg .hvr__right {
+    position: absolute; top: auto;
+    bottom: calc(100% - var(--cb, 618px) - var(--vb, 0px));
+    left: var(--tr, 700px); right: var(--margin);
+    padding-left: 18px;
+    display: flex; flex-wrap: wrap; align-content: flex-end;
+    /* ACROSS: fm5's own 18-34px. DOWN: 8px, which is neither page's — fm5
+       never wraps and so has no row-gap, and the 3px here was written for
+       facts one line tall. Two-line stacks need more. */
+    column-gap: clamp(18px, 2.2vw, 34px); row-gap: 8px;
+    opacity: 0; visibility: hidden;
+    transition: opacity 120ms linear, visibility 0s linear 120ms;
+  }
+  :root .rg .sec--works.is-hv .hvr__right {
+    opacity: 1; visibility: visible;
+    transition: opacity 70ms linear, visibility 0s;
+  }
+  /* ── THE FACTS, SET AND ARRIVING AS ab-fm5 DOES ─────────────────
+     Applied 2026-09-30 from /preview/ab-tf1, which stays as the draft of
+     record and carries the full measurements. Copied from fm5's .fm5__f,
+     .fm5__l and .fm5__v. THE DRAFT DOES NOT HAVE THE BASELINE CORRECTION
+     BELOW — --vb was added here on application, on Ugam's instruction, and
+     ab-tf1 still rides 4.03px high the way the live page did before it. The rectangle, the numerals and the circuit above
+     already came from fm5 when ab-xr4d was applied on 2026-09-29, so this
+     finishes a half-done job: the shape spoke fm5 and the words beside it
+     still spoke ab-xr4's.
+
+     A STACK, NOT A LINE. The label sits above the value rather than beside
+     it, so the label reads as a label and the VALUE READS AS TYPE — 17px of
+     the display face, mixed case, tight — instead of as a second specimen of
+     the same 10px lettering told apart only by its colour.
+
+     <- SO THE VALUES ARE NO LONGER UPPERCASE. text-transform sat on .hvr__f
+        and applied to both halves; fm5 puts it on the label alone. Mixed
+        case is the reason to be on the display face at all, so this is not
+        separable from the rest.
+
+     <- AND THE LABEL BARELY MOVES. It was already 10px of the display face,
+        uppercase, --muted, because :root .rg redefines --mono as --display
+        across this whole page. Only its tracking goes 0.15em to 0.16 and
+        its line-height 1.5 to 1.4.
+
+     IT IS TALLER AND ALSO NARROWER. Measured over all sixteen at 1280x800:
+     a fact is 37.4px against 15.0, but stacked it is as wide as its wider
+     half rather than both plus a gap, so the block WRAPS LESS — ten works
+     take one row where two did, and nothing takes three. It still grows
+     upward into the conveyor's band: a two-row work climbs from y 582 to
+     y 532.2.
+
+     THE ARRIVAL HAS NO STAGGER, which is fm5's and not an omission. All
+     four rise 5px and fade together at 180ms — and 180ms is the number that
+     matters, because the circuit above takes 390ms to close, so the box is
+     46% drawn when the words start. That is the relationship fm5's own
+     header describes, and it survives the transplant because the circuit
+     here already runs on fm5's numbers.
+
+     <- --i IS STILL MEASURED AND NOW GOES UNUSED. fill() ranks the distinct
+        offsetTops to find each fact's real row; nothing reads it any more.
+        Kept because restoring a per-row stagger is then one line rather
+        than a re-measurement. */
+  :root .rg .hvr__f {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 3px;
+    white-space: nowrap;
+    opacity: 0; transform: translateY(5px);
+    transition: opacity 90ms linear, transform 90ms cubic-bezier(0.4, 0, 1, 1);
+  }
+  :root .rg .hvr__f[hidden] { display: none; }
+  :root .rg .sec--works.is-hv .hvr__f {
+    opacity: 1; transform: none;
+    transition: opacity 200ms linear 180ms,
+                transform 260ms cubic-bezier(0.22, 1, 0.36, 1) 180ms;
+  }
+  :root .rg .hvr__l {
+    font-family: var(--mono); font-size: var(--t-micro);
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--muted); line-height: 1.4;
+  }
+  /* The value's own setting, and the vprobe above must match it exactly or
+     the baseline shift is measured against the wrong line box. */
+  :root .rg .hvr__v,
+  :root .rg .hvr__vprobe {
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(14px, 1.33vw, 17px);
+    letter-spacing: -0.01em; line-height: 1.2;
+  }
+  :root .rg .hvr__v { color: var(--bone); }
+
+  /* The instrument stands down and the name does not. `animation: none` on
+     the year, or the fade is a measured no-op — see the header. */
+  :root .rg .sec--works .rl__date,
+  :root .rg .sec--works .rl__ruler { transition: opacity 140ms linear; }
+  :root .rg .sec--works.is-hv .rl__date { animation: none; opacity: 0; }
+  :root .rg .sec--works.is-hv .rl__ruler { opacity: 0; }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root .rg .hvr__e, :root .rg .sec--works.is-hv .hvr__e { transition: none; transform: none; }
+    /* The clip-path this used to reset is gone with the wipe; what has to
+       be reset now is the opacity and the 5px the facts rise from, or
+       reduced motion leaves the whole reading invisible rather than
+       still. */
+    :root .rg .hvr__f, :root .rg .sec--works.is-hv .hvr__f { transition: none; opacity: 1; transform: none; }
+    :root .rg .hvr__num { transition: none; opacity: 1; }
+  }
+  @media (max-width: 900px) { :root .rg .hvr { display: none; } }
+
 </style>
