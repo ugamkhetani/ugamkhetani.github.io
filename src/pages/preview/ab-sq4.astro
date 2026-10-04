@@ -1,0 +1,365 @@
+---
+/**
+ * SQ4 · THE PAN — scroll is a camera move.
+ *
+ * THE IDEA: a still frame holds more than a window shows. Every other draft in
+ * these three rounds fits the whole 4:3 into whatever box it is given and
+ * calls that the picture. This one refuses. Each frame is cut to a hard
+ * format — a wide 2.35 or an upright 3:4 — and SCROLL MOVES THE FRAME INSIDE
+ * IT. Going down the page tilts down through the wide ones and pans across
+ * the upright ones. Vertical scroll becomes the two camera moves that do not
+ * need a dolly.
+ *
+ * IT IS CROPPING, NOT ZOOMING, and the distinction is the whole direction.
+ * The scale never changes — nothing grows, nothing recedes, the photograph is
+ * never magnified. Only the window's position over it moves, which is what a
+ * tilt and a pan actually are and what makes this cinematic rather than an
+ * effect. Any draft that scaled here would be doing a push-in and should say
+ * so.
+ *
+ * THE FORMATS ARE THE EDIT. Wide for the frames that want a horizon — the
+ * room, the shelves, the slats. Upright for the ones that want a figure — the
+ * mirror, the eye, the standing boy. The alternation gives the column its
+ * rhythm, and the alignment alternates with it so the page zig-zags down.
+ *
+ * HOVER SHOWS WHAT THE CROP IS THROWING AWAY. Rest on a frame and a hairline
+ * rectangle draws the full 4:3 around the window, with the format and the
+ * current position printed in mono. It annotates rather than reveals: the
+ * photograph is not dimmed, covered or moved to make the point.
+ */
+import Base from '../../layouts/Base.astro';
+import OpNav from '../../components/OpNav.astro';
+import { Image, getImage } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import { framesFor } from '../../lib/frames';
+import { href } from '../../lib/href';
+
+/* THE REAL WORK AND THE REAL STILLS, and the work page's own harness around
+   them, so the only variable between ab-sq1 and ab-sq8 is the section below
+   the "03 · Stills" rule.
+
+   NOTHING ON THESE PAGES IS CLICKABLE. The brief for this round is scroll and
+   hover only: no buttons, no controls, no navigation, nothing draggable. Every
+   state is either a function of scroll position or a CSS :hover. If you find
+   a cursor:pointer in here it is a mistake.
+
+   THE PRODUCTION PAGE IS NOT TOUCHED — src/pages/work/[slug].astro is
+   untouched by all eight, and `withoutPreview()` keeps these out of the
+   built site. */
+const works = await getCollection('works');
+const work = works.find((w) => w.id === 'aasha')!;
+const d = work.data;
+const images = framesFor('aasha', d.frames);
+const LEDE = (d.description.trim().match(/^[^.!?]+[.!?]/) ?? [d.description.trim()])[0];
+const ROLES = d.role.split('·').map((r) => r.trim());
+const nn = (i: number) => String(i + 1).padStart(2, '0');
+/* `awards` is {text, star?}[], not a string. */
+const AWARDS = (d.awards ?? []).map((a: { text: string }) => a.text).join(' · ');
+
+/* Optimised URLs for the drafts that need a frame inside a CSS property — a
+   background, a band, a blended layer — where <Image> cannot reach. */
+const WEB = await Promise.all(
+  images.map((src) => getImage({ src, width: 1400, format: 'webp', quality: 80 })),
+);
+
+/* MEASURED FROM THE FILES, NOT ASSERTED. Mean luminance of each frame, read
+   off a 128x96 canvas by ab-xp1 and reproduced independently by ab-xp7 — the
+   two agree to three decimals. Several drafts in this round art-direct from
+   it (which frame is big, which is held longest, what order the composite
+   resolves in), so it is recorded here rather than re-derived at runtime:
+   these eight do no work in the browser that scroll and hover do not need.
+      01 .147   02 .179   03 .078   04 .075
+      05 .338   06 .214   07 .159   08 .313
+   The film never exceeds .489 anywhere, and 03 and 04 are the floor. */
+const LUMA = [0.147, 0.179, 0.078, 0.075, 0.338, 0.214, 0.159, 0.313];
+
+const DRAFTS: [string, string, string][] = [
+  ['sq1', 'The spreads', 'Six compositions, cut between'],
+  ['sq2', 'The composite', 'Eight at once, then apart'],
+  ['sq3', 'The duration', 'Editing is how long you hold'],
+  ['sq4', 'The pan', 'Scroll is a camera move'],
+  ['sq5', 'The stack', 'Every frame you passed is still there'],
+  ['sq6', 'The continuity', 'One image from three films'],
+  ['sq7', 'The spine', 'A single rule holds the page'],
+  ['sq8', 'The approach', 'The pictures take the page'],
+];
+const ME = 'sq4';
+const MINE = DRAFTS.find(([id]) => id === ME)!;
+
+/* <- MY FORMATS AND MY MOVES, not anything the documents state. For each
+   frame: the window's aspect, which way the camera travels, and which side of
+   the column it sits on. Wide formats tilt (the window is shorter than the
+   source, so the move is vertical); upright formats pan (the window is
+   narrower, so the move is horizontal). The ghost rectangle hover draws is
+   derived from these two numbers, not drawn by hand. */
+const MOVES: { ar: number; dir: 1 | -1; side: 'l' | 'r'; w: number }[] = [
+  { ar: 2.35, dir: 1, side: 'l', w: 100 },  /* 01 shelves, tilt down   */
+  { ar: 0.75, dir: 1, side: 'r', w: 42 },   /* 02 mirror,  pan right   */
+  { ar: 2.35, dir: -1, side: 'l', w: 88 },  /* 03 the can, tilt up     */
+  { ar: 0.66, dir: -1, side: 'r', w: 36 },  /* 04 the eye, pan left    */
+  { ar: 2.1, dir: 1, side: 'l', w: 94 },    /* 05 slats,   tilt down   */
+  { ar: 1.9, dir: -1, side: 'r', w: 82 },   /* 06 the laugh, tilt up   */
+  { ar: 0.8, dir: 1, side: 'l', w: 44 },    /* 07 the room, pan right  */
+  { ar: 2.35, dir: 1, side: 'r', w: 100 },  /* 08 the window, tilt down */
+];
+const AR_SRC = 4 / 3;
+---
+
+<Base title={`${d.title} · ${MINE[1]} — stills ${ME.toUpperCase()}`} description={`An editorial direction for the stills section of the Aasha project page: ${MINE[2]}.`}>
+  <OpNav variant="bracket" base={href()} />
+
+  <nav class="sw" aria-label="Stills drafts">
+    <span class="sw__id">{ME.toUpperCase()}</span>
+    <span class="sw__nm">{MINE[1]}</span>
+    <span class="sw__su">{MINE[2]}</span>
+    <span class="sw__set">
+      {DRAFTS.map(([id, name, sub]) => (
+        <a class:list={['sw__i', { 'is-here': id === ME }]} href={href(`preview/ab-${id}`)}
+          title={`${name} — ${sub}`} aria-current={id === ME ? 'page' : undefined}>{id.slice(2)}</a>
+      ))}
+      <a class="sw__prev" href={href('preview/ab-st1')} title="Round one — eight arrangements">ST</a>
+      <a class="sw__prev" href={href('preview/ab-xp1')} title="Round two — eight interactions">XP</a>
+    </span>
+  </nav>
+
+  <article class="sc" style={`--ar:${d.ratio.replace(':', ' / ')}`}>
+    <header class="hd">
+      <p class="mono hd__over">{d.category} · {d.year}</p>
+      <h1 class="hd__t">{d.title}</h1>
+      <p class="mono hd__meta"><span class="hd__roles">{ROLES.map((r) => <span>{r}</span>)}</span></p>
+    </header>
+
+    {d.quote && (
+      <section class="q" aria-label="Statement">
+        <p class="q__t">{d.quote}</p>
+      </section>
+    )}
+
+    <section class="blk body" aria-label="About">
+      <p class="body__lede" style={`--n:${LEDE.length}`}>{LEDE}</p>
+    </section>
+
+    <!-- ══ 03 · STILLS — THE DRAFT ═══════════════════════════════════ -->
+    <section class="blk st" aria-label="Stills">
+      <p class="mono st__lbl"><span>03</span><i aria-hidden="true"></i><span>Stills · {MINE[1]}</span></p>
+      <div class="pn" data-pn>
+        {MOVES.map((m, i) => {
+          const tilt = m.ar > AR_SRC;
+          /* The ghost is the full 4:3 at the window's own scale: a wide window
+             crops top and bottom, so the source is taller than it; an upright
+             one crops the sides, so the source is wider. */
+          const ghostW = tilt ? 100 : (AR_SRC / m.ar) * 100;
+          const ghostH = tilt ? (m.ar / AR_SRC) * 100 : 100;
+          return (
+            <figure class:list={['pn__f', tilt ? 'pn--tilt' : 'pn--pan', `pn--${m.side}`]}
+              data-pn-f={i} data-pn-dir={m.dir}
+              style={`--war:${m.ar}; --fw:${m.w}; --gw:${ghostW}; --gh:${ghostH}; --p:0.5`}>
+              <span class="pn__win">
+                <Image src={images[i]} alt={i === 0 ? d.alt : ''} aria-hidden={i === 0 ? undefined : 'true'}
+                  widths={[560, 980, 1500, 1900]} sizes={`(max-width: 760px) 94vw, ${m.w}vw`}
+                  loading={i < 3 ? 'eager' : 'lazy'} decoding="async" />
+                <i class="pn__ghost" aria-hidden="true"></i>
+              </span>
+              <figcaption class="mono pn__cap">
+                <b>{nn(i)}</b>
+                <span class="pn__move">{tilt ? 'Tilt' : 'Pan'} {tilt ? (m.dir > 0 ? '↓' : '↑') : (m.dir > 0 ? '→' : '←')}</span>
+                <span class="pn__fmt">4:3 → {m.ar.toFixed(2)}:1</span>
+              </figcaption>
+            </figure>
+          );
+        })}
+
+        <p class="mono note">
+          <em>Scroll tilts and pans · nothing is magnified</em>
+          <i aria-hidden="true"></i>
+          <span>Rest on a frame to see what the format excludes</span>
+        </p>
+      </div>
+    </section>
+
+    <footer class="cl">
+      <hr class="rule" />
+      <p class="mono cl__p"><span>{MINE[0].toUpperCase()} · {MINE[1]}</span><i aria-hidden="true"></i><span>{AWARDS}</span></p>
+    </footer>
+  </article>
+</Base>
+
+<script>
+  /* ONE LISTENER, ONE FRAME'S WORK. Every draft in this round reads scroll
+     the same way and writes custom properties; nothing here animates on a
+     timeline, so a throttled or stalled renderer shows a stale position
+     rather than an empty page. */
+  function onScroll(fn) {
+    let queued = false;
+    const tick = () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => { queued = false; fn(); });
+    };
+    addEventListener('scroll', tick, { passive: true });
+    addEventListener('resize', tick);
+    addEventListener('load', fn);
+    document.fonts && document.fonts.ready.then(fn);
+    fn();
+    return fn;
+  }
+
+  /** 0 as the element's top reaches the bottom of the viewport, 1 as its
+      bottom leaves the top. The whole of its passage across the screen. */
+  function through(el) {
+    const b = el.getBoundingClientRect();
+    const span = b.height + innerHeight;
+    return span <= 0 ? 0 : Math.min(1, Math.max(0, Math.round(innerHeight - b.top) / span));
+  }
+
+  /** 0 at the top of a pinning rail, 1 at the bottom. For sticky sections,
+      where the travel is the rail's height less one viewport. */
+  function along(rail) {
+    const b = rail.getBoundingClientRect();
+    const travel = b.height - innerHeight;
+    return travel <= 0 ? 0 : Math.min(1, Math.max(0, Math.round(-b.top) / travel));
+  }
+
+  /** -1 below the fold, 0 at the viewport's centre, +1 above the top. */
+  function about(el) {
+    const b = el.getBoundingClientRect();
+    const mid = b.top + b.height / 2;
+    return Math.min(1, Math.max(-1, (innerHeight / 2 - mid) / (innerHeight / 2 + b.height / 2)));
+  }
+  const pn = document.querySelector('[data-pn]');
+  if (pn && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const figs = [...pn.querySelectorAll('[data-pn-f]')];
+
+    onScroll(() => {
+      figs.forEach((f) => {
+        const b = f.getBoundingClientRect();
+        if (b.bottom < -200 || b.top > innerHeight + 200) return;
+        /* The move runs across the frame's whole passage over the screen, so
+           it is still travelling at the top of the window and at the bottom —
+           a camera move does not start and stop in the middle of a shot. */
+        const t = through(f);
+        const dir = +f.dataset.pnDir;
+        f.style.setProperty('--p', (dir > 0 ? t : 1 - t).toFixed(4));
+      });
+    });
+
+    window.pnAt = () => figs.map((f) => +f.style.getPropertyValue('--p'));
+  }
+</script>
+
+<style>
+  /* ══ THE HARNESS ═══════════════════════════════════════════════════
+     The work page's own type and rhythm, shared verbatim by all eight. */
+  .sw {
+    position: fixed; inset: 0 0 auto; z-index: 900;
+    display: flex; align-items: baseline; gap: 12px;
+    padding: 9px clamp(16px, 4vw, 40px);
+    background: color-mix(in srgb, var(--ground) 86%, transparent);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--mono); font-size: var(--t-micro);
+    letter-spacing: 0.16em; text-transform: uppercase;
+  }
+  .sw__id { color: var(--accent); }
+  .sw__nm { color: var(--bone); }
+  .sw__su { color: var(--dim); margin-right: auto; }
+  .sw__set { display: flex; gap: 1px; align-items: baseline; }
+  .sw__i { color: var(--dim); text-decoration: none; padding: 3px 7px; border: 1px solid transparent; font-variant-numeric: tabular-nums; }
+  .sw__i:hover { color: var(--bone); }
+  .sw__i.is-here { color: var(--accent); border-color: var(--rule); }
+  .sw__prev { color: color-mix(in srgb, var(--dim) 70%, var(--ground)); text-decoration: none; padding: 3px 6px; margin-left: 4px; }
+  .sw__prev:first-of-type { border-left: 1px solid var(--rule); margin-left: 8px; padding-left: 11px; }
+  .sw__prev:hover { color: var(--bone-dim); }
+  @media (max-width: 860px) { .sw__su { display: none; } .sw__nm { margin-right: auto; } }
+  @media (max-width: 560px) { .sw__nm { display: none; } }
+
+  .sc { padding: clamp(84px, 13vh, 150px) var(--margin) 0; }
+  .hd { text-align: center; margin-bottom: clamp(38px, 6.6vh, 80px); }
+  .hd__over { font-size: var(--t-micro); letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin: 0 0 clamp(16px, 2.6vh, 30px); }
+  .hd__t { margin: 0; font-family: var(--display); font-weight: 500; font-size: clamp(2.6rem, 7vw, 5.6rem); line-height: 0.94; letter-spacing: -0.04em; color: var(--bone); }
+  .hd__meta { margin: clamp(14px, 2.2vh, 26px) 0 0; font-size: var(--t-micro); letter-spacing: 0.18em; text-transform: uppercase; color: var(--bone-dim); }
+  .hd__roles { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 0 14px; }
+  .hd__roles span + span::before { content: '·'; margin-right: 14px; color: var(--dim); }
+  .q { max-width: 34ch; margin: 0 auto clamp(50px, 8vh, 110px); text-align: center; }
+  .q__t { margin: 0; font-family: var(--serif); font-style: italic; font-weight: 300; font-size: clamp(1.25rem, 2.4vw, 1.9rem); line-height: 1.26; letter-spacing: -0.012em; color: var(--bone-dim); }
+  .body { max-width: var(--measure); margin-inline: auto; }
+  .body__lede { margin: 0 auto; max-width: clamp(20ch, calc(var(--n, 90) / 3 * 1ch), 44ch); font-family: var(--display); font-weight: 500; font-size: clamp(1.2rem, min(calc(2.35rem - (var(--n, 90) - 55) * 0.007rem), calc(1.05rem + 2.1vw)), 2.2rem); line-height: 1.12; letter-spacing: -0.025em; color: var(--bone); text-wrap: balance; }
+  .blk { margin: 0 auto clamp(104px, 18vh, 240px); }
+
+  .st { --w: var(--measure); }
+  .st__lbl {
+    display: flex; align-items: center; gap: 12px;
+    width: var(--w); margin: 0 auto clamp(24px, 4vh, 50px);
+    font-size: var(--t-micro); letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted);
+  }
+  .st__lbl i { flex: 1; height: 1px; background: var(--rule); }
+
+  /* One line of mono per draft saying what the composition responds to.
+     Scroll and hover are invisible affordances; naming them is not a crutch,
+     it is the caption on a piece of behaviour. */
+  .note {
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+    width: var(--w); margin: clamp(16px, 2.4vh, 28px) auto 0;
+    font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim);
+  }
+  .note b { font-weight: 400; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .note em { font-style: normal; color: var(--muted); }
+  .note i { flex: 1; min-width: 20px; height: 1px; background: var(--rule); transform: translateY(-3px); }
+
+  .cl { max-width: var(--measure); margin: 0 auto; padding-bottom: clamp(48px, 9vh, 110px); }
+  .rule { border: 0; border-top: 1px solid var(--rule); margin: 0 0 16px; }
+  .cl__p { display: flex; align-items: baseline; gap: 14px; margin: 0; font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); }
+  .cl__p i { flex: 1; height: 1px; background: var(--rule); transform: translateY(-3px); }
+  .cl__p span:last-child { text-align: right; }
+  @media (max-width: 620px) { .cl__p { flex-direction: column; gap: 6px; } .cl__p i { display: none; } .cl__p span:last-child { text-align: left; } }
+
+  /* ── SQ4 · THE PAN ─────────────────────────────────────────── */
+  .st { --w: min(calc(100vw - 2 * var(--margin)), 1180px); }
+  .pn { width: var(--w); margin-inline: auto; }
+  .pn__f { margin: 0; width: calc(var(--fw) * 1%); position: relative; }
+  .pn__f + .pn__f { margin-top: clamp(58px, 10vh, 130px); }
+  .pn--l { margin-right: auto; }
+  .pn--r { margin-left: auto; }
+
+  .pn__win { display: block; position: relative; aspect-ratio: var(--war); overflow: hidden; background: var(--ground-lift); }
+  /* THE MOVE. object-position only — the scale is untouched, so this is a
+     camera travelling over a fixed print and never a push-in. */
+  .pn__win img { width: 100%; height: 100%; display: block; object-fit: cover; }
+  .pn--tilt .pn__win img { object-position: 50% calc(var(--p) * 100%); }
+  .pn--pan .pn__win img { object-position: calc(var(--p) * 100%) 50%; }
+
+  /* The full 4:3 at the window's scale, drawn as a hairline on hover. */
+  .pn__ghost {
+    position: absolute; left: 50%; top: 50%;
+    width: calc(var(--gw) * 1%); height: calc(var(--gh) * 1%);
+    transform: translate(-50%, -50%);
+    border: 1px solid color-mix(in srgb, var(--accent) 52%, transparent);
+    opacity: 0; pointer-events: none;
+  }
+  .pn__f:hover .pn__ghost { opacity: 1; }
+  /* The window has overflow:hidden, so the parts of the ghost that fall
+     outside it are clipped — which is exactly the honest drawing: you see the
+     excluded extent meeting the edge it was cut at. */
+
+  .pn__cap {
+    display: flex; align-items: baseline; gap: 12px; margin-top: 9px;
+    font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim);
+  }
+  .pn__cap b { font-weight: 400; color: var(--bone-dim); font-variant-numeric: tabular-nums; }
+  .pn__move { color: var(--muted); }
+  .pn__fmt { margin-left: auto; opacity: 0.28; }
+  .pn__f:hover .pn__fmt { opacity: 1; color: var(--accent); }
+  @media (prefers-reduced-motion: no-preference) {
+    .pn__ghost, .pn__fmt { transition: opacity 260ms linear, color 260ms linear; }
+  }
+
+  @media (max-width: 760px) {
+    .pn__f { width: 100% !important; }
+    .pn--pan .pn__win { aspect-ratio: 0.9; }
+    .pn--tilt .pn__win { aspect-ratio: 1.9; }
+  }
+
+  /* No travel for a reader who asked for stillness: the window holds the
+     middle of the frame, which is a crop and not a broken animation. */
+  @media (prefers-reduced-motion: reduce) { .pn__f { --p: 0.5 !important; } }
+</style>

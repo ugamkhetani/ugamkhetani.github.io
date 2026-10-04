@@ -1,0 +1,369 @@
+---
+/**
+ * SQ3 · THE DURATION — editing is not what you show, it is how long you hold.
+ *
+ * THE IDEA: every stills section ever built gives all eight frames the same
+ * amount of the reader's time, because they are all the same size in the same
+ * column. No edit works that way. A cut can be eight frames long or four
+ * hundred, and the difference between those two is most of what editing IS.
+ * On a web page the unit of duration is SCROLL DISTANCE, so that is what this
+ * section varies — by a factor of six across the eight — and it varies the
+ * size with it, so a long hold is also a big picture.
+ *
+ * WHAT THAT FEELS LIKE: 02 and 04 and 07 go past almost before you have them.
+ * 03 and 08 pin and make you wait. That is not a system applied evenly; it is
+ * a cut, and the one below is mine — see the flag on HOLD. A different editor
+ * would hold different frames and the section would be a different piece.
+ *
+ * THE CUTTING STRIP IS THE OTHER HALF. Eight segments down the left margin,
+ * each one as tall as its hold is long, with the current frame lit — so the
+ * rhythm is legible as a shape before you have scrolled through it, the way a
+ * timeline is legible to an editor. The strip is the only furniture and it
+ * never covers a photograph.
+ *
+ * HOVER PRINTS THE FIGURE. Rest on a frame and it tells you how long it is
+ * held, in screens, and lights its own segment. The claim the section makes
+ * is quantitative, so it should be checkable.
+ *
+ * IT IS NOT ab-st2. That draft pinned one window and cut between eight equal
+ * shares; the mechanism is similar and the argument is the opposite. There,
+ * every frame got the same time and the point was the cut. Here the time is
+ * the point, and no two frames get the same.
+ */
+import Base from '../../layouts/Base.astro';
+import OpNav from '../../components/OpNav.astro';
+import { Image, getImage } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import { framesFor } from '../../lib/frames';
+import { href } from '../../lib/href';
+
+/* THE REAL WORK AND THE REAL STILLS, and the work page's own harness around
+   them, so the only variable between ab-sq1 and ab-sq8 is the section below
+   the "03 · Stills" rule.
+
+   NOTHING ON THESE PAGES IS CLICKABLE. The brief for this round is scroll and
+   hover only: no buttons, no controls, no navigation, nothing draggable. Every
+   state is either a function of scroll position or a CSS :hover. If you find
+   a cursor:pointer in here it is a mistake.
+
+   THE PRODUCTION PAGE IS NOT TOUCHED — src/pages/work/[slug].astro is
+   untouched by all eight, and `withoutPreview()` keeps these out of the
+   built site. */
+const works = await getCollection('works');
+const work = works.find((w) => w.id === 'aasha')!;
+const d = work.data;
+const images = framesFor('aasha', d.frames);
+const LEDE = (d.description.trim().match(/^[^.!?]+[.!?]/) ?? [d.description.trim()])[0];
+const ROLES = d.role.split('·').map((r) => r.trim());
+const nn = (i: number) => String(i + 1).padStart(2, '0');
+/* `awards` is {text, star?}[], not a string. */
+const AWARDS = (d.awards ?? []).map((a: { text: string }) => a.text).join(' · ');
+
+/* Optimised URLs for the drafts that need a frame inside a CSS property — a
+   background, a band, a blended layer — where <Image> cannot reach. */
+const WEB = await Promise.all(
+  images.map((src) => getImage({ src, width: 1400, format: 'webp', quality: 80 })),
+);
+
+/* MEASURED FROM THE FILES, NOT ASSERTED. Mean luminance of each frame, read
+   off a 128x96 canvas by ab-xp1 and reproduced independently by ab-xp7 — the
+   two agree to three decimals. Several drafts in this round art-direct from
+   it (which frame is big, which is held longest, what order the composite
+   resolves in), so it is recorded here rather than re-derived at runtime:
+   these eight do no work in the browser that scroll and hover do not need.
+      01 .147   02 .179   03 .078   04 .075
+      05 .338   06 .214   07 .159   08 .313
+   The film never exceeds .489 anywhere, and 03 and 04 are the floor. */
+const LUMA = [0.147, 0.179, 0.078, 0.075, 0.338, 0.214, 0.159, 0.313];
+
+const DRAFTS: [string, string, string][] = [
+  ['sq1', 'The spreads', 'Six compositions, cut between'],
+  ['sq2', 'The composite', 'Eight at once, then apart'],
+  ['sq3', 'The duration', 'Editing is how long you hold'],
+  ['sq4', 'The pan', 'Scroll is a camera move'],
+  ['sq5', 'The stack', 'Every frame you passed is still there'],
+  ['sq6', 'The continuity', 'One image from three films'],
+  ['sq7', 'The spine', 'A single rule holds the page'],
+  ['sq8', 'The approach', 'The pictures take the page'],
+];
+const ME = 'sq3';
+const MINE = DRAFTS.find(([id]) => id === ME)!;
+
+/* <- MY EDIT, and the whole of this draft rests on it. How long each frame
+   holds, in viewport heights. Nothing in the documents ranks these frames;
+   this is a reading of what is in them. 03 — the tap and the can, the darkest
+   thing in the film at .078 — is held because it is the frame that gives up
+   least on a first look. 04, the eye, is a flash on purpose. 08 is the
+   longest because it closes. Re-cut it freely: the CSS and the strip both
+   derive from these numbers, so changing one changes the whole section. */
+const HOLD = [0.62, 0.28, 1.42, 0.25, 0.68, 1.18, 0.31, 1.6];
+const TOTAL = HOLD.reduce((a, b) => a + b, 0);
+---
+
+<Base title={`${d.title} · ${MINE[1]} — stills ${ME.toUpperCase()}`} description={`An editorial direction for the stills section of the Aasha project page: ${MINE[2]}.`}>
+  <OpNav variant="bracket" base={href()} />
+
+  <nav class="sw" aria-label="Stills drafts">
+    <span class="sw__id">{ME.toUpperCase()}</span>
+    <span class="sw__nm">{MINE[1]}</span>
+    <span class="sw__su">{MINE[2]}</span>
+    <span class="sw__set">
+      {DRAFTS.map(([id, name, sub]) => (
+        <a class:list={['sw__i', { 'is-here': id === ME }]} href={href(`preview/ab-${id}`)}
+          title={`${name} — ${sub}`} aria-current={id === ME ? 'page' : undefined}>{id.slice(2)}</a>
+      ))}
+      <a class="sw__prev" href={href('preview/ab-st1')} title="Round one — eight arrangements">ST</a>
+      <a class="sw__prev" href={href('preview/ab-xp1')} title="Round two — eight interactions">XP</a>
+    </span>
+  </nav>
+
+  <article class="sc" style={`--ar:${d.ratio.replace(':', ' / ')}`}>
+    <header class="hd">
+      <p class="mono hd__over">{d.category} · {d.year}</p>
+      <h1 class="hd__t">{d.title}</h1>
+      <p class="mono hd__meta"><span class="hd__roles">{ROLES.map((r) => <span>{r}</span>)}</span></p>
+    </header>
+
+    {d.quote && (
+      <section class="q" aria-label="Statement">
+        <p class="q__t">{d.quote}</p>
+      </section>
+    )}
+
+    <section class="blk body" aria-label="About">
+      <p class="body__lede" style={`--n:${LEDE.length}`}>{LEDE}</p>
+    </section>
+
+    <!-- ══ 03 · STILLS — THE DRAFT ═══════════════════════════════════ -->
+    <section class="blk st" aria-label="Stills">
+      <p class="mono st__lbl"><span>03</span><i aria-hidden="true"></i><span>Stills · {MINE[1]}</span></p>
+      <div class="du" data-du>
+        <div class="du__strip" data-du-strip aria-hidden="true">
+          <p class="mono du__slbl">Hold</p>
+          {HOLD.map((h, i) => (
+            <span class="du__seg" data-du-seg={i} style={`--h:${h}`}><b class="mono">{nn(i)}</b><i></i></span>
+          ))}
+        </div>
+
+        <div class="du__run">
+          {HOLD.map((h, i) => (
+            <div class="du__rail" data-du-rail={i} style={`--hold:${h}`}>
+              <figure class="du__f" data-du-f={i}>
+                <Image src={images[i]} alt={i === 0 ? d.alt : ''} aria-hidden={i === 0 ? undefined : 'true'}
+                  widths={[420, 760, 1200, 1600]} sizes="(max-width: 760px) 92vw, 70vw"
+                  loading={i < 3 ? 'eager' : 'lazy'} decoding="async" />
+                <figcaption class="mono du__cap">
+                  <b>{nn(i)}</b>
+                  <span class="du__held">Held {h.toFixed(2)} screens</span>
+                  <span class="du__kind">{h >= 1 ? 'a hold' : 'a flash'}</span>
+                </figcaption>
+              </figure>
+            </div>
+          ))}
+        </div>
+
+        <p class="mono note">
+          <em>Scroll · some frames pin, some go past</em>
+          <b>{TOTAL.toFixed(2)}</b><span>screens in all, 6× between the longest and the shortest</span>
+        </p>
+      </div>
+    </section>
+
+    <footer class="cl">
+      <hr class="rule" />
+      <p class="mono cl__p"><span>{MINE[0].toUpperCase()} · {MINE[1]}</span><i aria-hidden="true"></i><span>{AWARDS}</span></p>
+    </footer>
+  </article>
+</Base>
+
+<script>
+  /* ONE LISTENER, ONE FRAME'S WORK. Every draft in this round reads scroll
+     the same way and writes custom properties; nothing here animates on a
+     timeline, so a throttled or stalled renderer shows a stale position
+     rather than an empty page. */
+  function onScroll(fn) {
+    let queued = false;
+    const tick = () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => { queued = false; fn(); });
+    };
+    addEventListener('scroll', tick, { passive: true });
+    addEventListener('resize', tick);
+    addEventListener('load', fn);
+    document.fonts && document.fonts.ready.then(fn);
+    fn();
+    return fn;
+  }
+
+  /** 0 as the element's top reaches the bottom of the viewport, 1 as its
+      bottom leaves the top. The whole of its passage across the screen. */
+  function through(el) {
+    const b = el.getBoundingClientRect();
+    const span = b.height + innerHeight;
+    return span <= 0 ? 0 : Math.min(1, Math.max(0, Math.round(innerHeight - b.top) / span));
+  }
+
+  /** 0 at the top of a pinning rail, 1 at the bottom. For sticky sections,
+      where the travel is the rail's height less one viewport. */
+  function along(rail) {
+    const b = rail.getBoundingClientRect();
+    const travel = b.height - innerHeight;
+    return travel <= 0 ? 0 : Math.min(1, Math.max(0, Math.round(-b.top) / travel));
+  }
+
+  /** -1 below the fold, 0 at the viewport's centre, +1 above the top. */
+  function about(el) {
+    const b = el.getBoundingClientRect();
+    const mid = b.top + b.height / 2;
+    return Math.min(1, Math.max(-1, (innerHeight / 2 - mid) / (innerHeight / 2 + b.height / 2)));
+  }
+  const du = document.querySelector('[data-du]');
+  if (du) {
+    const figs = [...du.querySelectorAll('[data-du-f]')];
+    const segs = [...du.querySelectorAll('[data-du-seg]')];
+    let lit = -1;
+
+    onScroll(() => {
+      /* Whichever frame is nearest the middle of the screen is the one being
+         held. Measured from the sticky element's own box, so it is true while
+         it is pinned and true while it is leaving. */
+      const mid = innerHeight / 2;
+      let best = -1, bd = Infinity;
+      figs.forEach((f, i) => {
+        const b = f.getBoundingClientRect();
+        if (b.bottom < 0 || b.top > innerHeight) return;
+        const dist = Math.abs(b.top + b.height / 2 - mid);
+        if (dist < bd) { bd = dist; best = i; }
+      });
+      if (best === lit) return;
+      lit = best;
+      segs.forEach((s, i) => s.classList.toggle('is-on', i === best));
+    });
+
+    window.duLit = () => lit;
+  }
+</script>
+
+<style>
+  /* ══ THE HARNESS ═══════════════════════════════════════════════════
+     The work page's own type and rhythm, shared verbatim by all eight. */
+  .sw {
+    position: fixed; inset: 0 0 auto; z-index: 900;
+    display: flex; align-items: baseline; gap: 12px;
+    padding: 9px clamp(16px, 4vw, 40px);
+    background: color-mix(in srgb, var(--ground) 86%, transparent);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--mono); font-size: var(--t-micro);
+    letter-spacing: 0.16em; text-transform: uppercase;
+  }
+  .sw__id { color: var(--accent); }
+  .sw__nm { color: var(--bone); }
+  .sw__su { color: var(--dim); margin-right: auto; }
+  .sw__set { display: flex; gap: 1px; align-items: baseline; }
+  .sw__i { color: var(--dim); text-decoration: none; padding: 3px 7px; border: 1px solid transparent; font-variant-numeric: tabular-nums; }
+  .sw__i:hover { color: var(--bone); }
+  .sw__i.is-here { color: var(--accent); border-color: var(--rule); }
+  .sw__prev { color: color-mix(in srgb, var(--dim) 70%, var(--ground)); text-decoration: none; padding: 3px 6px; margin-left: 4px; }
+  .sw__prev:first-of-type { border-left: 1px solid var(--rule); margin-left: 8px; padding-left: 11px; }
+  .sw__prev:hover { color: var(--bone-dim); }
+  @media (max-width: 860px) { .sw__su { display: none; } .sw__nm { margin-right: auto; } }
+  @media (max-width: 560px) { .sw__nm { display: none; } }
+
+  .sc { padding: clamp(84px, 13vh, 150px) var(--margin) 0; }
+  .hd { text-align: center; margin-bottom: clamp(38px, 6.6vh, 80px); }
+  .hd__over { font-size: var(--t-micro); letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin: 0 0 clamp(16px, 2.6vh, 30px); }
+  .hd__t { margin: 0; font-family: var(--display); font-weight: 500; font-size: clamp(2.6rem, 7vw, 5.6rem); line-height: 0.94; letter-spacing: -0.04em; color: var(--bone); }
+  .hd__meta { margin: clamp(14px, 2.2vh, 26px) 0 0; font-size: var(--t-micro); letter-spacing: 0.18em; text-transform: uppercase; color: var(--bone-dim); }
+  .hd__roles { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 0 14px; }
+  .hd__roles span + span::before { content: '·'; margin-right: 14px; color: var(--dim); }
+  .q { max-width: 34ch; margin: 0 auto clamp(50px, 8vh, 110px); text-align: center; }
+  .q__t { margin: 0; font-family: var(--serif); font-style: italic; font-weight: 300; font-size: clamp(1.25rem, 2.4vw, 1.9rem); line-height: 1.26; letter-spacing: -0.012em; color: var(--bone-dim); }
+  .body { max-width: var(--measure); margin-inline: auto; }
+  .body__lede { margin: 0 auto; max-width: clamp(20ch, calc(var(--n, 90) / 3 * 1ch), 44ch); font-family: var(--display); font-weight: 500; font-size: clamp(1.2rem, min(calc(2.35rem - (var(--n, 90) - 55) * 0.007rem), calc(1.05rem + 2.1vw)), 2.2rem); line-height: 1.12; letter-spacing: -0.025em; color: var(--bone); text-wrap: balance; }
+  .blk { margin: 0 auto clamp(104px, 18vh, 240px); }
+
+  .st { --w: var(--measure); }
+  .st__lbl {
+    display: flex; align-items: center; gap: 12px;
+    width: var(--w); margin: 0 auto clamp(24px, 4vh, 50px);
+    font-size: var(--t-micro); letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted);
+  }
+  .st__lbl i { flex: 1; height: 1px; background: var(--rule); }
+
+  /* One line of mono per draft saying what the composition responds to.
+     Scroll and hover are invisible affordances; naming them is not a crutch,
+     it is the caption on a piece of behaviour. */
+  .note {
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+    width: var(--w); margin: clamp(16px, 2.4vh, 28px) auto 0;
+    font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim);
+  }
+  .note b { font-weight: 400; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .note em { font-style: normal; color: var(--muted); }
+  .note i { flex: 1; min-width: 20px; height: 1px; background: var(--rule); transform: translateY(-3px); }
+
+  .cl { max-width: var(--measure); margin: 0 auto; padding-bottom: clamp(48px, 9vh, 110px); }
+  .rule { border: 0; border-top: 1px solid var(--rule); margin: 0 0 16px; }
+  .cl__p { display: flex; align-items: baseline; gap: 14px; margin: 0; font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); }
+  .cl__p i { flex: 1; height: 1px; background: var(--rule); transform: translateY(-3px); }
+  .cl__p span:last-child { text-align: right; }
+  @media (max-width: 620px) { .cl__p { flex-direction: column; gap: 6px; } .cl__p i { display: none; } .cl__p span:last-child { text-align: left; } }
+
+  /* ── SQ3 · THE DURATION ────────────────────────────────────── */
+  .st { --w: min(calc(100vw - 2 * var(--margin)), 1180px); }
+  .du { width: var(--w); margin-inline: auto; position: relative; }
+
+  /* THE CUTTING STRIP. Segment heights are the holds themselves, so the
+     rhythm is a shape you can read before you scroll it. */
+  .du__strip {
+    position: sticky; top: 16vh; float: left; width: 58px; height: 68vh;
+    display: flex; flex-direction: column; gap: 3px; margin-right: 22px; z-index: 2;
+  }
+  .du__slbl { margin: 0 0 6px; font-size: var(--t-micro); letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+  .du__seg { flex: var(--h) 1 0; display: flex; align-items: flex-start; gap: 7px; min-height: 0; }
+  .du__seg b { font-weight: 400; font-size: var(--t-micro); letter-spacing: 0.1em; color: color-mix(in srgb, var(--dim) 55%, var(--ground)); font-variant-numeric: tabular-nums; }
+  .du__seg i { flex: 1; align-self: stretch; background: var(--rule); }
+  .du__seg.is-on b { color: var(--bone); }
+  .du__seg.is-on i { background: var(--accent); }
+  @media (prefers-reduced-motion: no-preference) {
+    .du__seg b, .du__seg i { transition: color 200ms linear, background-color 200ms linear; }
+  }
+
+  /* A frame's rail is as tall as its hold, plus the screen it crosses. The
+     sticky child does the holding; short holds barely stop at all. */
+  .du__rail { height: calc((var(--hold) + 0.8) * 100vh); }
+  .du__f {
+    position: sticky; top: 50%; transform: translateY(-50%); margin: 0;
+    /* SIZE CARRIES THE DURATION TOO — a long hold is a big picture. */
+    width: calc(40% + var(--hold) / 1.6 * 56%);
+    margin-left: auto; margin-right: auto;
+  }
+  .du__rail:nth-child(odd) .du__f { margin-left: 0; }
+  .du__rail:nth-child(even) .du__f { margin-right: 0; }
+  .du__f img { display: block; width: 100%; height: auto; aspect-ratio: var(--ar); object-fit: cover; }
+
+  .du__cap {
+    display: flex; align-items: baseline; gap: 12px; margin-top: 9px;
+    font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim);
+  }
+  .du__cap b { font-weight: 400; color: var(--bone-dim); font-variant-numeric: tabular-nums; }
+  .du__held { opacity: 0.25; }
+  .du__kind { margin-left: auto; color: color-mix(in srgb, var(--dim) 62%, var(--ground)); }
+  .du__f:hover .du__held { opacity: 1; color: var(--accent); }
+  @media (prefers-reduced-motion: no-preference) { .du__held { transition: opacity 240ms linear, color 240ms linear; } }
+
+  @media (max-width: 760px) {
+    .du__strip { width: 34px; margin-right: 12px; height: 54vh; top: 13vh; }
+    .du__f { width: calc(62% + var(--hold) / 1.6 * 36%) !important; margin-inline: 0 auto; }
+    .du__rail { height: calc((var(--hold) * 0.72 + 0.7) * 100vh); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .du__rail { height: auto; margin-bottom: clamp(40px, 7vh, 90px); }
+    .du__f { position: static; transform: none; }
+    .du__strip { position: static; float: none; width: auto; height: auto; flex-direction: row; margin: 0 0 20px; }
+    .du__seg { flex-direction: column; }
+  }
+</style>

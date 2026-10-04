@@ -1,0 +1,352 @@
+---
+/**
+ * SQ5 · THE STACK — every frame you have passed is still underneath.
+ *
+ * THE IDEA: a column of pictures throws each one away as you leave it. A reel
+ * does not — it accumulates, and by the end of a film everything you have
+ * seen is physically still there, wound on the take-up spool. So this section
+ * does not scroll pictures away. Each frame comes up and STAYS, and the next
+ * one lands on top of it with its upper edge left showing, until the section
+ * ends as a pile of eight with every frame's edge still legible.
+ *
+ * THE EXPOSED EDGE IS THE INDEX, and that is the part that makes it editorial
+ * rather than a stacking trick. Each card's top strip carries its number, its
+ * description and its measured luminance, set in mono on the page's own
+ * baseline — so what builds up as you scroll is a typographic contents page
+ * that writes itself, with the live frame sitting under the last line of it.
+ *
+ * THE OFFSETS ARE NOT UNIFORM. A constant step would be a stair; these vary so
+ * the strip of edges has a rhythm, and the two frames that hold the most — 03
+ * and 08 — get a deeper edge than the rest.
+ *
+ * HOVER LIFTS A CARD OUT OF THE PILE. Rest on any edge and that card rises a
+ * few pixels and its strip comes to full strength, the way you would thumb a
+ * print up out of a stack to look at it. Nothing opens, nothing covers the
+ * page, and the pile keeps its order.
+ */
+import Base from '../../layouts/Base.astro';
+import OpNav from '../../components/OpNav.astro';
+import { Image, getImage } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import { framesFor } from '../../lib/frames';
+import { href } from '../../lib/href';
+
+/* THE REAL WORK AND THE REAL STILLS, and the work page's own harness around
+   them, so the only variable between ab-sq1 and ab-sq8 is the section below
+   the "03 · Stills" rule.
+
+   NOTHING ON THESE PAGES IS CLICKABLE. The brief for this round is scroll and
+   hover only: no buttons, no controls, no navigation, nothing draggable. Every
+   state is either a function of scroll position or a CSS :hover. If you find
+   a cursor:pointer in here it is a mistake.
+
+   THE PRODUCTION PAGE IS NOT TOUCHED — src/pages/work/[slug].astro is
+   untouched by all eight, and `withoutPreview()` keeps these out of the
+   built site. */
+const works = await getCollection('works');
+const work = works.find((w) => w.id === 'aasha')!;
+const d = work.data;
+const images = framesFor('aasha', d.frames);
+const LEDE = (d.description.trim().match(/^[^.!?]+[.!?]/) ?? [d.description.trim()])[0];
+const ROLES = d.role.split('·').map((r) => r.trim());
+const nn = (i: number) => String(i + 1).padStart(2, '0');
+/* `awards` is {text, star?}[], not a string. */
+const AWARDS = (d.awards ?? []).map((a: { text: string }) => a.text).join(' · ');
+
+/* Optimised URLs for the drafts that need a frame inside a CSS property — a
+   background, a band, a blended layer — where <Image> cannot reach. */
+const WEB = await Promise.all(
+  images.map((src) => getImage({ src, width: 1400, format: 'webp', quality: 80 })),
+);
+
+/* MEASURED FROM THE FILES, NOT ASSERTED. Mean luminance of each frame, read
+   off a 128x96 canvas by ab-xp1 and reproduced independently by ab-xp7 — the
+   two agree to three decimals. Several drafts in this round art-direct from
+   it (which frame is big, which is held longest, what order the composite
+   resolves in), so it is recorded here rather than re-derived at runtime:
+   these eight do no work in the browser that scroll and hover do not need.
+      01 .147   02 .179   03 .078   04 .075
+      05 .338   06 .214   07 .159   08 .313
+   The film never exceeds .489 anywhere, and 03 and 04 are the floor. */
+const LUMA = [0.147, 0.179, 0.078, 0.075, 0.338, 0.214, 0.159, 0.313];
+
+const DRAFTS: [string, string, string][] = [
+  ['sq1', 'The spreads', 'Six compositions, cut between'],
+  ['sq2', 'The composite', 'Eight at once, then apart'],
+  ['sq3', 'The duration', 'Editing is how long you hold'],
+  ['sq4', 'The pan', 'Scroll is a camera move'],
+  ['sq5', 'The stack', 'Every frame you passed is still there'],
+  ['sq6', 'The continuity', 'One image from three films'],
+  ['sq7', 'The spine', 'A single rule holds the page'],
+  ['sq8', 'The approach', 'The pictures take the page'],
+];
+const ME = 'sq5';
+const MINE = DRAFTS.find(([id]) => id === ME)!;
+
+/* <- MY DESCRIPTIONS AND MY OFFSETS. The lines say only what is visible in
+   each frame — they are placeholder copy in the sense that matters, which is
+   that the design needs eight short lines of roughly this length and Ugam
+   should write his own. The second number is how deep that card's exposed
+   edge is in pixels; the two deepest go to the two frames that carry the most
+   (03, the floor of the film at .078, and 08, which closes it). */
+const CARDS: [string, number][] = [
+  ['A face, turned to the lens', 40],
+  ['The same face, in a mirror', 36],
+  ['A tap, a can, the floor', 52],
+  ['An eye, out of the dark', 34],
+  ['Light through the slats', 42],
+  ['Laughing', 38],
+  ['A room, a meal', 36],
+  ['Behind the window bars', 50],
+];
+/* Cumulative, so each card sticks just below the stack already above it. */
+const TOPS = CARDS.reduce<number[]>((a, c, i) => [...a, (a[i - 1] ?? 86) + (i ? CARDS[i - 1][1] : 0)], []);
+---
+
+<Base title={`${d.title} · ${MINE[1]} — stills ${ME.toUpperCase()}`} description={`An editorial direction for the stills section of the Aasha project page: ${MINE[2]}.`}>
+  <OpNav variant="bracket" base={href()} />
+
+  <nav class="sw" aria-label="Stills drafts">
+    <span class="sw__id">{ME.toUpperCase()}</span>
+    <span class="sw__nm">{MINE[1]}</span>
+    <span class="sw__su">{MINE[2]}</span>
+    <span class="sw__set">
+      {DRAFTS.map(([id, name, sub]) => (
+        <a class:list={['sw__i', { 'is-here': id === ME }]} href={href(`preview/ab-${id}`)}
+          title={`${name} — ${sub}`} aria-current={id === ME ? 'page' : undefined}>{id.slice(2)}</a>
+      ))}
+      <a class="sw__prev" href={href('preview/ab-st1')} title="Round one — eight arrangements">ST</a>
+      <a class="sw__prev" href={href('preview/ab-xp1')} title="Round two — eight interactions">XP</a>
+    </span>
+  </nav>
+
+  <article class="sc" style={`--ar:${d.ratio.replace(':', ' / ')}`}>
+    <header class="hd">
+      <p class="mono hd__over">{d.category} · {d.year}</p>
+      <h1 class="hd__t">{d.title}</h1>
+      <p class="mono hd__meta"><span class="hd__roles">{ROLES.map((r) => <span>{r}</span>)}</span></p>
+    </header>
+
+    {d.quote && (
+      <section class="q" aria-label="Statement">
+        <p class="q__t">{d.quote}</p>
+      </section>
+    )}
+
+    <section class="blk body" aria-label="About">
+      <p class="body__lede" style={`--n:${LEDE.length}`}>{LEDE}</p>
+    </section>
+
+    <!-- ══ 03 · STILLS — THE DRAFT ═══════════════════════════════════ -->
+    <section class="blk st" aria-label="Stills">
+      <p class="mono st__lbl"><span>03</span><i aria-hidden="true"></i><span>Stills · {MINE[1]}</span></p>
+      <div class="sk" data-sk>
+        {CARDS.map(([line, edge], i) => (
+          <article class="sk__c" data-sk-c={i} style={`--top:${TOPS[i]}px; --edge:${edge}px`}>
+            <p class="mono sk__edge">
+              <b>{nn(i)}</b>
+              <span class="sk__line">{line}</span>
+              <span class="sk__lum">luma {LUMA[i].toFixed(3)}</span>
+            </p>
+            <figure class="sk__f">
+              <Image src={images[i]} alt={i === 0 ? d.alt : ''} aria-hidden={i === 0 ? undefined : 'true'}
+                widths={[520, 900, 1400]} sizes="(max-width: 760px) 94vw, 72vw"
+                loading={i < 3 ? 'eager' : 'lazy'} decoding="async" />
+            </figure>
+          </article>
+        ))}
+
+        <p class="mono note">
+          <em>Scroll · nothing leaves, it piles up</em>
+          <b data-sk-n>0</b><span>of 8 on the stack</span>
+          <i aria-hidden="true"></i>
+          <span>Rest on an edge to thumb that print up</span>
+        </p>
+      </div>
+    </section>
+
+    <footer class="cl">
+      <hr class="rule" />
+      <p class="mono cl__p"><span>{MINE[0].toUpperCase()} · {MINE[1]}</span><i aria-hidden="true"></i><span>{AWARDS}</span></p>
+    </footer>
+  </article>
+</Base>
+
+<script>
+  /* ONE LISTENER, ONE FRAME'S WORK. Every draft in this round reads scroll
+     the same way and writes custom properties; nothing here animates on a
+     timeline, so a throttled or stalled renderer shows a stale position
+     rather than an empty page. */
+  function onScroll(fn) {
+    let queued = false;
+    const tick = () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => { queued = false; fn(); });
+    };
+    addEventListener('scroll', tick, { passive: true });
+    addEventListener('resize', tick);
+    addEventListener('load', fn);
+    document.fonts && document.fonts.ready.then(fn);
+    fn();
+    return fn;
+  }
+
+  /** 0 as the element's top reaches the bottom of the viewport, 1 as its
+      bottom leaves the top. The whole of its passage across the screen. */
+  function through(el) {
+    const b = el.getBoundingClientRect();
+    const span = b.height + innerHeight;
+    return span <= 0 ? 0 : Math.min(1, Math.max(0, Math.round(innerHeight - b.top) / span));
+  }
+
+  /** 0 at the top of a pinning rail, 1 at the bottom. For sticky sections,
+      where the travel is the rail's height less one viewport. */
+  function along(rail) {
+    const b = rail.getBoundingClientRect();
+    const travel = b.height - innerHeight;
+    return travel <= 0 ? 0 : Math.min(1, Math.max(0, Math.round(-b.top) / travel));
+  }
+
+  /** -1 below the fold, 0 at the viewport's centre, +1 above the top. */
+  function about(el) {
+    const b = el.getBoundingClientRect();
+    const mid = b.top + b.height / 2;
+    return Math.min(1, Math.max(-1, (innerHeight / 2 - mid) / (innerHeight / 2 + b.height / 2)));
+  }
+  const sk = document.querySelector('[data-sk]');
+  if (sk) {
+    const cards = [...sk.querySelectorAll('[data-sk-c]')];
+    const nEl = sk.querySelector('[data-sk-n]');
+    let last = -1;
+    onScroll(() => {
+      /* A card counts as stacked once it has reached its resting top — which
+         is what sticky means here, so comparing its box against its own --top
+         is exact rather than approximate. */
+      const n = cards.filter((c) => {
+        const top = parseFloat(getComputedStyle(c).top) || 0;
+        return c.getBoundingClientRect().top <= top + 1;
+      }).length;
+      if (n === last) return;
+      last = n;
+      if (nEl) nEl.textContent = String(n);
+    });
+    window.skStacked = () => last;
+  }
+</script>
+
+<style>
+  /* ══ THE HARNESS ═══════════════════════════════════════════════════
+     The work page's own type and rhythm, shared verbatim by all eight. */
+  .sw {
+    position: fixed; inset: 0 0 auto; z-index: 900;
+    display: flex; align-items: baseline; gap: 12px;
+    padding: 9px clamp(16px, 4vw, 40px);
+    background: color-mix(in srgb, var(--ground) 86%, transparent);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--mono); font-size: var(--t-micro);
+    letter-spacing: 0.16em; text-transform: uppercase;
+  }
+  .sw__id { color: var(--accent); }
+  .sw__nm { color: var(--bone); }
+  .sw__su { color: var(--dim); margin-right: auto; }
+  .sw__set { display: flex; gap: 1px; align-items: baseline; }
+  .sw__i { color: var(--dim); text-decoration: none; padding: 3px 7px; border: 1px solid transparent; font-variant-numeric: tabular-nums; }
+  .sw__i:hover { color: var(--bone); }
+  .sw__i.is-here { color: var(--accent); border-color: var(--rule); }
+  .sw__prev { color: color-mix(in srgb, var(--dim) 70%, var(--ground)); text-decoration: none; padding: 3px 6px; margin-left: 4px; }
+  .sw__prev:first-of-type { border-left: 1px solid var(--rule); margin-left: 8px; padding-left: 11px; }
+  .sw__prev:hover { color: var(--bone-dim); }
+  @media (max-width: 860px) { .sw__su { display: none; } .sw__nm { margin-right: auto; } }
+  @media (max-width: 560px) { .sw__nm { display: none; } }
+
+  .sc { padding: clamp(84px, 13vh, 150px) var(--margin) 0; }
+  .hd { text-align: center; margin-bottom: clamp(38px, 6.6vh, 80px); }
+  .hd__over { font-size: var(--t-micro); letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin: 0 0 clamp(16px, 2.6vh, 30px); }
+  .hd__t { margin: 0; font-family: var(--display); font-weight: 500; font-size: clamp(2.6rem, 7vw, 5.6rem); line-height: 0.94; letter-spacing: -0.04em; color: var(--bone); }
+  .hd__meta { margin: clamp(14px, 2.2vh, 26px) 0 0; font-size: var(--t-micro); letter-spacing: 0.18em; text-transform: uppercase; color: var(--bone-dim); }
+  .hd__roles { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 0 14px; }
+  .hd__roles span + span::before { content: '·'; margin-right: 14px; color: var(--dim); }
+  .q { max-width: 34ch; margin: 0 auto clamp(50px, 8vh, 110px); text-align: center; }
+  .q__t { margin: 0; font-family: var(--serif); font-style: italic; font-weight: 300; font-size: clamp(1.25rem, 2.4vw, 1.9rem); line-height: 1.26; letter-spacing: -0.012em; color: var(--bone-dim); }
+  .body { max-width: var(--measure); margin-inline: auto; }
+  .body__lede { margin: 0 auto; max-width: clamp(20ch, calc(var(--n, 90) / 3 * 1ch), 44ch); font-family: var(--display); font-weight: 500; font-size: clamp(1.2rem, min(calc(2.35rem - (var(--n, 90) - 55) * 0.007rem), calc(1.05rem + 2.1vw)), 2.2rem); line-height: 1.12; letter-spacing: -0.025em; color: var(--bone); text-wrap: balance; }
+  .blk { margin: 0 auto clamp(104px, 18vh, 240px); }
+
+  .st { --w: var(--measure); }
+  .st__lbl {
+    display: flex; align-items: center; gap: 12px;
+    width: var(--w); margin: 0 auto clamp(24px, 4vh, 50px);
+    font-size: var(--t-micro); letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted);
+  }
+  .st__lbl i { flex: 1; height: 1px; background: var(--rule); }
+
+  /* One line of mono per draft saying what the composition responds to.
+     Scroll and hover are invisible affordances; naming them is not a crutch,
+     it is the caption on a piece of behaviour. */
+  .note {
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+    width: var(--w); margin: clamp(16px, 2.4vh, 28px) auto 0;
+    font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim);
+  }
+  .note b { font-weight: 400; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .note em { font-style: normal; color: var(--muted); }
+  .note i { flex: 1; min-width: 20px; height: 1px; background: var(--rule); transform: translateY(-3px); }
+
+  .cl { max-width: var(--measure); margin: 0 auto; padding-bottom: clamp(48px, 9vh, 110px); }
+  .rule { border: 0; border-top: 1px solid var(--rule); margin: 0 0 16px; }
+  .cl__p { display: flex; align-items: baseline; gap: 14px; margin: 0; font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); }
+  .cl__p i { flex: 1; height: 1px; background: var(--rule); transform: translateY(-3px); }
+  .cl__p span:last-child { text-align: right; }
+  @media (max-width: 620px) { .cl__p { flex-direction: column; gap: 6px; } .cl__p i { display: none; } .cl__p span:last-child { text-align: left; } }
+
+  /* ── SQ5 · THE STACK ───────────────────────────────────────── */
+  .st { --w: min(calc(100vw - 2 * var(--margin)), 980px); }
+  .sk { width: var(--w); margin-inline: auto; }
+
+  .sk__c {
+    position: sticky; top: var(--top);
+    /* The ground is load-bearing: without it the card below shows through and
+       the pile stops being a pile. */
+    background: var(--ground);
+    padding-bottom: clamp(44px, 8vh, 110px);
+  }
+  .sk__c + .sk__c { margin-top: clamp(18px, 3vh, 36px); }
+
+  .sk__edge {
+    display: flex; align-items: center; gap: 14px; margin: 0;
+    height: var(--edge); border-top: 1px solid var(--rule);
+    font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim);
+  }
+  .sk__edge b { font-weight: 400; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .sk__line { color: var(--bone-dim); opacity: 0.6; }
+  .sk__lum { margin-left: auto; opacity: 0.34; font-variant-numeric: tabular-nums; }
+
+  .sk__f { margin: 0; }
+  .sk__f img { display: block; width: 100%; height: auto; aspect-ratio: var(--ar); object-fit: cover; }
+
+  /* HOVER: thumb the print up out of the pile. */
+  .sk__c { transform: translateY(0); }
+  .sk__c:hover { transform: translateY(-7px); z-index: 3; }
+  .sk__c:hover .sk__edge { border-top-color: var(--accent); }
+  .sk__c:hover .sk__line { opacity: 1; color: var(--bone); }
+  .sk__c:hover .sk__lum { opacity: 1; color: var(--accent); }
+  @media (prefers-reduced-motion: no-preference) {
+    .sk__c { transition: transform 260ms cubic-bezier(0.2, 0.85, 0.25, 1); }
+    .sk__edge, .sk__line, .sk__lum { transition: opacity 220ms linear, color 220ms linear, border-color 220ms linear; }
+  }
+
+  @media (max-width: 760px) {
+    /* Eight edges at full depth would eat the screen before the live frame
+       got any of it, so the strip tightens and the labels drop to the number
+       and the line. */
+    .sk__c { top: calc(var(--top) * 0.62); }
+    .sk__edge { height: calc(var(--edge) * 0.66); gap: 10px; }
+    .sk__lum { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sk__c { position: static; transform: none; }
+  }
+</style>

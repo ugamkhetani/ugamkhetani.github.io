@@ -1,0 +1,358 @@
+---
+/**
+ * SQ8 · THE APPROACH — the pictures take the page away from the words.
+ *
+ * THE IDEA: a section has a beginning and an end, and almost nobody uses
+ * that. This one is a single arc. Frame 01 arrives at a sixth of the measure
+ * with an enormous line of display type beside it; frame 08 is wider than the
+ * page can hold and carries four words of mono. Across eight frames the
+ * pictures grow by a factor of six and the typography shrinks by the same,
+ * and somewhere around the fifth they trade places. The section is the
+ * handover.
+ *
+ * WHY THAT IS THE RIGHT SHAPE FOR THIS PAGE: everything above the stills is
+ * words — the title, the statement, the standfirst. The stills are where a
+ * composer's project page stops describing the film and shows it. A section
+ * that starts in the voice of the writing and ends with the photography
+ * holding the whole width is saying so structurally, and it only works once,
+ * which is why it belongs here and nowhere else on the site.
+ *
+ * THE FRAMES DRIFT AS THEY GROW. They start hard against the left margin and
+ * migrate right as they widen until the last one runs off both edges, so the
+ * arc is a movement across the page as well as a change of size. Nothing is
+ * centred anywhere in the section.
+ *
+ * SCROLL IS IN THE TRACKING, and deliberately almost nothing else. Each
+ * frame's word opens its letter-spacing as it comes up the screen and closes
+ * as it leaves — a few thousandths of an em, enough that the type is breathing
+ * and not enough to notice as an effect. The arc does the work; the motion
+ * only has to keep the page alive.
+ *
+ * HOVER GIVES THE WORDS BACK. Rest on any frame — including the late ones
+ * whose type has shrunk to a whisper — and its typography returns to full
+ * strength with the rest of its metadata. The handover is the design, not a
+ * punishment for the captions.
+ */
+import Base from '../../layouts/Base.astro';
+import OpNav from '../../components/OpNav.astro';
+import { Image, getImage } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import { framesFor } from '../../lib/frames';
+import { href } from '../../lib/href';
+
+/* THE REAL WORK AND THE REAL STILLS, and the work page's own harness around
+   them, so the only variable between ab-sq1 and ab-sq8 is the section below
+   the "03 · Stills" rule.
+
+   NOTHING ON THESE PAGES IS CLICKABLE. The brief for this round is scroll and
+   hover only: no buttons, no controls, no navigation, nothing draggable. Every
+   state is either a function of scroll position or a CSS :hover. If you find
+   a cursor:pointer in here it is a mistake.
+
+   THE PRODUCTION PAGE IS NOT TOUCHED — src/pages/work/[slug].astro is
+   untouched by all eight, and `withoutPreview()` keeps these out of the
+   built site. */
+const works = await getCollection('works');
+const work = works.find((w) => w.id === 'aasha')!;
+const d = work.data;
+const images = framesFor('aasha', d.frames);
+const LEDE = (d.description.trim().match(/^[^.!?]+[.!?]/) ?? [d.description.trim()])[0];
+const ROLES = d.role.split('·').map((r) => r.trim());
+const nn = (i: number) => String(i + 1).padStart(2, '0');
+/* `awards` is {text, star?}[], not a string. */
+const AWARDS = (d.awards ?? []).map((a: { text: string }) => a.text).join(' · ');
+
+/* Optimised URLs for the drafts that need a frame inside a CSS property — a
+   background, a band, a blended layer — where <Image> cannot reach. */
+const WEB = await Promise.all(
+  images.map((src) => getImage({ src, width: 1400, format: 'webp', quality: 80 })),
+);
+
+/* MEASURED FROM THE FILES, NOT ASSERTED. Mean luminance of each frame, read
+   off a 128x96 canvas by ab-xp1 and reproduced independently by ab-xp7 — the
+   two agree to three decimals. Several drafts in this round art-direct from
+   it (which frame is big, which is held longest, what order the composite
+   resolves in), so it is recorded here rather than re-derived at runtime:
+   these eight do no work in the browser that scroll and hover do not need.
+      01 .147   02 .179   03 .078   04 .075
+      05 .338   06 .214   07 .159   08 .313
+   The film never exceeds .489 anywhere, and 03 and 04 are the floor. */
+const LUMA = [0.147, 0.179, 0.078, 0.075, 0.338, 0.214, 0.159, 0.313];
+
+const DRAFTS: [string, string, string][] = [
+  ['sq1', 'The spreads', 'Six compositions, cut between'],
+  ['sq2', 'The composite', 'Eight at once, then apart'],
+  ['sq3', 'The duration', 'Editing is how long you hold'],
+  ['sq4', 'The pan', 'Scroll is a camera move'],
+  ['sq5', 'The stack', 'Every frame you passed is still there'],
+  ['sq6', 'The continuity', 'One image from three films'],
+  ['sq7', 'The spine', 'A single rule holds the page'],
+  ['sq8', 'The approach', 'The pictures take the page'],
+];
+const ME = 'sq8';
+const MINE = DRAFTS.find(([id]) => id === ME)!;
+
+/* <- MY ARC AND MY LABELS. Width as a share of the measure, the left offset
+   that goes with it, and the display size of that frame's line in rem. The
+   widths run 18 to 112 and the type runs 3.4rem down to the page's own mono
+   micro, crossing somewhere around the fifth frame. The labels describe only
+   what is visible and are placeholder copy — the design needs eight short
+   lines of about this length. */
+const ARC: { w: number; off: number; ts: number; t: string }[] = [
+  { w: 18, off: 0, ts: 3.4, t: 'A face' },
+  { w: 26, off: 14, ts: 2.7, t: 'And the same face, reflected' },
+  { w: 36, off: 8, ts: 2.1, t: 'A tap, a can, the floor' },
+  { w: 48, off: 30, ts: 1.6, t: 'An eye, out of the dark' },
+  { w: 62, off: 20, ts: 1.2, t: 'Light through the slats' },
+  { w: 78, off: 11, ts: 0.92, t: 'Laughing' },
+  { w: 94, off: 3, ts: 0.74, t: 'A room, a meal' },
+  { w: 112, off: -6, ts: 0.625, t: 'Behind the bars' },
+];
+---
+
+<Base title={`${d.title} · ${MINE[1]} — stills ${ME.toUpperCase()}`} description={`An editorial direction for the stills section of the Aasha project page: ${MINE[2]}.`}>
+  <OpNav variant="bracket" base={href()} />
+
+  <nav class="sw" aria-label="Stills drafts">
+    <span class="sw__id">{ME.toUpperCase()}</span>
+    <span class="sw__nm">{MINE[1]}</span>
+    <span class="sw__su">{MINE[2]}</span>
+    <span class="sw__set">
+      {DRAFTS.map(([id, name, sub]) => (
+        <a class:list={['sw__i', { 'is-here': id === ME }]} href={href(`preview/ab-${id}`)}
+          title={`${name} — ${sub}`} aria-current={id === ME ? 'page' : undefined}>{id.slice(2)}</a>
+      ))}
+      <a class="sw__prev" href={href('preview/ab-st1')} title="Round one — eight arrangements">ST</a>
+      <a class="sw__prev" href={href('preview/ab-xp1')} title="Round two — eight interactions">XP</a>
+    </span>
+  </nav>
+
+  <article class="sc" style={`--ar:${d.ratio.replace(':', ' / ')}`}>
+    <header class="hd">
+      <p class="mono hd__over">{d.category} · {d.year}</p>
+      <h1 class="hd__t">{d.title}</h1>
+      <p class="mono hd__meta"><span class="hd__roles">{ROLES.map((r) => <span>{r}</span>)}</span></p>
+    </header>
+
+    {d.quote && (
+      <section class="q" aria-label="Statement">
+        <p class="q__t">{d.quote}</p>
+      </section>
+    )}
+
+    <section class="blk body" aria-label="About">
+      <p class="body__lede" style={`--n:${LEDE.length}`}>{LEDE}</p>
+    </section>
+
+    <!-- ══ 03 · STILLS — THE DRAFT ═══════════════════════════════════ -->
+    <section class="blk st" aria-label="Stills">
+      <p class="mono st__lbl"><span>03</span><i aria-hidden="true"></i><span>Stills · {MINE[1]}</span></p>
+      <div class="ap" data-ap>
+        {ARC.map((a, i) => (
+          <figure class="ap__f" data-ap-f={i}
+            style={`--fw:${a.w}%; --off:${a.off}%; --ts:${a.ts}rem; --ls:0`}>
+            <p class="ap__t">{a.t}</p>
+            <span class="ap__win">
+              <Image src={images[i]} alt={i === 0 ? d.alt : ''} aria-hidden={i === 0 ? undefined : 'true'}
+                widths={[320, 620, 1100, 1700]} sizes={`(max-width: 760px) 94vw, ${a.w}vw`}
+                loading={i < 3 ? 'eager' : 'lazy'} decoding="async" />
+            </span>
+            <figcaption class="mono ap__cap">
+              <b>{nn(i)}</b><span>{a.w}% of the measure</span><em>luma {LUMA[i].toFixed(3)}</em>
+            </figcaption>
+          </figure>
+        ))}
+
+        <p class="mono note">
+          <em>Scroll · the pictures grow, the words stand down</em>
+          <i aria-hidden="true"></i>
+          <span>Rest on any frame to give its line back</span>
+        </p>
+      </div>
+    </section>
+
+    <footer class="cl">
+      <hr class="rule" />
+      <p class="mono cl__p"><span>{MINE[0].toUpperCase()} · {MINE[1]}</span><i aria-hidden="true"></i><span>{AWARDS}</span></p>
+    </footer>
+  </article>
+</Base>
+
+<script>
+  /* ONE LISTENER, ONE FRAME'S WORK. Every draft in this round reads scroll
+     the same way and writes custom properties; nothing here animates on a
+     timeline, so a throttled or stalled renderer shows a stale position
+     rather than an empty page. */
+  function onScroll(fn) {
+    let queued = false;
+    const tick = () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => { queued = false; fn(); });
+    };
+    addEventListener('scroll', tick, { passive: true });
+    addEventListener('resize', tick);
+    addEventListener('load', fn);
+    document.fonts && document.fonts.ready.then(fn);
+    fn();
+    return fn;
+  }
+
+  /** 0 as the element's top reaches the bottom of the viewport, 1 as its
+      bottom leaves the top. The whole of its passage across the screen. */
+  function through(el) {
+    const b = el.getBoundingClientRect();
+    const span = b.height + innerHeight;
+    return span <= 0 ? 0 : Math.min(1, Math.max(0, Math.round(innerHeight - b.top) / span));
+  }
+
+  /** 0 at the top of a pinning rail, 1 at the bottom. For sticky sections,
+      where the travel is the rail's height less one viewport. */
+  function along(rail) {
+    const b = rail.getBoundingClientRect();
+    const travel = b.height - innerHeight;
+    return travel <= 0 ? 0 : Math.min(1, Math.max(0, Math.round(-b.top) / travel));
+  }
+
+  /** -1 below the fold, 0 at the viewport's centre, +1 above the top. */
+  function about(el) {
+    const b = el.getBoundingClientRect();
+    const mid = b.top + b.height / 2;
+    return Math.min(1, Math.max(-1, (innerHeight / 2 - mid) / (innerHeight / 2 + b.height / 2)));
+  }
+  const ap = document.querySelector('[data-ap]');
+  if (ap && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const figs = [...ap.querySelectorAll('[data-ap-f]')];
+    onScroll(() => {
+      figs.forEach((f) => {
+        const b = f.getBoundingClientRect();
+        if (b.bottom < -100 || b.top > innerHeight + 100) return;
+        /* 1 at the middle of the screen, 0 at either edge of its passage —
+           so the tracking opens on the way in and closes on the way out
+           rather than ratcheting in one direction. */
+        const a = Math.abs(about(f));
+        f.style.setProperty('--ls', (1 - a).toFixed(4));
+      });
+    });
+    window.apLs = () => figs.map((f) => +f.style.getPropertyValue('--ls'));
+  }
+</script>
+
+<style>
+  /* ══ THE HARNESS ═══════════════════════════════════════════════════
+     The work page's own type and rhythm, shared verbatim by all eight. */
+  .sw {
+    position: fixed; inset: 0 0 auto; z-index: 900;
+    display: flex; align-items: baseline; gap: 12px;
+    padding: 9px clamp(16px, 4vw, 40px);
+    background: color-mix(in srgb, var(--ground) 86%, transparent);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--mono); font-size: var(--t-micro);
+    letter-spacing: 0.16em; text-transform: uppercase;
+  }
+  .sw__id { color: var(--accent); }
+  .sw__nm { color: var(--bone); }
+  .sw__su { color: var(--dim); margin-right: auto; }
+  .sw__set { display: flex; gap: 1px; align-items: baseline; }
+  .sw__i { color: var(--dim); text-decoration: none; padding: 3px 7px; border: 1px solid transparent; font-variant-numeric: tabular-nums; }
+  .sw__i:hover { color: var(--bone); }
+  .sw__i.is-here { color: var(--accent); border-color: var(--rule); }
+  .sw__prev { color: color-mix(in srgb, var(--dim) 70%, var(--ground)); text-decoration: none; padding: 3px 6px; margin-left: 4px; }
+  .sw__prev:first-of-type { border-left: 1px solid var(--rule); margin-left: 8px; padding-left: 11px; }
+  .sw__prev:hover { color: var(--bone-dim); }
+  @media (max-width: 860px) { .sw__su { display: none; } .sw__nm { margin-right: auto; } }
+  @media (max-width: 560px) { .sw__nm { display: none; } }
+
+  .sc { padding: clamp(84px, 13vh, 150px) var(--margin) 0; }
+  .hd { text-align: center; margin-bottom: clamp(38px, 6.6vh, 80px); }
+  .hd__over { font-size: var(--t-micro); letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin: 0 0 clamp(16px, 2.6vh, 30px); }
+  .hd__t { margin: 0; font-family: var(--display); font-weight: 500; font-size: clamp(2.6rem, 7vw, 5.6rem); line-height: 0.94; letter-spacing: -0.04em; color: var(--bone); }
+  .hd__meta { margin: clamp(14px, 2.2vh, 26px) 0 0; font-size: var(--t-micro); letter-spacing: 0.18em; text-transform: uppercase; color: var(--bone-dim); }
+  .hd__roles { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 0 14px; }
+  .hd__roles span + span::before { content: '·'; margin-right: 14px; color: var(--dim); }
+  .q { max-width: 34ch; margin: 0 auto clamp(50px, 8vh, 110px); text-align: center; }
+  .q__t { margin: 0; font-family: var(--serif); font-style: italic; font-weight: 300; font-size: clamp(1.25rem, 2.4vw, 1.9rem); line-height: 1.26; letter-spacing: -0.012em; color: var(--bone-dim); }
+  .body { max-width: var(--measure); margin-inline: auto; }
+  .body__lede { margin: 0 auto; max-width: clamp(20ch, calc(var(--n, 90) / 3 * 1ch), 44ch); font-family: var(--display); font-weight: 500; font-size: clamp(1.2rem, min(calc(2.35rem - (var(--n, 90) - 55) * 0.007rem), calc(1.05rem + 2.1vw)), 2.2rem); line-height: 1.12; letter-spacing: -0.025em; color: var(--bone); text-wrap: balance; }
+  .blk { margin: 0 auto clamp(104px, 18vh, 240px); }
+
+  .st { --w: var(--measure); }
+  .st__lbl {
+    display: flex; align-items: center; gap: 12px;
+    width: var(--w); margin: 0 auto clamp(24px, 4vh, 50px);
+    font-size: var(--t-micro); letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted);
+  }
+  .st__lbl i { flex: 1; height: 1px; background: var(--rule); }
+
+  /* One line of mono per draft saying what the composition responds to.
+     Scroll and hover are invisible affordances; naming them is not a crutch,
+     it is the caption on a piece of behaviour. */
+  .note {
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+    width: var(--w); margin: clamp(16px, 2.4vh, 28px) auto 0;
+    font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim);
+  }
+  .note b { font-weight: 400; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .note em { font-style: normal; color: var(--muted); }
+  .note i { flex: 1; min-width: 20px; height: 1px; background: var(--rule); transform: translateY(-3px); }
+
+  .cl { max-width: var(--measure); margin: 0 auto; padding-bottom: clamp(48px, 9vh, 110px); }
+  .rule { border: 0; border-top: 1px solid var(--rule); margin: 0 0 16px; }
+  .cl__p { display: flex; align-items: baseline; gap: 14px; margin: 0; font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); }
+  .cl__p i { flex: 1; height: 1px; background: var(--rule); transform: translateY(-3px); }
+  .cl__p span:last-child { text-align: right; }
+  @media (max-width: 620px) { .cl__p { flex-direction: column; gap: 6px; } .cl__p i { display: none; } .cl__p span:last-child { text-align: left; } }
+
+  /* ── SQ8 · THE APPROACH ────────────────────────────────────── */
+  .st { --w: min(calc(100vw - 2 * var(--margin)), 1180px); }
+  .ap { width: var(--w); margin-inline: auto; }
+
+  .ap__f { margin: 0 0 0 var(--off); width: var(--fw); position: relative; }
+  .ap__f + .ap__f { margin-top: clamp(50px, 9vh, 120px); }
+  .ap__win { display: block; }
+  .ap__win img { display: block; width: 100%; height: auto; aspect-ratio: var(--ar); object-fit: cover; }
+
+  /* THE LINE THAT SHRINKS. Set beside the frame while there is room beside
+     it, and above it once the picture has taken the width. --ls is the only
+     thing scroll touches. */
+  .ap__t {
+    margin: 0 0 10px; font-family: var(--display); font-weight: 500;
+    font-size: var(--ts); line-height: 1.04;
+    letter-spacing: calc(-0.03em + var(--ls) * 0.055em);
+    color: var(--bone-dim); max-width: 26ch; text-wrap: balance;
+  }
+  .ap__f:nth-child(-n + 4) { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: clamp(16px, 2.6vw, 44px); width: auto; }
+  .ap__f:nth-child(-n + 4) .ap__t { order: 2; margin: 0 0 4px; }
+  .ap__f:nth-child(-n + 4) .ap__win { order: 1; width: var(--fw); }
+  .ap__f:nth-child(-n + 4) .ap__cap { order: 3; grid-column: 1 / -1; }
+
+  .ap__cap {
+    display: flex; align-items: baseline; gap: 12px; margin-top: 9px;
+    font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim);
+  }
+  .ap__cap b { font-weight: 400; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .ap__cap span { opacity: 0.32; }
+  .ap__cap em { font-style: normal; margin-left: auto; opacity: 0.24; font-variant-numeric: tabular-nums; }
+
+  /* HOVER: the words come back, whatever size they have been reduced to. */
+  .ap__f:hover .ap__t { color: var(--bone); }
+  .ap__f:hover .ap__cap span, .ap__f:hover .ap__cap em { opacity: 1; }
+  .ap__f:hover .ap__cap b { color: var(--accent); }
+  @media (prefers-reduced-motion: no-preference) {
+    .ap__t { transition: color 260ms linear; }
+    .ap__cap b, .ap__cap span, .ap__cap em { transition: opacity 240ms linear, color 240ms linear; }
+  }
+
+  @media (max-width: 760px) {
+    /* The arc survives, compressed: 44 to 100 rather than 18 to 112, because
+       below 44 per cent of a phone a frame is a postage stamp and the
+       handover stops being about scale and starts being about nothing. */
+    .ap__f { width: calc(44% + var(--fw) * 0.52) !important; margin-left: calc(var(--off) * 0.4); }
+    .ap__f:nth-child(-n + 4) { display: block; width: auto !important; }
+    .ap__f:nth-child(-n + 4) .ap__win { width: calc(44% + var(--fw) * 0.52); }
+    .ap__t { font-size: max(var(--ts) * 0.62, var(--t-micro)); }
+  }
+
+  @media (prefers-reduced-motion: reduce) { .ap__f { --ls: 0 !important; } }
+</style>
