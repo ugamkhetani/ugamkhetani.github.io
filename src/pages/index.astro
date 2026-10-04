@@ -2058,10 +2058,69 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
   .sec > .enq { grid-column: 1 / -1; z-index: 1; margin-top: clamp(50px, 10vh, 120px); }
   .enq :global(.ct__page) { padding-top: 0; }
 
+  /* ── BELOW 901px THE CONVEYOR IS NOT LIVE, AND THE SECTION HAS TO
+        STOP PRETENDING IT IS ────────────────────────────────────────
+     The stage is switched off here and in initOpWorks(), which returns
+     before adding .is-live — so every rule that draws the conveyor is
+     already out of reach, all of them being scoped to that class. What was
+     NOT switched off was the instrument's furniture, and it was still on
+     screen over a plain grid:
+
+       THE READOUT, absolute at z-index 5, sitting across the middle of the
+       grid and reading "Mumbai Standard Time / 2026" FOREVER. It is
+       server-rendered from the first work and updated only by paint(),
+       which never runs here, so it names work 001 whatever you scroll to.
+
+       ITS SEVENTEEN MARKS, starting at x -106.2 of a 375px screen — a
+       third of the ruler off the left edge — with NONE of them lit,
+       because the line that lights the first one is inside the function
+       that returns early.
+
+       THE HEADING, absolutely positioned over the band the cards now
+       occupy. On the pinned stage it sits behind them by design; with the
+       pin static the grid flows up underneath it and "Selected works" is
+       struck through by the first row of thumbnails.
+
+     A caption that names the wrong work is worse than no caption, so the
+     readout goes and the heading comes back into the flow above the grid.
+     What is left is an honest index: seventeen works, two columns, each one
+     a link to its page.
+
+     <- NOTHING HERE IS SHARED WITH THE DESKTOP PAGE. Every declaration is
+        inside this query, and the three elements involved — .rl, .fr--over
+        and .sec--works' padding — keep every value they had above 901px.
+        Verified by capturing the conveyor's computed state at six scroll
+        positions before and after: all 17 cards' --op, --tx and --s, the
+        caption, the lit mark, and the boxes of the pin, the readout, the
+        ruler and the heading. Identical at every one. */
   @media (max-width: 900px) {
     .wk__pin { position: static; height: auto; -webkit-mask-image: none; mask-image: none; }
     .wk__world { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .ov__corner { position: static; text-align: left !important; margin-bottom: 18px; }
+
+    /* The instrument has no conveyor to report on here. */
+    :root .rg .rl { display: none; }
+
+    /* Back into the flow, so the words sit above the grid instead of
+       behind it, and the section takes some top padding so "01" and the
+       heading have their own air before the first row.
+
+       <- SCOPED :root .rg FOR SPECIFICITY, NOT STYLE, and the first attempt
+          without it silently did nothing. A media query adds no weight, so
+          a bare `.fr--over` here ties with the `.fr--over` that sets
+          position: absolute 85 lines BELOW this block, and later wins — the
+          readout vanished as asked while the heading stayed absolute and
+          went on striking through the grid. Same for the padding against
+          `.mvt.sec--works { padding-block: 0 }`. Measured after the fix,
+          not assumed: position computes `static` and the heading's bottom
+          edge lands above the grid's top.
+
+       <- AND THE DESKTOP `top` IS ALREADY OUT OF REACH. The vertical push
+          that sets .fr--over's top from the card band lives in
+          `@media (min-width: 901px)`, so nothing here has to undo it; the
+          base `top` it falls back to is inert under position: static. */
+    :root .rg .fr--over { position: static; }
+    :root .rg .mvt.sec--works { padding-block: clamp(64px, 11vh, 104px) 0; }
   }
 
   /* ── TWO IDEAS, ONE PAGE ─────────────────────────────────────────
