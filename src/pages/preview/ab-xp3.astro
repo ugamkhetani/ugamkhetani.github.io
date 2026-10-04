@@ -3,11 +3,10 @@
  * XP3 · THE SENTENCE — the words are the apertures.
  *
  * THE IDEA: the page already carries a sentence that is the most considered
- * thing on it — "Sometimes the score is not there to tell you what is right."
- * Everywhere else that sentence sits beside the pictures. Here it IS the
- * pictures: each of eight words is cut through to a different frame, the
- * letterforms are the only windows onto the film, and scrolling pulls the
- * film through them so the images move INSIDE the type.
+ * thing on it. Everywhere else that sentence sits beside the pictures. Here
+ * it IS the pictures: each of eight words is cut through to a different
+ * frame, the letterforms are the only windows onto the film, and the film
+ * RUNS BEHIND THEM as you scroll, so the images move inside the type.
  *
  * WHY THIS AND NOT TYPE OVER AN IMAGE: type on top of a picture is a caption
  * with ambition. Type cut THROUGH to a picture inverts the hierarchy — the
@@ -15,20 +14,23 @@
  * also means the type can never obscure the image, because the type is the
  * only place the image exists.
  *
+ * THE SENTENCE IS PINNED AND THE FILM TRAVELS, which is the right way round
+ * for an aperture, and it is why this section carries its own rail. The first
+ * build let the sentence scroll with the page and the footage moved through
+ * about a fifth of its range before the document ran out — the idea was there
+ * and you could not see it. Measured: --run reached 0.48 and stopped. Two and
+ * a bit viewports of rail gives the full travel and --run goes 0 to 1.
+ *
  * WHICH WORDS CARRY A FRAME IS AN EDITORIAL DECISION and it is flagged below.
  * The function words — the, is, to — stay solid, so the sentence still reads
  * as a sentence and the eight content words carry the eight frames. That
  * rhythm of solid and cut is the typographic idea, and it is the reason this
  * does not end up as a novelty.
  *
- * THE FRAMES REMAIN AVAILABLE WHOLE. A section that only ever showed the
- * film through letterforms would be withholding the work, so every word is a
- * button: clicking opens that frame entire, beneath the sentence, at full
- * width. The experiment is the entry, not a cage.
- *
- * SCROLL MOVES THE FILM, NOT THE TYPE. background-position is driven from
- * the section's own travel, so the sentence is fixed on the page and the
- * footage runs behind it — which is the right way round for an aperture.
+ * THE FRAMES REMAIN AVAILABLE WHOLE. A section that only ever showed the film
+ * through letterforms would be withholding the work, so every word is a
+ * button and so is every row of the key: either opens that frame entire,
+ * below the rail, at full width. The experiment is the entry, not a cage.
  */
 import Base from '../../layouts/Base.astro';
 import OpNav from '../../components/OpNav.astro';
@@ -130,22 +132,27 @@ const BARE = WORDS.map((w) => w.replace(/[^A-Za-z']/g, ''));
     <section class="blk st" aria-label="Stills">
       <p class="mono st__lbl"><span>03</span><i aria-hidden="true"></i><span>Stills · {MINE[1]}</span></p>
       <div class="se" data-se>
-        <p class="se__line">
-          {WORDS.map((w, i) => (
-            SLOT.has(i)
-              ? <button class="se__w se__w--cut" type="button" data-se-w={SLOT.get(i)}
-                  style={`--img:url(${WEB[SLOT.get(i)!].src})`}
-                  aria-label={`${w} — frame ${nn(SLOT.get(i)!)}, open it whole`}>{w}</button>
-              : <span class="se__w se__w--solid">{w}</span>
-          ))}
-        </p>
+        <div class="se__rail" data-se-rail>
+          <div class="se__stick">
+            <p class="se__line">
+              {WORDS.map((w, i) => (
+                SLOT.has(i)
+                  ? <button class="se__w se__w--cut" type="button" data-se-w={SLOT.get(i)}
+                      style={`--img:url(${WEB[SLOT.get(i)!].src})`}
+                      aria-label={`${w} — frame ${nn(SLOT.get(i)!)}, open it whole`}>{w}</button>
+                  : <span class="se__w se__w--solid">{w}</span>
+              ))}
+            </p>
 
-        <div class="se__key mono" role="group" aria-label="Which frame is in which word">
-          {PICK.map((w, i) => (
-            <button class="se__k" type="button" data-se-k={i} aria-label={`Frame ${nn(i)}, in the word ${WORDS[w]}`}>
-              <b>{nn(i)}</b><span>{BARE[w]}</span>
-            </button>
-          ))}
+            <div class="se__key mono" role="group" aria-label="Which frame is in which word">
+              {PICK.map((w, i) => (
+                <button class="se__k" type="button" data-se-k={i} aria-label={`Frame ${nn(i)}, in the word ${WORDS[w]}`}>
+                  <b>{nn(i)}</b><span>{BARE[w]}</span>
+                </button>
+              ))}
+              <span class="se__run mono" aria-hidden="true">Run <b data-se-pct>00</b>%</span>
+            </div>
+          </div>
         </div>
 
         <div class="se__plate" data-se-plate hidden>
@@ -153,14 +160,14 @@ const BARE = WORDS.map((w) => w.replace(/[^A-Za-z']/g, ''));
             {images.map((img, i) => (
               <span class:list={['se__p', { 'is-on': i === 0 }]} data-se-p={i}>
                 <Image src={img} alt={i === 0 ? d.alt : ''} aria-hidden={i === 0 ? undefined : 'true'}
-                  widths={[760, 1140, 1520]} sizes="(max-width: 900px) 94vw, 900px"
+                  widths={[760, 1140, 1520]} sizes="(max-width: 900px) 94vw, 1180px"
                   loading="lazy" decoding="async" />
               </span>
             ))}
           </div>
           <p class="mono se__pcap">
             <b data-se-pno>01</b>
-            <span>in “<em data-se-pw></em>”</span>
+            <span>in the word “<em data-se-pw></em>”</span>
             <i aria-hidden="true"></i>
             <button class="se__close" type="button" data-se-close>Close ×</button>
           </p>
@@ -182,57 +189,82 @@ const BARE = WORDS.map((w) => w.replace(/[^A-Za-z']/g, ''));
 </Base>
 
 <script>
-  /* THE FILM RUNS, THE SENTENCE DOES NOT. --run is the section's own travel
-     through the viewport, 0 to 1, written once per frame onto one element. */
+  /* THE FILM RUNS, THE SENTENCE DOES NOT. --run is the rail's own travel, 0
+     to 1, written once per frame onto one element and inherited by all eight
+     cut words — so a tick is a single style write, not eight. */
   const se = document.querySelector('[data-se]');
   if (se) {
+    const rail = se.querySelector('[data-se-rail]');
     const cuts = [...se.querySelectorAll('[data-se-w]')];
     const keys = [...se.querySelectorAll('[data-se-k]')];
     const plate = se.querySelector('[data-se-plate]');
     const pics = [...se.querySelectorAll('[data-se-p]')];
     const pno = se.querySelector('[data-se-pno]');
     const pw = se.querySelector('[data-se-pw]');
-    let queued = false;
+    const pct = se.querySelector('[data-se-pct]');
+    let queued = false, shown = -1;
 
     const run = () => {
       queued = false;
-      const b = se.getBoundingClientRect();
-      const span = b.height + innerHeight;
-      if (span <= 0) return;
-      const p = Math.min(1, Math.max(0, (innerHeight - b.top) / span));
+      const b = rail.getBoundingClientRect();
+      const travel = b.height - innerHeight;
+      /* Rounded before dividing: getBoundingClientRect returns a float, and an
+         un-rounded offset makes the ends of the range jitter. */
+      const p = travel <= 0 ? 0 : Math.min(1, Math.max(0, Math.round(-b.top) / travel));
       se.style.setProperty('--run', p.toFixed(4));
+      if (pct) pct.textContent = String(Math.round(p * 100)).padStart(2, '0');
     };
+    /* THE PER-WORD SIZE. imageWidth = imageHeight * 4/3, so covering a glyph
+       box W wide and H tall needs a height of at least 3W/4H — plus 4% of
+       slop for the stroke. The 2.1 floor is what gives a narrow word like
+       "not" somewhere to travel. Re-measured on resize and after the webfont
+       lands, because both change every glyph box. */
+    const sizeWords = () => {
+      cuts.forEach((c) => {
+        const b = c.getBoundingClientRect();
+        if (!b.height) return;
+        const need = ((3 * b.width) / (4 * b.height)) * 1.04;
+        c.style.setProperty('--bs', `${(Math.max(2.1, need) * 100).toFixed(0)}%`);
+      });
+    };
+
     const tick = () => { if (!queued) { queued = true; requestAnimationFrame(run); } };
     addEventListener('scroll', tick, { passive: true });
-    addEventListener('resize', tick);
+    addEventListener('resize', () => { sizeWords(); tick(); });
+    sizeWords();
     run();
+    document.fonts?.ready.then(sizeWords);
 
     const open = (i) => {
+      shown = i;
       pics.forEach((p, k) => p.classList.toggle('is-on', k === i));
       cuts.forEach((c, k) => c.classList.toggle('is-lit', k === i));
       if (pno) pno.textContent = String(i + 1).padStart(2, '0');
       if (pw) pw.textContent = cuts[i].textContent.replace(/[^A-Za-z']/g, '');
       plate.hidden = false;
+      /* The plate lives below the rail, so opening one has to take you there —
+         otherwise the click appears to do nothing from inside the sticky. */
+      plate.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
     };
     const close = () => {
-      plate.hidden = true;
+      plate.hidden = true; shown = -1;
       cuts.forEach((c) => c.classList.remove('is-lit'));
     };
 
-    cuts.forEach((c, i) => c.addEventListener('click', () => (plate.hidden || !c.classList.contains('is-lit') ? open(i) : close())));
+    cuts.forEach((c, i) => c.addEventListener('click', () => (shown === i && !plate.hidden ? close() : open(i))));
     keys.forEach((k, i) => {
       k.addEventListener('click', () => open(i));
-      /* Hovering the key lights its word in the sentence — the key is a map
-         of the sentence, so it should point at it. */
-      k.addEventListener('pointerenter', () => cuts[i].classList.add('is-lit'));
-      k.addEventListener('pointerleave', () => { if (plate.hidden) cuts[i].classList.remove('is-lit'); });
+      /* The key is a map of the sentence, so it should point at it. */
+      k.addEventListener('pointerenter', () => { if (shown < 0) cuts[i].classList.add('is-lit'); });
+      k.addEventListener('pointerleave', () => { if (shown < 0) cuts[i].classList.remove('is-lit'); });
     });
     se.querySelector('[data-se-close]')?.addEventListener('click', close);
     addEventListener('keydown', (e) => { if (e.key === 'Escape' && !plate.hidden) close(); });
 
+    window.seSize = sizeWords;
     window.seRun = run;
     window.seOpen = open;
-    window.seState = () => ({ run: getComputedStyle(se).getPropertyValue('--run').trim(), open: !plate.hidden });
+    window.seState = () => ({ run: +getComputedStyle(se).getPropertyValue('--run'), open: !plate.hidden, shown, bs: cuts.map((c) => c.style.getPropertyValue('--bs')) });
   }
 </script>
 
@@ -309,9 +341,16 @@ const BARE = WORDS.map((w) => w.replace(/[^A-Za-z']/g, ''));
   .st { --w: min(calc(100vw - 2 * var(--margin)), 1180px); }
   .se { width: var(--w); margin-inline: auto; --run: 0; }
 
+  /* THE SENTENCE HOLDS, THE FILM TRAVELS. Two and a bit viewports of rail is
+     what it takes for --run to cover its whole range at a readable speed. */
+  .se__rail { height: 230vh; }
+  .se__stick {
+    position: sticky; top: 0; min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: center; gap: clamp(20px, 3vh, 40px);
+  }
+
   .se__line {
-    margin: 0; display: flex; flex-wrap: wrap; align-items: baseline;
-    gap: 0 0.22em;
+    margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 0.22em;
     font-family: var(--display); font-weight: 500;
     font-size: clamp(2.7rem, 10.4vw, 9.4rem); line-height: 0.92; letter-spacing: -0.045em;
     text-wrap: balance;
@@ -319,33 +358,44 @@ const BARE = WORDS.map((w) => w.replace(/[^A-Za-z']/g, ''));
   .se__w { display: inline-block; padding: 0; border: 0; background: none; font: inherit; letter-spacing: inherit; }
   .se__w--solid { color: color-mix(in srgb, var(--bone) 26%, var(--ground)); }
 
-  /* THE APERTURE. The frame is the paint and the letterform is the stencil;
-     --run is the section's travel, so the footage moves and the type does not. */
+  /* THE APERTURE. The frame is the paint, the letterform is the stencil, and
+     --run is the rail's travel — so the footage moves and the type does not. */
   .se__w--cut {
     cursor: pointer; -webkit-tap-highlight-color: transparent;
     color: transparent;
     background-image: var(--img);
-    background-size: auto 190%;
-    background-position: 50% calc(18% + var(--run) * 64%);
+    /* --bs IS COMPUTED PER WORD, and it has to be. Sizing the frame by height
+       alone (auto 210%) leaves it NARROWER than a wide glyph like
+       "Sometimes" — 4.5 : 1 against the image's 4 : 3 — and background-repeat
+       is none, so most of the word is painted with nothing at all. The script
+       measures each glyph box and asks for whatever height covers its width,
+       with a floor that guarantees vertical slack to travel through. */
+    background-size: auto var(--bs, 210%);
+    background-position: 50% calc(var(--run) * 100%);
     background-repeat: no-repeat;
     -webkit-background-clip: text; background-clip: text;
+    /* THE FILM IS VERY DARK — frames 03 and 04 measure 0.077 and 0.074 mean
+       luminance — so a glyph filled with them is near-black on near-black.
+       The lift brings the fill up without touching the photographs anywhere
+       else on the page, and the hairline keeps the word's SHAPE readable even
+       where its fill genuinely is black. */
+    filter: brightness(2.15) contrast(0.92);
+    -webkit-text-stroke: 0.7px color-mix(in srgb, var(--bone) 22%, transparent);
   }
-  /* Safari and Firefox both honour background-clip:text, but a browser that
-     does not would render a solid block over the sentence. This keeps the
-     word legible there instead. */
+  /* A browser without background-clip:text would paint a solid block over the
+     sentence. This keeps the word legible there instead. */
   @supports not ((-webkit-background-clip: text) or (background-clip: text)) {
     .se__w--cut { color: var(--bone); background-image: none; }
   }
-  .se__w--cut:hover, .se__w--cut:focus-visible { background-size: auto 215%; }
+  .se__w--cut:hover, .se__w--cut:focus-visible, .se__w--cut.is-lit { background-size: auto 250%; }
   .se__w--cut:focus-visible { outline: 1px solid var(--accent); outline-offset: 4px; }
-  .se__w--cut.is-lit { background-size: auto 230%; }
   @media (prefers-reduced-motion: no-preference) {
-    .se__w--cut { transition: background-size 260ms cubic-bezier(0.2, 0.8, 0.2, 1); }
+    .se__w--cut { transition: background-size 280ms cubic-bezier(0.2, 0.8, 0.2, 1); }
   }
 
   .se__key {
-    display: flex; flex-wrap: wrap; gap: 1px;
-    margin-top: clamp(22px, 3.4vh, 42px); border-top: 1px solid var(--rule); padding-top: 11px;
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 1px;
+    border-top: 1px solid var(--rule); padding-top: 11px;
   }
   .se__k {
     display: flex; align-items: baseline; gap: 7px; padding: 4px 11px 4px 0;
@@ -357,8 +407,10 @@ const BARE = WORDS.map((w) => w.replace(/[^A-Za-z']/g, ''));
   .se__k:hover, .se__k:focus-visible { color: var(--bone); }
   .se__k:hover b, .se__k:focus-visible b { color: var(--accent); }
   .se__k:focus-visible { outline: 1px solid var(--accent); outline-offset: 1px; }
+  .se__run { margin-left: auto; font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase; color: color-mix(in srgb, var(--dim) 72%, var(--ground)); }
+  .se__run b { font-weight: 400; color: var(--accent); font-variant-numeric: tabular-nums; }
 
-  .se__plate { margin-top: clamp(20px, 3vh, 36px); }
+  .se__plate { margin-top: clamp(26px, 4vh, 56px); }
   .se__plate[hidden] { display: none; }
   .se__hold { position: relative; aspect-ratio: var(--ar); background: var(--ground-lift); overflow: hidden; }
   .se__p { position: absolute; inset: 0; opacity: 0; }
@@ -376,5 +428,14 @@ const BARE = WORDS.map((w) => w.replace(/[^A-Za-z']/g, ''));
 
   @media (max-width: 620px) {
     .se__line { font-size: clamp(2.1rem, 13vw, 4rem); gap: 0 0.18em; }
+    .se__rail { height: 190vh; }
+    .se__run { display: none; }
+  }
+
+  /* No rail and no travel for a reader who asked for stillness — the sentence
+     sits at one position and the key still opens every frame. */
+  @media (prefers-reduced-motion: reduce) {
+    .se__rail { height: auto; }
+    .se__stick { position: static; min-height: 0; }
   }
 </style>
