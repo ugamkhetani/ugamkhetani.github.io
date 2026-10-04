@@ -833,6 +833,21 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     let raf = 0, last = -1, written = 0, ring = -1;
     const paint = () => {
       raf = 0;
+      /* THE CONVEYOR STANDS DOWN BELOW 901px, and this is the only place it
+         can. initOpWorks() binds once and never unbinds — so a window that
+         is widened past 901 and then narrowed again leaves this rAF running
+         over a layout that is no longer the conveyor's, writing the caption
+         the rail's observer is also writing. Two writers on one element,
+         and the caption freezes on whichever lost the race.
+
+         Measured before this guard: resize 375 -> 1280 -> 375 and the
+         caption stopped following the rail after the first swipe.
+
+         A PHONE NEVER CROSSES THIS LINE; a desktop window being dragged
+         narrow does, and so does a tablet rotating. Desktop is unaffected
+         by construction — it is always above 901, so the guard is never
+         taken there. Verified anyway against the 490-value capture. */
+      if (!matchMedia('(min-width: 901px)').matches) return;
       const rect = sec.getBoundingClientRect();
       const run = sec.offsetHeight - innerHeight;
       const t = run > 0 ? Math.min(1, Math.max(0, -rect.top / run)) : 0;
@@ -1388,11 +1403,123 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     addEventListener('resize', () => { if (held && !raf) raf = requestAnimationFrame(track); }, { passive: true });
   }
 
+  /* ── THE RAIL'S CAPTION ────────────────────────────────────────────
+     Below 901px .wk__world is a horizontal snap rail (see the stylesheet)
+     and this is the only part of it that needs script: naming whichever
+     card is centred. Everything else — the scrolling, the snapping, the
+     links — is CSS and markup, so a failure here costs the caption and
+     nothing else.
+
+     THE CENTRED CARD IS THE ONE WHOSE MIDDLE IS NEAREST THE RAIL'S MIDDLE,
+     computed from offsetLeft and offsetWidth. That is deliberately dull
+     arithmetic, and it replaced an IntersectionObserver that was not dull
+     enough: with `rootMargin: 0px -50% 0px -50%` the observer's root is a
+     ZERO-WIDTH line, and intersection against a zero-area rect is
+     degenerate. It appeared to work while every card was the same width
+     and broke the moment they were not — 11 of 16 steps named the wrong
+     work, and the failures moved when the widths did. There is no geometry
+     here that can go degenerate.
+
+     offsetLeft AND offsetWidth, NOT getBoundingClientRect, for the reason
+     §6 records: rects report TRANSFORMED geometry, and these cards may
+     still carry a transform the conveyor left on them if the window was
+     ever wider. Layout position is what the rail is laid out on.
+
+     ONE rAF PER SCROLL BURST. The handler only ever schedules; the work
+     happens once a frame and does seventeen subtractions.
+
+     IT BINDS ONLY BELOW 901px AND RE-ARMS ON RESIZE, exactly as
+     initOpWorks() does in the other direction — a window that starts wide
+     and is narrowed would otherwise never get a working caption, and one
+     that starts narrow and is widened must not leave this running
+     underneath the conveyor, which writes the same caption from its own
+     rAF. Widening tears it down. */
+  function initWkRail() {
+    const sec = document.querySelector('.sec--works') as HTMLElement | null;
+    if (!sec) return;
+    const rail = sec.querySelector('.wk__world') as HTMLElement | null;
+    const title = sec.querySelector('[data-w-title]') as HTMLElement | null;
+    const year = sec.querySelector('[data-w-year]') as HTMLElement | null;
+    const readout = sec.querySelector('[data-readout]') as HTMLElement | null;
+    if (!rail || !title || !year) return;
+
+    const wide = () => matchMedia('(min-width: 901px)').matches;
+
+    /* Armed once, whatever the width, so the two directions are symmetric:
+       the conveyor arms itself to catch a widening, this arms itself to
+       catch a narrowing. */
+    if (!sec.dataset.railArmed) {
+      sec.dataset.railArmed = '1';
+      addEventListener('resize', () => initWkRail(), { passive: true });
+    }
+
+    const stop = (sec as any).__railStop as (() => void) | undefined;
+    if (wide()) {
+      /* The conveyor is in charge up here and writes the same caption from
+         its own rAF. Two writers on one element is the bug this prevents. */
+      if (stop) { stop(); delete (sec as any).__railStop; }
+      return;
+    }
+    if (stop) return;
+
+    const cards = Array.from(rail.querySelectorAll('[data-card]')) as HTMLElement[];
+    if (!cards.length) return;
+
+    const say = (c: HTMLElement) => {
+      const name = c.dataset.title || '';
+      if (title.textContent === name) return;
+      title.textContent = name;
+      year.textContent = c.dataset.year || '';
+      /* The same 190ms turn the conveyor uses when the centred work
+         changes, so the caption behaves identically in both layouts. */
+      if (readout) {
+        readout.classList.remove('is-turning');
+        void readout.offsetWidth;
+        readout.classList.add('is-turning');
+      }
+    };
+
+    let raf = 0;
+    const pick = () => {
+      raf = 0;
+      const mid = rail.scrollLeft + rail.clientWidth / 2;
+      let best = cards[0];
+      let bestD = Infinity;
+      for (const c of cards) {
+        const d = Math.abs(c.offsetLeft + c.offsetWidth / 2 - mid);
+        if (d < bestD) { bestD = d; best = c; }
+      }
+      say(best);
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(pick); };
+    rail.addEventListener('scroll', onScroll, { passive: true });
+    (sec as any).__railStop = () => {
+      rail.removeEventListener('scroll', onScroll);
+      if (raf) { cancelAnimationFrame(raf); raf = 0; }
+    };
+
+    /* Named once on arrival. The rail starts at its left edge so this is
+       the first work, which is also what the caption is server-rendered
+       with — say() no-ops on the match and nothing flickers.
+
+       AND AGAIN WHEN THE PICTURES LAND, because until they do the card
+       widths are not final and neither is offsetLeft. Measured: on the
+       very first pass through the rail, before decode finished, three of
+       seventeen positions named the card next door; on every pass after,
+       none did. The conveyor re-measures on load and fonts.ready for the
+       same reason — this is the rail's version of it, and it costs two
+       listeners and seventeen subtractions each. */
+    pick();
+    addEventListener('load', pick, { once: true });
+    document.fonts?.ready.then(pick);
+  }
+
   initOpWorks();
   initRunningHead();
   initDrift();
   initHvInfo();
-  document.addEventListener('astro:page-load', () => { initOpWorks(); initRunningHead(); initDrift(); initHvInfo(); });
+  initWkRail();
+  document.addEventListener('astro:page-load', () => { initOpWorks(); initRunningHead(); initDrift(); initHvInfo(); initWkRail(); });
 </script>
 
 <style>
@@ -2095,11 +2222,102 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
         ruler and the heading. Identical at every one. */
   @media (max-width: 900px) {
     .wk__pin { position: static; height: auto; -webkit-mask-image: none; mask-image: none; }
-    .wk__world { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .ov__corner { position: static; text-align: left !important; margin-bottom: 18px; }
 
-    /* The instrument has no conveyor to report on here. */
-    :root .rg .rl { display: none; }
+    /* ── THE RAIL: ONE WORK AT A TIME, SWIPED ──────────────────────
+       Applied 2026-10-04. The two-column grid was an honest index but it
+       was not the page's idea — the desktop section shows ONE work with
+       its name, and a phone can do that in its own idiom instead of
+       pretending to be a scrubbed 3D stage.
+
+       SO THE SAME SEVENTEEN CARDS BECOME A SNAP RAIL. Nothing is added to
+       the markup and nothing is hidden from it: .wk__world stops being a
+       grid and becomes a horizontal scroller, each .wcard becomes a snap
+       item at 78vw, and the readout above it names whichever card is
+       centred. The cards are still the same links they were.
+
+       <- IT WORKS WITH NO JAVASCRIPT AT ALL. Snapping is CSS; only the
+          caption needs a script. If initWkRail never runs, the rail still
+          scrolls and snaps and every card still opens its work — the
+          readout simply keeps naming the first work, which is why the
+          caption is the one thing the script owns.
+
+       EDGE TO EDGE, INSET BY THE MARGIN. The section already bleeds by
+       -margin; the world pulls back in by +margin. On the rail that margin
+       moves to padding so the strip runs to both screen edges while the
+       first and last card still sit on the text margin — the usual
+       carousel shape, and it is what makes it read as scrollable. */
+    :root .rg .wk__world {
+      display: flex;
+      grid-template-columns: none;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-snap-type: x mandatory;
+      scroll-padding-inline: var(--margin);
+      margin-inline: 0;
+      padding-inline: var(--margin);
+      padding-block: 0;
+      gap: 14px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      /* EVERY CARD KEEPS ITS OWN HEIGHT. A flex row stretches its items by
+         default, and it did: measured before this line, a 16:9 work came
+         out 292.5 x 520 — the height of the tallest card in the rail, a
+         9:16 — and its still was cover-cropped to fill it. Centring lets
+         each work stand at its own proportion, which is the whole reason
+         the catalogue is shot in six different ones. */
+      align-items: center;
+    }
+    :root .rg .wk__world::-webkit-scrollbar { display: none; }
+    :root .rg .wk__world .wcard {
+      /* FITTED BY WIDTH, THEN CAPPED BY HEIGHT, and both are needed. At a
+         flat 78vw every work got the full measure, which is right for a
+         phone — but then a 9:16 stood 520px tall, the flex row reserved
+         that for all seventeen, and a 2.39:1 floated in 400px of air.
+         Capping the height at 52vh brings the tallest back to 422 and
+         narrows it instead of cropping it, because the width is derived
+         from the same number.
+
+         --arn is the work's own ratio and is already on every card; this
+         needs no new data and no slug named anywhere. --card-k, which the
+         conveyor uses to give uprights more area, is deliberately NOT used:
+         up there the constraint is the stage's height, here it is the
+         screen's width, and they want opposite corrections. */
+      --rail-h: min(52vh, calc(78vw / var(--arn, 1.7778)));
+      flex: 0 0 auto;
+      height: var(--rail-h);
+      width: calc(var(--rail-h) * var(--arn, 1.7778));
+      scroll-snap-align: center;
+      scroll-snap-stop: always;
+      /* UNDOING THE CONVEYOR'S OWN HAND, which may have been here. The
+         .is-live rules set position: absolute and write --tx, --s and --op
+         as inline custom properties; .is-live is never removed once added,
+         so a window narrowed back from a wide one arrives with all of it
+         still on the cards. These four lines mean the rail does not care
+         what happened before it: it cannot inherit a stale transform, a
+         faded card or an absolute position. */
+      position: relative;
+      transform: none;
+      opacity: 1;
+      will-change: auto;
+    }
+
+    /* The readout comes back, because now something updates it — but only
+       the words. Its ruler is a 17-tick arc drawn for a 720px readout and
+       it started at x -106.2 here, a third of it off the left edge; there
+       is nothing at 375px for it to be. The caption and the year are the
+       part that carries meaning and they are what the rail reports. */
+    :root .rg .rl {
+      position: static; width: auto; margin: 0 0 18px;
+      padding-inline: var(--margin);
+      /* A TRANSFORM OUTLIVES position: static AND THIS ONE DID. The base
+         rule centres the readout with left: 50% and translateX(-50%); going
+         static makes `left` inert and leaves the transform applying, so the
+         block sat at x -187.5 on a 375px screen — exactly half its width off
+         the left edge, reading "Shor Mein" and "2 6". Measured, then fixed. */
+      transform: none;
+    }
+    :root .rg .rl__ruler { display: none; }
 
     /* Back into the flow, so the words sit above the grid instead of
        behind it, and the section takes some top padding so "01" and the
