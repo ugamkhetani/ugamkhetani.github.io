@@ -1237,6 +1237,25 @@ draft that authors separators inside a live element reads +2 on `innerText`
 while painting nothing at all. Use `innerText` for "what does the reader see",
 and predict the delta rather than chasing it.
 
+**The pane has no document focus, so `.focus()` fires no `focus` event.**
+`document.hasFocus()` is `false` in the Browser pane. `el.focus()` still moves
+`document.activeElement` — it really does become the button — but the `focus`
+event never dispatches, so any handler bound to it silently does nothing. This
+read as a broken draft in ab-st6, where focusing a row is supposed to change
+the plate; the handler was correct and the environment was the blocker.
+Confirm the wiring with `el.dispatchEvent(new FocusEvent('focus'))`, which
+works, and do not "fix" code that is already right. Same shape as the
+background-tab scroll suppression above: the pane withholds an input, not a
+capability.
+
+**The dev server can serve a STALE scoped `<style>` after an .astro edit.**
+Hit on ab-st7: the file on disk had the corrected `clamp()`, a full reload
+served the OLD rule, and `?v=2` served it too — the computed margin stayed 0
+through three attempts at the same fix. Read the rule the page actually has
+(walk `document.styleSheets` for the selector) before concluding a fix did not
+work, and verify CSS changes against `astro build` + the built-site preview on
+4325 rather than the dev server. The build was correct the whole time.
+
 **The home page's own character count moves with the scroll position, and it
 is NOT a content change.** `.rl__cap` is the conveyor's live readout and its
 string changes as you scroll: 2455 at the top of the section where it reads
