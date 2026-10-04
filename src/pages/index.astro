@@ -1465,11 +1465,31 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     const cards = Array.from(rail.querySelectorAll('[data-card]')) as HTMLElement[];
     if (!cards.length) return;
 
+    /* The four facts, read off the centred card's own markup. Every card
+       carries data-rows — the same infoRows() the work page sets its
+       colophon from — so this adds no data and cannot disagree with the
+       desktop reading. */
+    const slots = Array.from(sec.querySelectorAll('[data-hv-row]')) as HTMLElement[];
+    const fill = (c: HTMLElement) => {
+      let rows: { label: string; value: string }[] = [];
+      try { rows = JSON.parse(c.dataset.rows || '[]'); } catch { rows = []; }
+      slots.forEach((s, i) => {
+        const r = rows[i];
+        s.hidden = !r;
+        if (!r) return;
+        const l = s.querySelector('[data-hv-l]') as HTMLElement | null;
+        const v = s.querySelector('[data-hv-v]') as HTMLElement | null;
+        if (l) l.textContent = r.label;
+        if (v) v.textContent = r.value;
+      });
+    };
+
     const say = (c: HTMLElement) => {
       const name = c.dataset.title || '';
       if (title.textContent === name) return;
       title.textContent = name;
       year.textContent = c.dataset.year || '';
+      fill(c);
       /* The same 190ms turn the conveyor uses when the centred work
          changes, so the caption behaves identically in both layouts. */
       if (readout) {
@@ -1509,6 +1529,11 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
        none did. The conveyor re-measures on load and fonts.ready for the
        same reason — this is the rail's version of it, and it costs two
        listeners and seventeen subtractions each. */
+    /* say() returns early when the name already matches, and on arrival it
+       always does — the caption is server-rendered from the first work. So
+       the slots are filled once by hand or the first card would show the
+       rail's name with no facts under it. */
+    fill(cards[0]);
     pick();
     addEventListener('load', pick, { once: true });
     document.fonts?.ready.then(pick);
@@ -2319,6 +2344,44 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     }
     :root .rg .rl__ruler { display: none; }
 
+    /* ── THE CREDITS COME TO THE RAIL ──────────────────────────────
+       The same four facts the desktop section shows on hover, under the
+       centred work's name. A phone has no hover, but the rail already
+       knows which card is centred — so the thing that was missing was
+       never the data or the pointer, it was somewhere to put it.
+
+       THE SAME SLOTS, NOT NEW ONES. .hvr__right already holds four
+       label-and-value pairs and initWkRail fills them from the centred
+       card's own data-rows, which is in the markup on every card. No new
+       elements, no second copy of the facts, and the typography is the
+       fm5 setting the desktop reading uses — at 375 the value clamps to
+       its 14px floor rather than 17.
+
+       EVERYTHING POSITIONAL IS UNDONE, because all of it is anchored to a
+       composition that does not exist here: .hvr is absolute inset:0 over
+       the pinned stage, .hvr__right hangs off the title's measured ink
+       (--tl, --tr, --cb, --vb) and both are hidden until .is-hv. Here
+       they are simply the next thing in the flow, and always on. */
+    :root .rg .hvr { display: block; position: static; }
+    /* The drawn rectangle and its ratio numerals stay behind: they are
+       set beside the NAME in the desktop composition, and there is no
+       such gap on a phone — the caption has the full measure. */
+    :root .rg .hvr__left { display: none; }
+    :root .rg .hvr__right {
+      position: static;
+      left: auto; right: auto; bottom: auto;
+      padding-inline: var(--margin); padding-left: var(--margin);
+      margin-top: 2px;
+      justify-content: center;
+      opacity: 1; visibility: visible;
+      transition: none;
+    }
+    :root .rg .hvr__f,
+    :root .rg .sec--works.is-hv .hvr__f {
+      opacity: 1; transform: none; transition: none;
+    }
+    :root .rg .hvr__f[hidden] { display: none; }
+
     /* Back into the flow, so the words sit above the grid instead of
        behind it, and the section takes some top padding so "01" and the
        heading have their own air before the first row.
@@ -2338,7 +2401,11 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
           `@media (min-width: 901px)`, so nothing here has to undo it; the
           base `top` it falls back to is inert under position: static. */
     :root .rg .fr--over { position: static; }
-    :root .rg .mvt.sec--works { padding-block: clamp(64px, 11vh, 104px) 0; }
+    /* Top for "01" and the heading; bottom because the credits are now the
+       last thing in the section and sat flush on its edge — measured, the
+       section ended at 733.2 and so did they, putting WHO I AM straight
+       underneath with nothing between. */
+    :root .rg .mvt.sec--works { padding-block: clamp(64px, 11vh, 104px) clamp(40px, 7vh, 72px); }
   }
 
   /* ── TWO IDEAS, ONE PAGE ─────────────────────────────────────────
@@ -4477,6 +4544,14 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     :root .rg .hvr__f, :root .rg .sec--works.is-hv .hvr__f { transition: none; opacity: 1; transform: none; }
     :root .rg .hvr__num { transition: none; opacity: 1; }
   }
-  @media (max-width: 900px) { :root .rg .hvr { display: none; } }
+  /* THE HOVER READING USED TO BE HIDDEN HERE and is not any more: below
+     901px it is the rail's credit block, shown always and filled from the
+     centred card (see the mobile query above and initWkRail). The rule is
+     DELETED rather than overridden, and that matters — the override and
+     this were both `:root .rg .hvr` at equal specificity, and the two
+     scoped <style> blocks in this file are not emitted in document order
+     (HANDOFF §6). Measured in the built CSS: the override landed at
+     character 54245 and this at 29232, so it was winning by bundler order
+     rather than by anything written down. One of the two had to go. */
 
 </style>
