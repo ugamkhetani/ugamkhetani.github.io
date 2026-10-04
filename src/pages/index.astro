@@ -472,7 +472,7 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
             <p class="rl__cap"><span data-w-title>{wnodes[0].w.data.title}</span></p>
             <div class="rl__ruler">
               <span class="rl__ticks">
-                {wnodes.map(() => <span class="rl__t"></span>)}
+                {wnodes.map((_, i) => <span class="rl__t" style={`--i:${i}`}></span>)}
               </span>
               <span class="rl__head" data-rl-head></span>
             </div>
@@ -1499,17 +1499,53 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
       }
     };
 
+    /* THE DIAL TURNS WITH THE RAIL, and it has to turn CONTINUOUSLY or it
+       is not a dial — a mark that jumps a notch per swipe is a counter.
+       --ring is the fractional position between card centres, so the arc
+       moves with the thumb and the lit mark lands as it settles. The
+       conveyor writes the same property from its own scroll phase; this is
+       the rail's way of saying the same thing.
+
+       INTERPOLATED BETWEEN CARD CENTRES, not from scrollLeft over
+       scrollWidth. The cards are different widths — a 9:16 is 237px and a
+       16:9 is 292 — so an even division of the scroll range would drift
+       away from the marks it is meant to track. */
+    const ticks = Array.from(sec.querySelectorAll('.rl__t')) as HTMLElement[];
+    const ring = sec.querySelector('.rl__ticks') as HTMLElement | null;
+    const centres = () => cards.map((c) => c.offsetLeft + c.offsetWidth / 2);
+
     let raf = 0;
     const pick = () => {
       raf = 0;
+      const cs = centres();
       const mid = rail.scrollLeft + rail.clientWidth / 2;
-      let best = cards[0];
+
+      /* Nearest card: the caption and the lit mark. */
+      let best = 0;
       let bestD = Infinity;
-      for (const c of cards) {
-        const d = Math.abs(c.offsetLeft + c.offsetWidth / 2 - mid);
-        if (d < bestD) { bestD = d; best = c; }
+      for (let i = 0; i < cs.length; i++) {
+        const d = Math.abs(cs[i] - mid);
+        if (d < bestD) { bestD = d; best = i; }
       }
-      say(best);
+      say(cards[best]);
+      ticks.forEach((t, i) => t.classList.toggle('is-on', i === best));
+
+      /* Fractional phase: which pair of centres the middle sits between,
+         and how far along. Clamped at both ends so over-scroll — the
+         rubber band on a phone — cannot push the dial past its last mark. */
+      let phase = best;
+      if (mid <= cs[0]) phase = 0;
+      else if (mid >= cs[cs.length - 1]) phase = cs.length - 1;
+      else {
+        for (let i = 0; i < cs.length - 1; i++) {
+          if (mid >= cs[i] && mid <= cs[i + 1]) {
+            const span = cs[i + 1] - cs[i];
+            phase = i + (span > 0 ? (mid - cs[i]) / span : 0);
+            break;
+          }
+        }
+      }
+      if (ring) ring.style.setProperty('--ring', phase.toFixed(3));
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(pick); };
     rail.addEventListener('scroll', onScroll, { passive: true });
@@ -2159,9 +2195,14 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     -webkit-mask-image: linear-gradient(90deg, transparent, #000 19%, #000 81%, transparent);
     mask-image: linear-gradient(90deg, transparent, #000 19%, #000 81%, transparent);
   }
+  /* THE DIAL'S CENTRE IS THE CATALOGUE'S MIDDLE, DERIVED. It was the
+     constant 7.5, which is (16 - 1) / 2 — correct for sixteen works and
+     wrong the day a seventeenth was added. --count is already on
+     .sec--works and inherits down, so this tracks the catalogue instead of
+     restating its length. */
   .rl__ticks {
     display: block; height: 100%;
-    transform: rotate(calc((7.5 - var(--ring, 0)) * 3.6deg));
+    transform: rotate(calc(((var(--count, 17) - 1) / 2 - var(--ring, 0)) * 3.6deg));
     transform-origin: 50% -340px;
     will-change: transform;
   }
@@ -2172,25 +2213,20 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     position: absolute; left: 50%; top: 4px;
     width: 1px; height: 11px; background: var(--dim);
     transform-origin: 50% -344px;
+    /* FANNED FROM ITS OWN INDEX, not from sixteen hand-written nth-child
+       rules. Those covered nth-child(1) to (16) and were written when the
+       catalogue was sixteen works; Ira made it seventeen on 2026-09-30 and
+       the seventeenth tick matched no rule at all, so it took no transform
+       and sat unrotated at the middle of the fan. Measured on the live
+       page before this: on Mere Ho, the last work, the lit tick stood
+       180.1px from the playhead it is supposed to meet. The first sixteen
+       were fine, which is why it went unnoticed — only the last one was
+       orphaned. One rule cannot go stale when a work is added. */
+    transform: translateX(-50%)
+      rotate(calc((var(--i, 0) - (var(--count, 17) - 1) / 2) * 3.6deg));
     transition: height 220ms var(--ease), background-color 220ms var(--ease);
   }
   .rl__t.is-on { height: 18px; background: var(--bone); }
-  .rl__t:nth-child(1) { transform: translateX(-50%) rotate(-27.00deg); }
-  .rl__t:nth-child(2) { transform: translateX(-50%) rotate(-23.40deg); }
-  .rl__t:nth-child(3) { transform: translateX(-50%) rotate(-19.80deg); }
-  .rl__t:nth-child(4) { transform: translateX(-50%) rotate(-16.20deg); }
-  .rl__t:nth-child(5) { transform: translateX(-50%) rotate(-12.60deg); }
-  .rl__t:nth-child(6) { transform: translateX(-50%) rotate(-9.00deg); }
-  .rl__t:nth-child(7) { transform: translateX(-50%) rotate(-5.40deg); }
-  .rl__t:nth-child(8) { transform: translateX(-50%) rotate(-1.80deg); }
-  .rl__t:nth-child(9) { transform: translateX(-50%) rotate(1.80deg); }
-  .rl__t:nth-child(10) { transform: translateX(-50%) rotate(5.40deg); }
-  .rl__t:nth-child(11) { transform: translateX(-50%) rotate(9.00deg); }
-  .rl__t:nth-child(12) { transform: translateX(-50%) rotate(12.60deg); }
-  .rl__t:nth-child(13) { transform: translateX(-50%) rotate(16.20deg); }
-  .rl__t:nth-child(14) { transform: translateX(-50%) rotate(19.80deg); }
-  .rl__t:nth-child(15) { transform: translateX(-50%) rotate(23.40deg); }
-  .rl__t:nth-child(16) { transform: translateX(-50%) rotate(27.00deg); }
   .rl__head {
     position: absolute; left: 50%; top: 0; bottom: auto;
     width: 1px; height: 24px; background: var(--bone);
@@ -2308,7 +2344,7 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
          conveyor uses to give uprights more area, is deliberately NOT used:
          up there the constraint is the stage's height, here it is the
          screen's width, and they want opposite corrections. */
-      --rail-h: min(52vh, calc(78vw / var(--arn, 1.7778)));
+      --rail-h: min(46vh, calc(78vw / var(--arn, 1.7778)));
       flex: 0 0 auto;
       height: var(--rail-h);
       width: calc(var(--rail-h) * var(--arn, 1.7778));
@@ -2327,11 +2363,11 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
       will-change: auto;
     }
 
-    /* The readout comes back, because now something updates it — but only
-       the words. Its ruler is a 17-tick arc drawn for a 720px readout and
-       it started at x -106.2 here, a third of it off the left edge; there
-       is nothing at 375px for it to be. The caption and the year are the
-       part that carries meaning and they are what the rail reports. */
+    /* The readout comes back whole — dial included. It was the words only
+       at first, because the ruler is an arc drawn for a 720px instrument
+       and it began at x -106.2 here, a third of it off the left edge. That
+       was the readout being 720px wide while the screen was 375; fixed by
+       letting it take the measure it actually has, the arc fits. */
     :root .rg .rl {
       position: static; width: auto; margin: 0 0 18px;
       padding-inline: var(--margin);
@@ -2342,7 +2378,21 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
          the left edge, reading "Shor Mein" and "2 6". Measured, then fixed. */
       transform: none;
     }
-    :root .rg .rl__ruler { display: none; }
+    /* THE DIAL IS THE POINT OF THE READOUT and it is what Ugam asked to
+       put first. The fan spans +-28.8deg at a 344px radius, which is 331px
+       of horizontal reach — inside the 375px screen, and the ruler's own
+       mask fades both ends at 19 per cent anyway, so the outermost marks
+       leave rather than stop. Nothing is rescaled: it is the same arc the
+       desktop readout draws, at the width this screen gives it. */
+    :root .rg .rl__ruler { display: block; }
+
+    /* AND THE YEAR STANDS DOWN, because the credits carry it. The desktop
+       section already makes this call — `.sec--works.is-hv .rl__date`
+       fades the readout's year the moment the hover reading appears, so
+       the figure is never on screen twice. Here the credits are always up,
+       so the year is always the credits'. It also buys back the 24px that
+       put this section over one screen. */
+    :root .rg .rl__date { display: none; }
 
     /* ── THE CREDITS COME TO THE RAIL ──────────────────────────────
        The same four facts the desktop section shows on hover, under the
@@ -2367,12 +2417,24 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
        set beside the NAME in the desktop composition, and there is no
        such gap on a phone — the caption has the full measure. */
     :root .rg .hvr__left { display: none; }
+    /* TWO BY TWO, NOT A WRAPPED ROW. Flowed and centred, the four facts
+       came out as four across on eight works and as 3+1 or 2+2 on the
+       other nine, depending on how long the values happened to be — so
+       the block changed shape as you swiped and sometimes left YEAR
+       stranded alone under three others. A fixed pair of columns is the
+       same shape on every work, aligns the labels down two edges, and
+       gives a long value like "Producer · Featured Artist" half the
+       measure instead of whatever was left. Book My Yamraj answers three
+       rows rather than four and simply leaves the last cell empty. */
     :root .rg .hvr__right {
       position: static;
       left: auto; right: auto; bottom: auto;
       padding-inline: var(--margin); padding-left: var(--margin);
       margin-top: 2px;
-      justify-content: center;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: clamp(16px, 5vw, 28px); row-gap: 10px;
+      align-content: start;
       opacity: 1; visibility: visible;
       transition: none;
     }
@@ -2405,7 +2467,13 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
        last thing in the section and sat flush on its edge — measured, the
        section ended at 733.2 and so did they, putting WHO I AM straight
        underneath with nothing between. */
-    :root .rg .mvt.sec--works { padding-block: clamp(64px, 11vh, 104px) clamp(40px, 7vh, 72px); }
+    /* Trimmed from 11vh once the dial went in: with the arc, the caption,
+       the year and the credits all below the rail the section ran 823.4
+       against an 812 screen, and the heading had the most air to give. At
+       9vh it measures 807. That figure is for a 375x812 reference — a
+       shorter phone will still scroll, which is correct; the point is that
+       the card and its reading are one view, not two. */
+    :root .rg .mvt.sec--works { padding-block: clamp(52px, 9vh, 96px) clamp(40px, 7vh, 72px); }
   }
 
   /* ── TWO IDEAS, ONE PAGE ─────────────────────────────────────────
