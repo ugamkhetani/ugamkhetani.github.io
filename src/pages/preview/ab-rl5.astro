@@ -97,9 +97,9 @@ const MINE = DRAFTS.find(([id]) => id === ME)!;
    and the generated offset-path share one coordinate system. Everything about
    the spiral — where it starts, how tightly it winds, how much film fits — is
    derived from these three numbers at runtime rather than drawn by hand. */
-const DISC = 1000;
-const R_OUT = 430;   /* outermost wrap */
-const R_CORE = 96;   /* the core the film is wound on */
+const DISC = 560;
+const R_OUT = 230;   /* outermost wrap */
+const R_CORE = 70;   /* the core the film is wound on */
 ---
 
 <Base title={`${d.title} · ${MINE[1]} — stills ${ME.toUpperCase()}`} description={`An editorial direction for the stills section of the Aasha project page: ${MINE[2]}.`}>
@@ -170,7 +170,7 @@ const R_CORE = 96;   /* the core the film is wound on */
 
         <p class="mono note">
           <em>Scroll winds the film on</em>
-          <b data-wd-pc>00</b><span>per cent wound · <b data-wd-wraps>0.0</b> wraps</span>
+          <b data-wd-pc>00</b><span>per cent wound · <b data-wd-wraps>0</b> of 8 on the wind</span>
           <i aria-hidden="true"></i>
           <span>Rest on a frame to thumb it up</span>
         </p>
@@ -245,8 +245,8 @@ const R_CORE = 96;   /* the core the film is wound on */
     const film = wd.querySelector('[data-wd-film]');
     const pcEl = wd.querySelector('[data-wd-pc]');
     const wrEl = wd.querySelector('[data-wd-wraps]');
-    const DISC = 1000, C = DISC / 2, R_OUT = 430, R_CORE = 96;
-    const FRAME_W = 140, GAP = 2;
+    const DISC = 560, C = DISC / 2, R_OUT = 230, R_CORE = 70;
+    const FRAME_W = 110, GAP = 2;
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     /* THE SPIRAL, GENERATED. A tangent comes in from the right at the height
@@ -255,7 +255,13 @@ const R_CORE = 96;   /* the core the film is wound on */
        attribute is never actually a spiral, and because every number below —
        the wrap count, the spacing, how much film fits — has to come off its
        real length. */
-    const WRAPS = (R_OUT - R_CORE) / 46;
+    /* SIZED TO THE FILM, NOT TO A REEL. A real spool holds hundreds of
+       frames, and the first build made one: 7.26 wraps and 12,975 units of
+       path, on which eight 140-unit frames occupied under eight per cent and
+       travelled as a single clump. A short piece of film on a big spool is
+       honest and unreadable. 1.6 wraps on a 560 disc is the size at which
+       eight frames ARE the wind. */
+    const WRAPS = 1.6;
     const build = () => {
       const pts = [];
       const steps = 340;
@@ -267,7 +273,7 @@ const R_CORE = 96;   /* the core the film is wound on */
       }
       /* Travelled start to end, a frame goes from off-canvas to the core —
          so the first to arrive ends up innermost, which is what a wind does. */
-      return `M ${C + 980} ${C - R_OUT} L ${pts[0]} L ` + pts.slice(1).join(' L ');
+        return `M ${C + 300} ${C - R_OUT} L ${pts[0]} L ` + pts.slice(1).join(' L ');
     };
 
     const dPath = build();
@@ -277,7 +283,12 @@ const R_CORE = 96;   /* the core the film is wound on */
 
     const L = track.getTotalLength ? track.getTotalLength() : 0;
     const SPACING = L > 0 ? ((FRAME_W + GAP) / L) * 100 : 9;
-    const SPAN = 100 + SPACING * figs.length;
+    /* SPAN IS 100, NOT 100 PLUS THE TRAIN. ab-rl1 pays film out, so every
+       frame has to leave and the travel has to carry the whole train past the
+       end. A wind keeps what it takes: the leading frame reaches the core and
+       stops, and the rest come to rest spread behind it. With the pay-out's
+       span all eight clamped at 100 and piled on the core instead. */
+    const SPAN = 100;
 
     const fitStage = () => {
       const k = fit.clientWidth / DISC;
@@ -301,7 +312,10 @@ const R_CORE = 96;   /* the core the film is wound on */
       film.setAttribute('stroke-dasharray', `${Math.max(0, b - a).toFixed(1)} ${L.toFixed(1)}`);
       film.setAttribute('stroke-dashoffset', `${(-a).toFixed(1)}`);
       if (pcEl) pcEl.textContent = String(Math.round(run * 100)).padStart(2, '0');
-      if (wrEl) wrEl.textContent = (Math.max(0, b - a) / L * WRAPS).toFixed(1);
+      /* Frames actually on the wind, which stays true when the leader reaches
+         the core — the drawn length does not, because it collapses to nothing
+         once the train stops moving. */
+      if (wrEl) wrEl.textContent = String(figs.filter((f) => +f.style.getPropertyValue('--d') > 0.5).length);
     };
 
     if (reduced) paint(0.62);
@@ -384,7 +398,11 @@ const R_CORE = 96;   /* the core the film is wound on */
   .wd__rail { height: 300vh; }
   .wd__hold { position: sticky; top: 0; height: 100vh; display: flex; align-items: center; justify-content: center; }
   /* One coordinate system for the disc, the spiral and the frames on it. */
-  .wd__fit { position: relative; width: min(100%, 86vh); aspect-ratio: 1; }
+  /* overflow:hidden is load-bearing. The tangent reaches 300 units past the
+     disc so frames can wait off-canvas before they are wound on, and without
+     a clip those frames stick out of the page — measured 608px of scrollWidth
+     in a 375px viewport. ab-rl1 clips its stage for the same reason. */
+  .wd__fit { position: relative; width: min(100%, 86vh); aspect-ratio: 1; overflow: hidden; }
   .wd__stage { position: absolute; inset: 0; width: 1000px; height: 1000px; transform: scale(var(--k, 1)); transform-origin: 0 0; }
   .wd__svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 

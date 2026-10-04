@@ -255,8 +255,12 @@ const LINE = 1.6;
       /* Signed, so the readout says which way it is out rather than only how
          far — which is the number a projectionist actually turns the knob on. */
       const signed = frac > 0.5 ? frac - 1 : frac;
-      const top = signed <= 0 ? whole : whole + 1;      /* the frame above the line */
-      const bottom = Math.min(n - 1, top + 1);
+      /* The window's top edge sits inside frame floor(rack), so the pair on
+         screen is always that frame and the next — whichever registration the
+         signed offset happens to be nearest. Deriving the top from the sign
+         instead named 07 and 08 while 06 and 07 were on screen. */
+      const top = Math.min(n - 1, whole);               /* the frame above the line */
+      const bottom = Math.min(n - 1, whole + 1);
       const locked = Math.abs(signed) < 0.012;
 
       /* Where the frame line sits in the window, as a percentage of its
@@ -369,13 +373,19 @@ const LINE = 1.6;
      one frame — so any position that is not a whole number of frames shows
      two pictures and the bar between them. */
   .rk__strip {
-    height: calc(var(--n) * (100% + var(--line) * 1%));
-    transform: translate3d(0, calc(var(--rack) * -1 * (100% + var(--line) * 1%)), 0);
+    height: calc(var(--n) * (100% + var(--line) * 1px));
+    /* ONE FRAME IS 100%/n OF THE STRIP, not 100%. A percentage in translate is
+       a share of the ELEMENT, and the element here is all eight frames — so
+       translating by rack * 100% moved the film forty-three frames off the end
+       and the window came up empty. The frame line is in px on both sides of
+       this now too; it was a percentage in the height and pixels in the
+       border, which are not the same distance. */
+    transform: translate3d(0, calc(var(--rack) * -100% / var(--n)), 0);
     will-change: transform;
   }
   .rk__f {
     display: block; height: calc(100% / var(--n));
-    border-bottom: calc(var(--line) * 1px) solid var(--ground-deep, #000);
+    border-bottom: calc(var(--line) * 1px) solid #000;
   }
   .rk__f img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
