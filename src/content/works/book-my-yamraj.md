@@ -15,9 +15,16 @@ description: >
   feeling rushed. Rhythm, density and transitions were shaped around the
   format itself, allowing the score to move naturally with the pace of
   vertical storytelling.
+# ← THE HOVER'S ROLE IS SHORTER THAN THE COLOPHON'S, ON PURPOSE. Ugam asked
+#   on 2026-10-04 to drop "All Six Episodes" from Selected works. THE WORK
+#   PAGE IS NOT AFFECTED — `role` above still carries the full credit and
+#   that is what its overline and colophon set, and the meta row "Output: 6
+#   Episodes · 6 Original Cues" states the count outright. This is the third
+#   place the two readings differ by intent, after Special Ops' Role and the
+#   five works whose hover Format is not their colophon's.
 hover:
   - { label: "Format", value: "Micro Drama" }
-  - { label: "Role", value: "Composer · All Six Episodes" }
+  - { label: "Role", value: "Composer" }
   - { label: "Year", value: "2025" }
 meta:
   - { label: "Director", value: "Sameer Talawdekar" }
