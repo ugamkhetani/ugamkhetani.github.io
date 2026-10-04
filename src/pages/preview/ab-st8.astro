@@ -149,7 +149,11 @@ const MINE = DRAFTS.find(([id]) => id === ME)!;
       queued = false;
       const box = rail.getBoundingClientRect();
       const travel = box.height - innerHeight;
-      const p = travel <= 0 ? 0 : Math.min(1, Math.max(0, -box.top / travel));
+      /* ROUNDED BEFORE DIVIDING. getBoundingClientRect returns a float, so at an
+         exact bucket boundary -box.top can read 2015.99 where the layout is
+         2016 and floor() drops a whole frame. Rounding to the pixel makes the
+         boundary land where the arithmetic says it does. */
+      const p = travel <= 0 ? 0 : Math.min(1, Math.max(0, Math.round(-box.top) / travel));
       ap.style.setProperty('--p', p.toFixed(5));
       /* The readout names whichever frame is most of the way across the hole,
          so it changes at the halfway point of each slide rather than at the

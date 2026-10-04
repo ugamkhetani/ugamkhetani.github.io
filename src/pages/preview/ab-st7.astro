@@ -61,7 +61,10 @@ const DRAFTS: [string, string, string][] = [
 const ME = 'st7';
 const MINE = DRAFTS.find(([id]) => id === ME)!;
 
-/* <- MY SCORE, NOT A FACT ABOUT THE WORK. [kind, space-before in px]. The
+/* <- MY SCORE, NOT A FACT ABOUT THE WORK. [kind, space-before]. The second
+   value is UNITLESS on purpose — the CSS multiplies it by px and by vh, and a
+   length times a length is invalid, which silently drops the whole clamp and
+   flattens the rhythm to nothing. The
    bleed on 06 and the two wides at either end are an editorial reading of
    these eight frames; nothing in the documents ranks them. Re-cut freely —
    the CSS knows the five kinds and not the order. */
@@ -108,7 +111,7 @@ const SCORE: [string, number][] = [
       <p class="mono st__lbl"><span>03</span><i aria-hidden="true"></i><span>Stills · {MINE[1]}</span></p>
       <div class="fa">
         {SCORE.map(([kind, gap], i) => (
-          <figure class:list={['fa__f', `fa--${kind}`]} data-reveal style={`--gap:${gap}px`}>
+          <figure class:list={['fa__f', `fa--${kind}`]} data-reveal style={`--gap:${gap}`}>
             <span class="fa__win">
               <Image src={images[i]} alt={i === 0 ? d.alt : ''} aria-hidden={i === 0 ? undefined : 'true'}
                 widths={[480, 860, 1400]}
@@ -194,7 +197,9 @@ const SCORE: [string, number][] = [
 
   .fa__f {
     position: relative; margin: 0;
-    margin-top: clamp(calc(var(--gap) * 0.45), calc(var(--gap) * 0.09vh), var(--gap));
+    /* Floor in px, preferred in vh, ceiling in px — so the rhythm breathes
+       with the viewport but never collapses or runs away. */
+    margin-top: clamp(calc(var(--gap) * 0.45px), calc(var(--gap) * 0.09vh), calc(var(--gap) * 1px));
   }
   .fa__win { display: block; overflow: hidden; background: var(--ground-lift); }
   .fa__win img { display: block; width: 100%; height: auto; aspect-ratio: var(--ar); object-fit: cover; }
@@ -232,7 +237,7 @@ const SCORE: [string, number][] = [
     .fa--mid, .fa--narrow-l, .fa--narrow-r { width: 76%; }
     .fa--narrow-r { margin-left: auto; margin-right: 0; }
     .fa--narrow-l { margin-right: auto; margin-left: 0; }
-    .fa__f { margin-top: clamp(26px, calc(var(--gap) * 0.42), 76px); }
+    .fa__f { margin-top: clamp(26px, calc(var(--gap) * 0.42px), 76px); }
     .fa__no {
       position: static; display: block; margin-top: 6px;
       font-size: clamp(1.6rem, 9vw, 3rem);
