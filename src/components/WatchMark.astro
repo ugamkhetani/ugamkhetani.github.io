@@ -1,0 +1,168 @@
+---
+/**
+ * THE OUTSIDE LINK ON AN OPENING FRAME — applied from preview/ab-zw13,
+ * THE INLINE, on 2026-10-06, chosen from fourteen built as real pages.
+ *
+ * It replaces `.still__go`, which was a translucent pill: a 1px 50%-white
+ * border, a 35% ground and a 6px backdrop-filter holding a 10px mono label.
+ *
+ * WHY THE PILL WENT, AND IT IS A MEASUREMENT RATHER THAN A PREFERENCE. That
+ * chrome exists to hold white type off a bright photograph, and the corner it
+ * sat in is the DARKEST part of the frame it sat on. Read off Aasha's opening
+ * still — 2880x2160, exactly its declared 4:3, so `cover` crops nothing — the
+ * button's own box measures mean .0077 and p95 .0168 relative luminance,
+ * where white reads 18.2:1 and 15.7:1 against a 4.5:1 floor. There was
+ * nothing for the plate to do. Every draft in that round started there.
+ *
+ * TWO TIERS OUT OF UGAM'S OWN LABEL, RE-SET AND NEVER REWRITTEN. The markdown
+ * says `label: "Watch on ZEE5"` and `platform: "ZEE5"`; this splits the one on
+ * the other, so the lead sets small and the destination sets large. It splits
+ * ONLY when the label actually ends with the platform name — otherwise the
+ * whole label goes on one line and the lead is omitted. Nothing is invented
+ * and nothing is dropped, which is the same contract `cut()` and `clauses()`
+ * keep on the About movements.
+ *
+ * <- THE VERB IS NOT "WATCH". Four of the six that render this say "Watch on",
+ *   two say "Listen on", and Diwali — which files its link in the Watch
+ *   section rather than here — says "View on". The draft hardcoded "Watch on"
+ *   because it only ever ran on Aasha. Deriving it is what makes this safe on
+ *   the whole route, and a seventh work with a different verb needs no edit.
+ *
+ * THE TRIANGLE IS SIZED IN em AND THAT IS THE POINT OF ZW13. 0.56em wide by
+ * 0.68em tall against the platform word, so it tracks the type at every width
+ * with no second breakpoint to keep in step. Measured: a 51.2px word gives
+ * 28.7x34.8 and a 32px word gives 17.9x21.8 — 0.56 and 0.68 of the word in
+ * both cases. The other thirteen drafts size their marks in pixels and have
+ * to restate them on mobile; this one cannot drift.
+ *
+ * ITS BASELINE IS SET WITH vertical-align AND A SMALL translate, not with a
+ * margin: the glyph has to sit on the letters' own baseline, and a margin
+ * would move the line box instead of the mark inside it.
+ *
+ * <- THE ARROW STAYS, AND ON A BARE STILL IT IS LOAD-BEARING. Nothing on these
+ *   pages plays: four of the six are bare stills whose opening is `still`, and
+ *   pressing this opens the platform in a new tab. A play triangle promises
+ *   inline playback, so the arrow is the only mark in the lockup saying the
+ *   press goes elsewhere. Do not drop it without replacing what it says.
+ *
+ * <- AND IT NO LONGER MATCHES `.facade__play`. HANDOFF §5 recorded that the
+ *   still's button deliberately copied the facade's — same inset, border,
+ *   ground and blur — so that a still which links out and a video which plays
+ *   read as one control doing two jobs. That pairing is broken by this change
+ *   and the break is deliberate but UNRESOLVED: eight work pages still carry
+ *   the pill on their video facade. Either the facade follows this, or the two
+ *   controls are meant to differ now because only one of them plays. Flagged
+ *   for Ugam; nothing in VideoFacade.astro was touched.
+ */
+interface Props {
+  /** The work's own `external.label`, as written. */
+  label: string;
+  /** The work's own `external.platform`, as written. */
+  platform: string;
+  url: string;
+}
+const { label, platform, url } = Astro.props;
+
+/* Split only on a real match; never manufacture a lead. */
+const splits = label.endsWith(platform) && label.length > platform.length;
+const lead = splits ? label.slice(0, -platform.length).trim() : '';
+const tail = splits ? platform : label;
+---
+
+<a class="wm" href={url} target="_blank" rel="noopener noreferrer">
+  {lead && <span class="wm__k">{lead}</span>}
+  <span class="wm__p"><i class="wm__tri" aria-hidden="true"></i>{tail}<i
+      class="wm__a" aria-hidden="true">&nearr;</i></span>
+</a>
+
+<style>
+  /* The frame is `position: relative`; this sits in its bottom-left corner at
+     the same inset the pill used, so nothing else on the page moves. */
+  .wm {
+    position: absolute;
+    left: var(--margin);
+    bottom: var(--margin);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--bone);
+  }
+  .wm__k {
+    font-family: var(--mono);
+    font-size: var(--t-micro);
+    letter-spacing: var(--track-mono);
+    text-transform: uppercase;
+    color: var(--bone-dim);
+    transition: color var(--d-micro) var(--ease);
+  }
+  .wm:hover .wm__k { color: var(--bone); }
+
+  /* --wm-size lets a caller step the type down for a smaller frame. The
+     default is the size the draft was judged at. */
+  .wm__p {
+    position: relative;
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: var(--wm-size, clamp(2rem, 4.4vw, 3.2rem));
+    line-height: 0.92;
+    letter-spacing: -0.04em;
+    text-transform: uppercase;
+  }
+
+  /* SIZED IN em SO IT TRACKS THE WORD — see the header. vertical-align sits it
+     on the letters' baseline; a margin would move the line box instead. */
+  .wm__tri {
+    display: inline-block;
+    width: 0.56em;
+    height: 0.68em;
+    background: currentColor;
+    clip-path: polygon(0 0, 100% 50%, 0 100%);
+    vertical-align: baseline;
+    transform: translateY(0.02em);
+    margin-right: 0.22em;
+    transition: transform var(--d-micro) var(--ease);
+  }
+  .wm:hover .wm__tri { transform: translate(0.06em, 0.02em); }
+
+  /* Drawn rather than text-decoration, so it can arrive from nothing and sit
+     where this design wants it rather than at the font's underline offset. */
+  .wm__p::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -0.1em;
+    height: 2px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--d-micro) var(--ease);
+  }
+  .wm:hover .wm__p::after { transform: scaleX(1); }
+
+  .wm__a {
+    font-style: normal;
+    font-size: 0.34em;
+    vertical-align: 0.9em;
+    margin-left: 0.34em;
+    display: inline-block;
+    transition: transform var(--d-micro) var(--ease);
+  }
+  .wm:hover .wm__a { transform: translate(3px, -3px); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wm__tri,
+    .wm__p::after,
+    .wm__a { transition: none; }
+    .wm:hover .wm__tri { transform: translateY(0.02em); }
+  }
+
+  /* The inset the pill used below 901px, kept so this change moves nothing
+     but the control's own treatment. The mark needs no entry here: it is
+     em-sized and follows the word down on its own. */
+  @media (max-width: 900px) {
+    .wm { left: var(--s-3); bottom: var(--s-3); gap: 7px; }
+  }
+</style>
