@@ -1,0 +1,326 @@
+---
+/**
+ * ZW10 · THE MARK — ZW2 with a bare triangle, no ring at all
+ *
+ * THE SAME BRIEF WITH THE RING TAKEN AWAY, which is the whole difference
+ * between this and ZW9. What is left is one solid triangle, and the argument
+ * for it is the round's own: a ring is a container, a container is chrome,
+ * and the measurement says this frame does not need chrome. A triangle alone
+ * is the smallest thing that can mean "play".
+ *
+ * IT IS BIGGER BECAUSE IT IS ALONE — 29x34 against ZW9's 17x20. Inside a ring
+ * a triangle only has to be legible; without one it carries the whole signal,
+ * and at ZW9's size on open picture it reads as a speck rather than a
+ * control. The pair is the real comparison: a small mark that is held,
+ * against a large mark that is not.
+ *
+ * ITS 3px OFFSET IS ZW9'S OPTICAL CORRECTION, SCALED. A triangle's mass sits
+ * a third from its base, so a centred box reads as left of centre. Chosen by
+ * eye, flagged as such, and larger here only because the shape is.
+ *
+ * ON HOVER IT TRAVELS 3px RIGHT rather than growing — the direction of play
+ * and the direction of leaving, which on this page are the same thing. The
+ * stack's rule draws at the same time, as in ZW9. *
+ * TWO MORE READINGS OF ZW2, ON UGAM'S BRIEF OF 2026-10-06: the stack as it
+ * stands, plus a modern, minimal play mark in the middle of the frame. ZW9
+ * and ZW10 differ in exactly one thing — whether the mark carries a ring —
+ * so that the question can be answered on its own.
+ *
+ * THE WHOLE FRAME IS THE LINK, AND THAT IS WHY THERE IS ONLY ONE. A mark in
+ * the middle and a label in the corner are two affordances; written as two
+ * anchors they would be two tab stops, two entries in a screen reader's link
+ * list and two copies of the same URL on one page. So the anchor spans the
+ * still at `inset: 0`, the mark and the stack sit inside it, and the frame
+ * itself is the control. One tab stop, one accessible name — "Watch on
+ * ZEE5" — and the focus ring outlines the picture, which is what the picture
+ * now is.
+ *
+ * <- THE MARK DOES NOT PLAY ANYTHING, AND THAT IS THE RISK IN THIS BRIEF.
+ *   Aasha's opening is `still`: there is no video on this page and no file to
+ *   play. Pressing the mark opens ZEE5 in a new tab. A play triangle promises
+ *   inline playback to most people who see one, so the ↗ STAYS on the
+ *   platform name — it is the site's own mark for leaving, it is the only
+ *   thing on the frame that contradicts the triangle, and it should not be
+ *   dropped from either of these without replacing what it says. §5's rule
+ *   for a bare still — the frame IS the work, the outside link is the only
+ *   way to watch — is not broken by these, but it is stretched: the frame
+ *   now LOOKS playable and is not.
+ *
+ * MEASURED BEFORE DESIGNING, because the middle of a frame is usually its
+ * brightest part and this round's argument is that chrome should exist only
+ * where the picture demands it. Sampled on the rendered 1049.6x787.2 still,
+ * white ink, worst pixel inside the mark's own footprint:
+ *
+ *   ring r=36, 1px stroke     mean .0268  p95 .0578  max .0685   8.86:1
+ *   ring r=44, 1px stroke     mean .0252  p95 .0595  max .0595   9.59:1
+ *   triangle zone r=14        mean .0063  p95 .0123  max .0452  11.03:1
+ *   filled disc r=36          mean .0262  p95 .0704  max .0887   7.57:1
+ *
+ * The floor for a non-text graphic is 3:1 (WCAG 1.4.11) and the mark clears
+ * it nearly three times over — it also clears 4.5:1, the floor for small
+ * TEXT. So no scrim, no plate and no blur behind it.
+ *
+ * THAT IS NOT THE FIGURE THE ROUND QUOTES FOR "the centre third", which is
+ * 2.78:1 at its worst. That region is a third of the whole frame and includes
+ * the lit face to the right of centre; the mark's actual footprint is the
+ * dark ground below and between. Measuring the region instead of the mark
+ * would have bought chrome this frame does not need — the same mistake in
+ * the opposite direction to the one the live button makes. *
+ * ZW10's OWN FIGURES. The triangle is 29x34 — 2.9 times ZW9's area — and its
+ * box reads 7.69:1 against its worst pixel, where ZW9's smaller triangle
+ * reads 9.44:1. The larger mark covers more picture, so it meets slightly
+ * brighter ground; both are far above the 3:1 floor for a graphic. Its
+ * measured offset from the frame's centre is (3, 0), which is the optical
+ * correction and not drift. *
+ * MEASURED ON THE BUILT SITE AT 1280x800, TRANSITIONS COLLAPSED. The anchor
+ * is 1049.6x787.2 — exactly the still, as intended. One link on the frame,
+ * accessible name "Watch on ZEE5", the mark `aria-hidden="true"`, and
+ * `elementFromPoint` returns the anchor both at the frame's centre and over
+ * the corner stack. At 375 the still is 327 wide, the mark steps down, clears
+ * the stack, stays inside the frame, and nothing overflows horizontally.
+ *
+ * <- "IN THE CENTRE" ON THIS FRAME MEANS "ON HIS FACE", AND THAT IS WORTH
+ *   SEEING BEFORE CHOOSING. Aasha's composition puts the boy right of centre:
+ *   the centroid of the twelve brightest cells of a 20x15 grid is at
+ *   (643, 386), and the mark's centre is (525, 394) — 118px away, which puts
+ *   it on the shadowed side of his cheek. It is legible there, and the
+ *   contrast figures above are real, but the mark is on the subject rather
+ *   than beside him.
+ *
+ *   Sampled alternatives, 72px disc, median luminance and worst-pixel white:
+ *
+ *     dead centre, as built   (525, 394)  .0203   7.57:1   118px from him
+ *     raised to 40% height    (525, 315)  .0497   3.28:1   138px - on the
+ *                                                          LIT cheek, worst
+ *     lowered to 62% height   (525, 488)  .0060   7.78:1   156px
+ *     left third, mid height  (347, 394)  .0044  14.94:1   296px - clear of
+ *                                                          him, in the dark
+ *
+ *   The brief said centre and these are built centred. Moving the mark is one
+ *   value in each file if the overlap is unwanted; raising it is the one
+ *   change that would make things worse.
+ */
+
+import Base from '../../layouts/Base.astro';
+import OpNav from '../../components/OpNav.astro';
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import { framesFor } from '../../lib/frames';
+import { href } from '../../lib/href';
+
+const works = await getCollection('works');
+const work = works.find((w) => w.id === 'aasha')!;
+const d = work.data;
+const images = framesFor('aasha', d.frames);
+const poster = images[0];
+
+/* THE REAL LINK, from the markdown. Aasha's `external` is ZEE5 — platform,
+   label and url — and every draft uses it as written. Nothing here invents a
+   platform, a label or a destination. */
+const EXT = d.external!;
+
+const ROLES = d.role.split('·').map((r) => r.trim());
+const QW = (d.quote ?? '').split(' ').filter(Boolean);
+/* The first sentence, as the live page takes it. The regex lives here and not
+   in the markup: a regex literal inside an Astro template expression is
+   parsed as JSX and fails the build (HANDOFF §6). */
+const LEDE = (d.description.trim().match(/^[^.!?]+[.!?]/) ?? [d.description.trim()])[0];
+
+const ME = 'zw10';
+const DRAFTS: [string, string, string][] = [
+  ['zw1', 'The rule', 'A hairline across the frame, the label under it'],
+  ['zw2', 'The stack', 'Two sizes, flush left, nothing drawn'],
+  ['zw3', 'The field', 'The page grid made visible, the link held by it'],
+  ['zw4', 'The band', 'A flat accent plane, type knocked out'],
+  ['zw5', 'The spine', 'Set vertically up the frame’s left edge'],
+  ['zw6', 'The plate', 'Off the picture, a ruled caption beneath it'],
+  ['zw7', 'The marks', 'Crop marks, the label registered between them'],
+  ['zw8', 'The block', 'The facts as a ruled data table'],
+  ['zw9', 'The gate', 'ZW2 with a ruled play mark in the middle of the frame'],
+  ['zw10', 'The mark', 'ZW2 with a bare triangle, no ring at all'],
+];
+const MINE = DRAFTS.find(([id]) => id === ME)!;
+---
+
+<Base title={`${d.title} · ${MINE[1]} — watch ${ME.toUpperCase()}`} description={`A Swiss-poster reading of the watch control on the Aasha project page: ${MINE[2]}.`}>
+  <OpNav variant="bracket" base={href()} />
+
+  <nav class="sw" aria-label="Watch-button drafts">
+    <span class="sw__id">{ME.toUpperCase()}</span>
+    <span class="sw__nm">{MINE[1]}</span>
+    <span class="sw__su">{MINE[2]}</span>
+    <span class="sw__set">
+      {DRAFTS.map(([id, name, sub]) => (
+        <a class:list={['sw__i', { 'is-here': id === ME }]} href={href(`preview/ab-${id}`)}
+          title={`${name} — ${sub}`} aria-current={id === ME ? 'page' : undefined}>{id.slice(2)}</a>
+      ))}
+      <a class="sw__prev" href={href('work/aasha')} title="The live page, for comparison">LIVE</a>
+    </span>
+  </nav>
+
+  <article class="sc">
+    <header class="hd">
+      <p class="mono hd__over">{d.category} · {d.overline ?? d.year}</p>
+      <h1 class="hd__t">{d.title}</h1>
+      <p class="mono hd__meta">
+        <span class="hd__roles">
+          {ROLES.map((r, i) => (<>{i > 0 && <i class="hd__bar" aria-hidden="true"></i>}<span>{r}</span></>))}
+        </span>
+      </p>
+    </header>
+
+    {QW.length > 0 && (
+      <section class="q" aria-label="Statement">
+        <p class="q__t">{d.quote}</p>
+      </section>
+    )}
+
+    <!-- ══ 01 · THE WORK — THE DRAFT IS THE CONTROL ON THIS STILL ═══ -->
+    <section class="blk" aria-label="The work">
+      <div class="still">
+        <Image src={poster} alt={d.alt} widths={[800, 1400, 2000]} sizes="(max-width: 900px) 100vw, 78vw" loading="eager" decoding="async" />
+        <a class="zw10" href={EXT.url} target="_blank" rel="noopener noreferrer">
+          <span class="zw10__mark" aria-hidden="true"><i class="zw10__tri"></i></span>
+          <span class="zw10__stack">
+            <span class="zw10__k">Watch on</span>
+            <span class="zw10__p">{EXT.platform}<i class="zw10__a" aria-hidden="true">&nearr;</i></span>
+          </span>
+        </a>
+      </div>
+    </section>
+
+    <section class="blk body" aria-label="About the work">
+      <p class="body__lede">{LEDE}</p>
+    </section>
+  </article>
+</Base>
+
+<style>
+  /* ══ THE SWITCHER — the stills rounds' bar, unchanged ═════════ */
+  .sw {
+    position: fixed; inset: 0 0 auto; z-index: 900;
+    display: flex; align-items: baseline; gap: 12px;
+    padding: 9px clamp(16px, 4vw, 40px);
+    background: color-mix(in srgb, var(--ground) 86%, transparent);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--mono); font-size: var(--t-micro);
+    letter-spacing: 0.16em; text-transform: uppercase;
+  }
+  .sw__id { color: var(--accent); }
+  .sw__nm { color: var(--bone); }
+  .sw__su { color: var(--dim); margin-right: auto; }
+  .sw__set { display: flex; gap: 1px; align-items: baseline; }
+  .sw__i { color: var(--dim); text-decoration: none; padding: 3px 7px; border: 1px solid transparent; font-variant-numeric: tabular-nums; }
+  .sw__i:hover { color: var(--bone); }
+  .sw__i.is-here { color: var(--accent); border-color: var(--rule); }
+  .sw__prev { color: color-mix(in srgb, var(--dim) 70%, var(--ground)); text-decoration: none; padding: 3px 6px; margin-left: 4px; }
+  .sw__prev:hover { color: var(--bone); }
+
+  /* ══ THE WORK PAGE'S OWN HARNESS — the settled values ════════ */
+  .sc {
+    --measure: min(760px, 100%);
+    --film: max(var(--measure), calc(100vw - 3 * var(--margin)));
+    padding: clamp(96px, 15vh, 190px) var(--margin) 0;
+  }
+  .hd, .q, .blk { max-width: var(--measure); }
+  .hd { margin-inline: auto; text-align: center; }
+  .hd__over {
+    margin: 0 0 clamp(24px, 4vh, 48px);
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--dim);
+    font-variant-numeric: tabular-nums;
+  }
+  .hd__t {
+    margin: 0;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(2.6rem, 10vw, 7.25rem);
+    line-height: 0.86; letter-spacing: -0.05em;
+    text-transform: uppercase; color: var(--bone);
+  }
+  .hd__meta {
+    display: flex; justify-content: center; flex-wrap: wrap;
+    margin: clamp(28px, 4.6vh, 50px) 0 0;
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--dim);
+  }
+  .hd__roles { display: inline-flex; align-items: center; flex-wrap: wrap; justify-content: center; row-gap: 8px; }
+  .hd__bar { display: inline-block; width: 1px; height: 7px; margin-inline: clamp(10px, 1.8vw, 16px); background: var(--rule); }
+  .q { margin: clamp(80px, 14vh, 180px) auto; text-align: center; }
+  .q__t {
+    margin: 0 auto; max-width: 20ch;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.9rem, 5.4vw, 4.4rem);
+    line-height: 1.02; letter-spacing: -0.045em; color: var(--bone);
+  }
+  .blk { margin: 0 auto clamp(72px, 12vh, 160px); }
+  .body__lede {
+    margin: 0; font-size: var(--t-md); line-height: 1.6;
+    color: var(--bone-dim); max-width: 44ch;
+  }
+
+  /* THE BARE STILL TAKES --film, as it does live, so the control is judged at
+     the width it will actually have: 1049.6px at 1280, 787.2 tall at 4:3. */
+  .still { position: relative; }
+  .blk .still { width: var(--film); margin-inline: calc((100% - var(--film)) / 2); }
+  .still :global(img) { width: 100%; height: auto; display: block; }
+
+  /* ══ ZW10 · THE MARK ═════════════════════════════ */
+  .zw10 {
+    position: absolute; inset: 0; display: block;
+    text-decoration: none; color: var(--bone);
+  }
+  /* No ring, so the triangle carries the whole signal and is sized for it.
+     The 3px is the optical offset, not a centring error — see the header. */
+  .zw10__mark {
+    position: absolute; left: 50%; top: 50%;
+    transform: translate(calc(-50% + 3px), -50%);
+    display: block;
+    transition: transform var(--d-micro) var(--ease);
+  }
+  .zw10__tri {
+    display: block; width: 29px; height: 34px; background: var(--bone);
+    clip-path: polygon(0 0, 100% 50%, 0 100%);
+  }
+  .zw10:hover .zw10__mark, .zw10.is-hover .zw10__mark {
+    transform: translate(calc(-50% + 6px), -50%);
+  }
+  .zw10__stack {
+    position: absolute; left: var(--margin); bottom: var(--margin);
+    display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
+  }
+  .zw10__k {
+    font-family: var(--mono); font-size: var(--t-micro);
+    letter-spacing: var(--track-mono); text-transform: uppercase;
+    color: var(--bone-dim);
+    transition: color var(--d-micro) var(--ease);
+  }
+  .zw10:hover .zw10__k, .zw10.is-hover .zw10__k { color: var(--bone); }
+  .zw10__p {
+    position: relative;
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(2rem, 4.4vw, 3.2rem);
+    line-height: 0.92; letter-spacing: -0.04em; text-transform: uppercase;
+  }
+  .zw10__p::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: -0.1em; height: 2px;
+    background: currentColor;
+    transform: scaleX(0); transform-origin: left;
+    transition: transform var(--d-micro) var(--ease);
+  }
+  .zw10:hover .zw10__p::after, .zw10.is-hover .zw10__p::after { transform: scaleX(1); }
+  .zw10__a {
+    font-style: normal; font-size: 0.34em; vertical-align: 0.9em;
+    margin-left: 0.34em; display: inline-block;
+    transition: transform var(--d-micro) var(--ease);
+  }
+  .zw10:hover .zw10__a, .zw10.is-hover .zw10__a { transform: translate(3px, -3px); }
+  @media (prefers-reduced-motion: reduce) {
+    .zw10__mark, .zw10__p::after, .zw10__a { transition: none; }
+    .zw10:hover .zw10__mark, .zw10.is-hover .zw10__mark { transform: translate(calc(-50% + 3px), -50%); }
+  }
+  @media (max-width: 900px) {
+    .zw10__tri { width: 22px; height: 26px; }
+    .zw10__stack { left: var(--s-2); bottom: var(--s-2); gap: 7px; }
+  }
+</style>
