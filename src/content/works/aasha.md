@@ -33,6 +33,6 @@ external:
   label: "Watch on ZEE5"
   url: "https://zee5.onelink.me/RlQq/ksuynlbl"
 links:
-  - { label: "Watch on YouTube", url: "https://youtu.be/vXcS_67uvoQ", platform: "youtube" }
+  - { label: "Watch on ZEE5", url: "https://zee5.onelink.me/RlQq/ksuynlbl", platform: "zee5" }
 alt: "Still from Aasha"
 ---
