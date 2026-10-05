@@ -1,0 +1,440 @@
+---
+/**
+ * FC3 · THE STRIPS — two columns cut and scanned separately.
+ *
+ * THE OBSERVATION BEHIND IT: ab-fl1 is drawn as one sheet with two columns,
+ * which is a layout. A real contact sheet of two strips is two separate
+ * pieces of film laid on a bed, and two pieces of film never lie at the same
+ * angle. The first reference is full of that — its border is uneven, the
+ * frames sit a fraction off square, and the edge marks land where the holder
+ * put them rather than on a grid.
+ *
+ * SO THE TWO COLUMNS ARE TWO OBJECTS. Each is its own strip, each has its own
+ * rotation, and they do not start level with each other. Nothing about this
+ * is random — two fixed angles and two fixed offsets, so the page is one
+ * particular scan rather than a different one on every load.
+ *
+ * THE MARKS GO WHITE, NOT AMBER. The first reference prints in white on
+ * black — arrows, a number, a word, nothing coloured. Dropping the amber here
+ * is the clearest way to make this read as a different lab from ab-fl1 while
+ * the structure stays the same, and it is the detail that reference is most
+ * insistent about.
+ *
+ * ROTATION AND data-reveal DO NOT SHARE AN ELEMENT. The site's reveal
+ * animation fills to `transform: none` and would wipe the skew; the strips
+ * carry the angle and their wrappers carry the reveal.
+ */
+import Base from '../../layouts/Base.astro';
+import OpNav from '../../components/OpNav.astro';
+import { Image, getImage } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import { framesFor } from '../../lib/frames';
+import { href } from '../../lib/href';
+
+/* THE REAL WORK AND THE REAL STILLS, and the work page's own harness around
+   them, so the only variable between ab-sq1 and ab-sq8 is the section below
+   the "03 · Stills" rule.
+
+   NOTHING ON THESE PAGES IS CLICKABLE. Scroll and hover only: no buttons, no
+   controls, no navigation, nothing draggable. Every state is either a
+   function of scroll position or a CSS :hover. If you find a cursor:pointer
+   in here it is a mistake.
+
+   AND NOTHING HERE IS INVENTED FILM PRODUCTION DATA. These four take the reel
+   as their system, which makes it tempting to print key numbers, footage
+   counts and lab marks that would look right and mean nothing. Every figure
+   on these pages is either a property of the page itself — how far the film
+   has paid out, which frame is in the gate, how much slack is in the loop —
+   or a luminance measured off the actual files. There is no fake edge print.
+
+   THE PRODUCTION PAGE IS NOT TOUCHED — src/pages/work/[slug].astro is
+   untouched by all eight, and `withoutPreview()` keeps these out of the
+   built site. */
+const works = await getCollection('works');
+const work = works.find((w) => w.id === 'aasha')!;
+const d = work.data;
+const images = framesFor('aasha', d.frames);
+const LEDE = (d.description.trim().match(/^[^.!?]+[.!?]/) ?? [d.description.trim()])[0];
+const ROLES = d.role.split('·').map((r) => r.trim());
+const nn = (i: number) => String(i + 1).padStart(2, '0');
+/* `awards` is {text, star?}[], not a string. */
+const AWARDS = (d.awards ?? []).map((a: { text: string }) => a.text).join(' · ');
+
+/* Optimised URLs for the drafts that need a frame inside a CSS property — a
+   background, a band, a blended layer — where <Image> cannot reach. */
+const WEB = await Promise.all(
+  images.map((src) => getImage({ src, width: 1400, format: 'webp', quality: 80 })),
+);
+
+/* MEASURED FROM THE FILES, NOT ASSERTED. Mean luminance of each frame, read
+   off a 128x96 canvas by ab-xp1 and reproduced independently by ab-xp7 — the
+   two agree to three decimals. Several drafts in this round art-direct from
+   it (which frame is big, which is held longest, what order the composite
+   resolves in), so it is recorded here rather than re-derived at runtime:
+   these eight do no work in the browser that scroll and hover do not need.
+      01 .147   02 .179   03 .078   04 .075
+      05 .338   06 .214   07 .159   08 .313
+   The film never exceeds .489 anywhere, and 03 and 04 are the floor. */
+const LUMA = [0.147, 0.179, 0.078, 0.075, 0.338, 0.214, 0.159, 0.313];
+
+const DRAFTS: [string, string, string][] = [
+  ['fc1', 'The sleeve', 'Three columns, the title spelled down the gutters'],
+  ['fc2', 'The worn', 'The sheet, with the rebate handled'],
+  ['fc3', 'The strips', 'Two columns cut and scanned separately'],
+  ['fc4', 'The index', 'The sheet, rounded and clean'],
+];
+
+/* ── 35MM, TO SPEC ────────────────────────────────────────────────
+   Every number below is the real stock, not an approximation of how film
+   looks. Getting these right is the whole of this round: a strip drawn to
+   spec reads as film immediately and needs no grain, no filter and no
+   texture to do it.
+
+     film width            35.00 mm
+     perforation           2.794 across the film x 1.981 along it (KS)
+     perforation pitch     4.75 mm
+     between inner edges   25.40 mm, so 2.006 from the film edge to the
+                           outer edge of a perforation
+
+   MOTION PICTURE, 4-PERF: the aperture is 24 x 18 mm and the pitch is 19 mm,
+   four perforations to a frame, leaving 1 mm of frame line.
+
+   <- AND 24 x 18 IS EXACTLY 4:3, which is the ratio these eight stills are
+   already in. So they sit in a real full-aperture frame at their own ratio
+   with nothing cropped and nothing letterboxed — the geometry did not have
+   to be bent to fit them, which is the reason this round can be literal
+   without being a costume.
+
+   135 STILL FILM is the same stock run the other way: same width, same
+   perforations, same pitch, but 8 perforations to a frame and a 36 x 24
+   aperture. It is what the horizontal drafts use, because a motion picture
+   strip laid horizontally shows its frames on their side. */
+const FILM = {
+  w: 35, perfW: 2.794, perfH: 1.981, perfPitch: 4.75, perfInset: 2.006, perfR: 0.51,
+  mp: { imgW: 24, imgH: 18, pitch: 19, perfs: 4 },
+  still: { apW: 36, apH: 24, pitch: 38, perfs: 8 },
+};
+const ME = 'fc3';
+const MINE = DRAFTS.find(([id]) => id === ME)!;
+
+/* <- MY SCAN. One angle and one offset per strip, fixed. */
+const STRIPS = [
+  { rot: -0.5, top: 0 },
+  { rot: 0.38, top: 42 },
+];
+const COLS = [images.filter((_, i) => i % 2 === 0), images.filter((_, i) => i % 2 === 1)];
+---
+
+<Base title={`${d.title} · ${MINE[1]} — stills ${ME.toUpperCase()}`} description={`An editorial direction for the stills section of the Aasha project page: ${MINE[2]}.`}>
+  <OpNav variant="bracket" base={href()} />
+
+  <nav class="sw" aria-label="Stills drafts">
+    <span class="sw__id">{ME.toUpperCase()}</span>
+    <span class="sw__nm">{MINE[1]}</span>
+    <span class="sw__su">{MINE[2]}</span>
+    <span class="sw__set">
+      {DRAFTS.map(([id, name, sub]) => (
+        <a class:list={['sw__i', { 'is-here': id === ME }]} href={href(`preview/ab-${id}`)}
+          title={`${name} — ${sub}`} aria-current={id === ME ? 'page' : undefined}>{id.slice(2)}</a>
+      ))}
+      <a class="sw__prev" href={href('preview/ab-st1')} title="Round one — eight arrangements">ST</a>
+      <a class="sw__prev" href={href('preview/ab-xp1')} title="Round two — eight interactions">XP</a>
+      <a class="sw__prev" href={href('preview/ab-sq1')} title="Round three — eight editorial">SQ</a>
+      <a class="sw__prev" href={href('preview/ab-rl1')} title="The reel, conceptual">RL</a>
+      <a class="sw__prev" href={href('preview/ab-fs1')} title="The literal strip">FS</a>
+      <a class="sw__prev" href={href('preview/ab-fa1')} title="The refined strip">FA</a>
+      <a class="sw__prev" href={href('preview/ab-fl1')} title="The reference look">FL</a>
+    </span>
+  </nav>
+
+  <article class="sc" style={`--ar:${d.ratio.replace(':', ' / ')}`}>
+    <header class="hd">
+      <p class="mono hd__over">{d.category} · {d.year}</p>
+      <h1 class="hd__t">{d.title}</h1>
+      <p class="mono hd__meta"><span class="hd__roles">{ROLES.map((r) => <span>{r}</span>)}</span></p>
+    </header>
+
+    {d.quote && (
+      <section class="q" aria-label="Statement">
+        <p class="q__t">{d.quote}</p>
+      </section>
+    )}
+
+    <section class="blk body" aria-label="About">
+      <p class="body__lede" style={`--n:${LEDE.length}`}>{LEDE}</p>
+    </section>
+
+    <!-- ══ 03 · STILLS — THE DRAFT ═══════════════════════════════════ -->
+    <section class="blk st" aria-label="Stills">
+      <p class="mono st__lbl"><span>03</span><i aria-hidden="true"></i><span>Stills · {MINE[1]}</span></p>
+      <div class="tp" data-tp>
+        <div class="tp__bed">
+          {COLS.map((col, c) => (
+            <div class="tp__slot" data-reveal>
+              <div class="tp__strip tex-grain" style={`--rot:${STRIPS[c].rot}deg; --top:${STRIPS[c].top}px`}>
+                <p class="mono tp__mark tp__mark--t" aria-hidden="true">
+                  <span>▶</span><b>{nn(c * 4)}</b><i></i><em>{d.title}</em>
+                </p>
+
+                <div class="tp__cells">
+                  {col.map((img, k) => {
+                    const fi = k * 2 + c;
+                    return (
+                      <figure class="tp__cell" data-tp-c={fi}>
+                        <Image src={img} alt={fi === 0 ? d.alt : ''} aria-hidden={fi === 0 ? undefined : 'true'}
+                          widths={[380, 700, 1100]} sizes="(max-width: 760px) 46vw, 42vw"
+                          loading={fi < 4 ? 'eager' : 'lazy'} decoding="async" />
+                        <figcaption class="mono tp__no"><span>▶</span><b>{nn(fi)}</b></figcaption>
+                      </figure>
+                    );
+                  })}
+                </div>
+
+                <p class="mono tp__mark tp__mark--b" aria-hidden="true">
+                  <span>◀</span><i></i><em>{d.title}</em><i></i><span>▶</span>
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <p class="mono note">
+          <em>Two strips, scanned separately · neither sits square</em>
+          <i aria-hidden="true"></i>
+          <span>White marks, no amber — a different lab</span>
+        </p>
+      </div>
+    </section>
+
+    <footer class="cl">
+      <hr class="rule" />
+      <p class="mono cl__p"><span>{MINE[0].toUpperCase()} · {MINE[1]}</span><i aria-hidden="true"></i><span>{AWARDS}</span></p>
+    </footer>
+  </article>
+</Base>
+
+<style>
+  /* ══ THE HARNESS ═══════════════════════════════════════════════════
+     The work page's own type and rhythm, shared verbatim by all eight. */
+  .sw {
+    position: fixed; inset: 0 0 auto; z-index: 900;
+    display: flex; align-items: baseline; gap: 12px;
+    padding: 9px clamp(16px, 4vw, 40px);
+    background: color-mix(in srgb, var(--ground) 86%, transparent);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--mono); font-size: var(--t-micro);
+    letter-spacing: 0.16em; text-transform: uppercase;
+  }
+  .sw__id { color: var(--accent); }
+  .sw__nm { color: var(--bone); }
+  .sw__su { color: var(--dim); margin-right: auto; }
+  .sw__set { display: flex; gap: 1px; align-items: baseline; }
+  .sw__i { color: var(--dim); text-decoration: none; padding: 3px 7px; border: 1px solid transparent; font-variant-numeric: tabular-nums; }
+  .sw__i:hover { color: var(--bone); }
+  .sw__i.is-here { color: var(--accent); border-color: var(--rule); }
+  .sw__prev { color: color-mix(in srgb, var(--dim) 70%, var(--ground)); text-decoration: none; padding: 3px 6px; margin-left: 4px; }
+  .sw__prev:first-of-type { border-left: 1px solid var(--rule); margin-left: 8px; padding-left: 11px; }
+  .sw__prev:hover { color: var(--bone-dim); }
+  @media (max-width: 860px) { .sw__su { display: none; } .sw__nm { margin-right: auto; } }
+  @media (max-width: 560px) { .sw__nm { display: none; } }
+
+  .sc { padding: clamp(84px, 13vh, 150px) var(--margin) 0; }
+  .hd { text-align: center; margin-bottom: clamp(38px, 6.6vh, 80px); }
+  .hd__over { font-size: var(--t-micro); letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin: 0 0 clamp(16px, 2.6vh, 30px); }
+  .hd__t { margin: 0; font-family: var(--display); font-weight: 500; font-size: clamp(2.6rem, 7vw, 5.6rem); line-height: 0.94; letter-spacing: -0.04em; color: var(--bone); }
+  .hd__meta { margin: clamp(14px, 2.2vh, 26px) 0 0; font-size: var(--t-micro); letter-spacing: 0.18em; text-transform: uppercase; color: var(--bone-dim); }
+  .hd__roles { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 0 14px; }
+  .hd__roles span + span::before { content: '·'; margin-right: 14px; color: var(--dim); }
+  .q { max-width: 34ch; margin: 0 auto clamp(50px, 8vh, 110px); text-align: center; }
+  .q__t { margin: 0; font-family: var(--serif); font-style: italic; font-weight: 300; font-size: clamp(1.25rem, 2.4vw, 1.9rem); line-height: 1.26; letter-spacing: -0.012em; color: var(--bone-dim); }
+  .body { max-width: var(--measure); margin-inline: auto; }
+  .body__lede { margin: 0 auto; max-width: clamp(20ch, calc(var(--n, 90) / 3 * 1ch), 44ch); font-family: var(--display); font-weight: 500; font-size: clamp(1.2rem, min(calc(2.35rem - (var(--n, 90) - 55) * 0.007rem), calc(1.05rem + 2.1vw)), 2.2rem); line-height: 1.12; letter-spacing: -0.025em; color: var(--bone); text-wrap: balance; }
+  .blk { margin: 0 auto clamp(104px, 18vh, 240px); }
+
+  .st { --w: var(--measure); }
+  .st__lbl {
+    display: flex; align-items: center; gap: 12px;
+    width: var(--w); margin: 0 auto clamp(24px, 4vh, 50px);
+    font-size: var(--t-micro); letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted);
+  }
+  .st__lbl i { flex: 1; height: 1px; background: var(--rule); }
+
+  /* One line of mono per draft saying what the composition responds to.
+     Scroll and hover are invisible affordances; naming them is not a crutch,
+     it is the caption on a piece of behaviour. */
+  .note {
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+    width: var(--w); margin: clamp(16px, 2.4vh, 28px) auto 0;
+    font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim);
+  }
+  .note b { font-weight: 400; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .note em { font-style: normal; color: var(--muted); }
+  .note i { flex: 1; min-width: 20px; height: 1px; background: var(--rule); transform: translateY(-3px); }
+
+  .cl { max-width: var(--measure); margin: 0 auto; padding-bottom: clamp(48px, 9vh, 110px); }
+  .rule { border: 0; border-top: 1px solid var(--rule); margin: 0 0 16px; }
+  .cl__p { display: flex; align-items: baseline; gap: 14px; margin: 0; font-size: var(--t-micro); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); }
+  .cl__p i { flex: 1; height: 1px; background: var(--rule); transform: translateY(-3px); }
+  .cl__p span:last-child { text-align: right; }
+  @media (max-width: 620px) { .cl__p { flex-direction: column; gap: 6px; } .cl__p i { display: none; } .cl__p span:last-child { text-align: left; } }
+
+  /* ══ THE STOCK ═════════════════════════════════════════════════════
+     One custom property per draft — --fw, the width of the film — and every
+     other dimension falls out of it at the real ratios. Nothing here is
+     tuned by eye. */
+  .st {
+    --u: calc(var(--fw) / 35);
+    --perf-w: calc(2.794 * var(--u));
+    --perf-h: calc(1.981 * var(--u));
+    --perf-pitch: calc(4.75 * var(--u));
+    --perf-inset: calc(2.006 * var(--u));
+    --perf-r: calc(0.51 * var(--u));
+    /* motion picture, 4-perf */
+    --img-w: calc(24 * var(--u));
+    --img-h: calc(18 * var(--u));
+    --pitch: calc(19 * var(--u));
+    /* 135 still */
+    --ap-w: calc(36 * var(--u));
+    --ap-h: calc(24 * var(--u));
+    --s-pitch: calc(38 * var(--u));
+  }
+
+  /* ── THE STOCK, SECOND PASS ────────────────────────────────────────
+     ab-fs2 set the film base at #000 against a #0A0908 page, which is a
+     difference of ten in one channel: the strip barely existed as an object
+     and the perforations, drawn in the page colour on top of it, existed
+     less. Three changes and no others:
+
+     THE BASE LIFTS a few per cent off the page, so the film reads as a thing
+     lying on the page rather than a hole in it. A developed strip over a
+     light table is lighter than its surround, and this is the quietest
+     version of that which still works on a near-black ground.
+
+     THE PERFORATION IS THE PAGE, punched through — no inset highlight, no
+     second colour. One tone, one shape, correct geometry.
+
+     AND THE FILM CARRIES A HAIRLINE on its long edges, which is what makes
+     the difference between a tone and an edge at this contrast. */
+  .film {
+    background: color-mix(in srgb, var(--bone) 5.5%, var(--ground));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 -1px 0 rgba(255, 255, 255, 0.1);
+  }
+  .perf { position: absolute; background: var(--ground); border-radius: var(--perf-r); }
+
+  /* ══ THE LOOK ══════════════════════════════════════════════════════
+     Taken from the six references Ugam sent, with two lines held:
+
+     NO FAKE MANUFACTURER MARKS. The references carry KODAK 400 and LOST
+     MOMENTS VOL14, which are those photographers' own stocks and series. The
+     edge print here carries Ugam's data — the title, the year, the frame
+     count, the ratio — because a portfolio printing somebody else's stock
+     name on its own film is wearing a costume.
+
+     AND NOTHING IS APPLIED TO THE PHOTOGRAPHS. The references are warm; these
+     eight stills are monochrome and measure under .49 everywhere. Grading
+     them to match would be editing the work rather than presenting it, so all
+     the warmth and all the texture live in the FURNITURE — the rebate, the
+     edge print, the border — and the pictures are untouched. That is also how
+     the references are built: look at the third and fifth, where the texture
+     is entirely on the black and the frames inside are clean. */
+  .st {
+    /* The amber of printed film edge type. A departure from the page's own
+       accent, and the one the references are unanimous about. */
+    --edge: #D9A441;
+    --edge-dim: color-mix(in srgb, #D9A441 62%, transparent);
+  }
+
+  /* THE TEXTURE SITS UNDER EVERYTHING THE FILM CARRIES. Both layers are
+     absolutely positioned over their container, which includes the frames —
+     the first build ran scratches straight across a face, which is the exact
+     thing the header of every one of these files says not to do. Lifting the
+     direct children above the layers leaves the wear on the rebate and the
+     gutters, where it belongs, and nowhere else. */
+  .tex-grain, .tex-scratch { isolation: isolate; }
+  .tex-grain > *, .tex-scratch > * { position: relative; z-index: 2; }
+
+  /* Grain, as one inline turbulence, DESATURATED and composited normally.
+     Two corrections after looking at it: feTurbulence is colour noise unless
+     a saturate matrix is added, and mix-blend-mode: overlay over a near-black
+     rebate returns near-black — the layer was there and did nothing. Grey
+     noise at a low opacity lifts the stock the way grain actually does. */
+  .tex-grain::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0.26; z-index: 1;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='150' height='150' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Scratches and dust, as gradients rather than a bitmap — they scale with
+     the element and cost nothing to load. */
+  .tex-scratch::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0.9; z-index: 1;
+    background-image:
+      repeating-linear-gradient(93.4deg, transparent 0 31px, rgba(255,255,255,0.15) 31px 31.7px, transparent 31.7px 74px),
+      repeating-linear-gradient(87.2deg, transparent 0 97px, rgba(255,255,255,0.1) 97px 97.6px, transparent 97.6px 183px),
+      repeating-linear-gradient(91.1deg, transparent 0 211px, rgba(255,255,255,0.07) 211px 212px, transparent 212px 349px),
+      radial-gradient(circle at 12% 31%, rgba(255,255,255,0.2) 0 1.1px, transparent 1.6px),
+      radial-gradient(circle at 73% 12%, rgba(255,255,255,0.17) 0 1.4px, transparent 1.9px),
+      radial-gradient(circle at 41% 78%, rgba(255,255,255,0.15) 0 1px, transparent 1.4px),
+      radial-gradient(circle at 88% 61%, rgba(255,255,255,0.13) 0 1.7px, transparent 2.2px),
+      radial-gradient(circle at 26% 54%, rgba(255,255,255,0.13) 0 1px, transparent 1.3px),
+      radial-gradient(circle at 57% 88%, rgba(255,255,255,0.12) 0 1.2px, transparent 1.6px),
+      radial-gradient(circle at 94% 37%, rgba(255,255,255,0.11) 0 0.9px, transparent 1.2px);
+  }
+
+  /* Letters stacked upright down a gutter, as on the record sleeve: each
+     glyph the right way up, the column reading downward. text-orientation is
+     the whole trick — without it the word lies on its side. */
+  .spell {
+    writing-mode: vertical-rl; text-orientation: upright;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.44em;
+    text-transform: uppercase; color: var(--edge-dim); user-select: none;
+    position: relative; z-index: 2; white-space: nowrap;
+  }
+
+  /* Edge print: the repeating vertical type that runs down a real rebate. */
+  .edgeprint {
+    writing-mode: vertical-rl; white-space: nowrap; overflow: hidden;
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--edge-dim); user-select: none; position: relative; z-index: 2;
+  }
+
+  /* ── FC3 · THE STRIPS ──────────────────────────────────────── */
+  .st { --w: min(calc(100vw - 2 * var(--margin)), 1100px); }
+  .tp { width: var(--w); margin-inline: auto; }
+  .tp__bed { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(18px, 3vw, 46px); align-items: start; }
+
+  /* The reveal lives on the slot; the angle lives on the strip. They cannot
+     share an element — a filled animation ending on `transform: none` beats a
+     declared transform, which silently flattens the skew. */
+  .tp__slot { margin: 0; }
+  .tp__strip {
+    position: relative; background: var(--ground-deep, #000);
+    transform: rotate(var(--rot)); margin-top: var(--top);
+    padding: 8px 9px 9px; display: grid; gap: 6px;
+  }
+
+  .tp__cells { display: grid; gap: clamp(14px, 2.4vh, 30px); }
+  .tp__cell { position: relative; margin: 0; }
+  .tp__cell img { display: block; width: 100%; height: auto; aspect-ratio: var(--ar); object-fit: cover; }
+  /* White, as on the first reference. No amber anywhere in this draft. */
+  .tp__no {
+    position: absolute; left: 0; top: calc(100% + 4px);
+    display: flex; align-items: center; gap: 5px;
+    font-size: 8px; letter-spacing: 0.16em; color: color-mix(in srgb, var(--bone) 48%, transparent);
+    font-variant-numeric: tabular-nums;
+  }
+  .tp__no b { font-weight: 400; color: color-mix(in srgb, var(--bone) 74%, transparent); }
+  .tp__cell:hover .tp__no, .tp__cell:hover .tp__no b { color: var(--bone); }
+  @media (prefers-reduced-motion: no-preference) { .tp__no, .tp__no b { transition: color 200ms linear; } }
+
+  .tp__mark {
+    display: flex; align-items: center; gap: 6px; margin: 0;
+    font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: color-mix(in srgb, var(--bone) 42%, transparent);
+  }
+  .tp__mark b { font-weight: 400; color: color-mix(in srgb, var(--bone) 66%, transparent); font-variant-numeric: tabular-nums; }
+  .tp__mark em { font-style: normal; letter-spacing: 0.28em; }
+  .tp__mark i { flex: 1; }
+
+  @media (max-width: 620px) { .tp__mark { font-size: 7px; letter-spacing: 0.12em; } .tp__mark em { display: none; } }
+</style>
