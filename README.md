@@ -1,6 +1,6 @@
 # Ugam Khetani — Portfolio
 
-Sixteen works, twenty pages. Every project is one markdown file; every image
+Seventeen works, 21 pages. Every project is one markdown file; every image
 is a file in a folder. There is no CMS to log into and no database.
 
 For the full picture — architecture, decisions, and the traps that cost real
@@ -41,12 +41,14 @@ rm -rf node_modules/.vite .astro && npm run dev -- --port 4323
 | Page | What it is |
 | --- | --- |
 | `/` | The whole site as one page — opening, catalogue, about, enquiry. |
-| `/work/<slug>` | One per project, five opening types. |
-| `/contents` | The catalogue read as names — an end-credit roll. |
+| `/work/<slug>` | One per project, five opening types. Seventeen of them. |
 
-The About material and the enquiry are **sections of the home page**
-(`/#about`, `/#contact`), not pages of their own. They were pages until the
-home page took them on, and the old URLs still work — they redirect.
+That is the whole site: **one page and seventeen work pages.** The About
+material and the enquiry are **sections of the home page** (`/#about`,
+`/#contact`), and the catalogue-as-names roll that used to live at `/contents`
+was removed on 2026-09-07 for want of use. All three were pages long enough to
+have been sent to someone, so all three URLs still work — they redirect, which
+is what the other three shipped files are.
 
 ---
 
@@ -166,7 +168,10 @@ Yamraj's ratio and Special Ops' first frame — were all settled on 2026-09-05
 and are recorded in HANDOFF §7. Two of them were settled by leaving them
 alone, so they are written down to stop them being raised again.
 
-All sixteen works have real stills. No stand-ins remain.
+All seventeen works have real stills — 128 frames, counted 2026-10-05. No
+stand-ins remain. Ten each for Broken Reflections, Dinshaw's, Diwali Ke Shor
+Mein and Mumbai Standard Time, down to one each for Mere Ho and Ve Maahi, which
+is why those two have no stills section.
 
 ---
 
@@ -201,7 +206,7 @@ the next run and canonical tags start being emitted.
 ### What is published
 
 **21 pages** — the home page, seventeen work pages and three redirects. The
-75-page draft library in `src/pages/preview/` is **deliberately not built**
+57-draft library in `src/pages/preview/` is **deliberately not built**
 (see `astro.config.mjs`); it stays in the repository and on the dev server,
 where `npm run dev` serves it exactly as before. To publish it anyway, or just
 to check the drafts still compile:
@@ -218,9 +223,10 @@ from the root so no base is needed.
 
 ### One thing to expect on the first push
 
-The repository is large: about **360MB** of source stills, and the history is
-larger again. GitHub accepts it, but the first push takes a while and a fresh
-clone is slow. The CI checkout is shallow (`fetch-depth: 1`) so this only
+The repository is large: **395MB** of source stills and 34MB of originals,
+with a `.git` of **503MB** on top — remeasured 2026-10-05, and growing with
+every round of drafts. GitHub accepts it, but the first push takes a while and
+a fresh clone is slow. The CI checkout is shallow (`fetch-depth: 1`) so this only
 costs you once.
 
 ---

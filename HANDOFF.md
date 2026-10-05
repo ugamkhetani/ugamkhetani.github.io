@@ -1,8 +1,9 @@
 # Handoff — Ugam Khetani portfolio
 
-A static Astro site. Sixteen works, eighteen real pages plus a kept preview
-library. Every project is one markdown file; every image is a file in a folder.
-No CMS, no database.
+A static Astro site. **Seventeen works, 21 pages shipped** — the home page,
+seventeen work pages and three redirect stubs — plus a kept preview library of
+57 drafts that is built and withheld from the output. Every project is one
+markdown file; every image is a file in a folder. No CMS, no database.
 
 This file is the briefing for whoever picks the work up next — including a
 fresh chat with no memory of how any of it got here. Read §1, then §5 and §6
@@ -36,17 +37,16 @@ Paste this:
 > applied to the work pages on 5 October, are in §5 — each was chosen from
 > drafts and each one is measured, so please don't re-derive them.
 >
-> The last stretch was the STILLS section. I asked for six rounds of drafts
-> and took one: **the cut-strip layout from `ab-fc3` is live on every work
-> page**, the stills section is gone from the two single-frame works, and
-> Book My Yamraj's episode covers can now be set by dropping files into
+> The last stretch was the STILLS section, drafted across eight briefs. I took
+> one: **the cut-strip layout from `ab-fc3` is live on every work page**, the
+> stills section is gone from the two single-frame works, and Book My Yamraj's
+> episode covers can now be set by dropping files into
 > `src/media/works/book-my-yamraj/covers/` named after the episode — all three
-> written up in §5. **The other 48 drafts are kept to compare against and none
-> of them is a proposal**; `/preview` lists all 57 with notes.
+> written up in §5. **The other 51 stills drafts are kept to compare against
+> and none of them is a proposal**; `/preview` lists all 57 with notes.
 >
-> `ab-hv2` is the one live proposal still waiting on my word, open since
-> 27 September: a hover reading for Selected works that puts a work's format,
-> platform, role and year in the four corners of the frame.
+> **There is no open proposal in the library.** Everything in `src/pages/preview/`
+> is either applied, a comparator or a record — §7 says which is which.
 >
 > Everything in §7 marked "Settled" is decided — including two things that look
 > like unfixed problems and are not, so please don't re-raise them. §7 also
@@ -64,12 +64,18 @@ browser rather than described. **Build every option there and apply nothing
 without a word from Ugam.**
 
 **The folder is a KEPT library, and it is cut down rather than added to
-indefinitely.** It has been culled twice on Ugam's explicit instruction — 71
-pages on 2026-09-05 and 167 more on 2026-09-27 — and it now holds five chosen
-directions and three records. **Do not delete any of it without asking him
-first.** Both culls came as "keep these, discard the rest", and both times the
-instruction named what to keep. Everything removed is in git; §7 has the
-recovery command.
+indefinitely.** It has been culled **three times** on Ugam's explicit
+instruction — 71 pages on 2026-09-05, 167 more on 2026-09-27 and 73 more on
+2026-10-04 — and it now holds 57 drafts, nearly all of them the stills rounds
+built after that last cull. **Do not delete any of it without asking him
+first.** All three culls came as "keep these, discard the rest", and each time
+the instruction named what to keep. Everything removed is in git; §7 has the
+recovery commits.
+
+**AND A CULLED DRAFT'S NAME CAN BE REUSED LATER, which has already happened
+twice.** `ab-fs1` and `ab-live` both name a file that exists today and a
+different file in the comments that refer to them. See the trap in §6 before
+following any `ab-*` pointer in the source.
 
 ---
 
@@ -126,6 +132,7 @@ something to frame it, the frame wants something inside it.
 | `src/lib/frames.ts` | Every frame in a work's folder, in filename order — and `FRAME_CROP`, where the crop window sits for files with burned-in letterbox. |
 | `src/lib/cards.ts` | **How big an upright work is in the Selected Works conveyor.** One family of scales; `index.astro` names which. Read by the five `works-size-*` drafts too. |
 | `src/lib/awards.ts` | Parses the `awards:` field into citation + awarding body. |
+| `src/lib/wkinfo.ts` | **The four facts a work answers on hover** — format, platform, role, year. Live code since 2026-09-29; read by `index.astro` and `wkset.ts`. All seventeen works now write their own rows in markdown, so the derivation inside it is only a fallback. |
 | `src/lib/_pv-mosaic.ts` | Preview-only: the measured cell map, rankings and draft placements. Nothing on the real site imports it. |
 | `src/components/Overlay.astro` | The overlay shell. Only Contents uses it now. |
 | `src/scripts/main.ts` | Boot: reveal, frames, cursor, media bus, facades, overlays, header, home. |
@@ -843,6 +850,55 @@ OneLink before shipping it**; the visible URL says nothing about where it goes.
 
 ---
 
+### Applied to the home page, 2026-09-28 to 2026-10-04
+
+**The hover reading is live, and it was NOT `ab-hv2`.** Point at a work in
+Selected works and it answers four facts. Applied 2026-09-29 as `ab-xr4d`
+(`c493c1c`), corrected two commits later by `31b7383`, and extended to the
+mobile snap rail on 2026-10-04 (`d9ae728`, `1c07afc`). This went undocumented
+here for six days, during which §1 and §7 both described `ab-hv2` — a
+different draft of the same idea, built 2026-09-27 and culled 2026-10-04 — as
+"the one live proposal still waiting". It was not waiting; the question had
+been answered. **Dropped on Ugam's word, 2026-10-05**; the corner placement it
+proposed is in git at `d45bbfe:src/pages/preview/ab-hv2.astro` and nothing is
+pending on it.
+
+THE FACTS ARE WRITTEN, NOT DERIVED. From 2026-09-29 every work states its own
+rows in its markdown `hover:` block, because Ugam's selection cuts across every
+field a derivation could read. `infoRows()` in `src/lib/wkinfo.ts` returns the
+written rows when they exist and falls back to deriving them; **on all
+seventeen works the fallback never runs**. One module serves the desktop
+conveyor and the mobile rail, so the two readings cannot disagree — the rail
+parses the same `data-rows` attribute off the centred card.
+
+**All seventeen works answer FOUR rows.** Book My Yamraj was the only one
+answering three until 2026-10-05, when Ugam's decision gave it
+`Platform: Instagram` — all six episodes carry an instagram.com reel as their
+`href`, so the fact was already in the file. Its studio, Chivitra, is still not
+claimed as a platform.
+
+**EVERY WORK OPENS ON `Format` AND CLOSES ON `Year`; THE MIDDLE TWO VARY.**
+Measured off the built page, the seventeen take five shapes:
+
+```
+8  Format | Platform | Role      | Year
+3  Format | Platform | Scope     | Year
+3  Format | Channel  | Scope     | Year
+2  Format | Scope    | Treatment | Year
+1  Format | Role     | Scope     | Year
+```
+
+— Platform on 11 works, Scope and Role on 9 each, Channel on 3, Treatment on 2.
+That is a consequence of the rows being written rather than derived, and it is
+the reason a layout for them must not assume a fixed pair of middle labels.
+
+Three questions this file listed as open are closed by the same change: Roar
+and The Shiva Trilogy got a Format row in the 2026-09-29 credits pass, the
+three social-first works carry `Channel` under its own label, and Book My
+Yamraj now names a platform.
+
+---
+
 ### Applied to the work pages, 2026-10-05
 
 Three changes, each on Ugam's word, each verified across the whole catalogue
@@ -1380,6 +1436,45 @@ children (`.tex-grain > * { z-index: 2 }`) rather than by fighting the parents.
 fails the build.** Keep regexes in the frontmatter and call a named function
 from the markup.
 
+### Added 2026-10-05, from the documentation pass
+
+**A CULLED DRAFT'S NAME CAN BE REUSED, so a pointer that resolves is not a
+pointer that is right.** Three culls have been through `src/pages/preview/`,
+and a later draft set is free to take a name the folder no longer holds. It has
+happened twice, and both times a provenance comment in `index.astro` ended up
+describing a file that exists and is the wrong one:
+
+- **`ab-fs1`** was the 2026-09-21 About rebuild, culled 2026-09-27. The
+  `ab-fs1.astro` in the folder today is **FS1 · THE STRIP**, a stills draft
+  added 2026-10-05. The numbering block's note means the first one, which is at
+  `d312fef`.
+- **`ab-live`** held the home page as it stood before op1 on 2026-09-20. It was
+  culled 2026-10-04 and **re-created the same day** holding a different
+  snapshot — the page before `ab-pn1`'s one-size About headings. Two notes in
+  `index.astro` mean the new one and one meant the old one.
+
+This is worse than a dangling path, because nothing looks wrong: you open the
+file, read an unrelated draft, and conclude the comment is confused. **Date the
+pointer, or name the commit.** The four in `index.astro` now name commits
+(`50fd675`). Recovery addresses: `d312fef` for anything culled 2026-09-27,
+`d45bbfe` for anything culled 2026-10-04.
+
+And the same hazard sits in the ± 30 other `ab-*` names still cited in live
+comments — almost all of them were culled, so almost all are dangling today.
+They are kept as provenance rather than as paths. **Before following any of
+them, check the date in the comment against the file's own header.**
+
+**A doc that has been "brought up to date" can still be wrong in the way that
+costs most.** `bf48b15` recounted works, frames, pages and drafts against the
+build and got all of them right — and left §1 and §7 both calling `ab-hv2` the
+one live proposal, six days after the question it asked had been answered by
+applying a different draft. Counts were verified; **claims about state were
+not.** When this file says something is awaiting a decision, check whether the
+thing it proposes is already in the live source before acting on it. One grep
+for the module it names would have caught this one: `wkinfo.ts` was described
+as imported by nothing live while `index.astro` had been importing it for six
+days.
+
 ## 7 · State of play
 
 ### What the site is, as of now
@@ -1393,6 +1488,11 @@ work pages, and three redirect stubs** for `/about`, `/contact` and
 
 <- SEVENTEEN WORKS NOW, NOT SIXTEEN. Ira was added 2026-09-30. Anything in
   this file that says sixteen predates it; `src/lib/wkset.ts` has the recount.
+  **The "sixteen"s in §5 are deliberately LEFT ALONE**, because they are
+  records of what was measured — "verified across all sixteen built pages" is
+  true of the run that happened and would become a false claim if renumbered.
+  Only forward-looking statements were updated. Re-run a check before relying
+  on it for the seventeenth.
 
 <- AND CONTENTS IS NO LONGER A PAGE. `/contents` is a redirect stub to `/`,
   not the end-credit roll — removed 2026-09-07 for want of use, and in git
@@ -1457,32 +1557,42 @@ print('no entry:',sorted(f-n) or 'none'); print('no file :',sorted(n-f) or 'none
 `index.astro` itself while filtering the folder by filename, which is how it
 was lost and restored in `b4390c4`.
 
-### The library has been culled twice, both times on Ugam's instruction
+### The library has been culled three times, every time on Ugam's instruction
 
 **2026-09-05 — 71 pages**, plus the 10 shared `_pv-*` components and
 `_pv-mosaic.ts`. Recover a single draft with
 `git checkout cdaf71e^ -- src/pages/preview/<name>.astro`.
 
-**2026-09-27 — 167 more.** Ugam named five directions to keep and everything
-else went. Recover the whole folder as it was with
-`git checkout d312fef -- src/pages/preview/`, or one file by name from the
-same commit. What is left:
+**2026-09-27 — 167 more** (`19fab73`). Ugam named five directions and three
+records to keep. Recover the folder as it was with
+`git checkout d312fef -- src/pages/preview/`, or one file by name from the same
+commit.
 
-| | |
-| --- | --- |
-| `ab-hv2` | **HV2 · The Corners** — the only live proposal. A hover reading for Selected works: format, platform, role and year, one in each corner of the frame. Not applied. |
-| `ab-blend1` | Blend 1 · Pin, with the live statements |
-| `ab-fitlive` | Fit · with the live frame |
-| `ab-d` | D · Poster |
-| `ab-fh5` | FH5 · Hanging Display |
-| `ab-live-prior` | **A record, not a design.** `index.astro` verbatim at `2533db9`, immediately before the 2026-09-22 numbering edit. The revert point. |
-| `ab-live` | **A record.** The home page as it stood on 2026-09-20, before op1. |
-| `ab-wh3e` | **A record.** THE LINTEL — the source of the Selected works heading that is live now. |
+**2026-10-04 — 73 more** (`0f9cc95`), which took everything the second cull had
+kept. Only `ab-hs1` and `index.astro` came out of it. Recover from
+`d45bbfe` — `git checkout d45bbfe -- src/pages/preview/<name>.astro`. The eight
+files the second cull kept, and this one removed, were `ab-hv2`, `ab-blend1`,
+`ab-fitlive`, `ab-d`, `ab-fh5`, `ab-live-prior`, `ab-live` and `ab-wh3e`;
+`ab-live` was re-created the same day holding a different snapshot — see the
+reused-name trap in §6.
 
-`index.astro`'s own comments point at the last three, so they were kept on a
-separate question rather than swept up with the drafts.
+**WHAT IS IN THE FOLDER NOW — 57 drafts, counted 2026-10-05.** Nearly all of it
+is the stills work, built after the last cull:
 
-**The standing rule is still to ask first.** Both culls were explicit
+| | n | |
+| --- | --- | --- |
+| stills rounds | 52 | eight briefs, one applied (`ab-fc3`). The table under "Awaiting a decision" breaks them down. |
+| `ab-hs1` | 1 | HS1 · One size. All four About headings at 10.162vw. The starting point for the pan drafts. |
+| `ab-pn1` | 1 | PN1 · Later exit. **APPLIED LIVE** — the three short headings start further right so they hold the screen longer. |
+| `ab-pn2` | 1 | PN2 · Slower. The same entry points with the travel slowed rather than shortened. Unapplied. |
+| `ab-pn3` | 1 | PN3 · Matched ends. All three enter and leave exactly where WHAT I WORK ACROSS does. Unapplied. |
+| `ab-live` | 1 | **A record.** `index.astro` as it stood before `ab-pn1` was applied on 2026-10-04 — **not** the pre-op1 page it used to hold. |
+
+So the only unapplied non-stills drafts are `ab-pn2` and `ab-pn3`, two
+alternatives to a change that is already live, and `ab-hs1`, its origin. **None
+of them is a proposal awaiting a decision.**
+
+**The standing rule is still to ask first.** All three culls were explicit
 instructions from Ugam naming what to keep.
 
 What survived and why: `src/lib/cards.ts`, `bed.ts`, `frames.ts`, `awards.ts`
@@ -1498,9 +1608,11 @@ timeline when they finish.
 
 ### Awaiting a decision
 
-**49 stills drafts from 2026-10-05, in six rounds, one of them applied.** Each
-round was a fresh brief rather than a refinement of the last, so they are
-alternatives and not versions. All are on Aasha at `/preview/ab-*`:
+**52 stills drafts from 2026-10-04 and 2026-10-05, across EIGHT briefs, one of
+them applied.** Each brief was fresh rather than a refinement of the last, so
+these are alternatives and not versions. All are on Aasha at `/preview/ab-*`.
+← This used to read "49 … in six rounds"; recounted off the folder 2026-10-05,
+and the table below always listed eight.
 
 | set | n | the brief | state |
 | --- | --- | --- | --- |
@@ -1514,8 +1626,10 @@ alternatives and not versions. All are on Aasha at `/preview/ab-*`:
 | `ab-fc1..4` | 4 | `fl1`'s contact sheet, four treatments | **`fc3` is live** |
 
 **`ab-fc3`'s layout is the one that shipped** — see §5, "Applied to the work
-pages". The other 48 are kept to compare against and **none of them is a live
-proposal**; Ugam has not asked for any of the other five rounds to be applied.
+pages". The other **51** are kept to compare against and **none of them is a
+live proposal**; Ugam has not asked for any of the other seven briefs to be
+applied. Note `ab-fs1` is the stills draft FS1 · THE STRIP, and is NOT the
+`ab-fs1` that `index.astro`'s numbering comment refers to — §6.
 
 Two things in them were flagged to him and are his call, not a defect:
 
@@ -1526,29 +1640,26 @@ Two things in them were flagged to him and are his call, not a defect:
 - **FC3's hover brightens the frame number** where the old stills grid zoomed
   the image. That went to production with the layout.
 
-**And `ab-hv2` · THE CORNERS is still open from 2026-09-27.** A hover reading
-for Selected works
-— point at a work and its format, platform, role and year set in the four
-corners of the frame, in the page's own corner furniture, with nothing in the
-middle. Nothing is applied. It reads its four facts through
-**`src/lib/wkinfo.ts`**, which is a new module that nothing live imports; if
-the draft is dropped, that file goes with it.
+**THE HOVER READING IS CLOSED — do not re-raise it.** This section carried
+`ab-hv2` · THE CORNERS as "still open from 2026-09-27" until 2026-10-05, and it
+was wrong on every count. The reading itself was applied 2026-09-29 from a
+different draft, `ab-xr4d`; `ab-hv2` was culled 2026-10-04; and
+`src/lib/wkinfo.ts`, described here as imported by nothing live, had been live
+code since the day of the application. **Ugam dropped the corner placement on
+2026-10-05.** Full account in §5, "Applied to the home page, 2026-09-28 to
+2026-10-04"; the draft is at `d45bbfe:src/pages/preview/ab-hv2.astro` if the
+placement is ever wanted again.
 
-Two data questions come with it, both flagged in `wkinfo.ts`'s header:
+Its three data questions are answered too, and are recorded in §5 and in
+`wkinfo.ts`'s header: Roar and The Shiva Trilogy have their `Format` rows from
+the 2026-09-29 credits pass; the three social-first works carry `Channel` under
+its own label; and **Book My Yamraj names `Platform: Instagram`** from
+2026-10-05, on Ugam's word, its six episode `href`s being the basis. Chivitra
+is still not claimed as a platform.
 
-- **Four works name no platform at all** — Aladdin Dateable Bites, Bloody
-  Bubbly, Dinshaw's Dildaari Battles and Book My Yamraj. Three of them carry a
-  `Channels: Social-first` meta row, which the draft shows under its own label.
-  Book My Yamraj has neither and returns three facts rather than four; every
-  layout was built to take three. Should the other three say "Social-first", or
-  should the row be absent for all four?
-- **Book My Yamraj's `studio` is Chivitra.** Nothing in the documents says the
-  series streams there, so nothing is claimed. Should it name a platform?
-
-Also unresolved: **Roar and The Shiva Trilogy have no written `Format` meta
-row** and fall back to `category` ("Spec Trailer"). Everything else in §7's old
-decision list — the mosaic drafts, the recognition drafts, the alternate
-loaders, the conveyor card modes — was settled or the drafts were culled.
+Everything else in §7's old decision list — the mosaic drafts, the recognition
+drafts, the alternate loaders, the conveyor card modes — was settled or the
+drafts were culled.
 **E · Draw is the applied card mode**; every mode is still in
 `src/lib/cards.ts` and switching is one word in `index.astro`.
 - **The opening film's width on work pages: D · Inset is APPLIED** — 1050x590
@@ -1571,8 +1682,8 @@ loaders, the conveyor card modes — was settled or the drafts were culled.
 
   The 42 label and layout drafts that were here before were deleted on Ugam's
   instruction; they are in the history.
-- **A more minimal, more editorial work page: D · Colophon is APPLIED** to all
-  sixteen. The nine drafts were at `/preview/aasha-edit-a..i` and were culled
+- **A more minimal, more editorial work page: D · Colophon is APPLIED** to
+  every work page, seventeen of them now. The nine drafts were at `/preview/aasha-edit-a..i` and were culled
   on 2026-09-27; they are at `d312fef`. The other eight dropped the "The work",
   "The score" and "Credits" headings and kept only **Stills**, redesigned the
   credits, and lifted the watch link out of the credits into its own section:
@@ -1586,9 +1697,9 @@ loaders, the conveyor card modes — was settled or the drafts were culled.
   | E · Plate | centred end card, values in display face | below, under a 64px centred hairline |
   | F · Gutter | labels right, values left, gutter at 38% | above, on the same axis |
 
-  **Nothing applied.** Note the headings and credits are shared by all sixteen
-  work pages, so whichever is taken should go to the whole route unless Ugam
-  wants Aasha treated on its own.
+  **Nothing applied.** Note the headings and credits are shared by **every**
+  work page — one route, seventeen pages — so whichever is taken should go to
+  the whole route unless Ugam wants Aasha treated on its own.
 
 ### Settled on 2026-09-05 — do NOT re-raise these
 All four of the questions this section used to hold have been answered. Two
@@ -1624,12 +1735,19 @@ are written down.
   `COUNTDOWN`. Ugam has seen this and wants it left as it is.
 
 ### Housekeeping
-**This IS a git repository** — `main`, 286 commits as of 2026-09-27, working
+**This IS a git repository** — `main`, 366 commits as of 2026-10-05, working
 tree clean. `node_modules`, `dist`, `.astro` and
-`.DS_Store` are ignored; `src/media` (279MB of stills) and `_originals` (34MB)
-are tracked, because they are source the site builds from and there is no other
-copy. No single file exceeds 7.5MB, so nothing approaches GitHub's 100MB limit,
-but `.git` is ~293MB — a first clone will take a while.
+`.DS_Store` are ignored; `src/media` (**395MB** of stills) and `_originals`
+(34MB) are tracked, because they are source the site builds from and there is
+no other copy. **The largest single file is 23.8MB** —
+`src/media/works/diwali-ke-shor-mein/frames/03.png` — so nothing approaches
+GitHub's 100MB hard limit, though three Diwali frames are over 9MB and GitHub
+warns above 50MB. `.git` is **503MB**. A first clone will take a while.
+
+← All four of those figures were remeasured 2026-10-05 and all four had moved:
+  the file previously said 279MB of stills, a 7.5MB largest file and a ~293MB
+  `.git`. They grow with every round of drafts, so treat them as a reading
+  rather than a constant — `du -sh src/media .git` is the whole check.
 
 Identity is set **repo-locally only** (`Ugam Khetani <khetaniugam@gmail.com>`);
 the global git config was left untouched.
