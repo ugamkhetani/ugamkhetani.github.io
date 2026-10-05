@@ -51,7 +51,7 @@ import FilmPlayer from '../../components/FilmPlayer.astro';
 import AudioPlayer from '../../components/AudioPlayer.astro';
 import NextWork from '../../components/NextWork.astro';
 import Colophon from '../../components/Colophon.astro';
-import { framesFor, cropFor } from '../../lib/frames';
+import { framesFor, cropFor, coverFor } from '../../lib/frames';
 import { parseAwards } from '../../lib/awards';
 import { listFilms } from '../../lib/assets';
 import { order, RATIO_NUM } from '../../data/composition';
@@ -438,7 +438,9 @@ const FACTS: { k: string; v: string }[] = [
               href={f.href}
               poster={f.poster}
               ratio={f.ratio}
-              fallbackPoster={images[i % images.length]}
+              {/* A dedicated cover if one has been dropped in, otherwise the
+                  still — see coverFor in src/lib/frames.ts. */}
+              fallbackPoster={coverFor(work.id, f.src) ?? images[i % images.length]}
               alt={`${d.alt} — ${f.label}`}
             />
           ))}

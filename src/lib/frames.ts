@@ -13,6 +13,36 @@ const images = import.meta.glob<{ default: ImageMetadata }>(
   { eager: true }
 );
 
+/**
+ * EPISODE COVERS, alongside the frames and separate from them.
+ *
+ * Added 2026-10-05. Book My Yamraj shows six episodes, and until an .mp4
+ * arrives for one the page renders its `fallbackPoster` — which was
+ * images[i % images.length], the work's own stills, cycled. So the six
+ * episode covers and the stills were the same six photographs and there was
+ * no way to change one without the other.
+ *
+ * A cover is matched to its episode BY FILENAME STEM: ep-01.jpg is the cover
+ * for the film declared `src: "ep-01.mp4"`. Nothing to list in the markdown
+ * and nothing to keep in step — the pairing is the name.
+ *
+ * The folder is optional and so is any single file in it. A work with no
+ * covers folder behaves exactly as before, and a work with three covers for
+ * six episodes gets three covers and three stills.
+ */
+const covers = import.meta.glob<{ default: ImageMetadata }>(
+  '/src/media/works/**/covers/*.{jpg,JPG,jpeg,JPEG,png,PNG,webp,WEBP,avif,AVIF}',
+  { eager: true }
+);
+
+/** The cover for one film, or undefined to fall back to a still. */
+export function coverFor(slug: string, filmSrc: string): ImageMetadata | undefined {
+  const stem = filmSrc.replace(/\.[^.]+$/, '');
+  const prefix = `/src/media/works/${slug}/covers/${stem}.`;
+  const key = Object.keys(covers).find((k) => k.startsWith(prefix));
+  return key ? covers[key].default : undefined;
+}
+
 /** Every frame in a work's folder, in filename order. */
 function allFramesIn(slug: string): ImageMetadata[] {
   const prefix = `/src/media/works/${slug}/frames/`;

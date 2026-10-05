@@ -17,7 +17,11 @@ interface Props {
 const { slug, src, label, href, poster, ratio, fallbackPoster, alt } = Astro.props;
 
 const film = filmPath(slug, src);
-const posterUrl = posterPath(slug, poster);
+/* An explicit `poster:` in the markdown wins; otherwise the cover (or the
+   still) the page already chose serves the video too, so one file covers
+   both states and nothing has to be duplicated into /public when the .mp4
+   finally arrives. */
+const posterUrl = posterPath(slug, poster) ?? fallbackPoster.src;
 const AR = { '16:9': '16 / 9', '9:16': '9 / 16', '1:1': '1 / 1' }[ratio];
 
 // Host of the original post, shown when the film itself isn't here yet.
