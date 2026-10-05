@@ -1296,10 +1296,16 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
       /* THE STAGGER IS BY ROW, AND THE ROW IS NOW A MEASUREMENT. It was
          written into the markup as 0,0,1,1 while the block was a fixed 2 x 2
          grid; once the facts wrap to the space the name leaves, the markup
-         cannot know which row a fact lands on — Book My Yamraj takes one row
-         and Special Ops 2.0 takes three. Ranking the distinct offsetTops
-         after the text is in gives the real row, so the claim in the header
-         is the behaviour. */
+         cannot know which row a fact lands on — measured at the time, Book My
+         Yamraj took one row and Special Ops 2.0 took three. Ranking the
+         distinct offsetTops after the text is in gives the real row, so the
+         claim in the header is the behaviour.
+
+         <- THOSE TWO FIGURES ARE EXAMPLES, NOT INVARIANTS, and Book My
+           Yamraj's has probably moved: it was the one work answering three
+           facts when this was written and it answers four from 2026-10-05.
+           The ranking re-measures every fill, so the CODE is unaffected —
+           only the illustration is dated. Nothing here needs a count. */
       const vis = slots.filter((s) => !s.hidden);
       const tops = Array.from(new Set(vis.map((s) => s.offsetTop))).sort((a, b) => a - b);
       vis.forEach((s) => s.style.setProperty('--i', String(tops.indexOf(s.offsetTop))));
