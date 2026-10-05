@@ -1,12 +1,14 @@
 ---
 /**
- * ZR1 · THE ROUTE — ZW13's control on all six frames that would carry it.
+ * ZR1 · THE ROUTE — the watch control on all six frames that carry it.
  *
  * NOT A DESIGN. This is the record of why the live control carries a wash,
  * built 2026-10-06 when Ugam asked for ab-zw13 to be applied to the work
  * pages. It was applied, measured across the route, found to fail on half of
  * them, taken back off, and re-applied with a scrim once Ugam chose that over
- * moving the control off the frame.
+ * moving the control off the frame. He then took ZW12 — the same mark standing
+ * to the LEFT of the stack rather than inside the line of type — and the wash
+ * had to be solved again for it.
  *
  * THE FRAMES BELOW SHOW THE CONTROL AS IT IS LIVE — with the scrim. THE TABLES
  * SHOW THE READINGS WITHOUT IT, which is what the scrim exists to fix. The two
@@ -46,11 +48,20 @@
  *   option look like a black panel when what it needs is a wash, and it was
  *   quoted to Ugam before it was caught. Solve compositing in gamma space.
  *
- * UGAM TOOK THE SCRIM, 2026-10-06. Solved against the real pixels and
- * composited the way the browser does — per channel on encoded sRGB, not in
- * linear light — the alpha needed is 0.542, which Mere Ho binds; the live
- * value is 0.56. Aasha, Taskaree and Ira need none of it. The options as they
- * were put are kept at the foot of this page.
+ * UGAM TOOK THE SCRIM, 2026-10-06, THEN TOOK ZW12 OVER ZW13. Solved against
+ * the real pixels and composited the way the browser does — per channel on
+ * encoded sRGB, not in linear light — ZW12 needs alpha 0.613, which Mere Ho
+ * binds at both widths; the live value is 0.63. Aasha and Taskaree need none
+ * of it.
+ *
+ * <- AND THE NUMBER CHANGED WITH THE ARRANGEMENT, WHICH IS THE LESSON. Under
+ *   ZW13 the same six needed 0.542, because an inline triangle moves only the
+ *   platform word. ZW12 stands the mark to the left and pushes the whole
+ *   column about 49px further in, so Mere Ho's LEAD lands on far brighter
+ *   sleeve — 3.06:1 under ZW13, 1.04:1 under ZW12. At the inherited 0.56 it
+ *   failed. The alpha belongs to where the ink sits, not to the control.
+ *
+ * The options as they were put are kept at the foot of this page.
  *
  * WHAT IS ALREADY BUILT AND IS NOT WASTED: src/components/WatchMark.astro
  * carries the control, and it derives the lead from the work's own label
@@ -98,7 +109,8 @@ const f2 = (n: number) => n.toFixed(2);
     <span class="sw__nm">The route</span>
     <span class="sw__su">Why the live control carries a wash — three of six failed without one</span>
     <span class="sw__set">
-      <a class="sw__prev" href={href('preview/ab-zw13')} title="The draft this applies">ZW13</a>
+      <a class="sw__prev" href={href('preview/ab-zw12')} title="The draft that is applied">ZW12</a>
+      <a class="sw__prev" href={href('preview/ab-zw13')} title="Applied first, then swapped out">ZW13</a>
       <a class="sw__prev" href={href('preview/ab-zw2')} title="The stack it came from">ZW2</a>
       <a class="sw__prev" href={href('work/special-ops-2')} title="The live page — the worst of the three">LIVE</a>
     </span>
@@ -106,7 +118,7 @@ const f2 = (n: number) => n.toFixed(2);
 
   <article class="sc">
     <header class="zr__hd">
-      <p class="mono zr__over">Record · 2026-10-06 · applied with a 0.56 wash</p>
+      <p class="mono zr__over">Record · 2026-10-06 · ZW12 applied with a 0.63 wash</p>
       <h1 class="zr__t">Three of six</h1>
       <p class="zr__lede">
         ZW13 takes the plate off the watch control because the corner it sits in
@@ -172,8 +184,8 @@ const f2 = (n: number) => n.toFixed(2);
       </p>
       <p>
         <b>Keep it on the frame and add a scrim. — TAKEN.</b> Solved against
-        the real pixels, in the colour space the browser composites in, it
-        needs alpha 0.542; the live value is 0.56 against the pill's 0.35, and
+        the real pixels, in the colour space the browser composites in, ZW12
+        needs alpha 0.613; the live value is 0.63 against the pill's 0.35, and
         with no border and no backdrop blur. Aasha, Taskaree and Ira need none
         of it and carry it anyway, because one rule that cannot be wrong on a
         new work is worth more here than three pages saved.

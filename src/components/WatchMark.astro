@@ -1,7 +1,15 @@
 ---
 /**
- * THE OUTSIDE LINK ON AN OPENING FRAME — applied from preview/ab-zw13,
- * THE INLINE, on 2026-10-06, chosen from fourteen built as real pages.
+ * THE OUTSIDE LINK ON AN OPENING FRAME — applied from preview/ab-zw12,
+ * THE BARE, on 2026-10-06, chosen from fourteen built as real pages.
+ *
+ * <- IT WAS ab-zw13 FOR PART OF THAT DAY. The inline triangle sat INSIDE the
+ *   line of type, before the platform word, at cap height. Ugam took ZW12
+ *   instead: the same mark standing to the LEFT of the stack, on the word's
+ *   cap line and baseline. Everything else here — the two tiers out of his own
+ *   label, the arrow, the scrim and its solved alpha — is unchanged by that
+ *   swap, and ZW13 is still at /preview/ab-zw13 if the inline reading is ever
+ *   wanted back.
  *
  * It replaces `.still__go`, which was a translucent pill: a 1px 50%-white
  * border, a 35% ground and a 6px backdrop-filter holding a 10px mono label.
@@ -27,16 +35,12 @@
  *   because it only ever ran on Aasha. Deriving it is what makes this safe on
  *   the whole route, and a seventh work with a different verb needs no edit.
  *
- * THE TRIANGLE IS SIZED IN em AND THAT IS THE POINT OF ZW13. 0.56em wide by
- * 0.68em tall against the platform word, so it tracks the type at every width
- * with no second breakpoint to keep in step. Measured: a 51.2px word gives
- * 28.7x34.8 and a 32px word gives 17.9x21.8 — 0.56 and 0.68 of the word in
- * both cases. The other thirteen drafts size their marks in pixels and have
- * to restate them on mobile; this one cannot drift.
- *
- * ITS BASELINE IS SET WITH vertical-align AND A SMALL translate, not with a
- * margin: the glyph has to sit on the letters' own baseline, and a margin
- * would move the line box instead of the mark inside it.
+ * THE TRIANGLE IS SIZED IN em AND THAT IS THE POINT OF BOTH ZW12 AND ZW13.
+ * 0.60em wide by 0.715em tall against the platform word, so it tracks the type
+ * at every width with no second breakpoint to keep in step. The other twelve
+ * drafts size their marks in pixels and have to restate them on mobile; these
+ * two cannot drift. The height is not a round number because it is a
+ * measurement — see `.wm__mark` below.
  *
  * <- THE ARROW STAYS, AND ON A BARE STILL IT IS LOAD-BEARING. Nothing on these
  *   pages plays: four of the six are bare stills whose opening is `still`, and
@@ -70,25 +74,63 @@ const tail = splits ? platform : label;
 
 <a class="wm" href={url} target="_blank" rel="noopener noreferrer">
   <span class="wm__scrim" aria-hidden="true"></span>
-  {lead && <span class="wm__k">{lead}</span>}
-  <span class="wm__p"><i class="wm__tri" aria-hidden="true"></i>{tail}<i
-      class="wm__a" aria-hidden="true">&nearr;</i></span>
+  <span class="wm__mark" aria-hidden="true"><i class="wm__tri"></i></span>
+  <span class="wm__t">
+    {lead && <span class="wm__k">{lead}</span>}
+    <span class="wm__p">{tail}<i class="wm__a" aria-hidden="true">&nearr;</i></span>
+  </span>
 </a>
 
 <style>
   /* The frame is `position: relative`; this sits in its bottom-left corner at
      the same inset the pill used, so nothing else on the page moves. */
+  /* flex-end, not center: the mark stands on the big word's baseline, so the
+     two read as one line of material rather than as a graphic beside type. */
   .wm {
     position: absolute;
     left: var(--margin);
     bottom: var(--margin);
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
+    align-items: flex-end;
+    gap: 18px;
     text-decoration: none;
     color: var(--bone);
   }
+  .wm__t {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  /* THE MARK STANDS ON THE WORD'S CAP LINE AND BASELINE. 0.715em is the
+     MEASURED cap height of this face at this weight — 36.6px against a 51.2px
+     word, read with `measureText().actualBoundingBoxAscent` off a zero-height
+     baseline probe, because a range rect is the font's line box and not the
+     glyph ink (§6). The padding is what lifts it off the line box bottom onto
+     the baseline: measured 4.1px at a 51.2px word, so 0.08em.
+
+     BOTH ems RESOLVE AGAINST THE WORD BECAUSE THE SIZE IS DECLARED HERE. Put
+     on the triangle alone, the padding's em resolved against the ANCHOR's
+     16px and computed 1.9px instead of 6.1, leaving the mark 2.2px below the
+     baseline with the stylesheet reading exactly as intended. */
+  .wm__mark {
+    position: relative;
+    flex: none;
+    display: block;
+    font-size: var(--wm-size, clamp(2rem, 4.4vw, 3.2rem));
+    padding-bottom: 0.08em;
+  }
+  .wm__tri {
+    display: block;
+    width: 0.60em;
+    height: 0.715em;
+    background: currentColor;
+    clip-path: polygon(0 0, 100% 50%, 0 100%);
+    transition: transform var(--d-micro) var(--ease);
+  }
+  .wm:hover .wm__tri { transform: translateX(0.06em); }
   /* ══ THE LEGIBILITY FLOOR ══════════════════════════════
      ZW13 WORKS ON AASHA'S PHOTOGRAPH AND NOT ON THE CATALOGUE'S, which is the
      one thing fourteen drafts built on one frame could not show. Measured on
@@ -109,9 +151,19 @@ const tail = splits ? platform : label;
      SO THE PLATE COMES BACK, AS A WASH RATHER THAN A PANEL. Ugam's decision,
      2026-10-06, taken over moving the control off the frame.
 
-     0.56 IS SOLVED, NOT CHOSEN. Binary-searched per work against the real
-     pixels: Aasha, Taskaree and Ira need 0.000; Ve Maahi 0.269; Special Ops
-     0.434; Mere Ho 0.542, which binds. 0.56 is that with a little over.
+     0.63 IS SOLVED, NOT CHOSEN. Binary-searched per work against the real
+     pixels, compositing the way the browser does: Aasha and Taskaree need
+     0.000, Ira 0.097, Special Ops 0.382, Ve Maahi 0.527, and MERE HO 0.613,
+     which binds. 0.63 is that with a little over.
+
+     <- IT WAS 0.56 FOR ZW13 AND THAT IS THE POINT: THE ALPHA BELONGS TO THE
+       POSITION, NOT TO THE CONTROL. ZW13 set the triangle INSIDE the line of
+       type, so only the platform word moved. ZW12 stands it to the LEFT, which
+       pushes the whole two-tier column about 49px further in — and on Mere
+       Ho's sleeve the lead lands somewhere much brighter, falling from 3.06:1
+       to 1.04:1 before the wash. At the inherited 0.56 that work FAILED at
+       3.79:1 against a 4.5 floor. Any change to this lockup's arrangement
+       means re-solving, not assuming.
 
      <- AND IT MUST BE SOLVED IN GAMMA SPACE, which is the trap here. CSS
        composites alpha per channel on the ENCODED sRGB values, not on linear
@@ -142,12 +194,29 @@ const tail = splits ? platform : label;
      the share is how much of the frame the scrim covers:
 
                       1280x800            375x812
-       Aasha          3.12x   4.6%        1.78x  19.8%
-       Taskaree       2.28x   6.6%        1.96x  28.6%
-       Ira            2.34x   6.5%           —      —
-       Ve Maahi       1.75x  15.0%           —      —
-       Special Ops    1.36x  12.1%        1.44x  52.5%
-       Mere Ho        1.07x  15.0%        1.07x  19.5%
+       Aasha          3.09x   4.7%
+       Taskaree       2.56x   6.8%        2.10x  29.6%
+       Ira            2.18x   6.7%        1.75x  29.1%
+       Special Ops    1.70x  12.3%        1.66x  53.9%
+       Ve Maahi       1.34x  15.3%
+       Mere Ho        1.06x  15.3%        1.06x  20.2%
+
+     <- TWO THINGS TO WATCH. Mere Ho binds the system at 1.06x, and it binds at
+       BOTH widths — 0.613 at 1280 and 0.616 at 375 — so a brighter sleeve, or
+       a swapped frame on any of the six, means re-solving rather than
+       assuming. And Special Ops gives the scrim more than half its frame at
+       375, because a 2.1:1 picture is only 155px tall at 327 wide: the control
+       plus the floor it needs is simply large against it. Moving the control
+       below the frame under 901px would remove the scrim there, at the cost of
+       a second arrangement to maintain.
+
+     THE CAP HEIGHT IS THE FLAT ONE, AND ROUND LETTERS OVERSHOOT IT. 0.715em
+     is measured off "ZEE5" and "NETFLIX", whose capitals are all flat-topped.
+     "SHORTED", "JIOHOTSTAR" and "SPOTIFY" measure 37.4px against the same
+     36.6px triangle, because O and S are drawn slightly above the cap line so
+     they do not look short. That 0.8px is optical overshoot in the typeface,
+     not a misalignment here, and chasing it would make the triangle taller
+     than the flat letters it stands beside.
 
      <- TWO THINGS TO WATCH, BOTH UGAM'S CALL IF THEY MATTER. Mere Ho binds the
        whole system at 1.07x — its arrow reads 4.81:1 against a 4.5 floor — so
@@ -168,7 +237,7 @@ const tail = splits ? platform : label;
     font-size: var(--wm-size, clamp(2rem, 4.4vw, 3.2rem));
     left: -0.74em; right: -0.94em; top: -0.70em; bottom: -0.66em;
     border-radius: 0.94em;
-    background: rgba(10, 9, 8, var(--wm-scrim, 0.56));
+    background: rgba(10, 9, 8, var(--wm-scrim, 0.63));
     filter: blur(0.31em);
     pointer-events: none;
   }
@@ -196,21 +265,6 @@ const tail = splits ? platform : label;
     letter-spacing: -0.04em;
     text-transform: uppercase;
   }
-
-  /* SIZED IN em SO IT TRACKS THE WORD — see the header. vertical-align sits it
-     on the letters' baseline; a margin would move the line box instead. */
-  .wm__tri {
-    display: inline-block;
-    width: 0.56em;
-    height: 0.68em;
-    background: currentColor;
-    clip-path: polygon(0 0, 100% 50%, 0 100%);
-    vertical-align: baseline;
-    transform: translateY(0.02em);
-    margin-right: 0.22em;
-    transition: transform var(--d-micro) var(--ease);
-  }
-  .wm:hover .wm__tri { transform: translate(0.06em, 0.02em); }
 
   /* Drawn rather than text-decoration, so it can arrive from nothing and sit
      where this design wants it rather than at the font's underline offset. */
@@ -242,13 +296,14 @@ const tail = splits ? platform : label;
     .wm__tri,
     .wm__p::after,
     .wm__a { transition: none; }
-    .wm:hover .wm__tri { transform: translateY(0.02em); }
+    .wm:hover .wm__tri { transform: none; }
   }
 
   /* The inset the pill used below 901px, kept so this change moves nothing
      but the control's own treatment. The mark needs no entry here: it is
      em-sized and follows the word down on its own. */
   @media (max-width: 900px) {
-    .wm { left: var(--s-3); bottom: var(--s-3); gap: 7px; }
+    .wm { left: var(--s-3); bottom: var(--s-3); gap: 13px; }
+    .wm__t { gap: 7px; }
   }
 </style>

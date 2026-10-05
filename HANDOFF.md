@@ -901,13 +901,17 @@ Yamraj now names a platform.
 
 ### Applied to the work pages, 2026-10-06
 
-**The outside link on an opening frame is ZW13, and it carries a wash.** The
+**The outside link on an opening frame is ZW12, and it carries a wash.** The
 translucent pill — 1px 50%-white border, 35% ground, 6px backdrop-filter — is
 replaced on all six frames that carry it: Aasha, Taskaree, Ira and Special Ops
 on their bare stills, Mere Ho and Ve Maahi on their sleeves. The control is now
 `src/components/WatchMark.astro`: two tiers out of the work's own label, with a
-play triangle set inside the line of type at cap height. Chosen from fourteen
-drafts built on Aasha at `/preview/ab-zw1..14`.
+play triangle standing to their left on the word's own cap line and baseline.
+Chosen from fourteen drafts built on Aasha at `/preview/ab-zw1..14`.
+
+<- IT WAS ZW13 FOR PART OF THE SAME DAY — the same mark set INSIDE the line of
+  type, before the platform word. Ugam took ZW12 instead. The swap is not
+  cosmetic: see the alpha note below.
 
 **IT WAS APPLIED, MEASURED, REVERTED AND RE-APPLIED IN ONE SITTING, and the
 reason is the most useful thing here.** ZW13's whole argument is that the pill
@@ -932,11 +936,20 @@ darkest fifth still peaks at .7396. **A draft judged on one frame says nothing
 about the route**, and that is the lesson rather than the numbers.
 
 **THE WASH IS SOLVED, NOT CHOSEN — AND IT MUST BE SOLVED IN GAMMA SPACE.**
-`rgba(10, 9, 8, 0.56)` behind the lockup, blurred, with no border and no
-backdrop-filter. Binary-searched per work against the real pixels: Aasha,
-Taskaree and Ira need 0.000, Ve Maahi 0.269, Special Ops 0.434, and **Mere Ho
-0.542, which binds**. All six carry it anyway, because one rule that cannot be
-wrong on a work added tomorrow is worth more than three pages saved.
+`rgba(10, 9, 8, 0.63)` behind the lockup, blurred, with no border and no
+backdrop-filter. Binary-searched per work against the real pixels: Aasha and
+Taskaree need 0.000, Ira 0.097, Special Ops 0.382, Ve Maahi 0.527, and **Mere
+Ho 0.613, which binds**. All six carry it anyway, because one rule that cannot
+be wrong on a work added tomorrow is worth more than three pages saved.
+
+**THE ALPHA BELONGS TO THE POSITION, NOT TO THE CONTROL, and the ZW13 → ZW12
+swap proved it.** ZW13 put the triangle inside the line of type, so only the
+platform word moved and 0.56 carried all six. ZW12 stands it to the left, which
+pushes the whole two-tier column about 49px further in — and on Mere Ho's sleeve
+the LEAD lands somewhere far brighter, falling from 3.06:1 to 1.04:1 before the
+wash. At the inherited 0.56 that work failed at 3.79:1 against a 4.5 floor.
+**Re-solve after any change to this lockup's arrangement; do not inherit the
+number.**
 
 <- THE FIRST FIGURE WAS 0.806 AND IT WAS WRONG. It was solved in LINEAR light;
   CSS composites alpha per channel on the ENCODED sRGB values, which is far
@@ -955,6 +968,14 @@ wrong on a work added tomorrow is worth more than three pages saved.
   solved for. At the first attempt the nearest glyph sat 19.1px from the scrim
   edge against a 20px blur — 0.9px inside it, with the comment already claiming
   otherwise. It clears by 27.1px now.
+
+**The flat cap height is 0.715em, and round letters overshoot it.** The
+triangle is sized to the cap height measured off "ZEE5" and "NETFLIX", whose
+capitals are flat-topped. "SHORTED", "JIOHOTSTAR" and "SPOTIFY" measure 37.4px
+against the same 36.6px triangle, because O and S are drawn slightly above the
+cap line so they do not look short. That 0.8px is optical overshoot in the
+typeface, not a misalignment, and chasing it would make the triangle taller
+than the flat letters beside it.
 
 **The verb is derived, never hardcoded.** The lockup splits the work's own
 `label` on its own `platform`: four say "Watch on", two say "Listen on", and
