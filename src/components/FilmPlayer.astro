@@ -126,6 +126,17 @@ const origin = href ? (href.includes('instagram') ? 'Instagram' : href.includes(
      is this component's business, because a grid cell is not a frame. */
   .film__await :global(.wm) { left: 14px; bottom: 14px; }
 
+  /* AND IT STANDS DOWN WHILE THIS CELL IS PLAYING. The media bus in main.ts
+     puts `is-media-live` on the nearest `.film`, so only the cell that is
+     playing clears its own mark.
+
+     THE RULE HAS TO BE HERE, NOT ON THE PAGE, and that is Astro scoping
+     rather than tidiness: a page-scoped `.is-media-live .wm` compiles with
+     the PAGE's `data-astro-cid` on `.is-media-live`, and `.film` wears this
+     component's attribute instead, so it would never match. Written here it
+     gets the right one. */
+  .film.is-media-live :global(.wm) { display: none; }
+
   .film__cap {
     display: flex;
     justify-content: space-between;

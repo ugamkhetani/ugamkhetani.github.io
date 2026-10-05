@@ -50,6 +50,24 @@ function initReveal() {
   targets.forEach((el) => revealObserver!.observe(el));
 }
 
+/* THE OPENING'S CONTROL STANDS DOWN WHILE THE WORK IS PLAYING.
+
+   A facade already does this on its own: pressing it adds `is-playing` and
+   its CSS hides the control with the poster. This covers the other two ways a
+   work page can play something — a film's own <video> once the .mp4 lands, and
+   a song's <audio> — so the rule is true of every control rather than true by
+   accident of which one you happen to press.
+
+   THE SCOPE IS THE CONTROL'S OWN FRAME, NOT THE PAGE. A film in a grid marks
+   only its own cell, so playing episode one does not blank the marks on
+   episodes two to six; anything else marks the block, which is what puts a
+   song's audio and the sleeve's "Listen on Spotify" together. Getting this
+   wrong in the other direction is the obvious bug and it is why the closest()
+   list is ordered. */
+function mediaFrame(el: Element): HTMLElement | null {
+  return el.closest<HTMLElement>('.film') ?? el.closest<HTMLElement>('.blk');
+}
+
 /* ── One piece of media at a time. Enforced globally. ───────────── */
 function initMediaBus() {
   if ((window as any).__mediaBus) return;
@@ -66,8 +84,23 @@ function initMediaBus() {
       document.querySelectorAll<HTMLElement>('[data-facade].is-playing').forEach((el) => {
         if (!el.contains(playing)) closeFacade(el);
       });
+      /* Whatever just started owns its frame; every other frame releases. */
+      document
+        .querySelectorAll<HTMLElement>('.is-media-live')
+        .forEach((el) => el.classList.remove('is-media-live'));
+      mediaFrame(playing)?.classList.add('is-media-live');
     },
     true // capture: media events don't bubble
+  );
+
+  /* Both, because `ended` does not fire a `pause` in every engine and a
+     scrubbed-to-the-end element can sit paused without ever ending. */
+  (['pause', 'ended'] as const).forEach((type) =>
+    document.addEventListener(
+      type,
+      (e) => mediaFrame(e.target as Element)?.classList.remove('is-media-live'),
+      true
+    )
   );
 }
 

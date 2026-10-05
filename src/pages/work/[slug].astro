@@ -1465,6 +1465,15 @@ const FACTS: { k: string; v: string }[] = [
     width: var(--film);
     margin-inline: calc((100% - var(--film)) / 2);
   }
+  /* THE CONTROL STANDS DOWN WHILE THE WORK IS PLAYING. `is-media-live` is put
+     on the frame by the media bus in main.ts — on the film's own cell where
+     there is one, on the block otherwise — so a song's audio clears the
+     sleeve's control and one episode playing does not blank its five
+     neighbours. A facade does the same thing through its own `is-playing`,
+     which it already had. `:global()` because the control wears WatchMark's
+     scope attribute, and this is a SCOPED block, where :global() compiles. */
+  .is-media-live :global(.wm) { display: none; }
+
   /* THE CONTROL IS IN WatchMark.astro FROM 2026-10-06, applied from
      preview/ab-zw13 on Ugam's word. The pill that used to be written here — a
      1px border, a 35% ground and a 6px backdrop-filter — is gone; what

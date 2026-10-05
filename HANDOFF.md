@@ -1060,6 +1060,39 @@ facades need **nothing**. Mere Ho still binds the whole system at 0.613, so the
 number did not move. Nothing fails anywhere, at either width, and every glyph
 still clears the blur.
 
+**THE CONTROL STANDS DOWN WHILE THE WORK IS PLAYING, ON EVERY KIND OF PAGE.**
+A facade already did it on its own — pressing one adds `is-playing` and its CSS
+hides the control with the poster, verified by clicking: the button computes
+`display: none` the moment the iframe mounts. The media bus in `main.ts` now
+does the same for the other two ways a page can play something, so the rule is
+true of every control rather than true by accident of which one you press.
+
+**THE SCOPE IS THE CONTROL'S OWN FRAME, NOT THE PAGE.** `mediaFrame()` takes
+the nearest `.film` if there is one and the nearest `.blk` otherwise, and the
+`play` handler marks it `is-media-live` while `pause` and `ended` clear it.
+That is what stops episode one playing from blanking the marks on episodes two
+to six — measured on Book My Yamraj with a real audio element in cell one:
+six cells, six marks, only the first hid, all six returned on pause. Both
+events are listened for, because `ended` does not fire a `pause` in every
+engine and a scrubbed-to-the-end element can sit paused without ever ending.
+
+<- THE TWO RULES LIVE IN DIFFERENT FILES AND THAT IS ASTRO SCOPING, NOT
+  TIDINESS. A page-scoped `.is-media-live :global(.wm)` compiles with the
+  PAGE's `data-astro-cid` on `.is-media-live`; `.film` wears FilmPlayer's
+  attribute instead, so the page's rule can never match a cell. The cell's
+  rule is written inside FilmPlayer, where it gets the right one. Built CSS:
+  `.film[data-astro-cid-js4ccg6j].is-media-live .wm` and
+  `.is-media-live[data-astro-cid-by4zwojz] .wm`.
+
+NOTHING HIDES WITHOUT A SCRIPT. The base state shows the control, and the
+class only ever subtracts — the same contract §5 opens with. A page whose JS
+never ran keeps every control it had.
+
+<- AND THE LINKS OUT ARE DELIBERATELY NOT INCLUDED. The four bare stills, the
+  two sleeves and the fourteen film cells open a new tab; nothing plays in the
+  page, so there is nothing for them to stand down for. Hiding them on click
+  would leave the frame with no affordance when the visitor came back.
+
 <- ONE THING LEFT OPEN. Special Ops gives the scrim **more than half its frame
   at 375**; moving the control below the frame under 901px would remove it
   there, at the cost of a second arrangement. The record is at
