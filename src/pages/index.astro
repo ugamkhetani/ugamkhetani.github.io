@@ -3,10 +3,16 @@
  * THE HOMEPAGE.
  *
  * Applied 2026-09-20 from the preview library, where it was built and
- * measured as ab-op1. The page it replaced is kept whole at
- * src/pages/preview/ab-live.astro — byte for byte, with only its import
- * depth changed — so the previous site can be read or restored without
- * going through git.
+ * measured as ab-op1. The page it replaced is THIS FILE at 65314bd^ —
+ * `git show 65314bd^:src/pages/index.astro`.
+ *
+ * <- THAT USED TO NAME preview/ab-live.astro AND THAT FILE NO LONGER HOLDS
+ *   THIS PAGE. The name was reused on 2026-10-04: ab-live is now the home
+ *   page as it stood before ab-pn1's one-size About headings, which is what
+ *   the notes at the About run and #r-who describe and rely on. The pre-op1
+ *   copy went in the 2026-10-04 cull; it is at
+ *   d45bbfe:src/pages/preview/ab-live.astro if the preview copy is wanted
+ *   rather than the commit.
  *
  * WHAT CHANGED FROM THE PAGE BEFORE IT
  *
@@ -4126,7 +4132,9 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
   }
 
   /* ══ SELECTED WORKS, WHOLLY ON SCREEN AND PARTLY UNDER THE WORK ═══
-     Applied 2026-09-21 from preview/ab-wh3e, THE LINTEL, chosen from four.
+     Applied 2026-09-21 from ab-wh3e, THE LINTEL, chosen from four. THE
+     DRAFT IS NO LONGER IN preview/ — it went in the 2026-10-04 cull and is
+     at d45bbfe:src/pages/preview/ab-wh3e.astro.
 
      WHAT IT WAS. The heading at clamp(1.5rem, min(6vw, 8vh), 4.2rem) —
      67.2px at 1280 — small enough to sit inside the frame with room to
@@ -4262,8 +4270,18 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
   /* ══ THE NUMBERING SYSTEM, AND THE HOW I WORK SPREAD ══════════
      Applied 2026-09-22 from four drafts in one pass: the section numbers
      from ab-sy4, the How I work body layout from ab-fs1, the three step
-     numbers from ab-nm1, and the About body-text drift from ab-mo6. The
-     page exactly as it stood before is kept at preview/ab-live-prior.
+     numbers from ab-nm1, and the About body-text drift from ab-mo6. All
+     four went in the 2026-09-27 cull and are at d312fef — e.g.
+     `git show d312fef:src/pages/preview/ab-sy4.astro`. The page exactly as
+     it stood before is this file at 2533db9; preview/ab-live-prior, which
+     used to hold that copy, went in the 2026-10-04 cull.
+
+     <- DO NOT OPEN THE ab-fs1 THAT IS IN preview/ TODAY. That name was
+       reused on 2026-10-05 by FS1 · THE STRIP, an unrelated stills draft.
+       The ab-fs1 named above is the 2026-09-21 About rebuild and exists
+       only at d312fef. Same shape as the ab-live note in this file's
+       header: after three culls, a draft name resolving to a file is no
+       evidence that it is the right file.
 
      THE DIM FLOOR, WHICH GOVERNS ALL OF IT. These labels sit over the
      smoked mosaic, whose brightest frame this file already records as
