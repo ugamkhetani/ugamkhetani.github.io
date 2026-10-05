@@ -22,8 +22,18 @@ description: >
 #   Episodes · 6 Original Cues" states the count outright. This is the third
 #   place the two readings differ by intent, after Special Ops' Role and the
 #   five works whose hover Format is not their colophon's.
+# ← PLATFORM IS INSTAGRAM BY UGAM'S DECISION, 2026-10-05, and the basis is in
+#   this file: all six episodes above carry an instagram.com reel as their
+#   `href`, which is where the series can actually be watched. It is NOT
+#   derived — wkinfo.ts reads `external.platform` and `links[]`, and this work
+#   has neither, so the row is written here. It answers the question that
+#   file's header had flagged since 2026-09-27: Book My Yamraj was the one
+#   work of seventeen that returned three hover rows rather than four. The
+#   studio, Chivitra, is still NOT claimed as a platform — nothing in the
+#   documents says the series streams there.
 hover:
   - { label: "Format", value: "Micro Drama" }
+  - { label: "Platform", value: "Instagram" }
   - { label: "Role", value: "Composer" }
   - { label: "Year", value: "2025" }
 meta:

@@ -30,8 +30,10 @@
  * those four carry a `meta` row labelled "Channel" reading "Social-first",
  * which answers the same question in Ugam's own words, so it is used —
  * UNDER ITS OWN LABEL, "Channel", never relabelled as a platform. Book My
- * Yamraj has neither, so it returns three rows instead of four and every
- * draft is built to take that.
+ * Yamraj has neither, so the DERIVATION returns three rows for it instead of
+ * four, and every layout is built to take that. It no longer reaches the
+ * page: from 2026-10-05 the work writes `Platform: Instagram` in its own
+ * `hover` block — see the flag below and the note in its markdown.
  *
  * <- THE LABEL IS SINGULAR FROM 2026-09-29 and this lookup was changed with
  *   it. It read "Channels" and the credits pass renamed the row to
@@ -39,10 +41,14 @@
  *   works while every precondition still passed — the kind of break that
  *   shows up as an absence rather than an error.
  *
- * <- STILL FLAGGED, one decision for Ugam: should Book My Yamraj name a
- *   platform? Its studio is Chivitra; nothing in the documents says the
- *   series streams there, so nothing is claimed here and it answers three
- *   rows rather than four.
+ * <- ANSWERED 2026-10-05: BOOK MY YAMRAJ NAMES INSTAGRAM. Ugam's decision.
+ *   All six episodes carry an instagram.com reel as their `href`, so that is
+ *   where the series can be watched and the fact was already in the file.
+ *   It is written into the work's own `hover` block rather than derived here,
+ *   because the hrefs live on `media.films` and this lookup reads only
+ *   `external.platform` and `links[]`. Its studio, Chivitra, is still NOT
+ *   claimed as a platform — nothing in the documents says it streams there.
+ *   ALL SEVENTEEN WORKS NOW ANSWER FOUR ROWS; none returns three.
  *
  * SPECIAL OPS READS "JioHotstar" from 2026-09-29, in both the colophon and
  * `external`, so the button and the reading cannot disagree about the name
