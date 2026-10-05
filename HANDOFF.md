@@ -30,23 +30,28 @@ Paste this:
 > HANDOFF.md §6 before debugging anything; those traps are all real and most of
 > them cost hours.
 >
-> Where we left off (2026-09-27): the home page is settled and there is
-> nothing half-applied. The mosaic bed, the loading screen and the sixteen work
-> pages are live. The home page's numbering, its Selected works heading, its
-> three step numbers, its About body drift and the sizes of both display lines
-> in the contact section were all applied over the last week and are in §5 —
-> they were each chosen from drafts and each one is measured, so please don't
-> re-derive them.
+> Where we left off (2026-10-05): nothing is half-applied. The home page, the
+> mosaic bed, the loading screen and the **seventeen** work pages are live.
+> Everything applied to the home page in late September, and the three things
+> applied to the work pages on 5 October, are in §5 — each was chosen from
+> drafts and each one is measured, so please don't re-derive them.
 >
-> The preview library was cut down to five directions on my instruction, plus
-> three records that are not designs. `/preview` lists them. **ab-hv2 is the
-> only one that is a live proposal**: a hover reading for Selected works that
-> puts a work's format, platform, role and year in the four corners of the
-> frame. It is not applied and is waiting on my word. The other four are About
-> and poster directions I want kept to compare against.
+> The last stretch was the STILLS section. I asked for six rounds of drafts
+> and took one: **the cut-strip layout from `ab-fc3` is live on every work
+> page**, the stills section is gone from the two single-frame works, and
+> Book My Yamraj's episode covers can now be set by dropping files into
+> `src/media/works/book-my-yamraj/covers/` named after the episode — all three
+> written up in §5. **The other 48 drafts are kept to compare against and none
+> of them is a proposal**; `/preview` lists all 57 with notes.
+>
+> `ab-hv2` is the one live proposal still waiting on my word, open since
+> 27 September: a hover reading for Selected works that puts a work's format,
+> platform, role and year in the four corners of the frame.
 >
 > Everything in §7 marked "Settled" is decided — including two things that look
-> like unfixed problems and are not, so please don't re-raise them.
+> like unfixed problems and are not, so please don't re-raise them. §7 also
+> lists the five things only I can supply; the fourteen MP4s and the Neue Haas
+> licence are still outstanding.
 
 Then say what you want. The two files together are enough to work from.
 
@@ -128,10 +133,12 @@ something to frame it, the frame wants something inside it.
 | `src/scripts/cursor.ts` | The pointer trail, and what it is clipped by. |
 | `src/styles/tokens.css` | Every colour, size, duration. Nothing outside it invents one. |
 
-**Pages:** `/` · `/contents` · `/work/<slug>` ×16, plus whatever is under
-`/preview/`. **29 HTML files build** — 18 real, the preview index and eight
-drafts under it, and two redirect stubs for the retired `/about` and
-`/contact` URLs.
+**Pages:** `/` · `/work/<slug>` x17, plus whatever is under `/preview/`.
+**`astro build` reports 76 pages and ships 21 HTML files** — the home page,
+seventeen work pages, and three redirect stubs for the retired `/about`,
+`/contact` and `/contents` URLs. The other 58 are the preview library (57
+drafts and its index), which is built and then withheld from the published
+output by the `without-preview` integration. Recounted 2026-10-05.
 
 **Overlays:** none. All three outgrew them — Contents was the last, and
 `Overlay.astro` plus the `overlay` branch in `RunHead.astro` are now unused.
@@ -836,6 +843,56 @@ OneLink before shipping it**; the visible URL says nothing about where it goes.
 
 ---
 
+### Applied to the work pages, 2026-10-05
+
+Three changes, each on Ugam's word, each verified across the whole catalogue
+rather than on the page it was designed against.
+
+**The stills are cut strips now, on every work page** — `72abad4`. The
+ratio-aware grid is gone; stills are dealt into two strips (three on portrait
+work, decided by `RATIO_NUM[d.ratio] < 0.7`), each strip rotated a fraction of
+a degree and offset, with the frame number in the margin. Promoted from
+`ab-fc3`, which came from `ab-fs4`. The arithmetic is in `[slug].astro`'s
+frontmatter — `STILL_STRIPS`, `STILL_CUT`, `STILL_SKEW` — and it distributes
+remainders rather than assuming an even split, so an odd count does not drop a
+frame. **Verified 128 frames rendered against 128 on disk across 17 pages.**
+
+Two things inside it are load-bearing and look arbitrary:
+
+- **Reveal on `.cut__slot`, rotation on `.cut__strip`** — never the same
+  element. See the `reveal-rise` trap in §6; this cost an hour twice.
+- **`gap: clamp(20px, 2.2vh, 28px)`**, floor raised from 12. The frame number
+  hangs 17px below its cell, so a 12px floor let it touch the strip below.
+
+**No stills section on the two single-frame works** — `6966dcb`. Mere Ho and
+Ve Maahi have one image each; a one-frame contact strip is not a contact
+strip. Gated on `hasStills = images.length > 1`, so it is a property of the
+count and not a list of slugs — a third single-frame work needs no edit.
+**Verified 126 frames after, 128 before, the two removed being exactly those.**
+
+**Episode covers can be set without touching the stills** — `c2c1ad3`,
+`cc7d44d`, `b3c0c39`. `coverFor()` in `src/lib/frames.ts` globs
+`/src/media/works/**/covers/*` and matches a cover to a film **by filename
+stem**: `ep-01.png` is the cover for the film declared `src: "ep-01.mp4"`.
+Nothing to list in the markdown and nothing to keep in step.
+
+<- THE PROBLEM IT FIXED WAS INVISIBLE. `poster:` in the schema only feeds
+  `<video poster>`, and no Book My Yamraj `.mp4` exists, so every episode took
+  FilmPlayer's fallback — which was `images[i % images.length]`, the work's own
+  stills. **The six episode covers and the six stills were the same six
+  photographs**, and there was no way to change one without the other.
+
+The folder and every file in it are optional: a work with no `covers/` behaves
+as before, three covers for six episodes gets three covers and three stills.
+Book My Yamraj has all six. Two of them — `ep-01` and `ep-05` — are
+byte-identical to `frames/01` and `frames/02`, so those two episodes repeat a
+still by Ugam's choice, and Astro serves each from the still's asset. **Flagged
+to him and left alone.** Covers are 2160x4096 against 9:16 cards with
+`object-fit: cover`, so ~3% is trimmed top and bottom; the grid also renders
+them at `brightness(0.72)`, lifting to `0.92` on hover.
+
+---
+
 ## 6 · Traps — every one of these cost real time
 
 **Astro scopes component CSS with a `data-astro-cid-*` attribute, and
@@ -1264,12 +1321,83 @@ Compare a draft against live **at the same scroll position**, or both on a
 fresh load. This has been mistaken for a content difference twice.
 
 
+### Added 2026-10-05, from the stills work
+
+**Astro deduplicates byte-identical images and emits them under the FIRST
+basename it registered.** Two files with the same bytes become one asset. Book
+My Yamraj's `covers/ep-01.png` was identical to `frames/02.png`, so Episode 01
+rendered `/_astro/02.CXLqNaut_1VxTru.webp` and no `ep-01.*` family existed
+anywhere in `dist` — which looks exactly like a lookup that silently failed.
+It was not: the cover was being read and served from the still's asset.
+**Checksum the inputs before debugging the output.** `shasum -a 256` on both
+folders answers in one command what an hour of reading HTML will not.
+
+And when a file's content equals what its own fallback would be, the output
+cannot distinguish the two. **Probe it instead**: put different content in
+temporarily, rebuild, confirm the new content appears, then restore and
+checksum back. Done on ep-01 — with `frames/09` in place it rendered
+`09.C5_rJAP2_*` rather than the fallback `01.DT_NAuw6_*`, so the lookup fires.
+
+**`reveal-rise` has `animation-fill-mode: both` and ends on `transform:
+none`, which beats a transform the element declares for itself.** An element
+carrying `data-reveal` AND a rotation ends up unrotated, with the stylesheet
+plainly saying otherwise and no error anywhere. Cost an hour on `ab-fl2`,
+where all eight rotations computed to identity, and bit again on `ab-fc3` and
+once more in production. **Never put `data-reveal` and a transform on the same
+element** — reveal the wrapper, transform the child. The live cut strips are
+built that way on purpose: reveal on `.cut__slot`, rotation on `.cut__strip`.
+
+**`padding-bottom` on a container does not extend a sticky child's range; a
+real spacer element in the flow does.** `ab-sq5`'s stack never completed
+because the room it needed was padding. Probed at ten scroll positions with
+3000px of travel each way before the cause was clear. Sticky range is the
+container's *content* box as laid out by its in-flow children.
+
+**`calc(length * length)` is invalid CSS and silently drops the whole
+declaration.** `ab-st7` wrote `calc(var(--gap) * 0.09vh)` and all seven gaps
+measured 0 with the stylesheet reading correctly. Multiply a length by a
+UNITLESS number — the custom property has to carry no unit.
+
+**A percentage inside `translate()` is a share of the ELEMENT, not its
+container.** `ab-rl6` used `translateY(100%)` meaning one frame and got the
+height of the whole strip, 43 frames off.
+
+**Astro's `<Image>` emits an intrinsic `height` attribute, which defeats
+`aspect-ratio`.** The FL rails came out 2180px tall against a declared ratio.
+**Set one axis to `auto`** and the ratio governs again.
+
+**`feTurbulence` is colour noise until a saturate matrix desaturates it**, and
+`mix-blend-mode: overlay` on a near-black base returns near-black — so grain
+written the obvious way is both rainbow and invisible on this site's material.
+Add `feColorMatrix type="saturate" values="0"` and composite in `normal`.
+
+**A transformed element creates its own stacking context, so a z-index cannot
+cross between two of them** — the same shape as the `perspective` trap above.
+Hit on `ab-fl5`, where a texture layer ran across a face; fixed by lifting the
+children (`.tex-grain > * { z-index: 2 }`) rather than by fighting the parents.
+
+**A regex literal inside an Astro template expression is parsed as JSX and
+fails the build.** Keep regexes in the frontmatter and call a named function
+from the markup.
+
 ## 7 · State of play
 
 ### What the site is, as of now
-**29 HTML files build clean**: the home page, Contents, sixteen work pages,
-the preview index and eight drafts under it — 27 pages — plus two redirect
-stubs for the retired `/about` and `/contact` URLs.
+Recounted 2026-10-05. **`astro build` reports 76 pages and ships 21 HTML
+files.** The gap is the preview library: 57 drafts plus its index are built
+and then dropped from the published output by the `without-preview`
+integration, which says so on its own line — `draft library not published —
+58 entries removed from the output`. What ships is **the home page, seventeen
+work pages, and three redirect stubs** for `/about`, `/contact` and
+`/contents`.
+
+<- SEVENTEEN WORKS NOW, NOT SIXTEEN. Ira was added 2026-09-30. Anything in
+  this file that says sixteen predates it; `src/lib/wkset.ts` has the recount.
+
+<- AND CONTENTS IS NO LONGER A PAGE. `/contents` is a redirect stub to `/`,
+  not the end-credit roll — removed 2026-09-07 for want of use, and in git
+  history if it is ever wanted. `src/pages/` holds exactly `index.astro`,
+  `preview/` and `work/`.
 
 The home page is **one page**: the Academy-countdown opening, the `OpNav`
 menu, a fixed mosaic bed of the catalogue behind everything, the aperture mat,
@@ -1284,7 +1412,11 @@ its folios. They now render **every credit the schema allows**, not just
 director and artist.
 
 ### Supplied and working
-All sixteen works have real stills. Homepage, sixteen project pages, Contents.
+**All seventeen works have real stills — 128 frames.** Counted 2026-10-05:
+ten each for Broken Reflections, Dinshaw's, Diwali Ke Shor Mein and Mumbai
+Standard Time, down to **one each for Mere Ho and Ve Maahi**, which is why
+those two have no stills section (see §5). Every work has a markdown file and
+a media folder; 17 and 17, nothing orphaned.
 
 ### Outstanding — things only Ugam can provide
 1. **Neue Haas Grotesk Display** — licensed. Drop three `.woff2` into
@@ -1306,11 +1438,24 @@ build — the page globs the folder rather than keeping a list, so the LISTING
 cannot go stale, and a draft with no entry in its `NOTES` map still appears
 under a title derived from its filename.
 
-The `NOTES` map itself can go stale, and did: after the 2026-09-27 cull it
-still described 155 files that no longer existed. It is now pruned to the eight
-that are there. **If you delete a draft, drop its note as well** — and do not
-delete `index.astro` itself while filtering the folder by filename, which is
-how it was lost and restored in `b4390c4`.
+The `NOTES` map itself can go stale, and twice has. After the 2026-09-27 cull
+it still described 155 files that no longer existed; and on 2026-10-05 the
+four `ab-fs*` drafts had been in the folder for a day with no entries, so they
+listed under filenames while their siblings had titles. **Checked 2026-10-05:
+57 keys, 57 draft files, nothing orphaned either way.** Re-run that check
+after any change to the folder:
+
+```bash
+python3 -c "
+import re,os
+n=set(re.findall(r\"^\s*'([^']+)'\s*:\",open('src/pages/preview/index.astro').read(),re.M))
+f={x[:-6] for x in os.listdir('src/pages/preview') if x.startswith('ab-') and x.endswith('.astro')}
+print('no entry:',sorted(f-n) or 'none'); print('no file :',sorted(n-f) or 'none')"
+```
+
+**If you delete a draft, drop its note as well** — and do not delete
+`index.astro` itself while filtering the folder by filename, which is how it
+was lost and restored in `b4390c4`.
 
 ### The library has been culled twice, both times on Ugam's instruction
 
@@ -1353,7 +1498,36 @@ timeline when they finish.
 
 ### Awaiting a decision
 
-**One thing only: `ab-hv2` · THE CORNERS.** A hover reading for Selected works
+**49 stills drafts from 2026-10-05, in six rounds, one of them applied.** Each
+round was a fresh brief rather than a refinement of the last, so they are
+alternatives and not versions. All are on Aasha at `/preview/ab-*`:
+
+| set | n | the brief | state |
+| --- | --- | --- | --- |
+| `ab-st1..8` | 8 | arrangement — where the frames go | unapplied |
+| `ab-xp1..8` | 8 | far more experimental, digitally native | unapplied |
+| `ab-sq1..8` | 8 | scroll and hover ONLY, no user navigation | unapplied |
+| `ab-rl1..8` | 8 | film itself as the interface | unapplied |
+| `ab-fs1..4` | 4 | literal 35mm, minimal and premium | **`fs4` → `fc3` → live** |
+| `ab-fa1..4` | 4 | `fs2` reworked, more elegant | unapplied |
+| `ab-fl1..8` | 8 | the look and texture of Ugam's references | unapplied |
+| `ab-fc1..4` | 4 | `fl1`'s contact sheet, four treatments | **`fc3` is live** |
+
+**`ab-fc3`'s layout is the one that shipped** — see §5, "Applied to the work
+pages". The other 48 are kept to compare against and **none of them is a live
+proposal**; Ugam has not asked for any of the other five rounds to be applied.
+
+Two things in them were flagged to him and are his call, not a defect:
+
+- **The amber edge print is `#D9A441`**, which is not the page accent
+  `#E85D2C`. It is in every `ab-fl*` and `ab-fc*` draft including the one that
+  shipped — chosen because it is the colour of film edge printing in his
+  references, not because it matches the site.
+- **FC3's hover brightens the frame number** where the old stills grid zoomed
+  the image. That went to production with the layout.
+
+**And `ab-hv2` · THE CORNERS is still open from 2026-09-27.** A hover reading
+for Selected works
 — point at a work and its format, platform, role and year set in the four
 corners of the frame, in the page's own corner furniture, with nothing in the
 middle. Nothing is applied. It reads its four facts through
