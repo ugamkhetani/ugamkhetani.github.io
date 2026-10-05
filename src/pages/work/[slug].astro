@@ -102,18 +102,48 @@ const films = d.media.films.length ? d.media.films : listFilms(work.id);
 
    Read off the films rather than assumed: a page mixing shapes gets the
    middle value instead of a track that suits only half of them. */
-/* HOW WIDE ONE STILL WANTS TO BE, from the work's own shape. The grid was a
-   fixed three columns, which is right for a landscape frame and wrong for a
-   portrait one: at 9:16 those three columns gave cells 340 wide and 604 tall,
-   so nine stills ran to three rows of very tall pictures.
+/* THE STILLS ARE CUT STRIPS, from ab-fc3, promoted 2026-10-05.
 
-   The track is sized so a ROW comes out about the same height whatever the
-   aspect — 300px times the aspect — then capped at 340, which is exactly what
-   three columns already gave. A landscape work therefore keeps its three
-   columns and nothing about it changes; only shapes taller than about 1.13:1
-   gain columns and shrink. The floor stops a very tall frame collapsing into
-   a thumbnail. */
-const STILL_TRACK = `${Math.round(Math.min(340, Math.max(160, 300 * (RATIO_NUM[d.ratio] ?? 1.6))))}px`;
+   HOW MANY STRIPS. The grid this replaces sized a track from the work's own
+   aspect and let auto-fill decide the count; measured across the catalogue at
+   this measure it landed on two columns for thirteen works and three for the
+   three 9:16 portrait ones, and that was the right answer — two strips of
+   9:16 on a 760 measure would be 370 wide and 658 tall each. So the count is
+   carried over rather than fixed at the draft's two, which only ever had one
+   ratio to satisfy. Below 0.7 is the portrait band and nothing in the
+   catalogue sits between 0.5625 and 0.8.
+
+   AND NEVER MORE STRIPS THAN FRAMES. Mere Ho and Ve Maahi have a single still
+   each; two strips would give them one with a picture and one empty. */
+const STILL_STRIPS = Math.max(1, Math.min(images.length, (RATIO_NUM[d.ratio] ?? 1.6) < 0.7 ? 3 : 2));
+
+/* SEQUENTIAL, NOT ALTERNATING, which is a correction to the draft. ab-fc3
+   dealt its frames round-robin — strip one took 01, 03, 05, 07 — while its
+   strip header printed the first frame of a consecutive run. The header was
+   right about what a cut strip is and the cells were wrong: you cut a roll
+   into consecutive lengths. Dealt out evenly, so ten frames across three
+   strips go 4, 3, 3 rather than 4, 4, 2. */
+const STILL_CUT = (() => {
+  const base = Math.floor(images.length / STILL_STRIPS);
+  const extra = images.length % STILL_STRIPS;
+  const out: { from: number; items: typeof images }[] = [];
+  for (let s = 0, at = 0; s < STILL_STRIPS; s++) {
+    const len = base + (s < extra ? 1 : 0);
+    if (len > 0) out.push({ from: at, items: images.slice(at, at + len) });
+    at += len;
+  }
+  return out;
+})();
+
+/* <- THE SKEW IS FIXED, NOT RANDOM. Two strips of film never lie at the same
+   angle on a scanner bed, but one sheet scanned once looks the same every
+   time you open it. Degrees, and the offset each strip starts at. */
+const STILL_SKEW = [
+  { rot: -0.5, top: 0 },
+  { rot: 0.38, top: 42 },
+  { rot: -0.3, top: 18 },
+];
+const nn2 = (i: number) => String(i + 1).padStart(2, '0');
 
 const filmRatios = new Set(films.map((f) => f.ratio));
 const FILM_TRACK =
@@ -504,22 +534,39 @@ const FACTS: { k: string; v: string }[] = [
 
     {/* ── 03 · THE FRAMES ─────────────────────────────────────── */}
     <section class="blk" aria-label="Stills">
-      <div class="grid" style={`--sw:${STILL_TRACK}`}>
-        {images.map((img, i) => (
-          <figure class="cel" data-reveal style={`--i:${i % 3}`}>
-            <span class="cel__win">
-              <Image
-                src={img}
-                alt={i === 0 ? d.alt : ''}
-                aria-hidden={i === 0 ? undefined : 'true'}
-                widths={[420, 700, 1100]}
-                sizes="(max-width: 720px) 46vw, 30vw"
-                loading={i < 3 ? 'eager' : 'lazy'}
-                decoding="async"
-              />
-            </span>
-            <figcaption class="mono cel__no">{String(i + 1).padStart(2, '0')}</figcaption>
-          </figure>
+      <div class="cut" style={`--strips:${STILL_STRIPS}; --strips-sm:${Math.min(2, STILL_STRIPS)}`}>
+        {STILL_CUT.map((strip, s) => (
+          <div class="cut__slot" data-reveal style={`--i:${s}`}>
+            <div
+              class="cut__strip"
+              style={`--rot:${STILL_SKEW[s % STILL_SKEW.length].rot}deg; --top:${STILL_SKEW[s % STILL_SKEW.length].top}px`}
+            >
+              <p class="mono cut__mark" aria-hidden="true">
+                <span>▶</span><b>{nn2(strip.from)}</b><i></i><em>{d.title}</em>
+              </p>
+
+              <div class="cut__cells">
+                {strip.items.map((img, k) => (
+                  <figure class="cut__cell">
+                    <Image
+                      src={img}
+                      alt={strip.from + k === 0 ? d.alt : ''}
+                      aria-hidden={strip.from + k === 0 ? undefined : 'true'}
+                      widths={[420, 700, 1100]}
+                      sizes="(max-width: 720px) 46vw, 36vw"
+                      loading={strip.from + k < 3 ? 'eager' : 'lazy'}
+                      decoding="async"
+                    />
+                    <figcaption class="mono cut__no"><span>▶</span><b>{nn2(strip.from + k)}</b></figcaption>
+                  </figure>
+                ))}
+              </div>
+
+              <p class="mono cut__mark cut__mark--b" aria-hidden="true">
+                <span>◀</span><i></i><em>{d.title}</em><i></i><span>▶</span>
+              </p>
+            </div>
+          </div>
         ))}
       </div>
     </section>
@@ -920,57 +967,107 @@ const FACTS: { k: string; v: string }[] = [
      its right and bottom. Drawn on all four, every internal edge doubles and
      reads at 1px on a dark ground as uneven weight, not a heavier rule. */
 
-  /* ── FRAMES ─────────────────────────────────────────────────── */
-  /* auto-fill so a short last row keeps the cell size of the row above it,
-     and a track sized to the work's own aspect — see the note on the page. */
-  .grid {
+  /* ── FRAMES — CUT STRIPS ────────────────────────────────────── */
+  /* The roll cut into consecutive lengths and laid on a bed, from ab-fc3.
+     The count comes from the work's own aspect — see the note on the page. */
+  .cut {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(var(--sw, 340px), 100%), 1fr));
-    gap: clamp(20px, 2.6vw, 46px);
+    grid-template-columns: repeat(var(--strips, 2), minmax(0, 1fr));
+    gap: clamp(14px, 2.4vw, 34px);
+    align-items: start;
   }
-  .cel { margin: 0; }
-  /* Entry is the site's own reveal, staggered by column so a row arrives as a
-     sweep rather than as three things at once. */
-  .cel[data-reveal] {
+
+  /* THE REVEAL AND THE ANGLE MUST NOT SHARE AN ELEMENT. reveal-rise and the
+     transition below both finish on `transform: none`, and a filled or
+     settled transform beats the one the strip declares — put the skew on the
+     slot and it silently flattens to the identity matrix. The slot carries
+     the entrance; the strip carries the angle. */
+  .cut__slot { margin: 0; }
+  .cut__slot[data-reveal] {
     opacity: 0;
     transform: translateY(18px);
     transition:
       opacity var(--d-reveal) var(--ease) calc(var(--i) * 90ms),
       transform var(--d-reveal) var(--ease) calc(var(--i) * 90ms);
   }
-  .cel[data-reveal].is-in { opacity: 1; transform: none; }
-  .cel__win {
-    display: block; aspect-ratio: var(--ar);
-    overflow: hidden; background: var(--ground-lift);
+  .cut__slot[data-reveal].is-in { opacity: 1; transform: none; }
+
+  .cut__strip {
+    position: relative; isolation: isolate;
+    background: var(--ground-deep, #000);
+    transform: rotate(var(--rot, 0deg));
+    margin-top: var(--top, 0px);
+    padding: 8px 9px 9px;
+    display: grid; gap: 6px;
   }
-  .cel__win :global(img) {
-    width: 100%; height: 100%; object-fit: cover;
+  /* Grain on the stock, drawn rather than loaded: one inline turbulence,
+     desaturated — without the saturate matrix it is colour noise. It sits
+     under everything the strip carries, so the wear stays on the rebate and
+     the gutters and never reaches a photograph. */
+  .cut__strip::after {
+    content: ''; position: absolute; inset: 0; z-index: 1;
+    pointer-events: none; opacity: 0.26;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='150' height='150' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .cut__strip > * { position: relative; z-index: 2; }
+
+  /* The floor is 20 and not 12 because the number hangs BELOW its frame:
+     measured, it ends 17px under the cell, so a 12px gap on a short viewport
+     would print the number over the next photograph. */
+  .cut__cells { display: grid; gap: clamp(20px, 2.2vh, 28px); }
+  .cut__cell { position: relative; margin: 0; }
+  .cut__cell :global(img) {
+    display: block; width: 100%; height: auto;
+    aspect-ratio: var(--ar); object-fit: cover;
     /* See FRAME_CROP in src/lib/frames.ts — the crop window sits on the
        picture rather than on the file, for the two works with baked-in bars. */
     object-position: 50% var(--fcy, 50%);
+    /* The page's own grading, kept. ab-fc3 had none because the preview shell
+       did not carry it; dropping it here would change how every photograph on
+       the site looks, which is not what promoting a layout should do. */
     filter: saturate(0.94) contrast(1.02);
-    transform: scale(1.001);
-    transition: filter var(--d-micro) var(--ease), transform 1100ms var(--ease);
   }
-  .cel:hover .cel__win :global(img) {
-    filter: saturate(1) contrast(1.06) brightness(1.04);
-    transform: scale(1.035);
+
+  /* White, not amber. The reference ab-fc3 takes this from prints its marks
+     in white on black and nothing else, and that restraint is what separates
+     it from the printed-edge drafts. */
+  .cut__no {
+    position: absolute; left: 0; top: calc(100% + 4px);
+    display: flex; align-items: center; gap: 5px;
+    font-size: 8px; letter-spacing: 0.16em;
+    color: color-mix(in srgb, var(--bone) 48%, transparent);
+    font-variant-numeric: tabular-nums;
   }
-  .cel__no {
-    display: block; margin-top: 8px;
-    font-size: var(--t-micro); letter-spacing: 0.16em;
-    color: var(--dim); font-variant-numeric: tabular-nums;
+  .cut__no b { font-weight: 400; color: color-mix(in srgb, var(--bone) 74%, transparent); }
+  .cut__cell:hover .cut__no, .cut__cell:hover .cut__no b { color: var(--bone); }
+
+  .cut__mark {
+    display: flex; align-items: center; gap: 6px; margin: 0;
+    font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: color-mix(in srgb, var(--bone) 42%, transparent);
   }
-  /* Below this the track governs on its own — a fixed two columns would make
-     a portrait still taller on a phone than it is on a desktop. */
-  @media (max-width: 720px) { .grid { --sw: min(46vw, 220px); } }
+  .cut__mark b { font-weight: 400; color: color-mix(in srgb, var(--bone) 66%, transparent); font-variant-numeric: tabular-nums; }
+  .cut__mark em { font-style: normal; letter-spacing: 0.28em; }
+  .cut__mark i { flex: 1; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .cut__no, .cut__no b { transition: color var(--d-micro) var(--ease); }
+  }
+
+  /* A phone cannot carry three strips: at 375 the portrait works would be
+     three columns of about 105px. Two at most, whatever the aspect. */
+  @media (max-width: 720px) {
+    .cut { grid-template-columns: repeat(var(--strips-sm, 2), minmax(0, 1fr)); }
+    .cut__mark em { display: none; }
+    .cut__strip { padding: 6px 6px 7px; }
+  }
 
   /* ── CREDITS ────────────────────────────────────────────────── */
 
   /* ── REDUCED MOTION HANDS OVER THE SENTENCE ─────────────────── */
   @media (prefers-reduced-motion: reduce) {
     .w { opacity: 1; transform: none; will-change: auto; }
-    .cel[data-reveal] { opacity: 1; transform: none; transition: none; }
+    .cut__slot[data-reveal] { opacity: 1; transform: none; transition: none; }
     .rec__n, .rec__cit, .rec__where { opacity: 1; transform: none; will-change: auto; }
     .body__lede, .body__rest { opacity: 1; transform: none; will-change: auto; }
     .wt__t, .wt__arw { opacity: 1; transform: none; will-change: auto; }
