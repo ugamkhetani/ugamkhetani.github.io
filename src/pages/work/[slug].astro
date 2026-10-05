@@ -52,6 +52,7 @@ import AudioPlayer from '../../components/AudioPlayer.astro';
 import NextWork from '../../components/NextWork.astro';
 import Colophon from '../../components/Colophon.astro';
 import { framesFor, cropFor, coverFor } from '../../lib/frames';
+import WatchMark from '../../components/WatchMark.astro';
 import { parseAwards } from '../../lib/awards';
 import { listFilms } from '../../lib/assets';
 import { order, RATIO_NUM } from '../../data/composition';
@@ -459,10 +460,7 @@ const FACTS: { k: string; v: string }[] = [
             already streams audio. */}
           <Image src={poster} alt={d.alt} widths={[512, 768, 1024]} sizes="(max-width: 640px) 92vw, 1024px" loading="eager" decoding="async" />
           {d.external && (
-            <a class="still__go" href={d.external.url} target="_blank" rel="noopener noreferrer">
-              <span class="mono">{d.external.label}</span>
-              <span class="still__arw" aria-hidden="true">&nearr;</span>
-            </a>
+            <WatchMark label={d.external.label} platform={d.external.platform} url={d.external.url} />
           )}
         </div>
       )}
@@ -472,10 +470,7 @@ const FACTS: { k: string; v: string }[] = [
         <div class="still">
           <Image src={poster} alt={d.alt} widths={[800, 1400, 2000]} sizes="(max-width: 900px) 100vw, 78vw" loading="eager" decoding="async" />
           {d.external && (
-            <a class="still__go" href={d.external.url} target="_blank" rel="noopener noreferrer">
-              <span class="mono">{d.external.label}</span>
-              <span class="still__arw" aria-hidden="true">&nearr;</span>
-            </a>
+            <WatchMark label={d.external.label} platform={d.external.platform} url={d.external.url} />
           )}
         </div>
       )}
@@ -1469,23 +1464,13 @@ const FACTS: { k: string; v: string }[] = [
     width: var(--film);
     margin-inline: calc((100% - var(--film)) / 2);
   }
-  .still__go {
-    position: absolute; left: var(--margin); bottom: var(--margin);
-    display: inline-flex; align-items: center; gap: 11px;
-    padding: 11px 18px;
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    background: rgba(10, 9, 8, 0.35);
-    backdrop-filter: blur(6px);
-    color: var(--bone); text-decoration: none;
-    transition: border-color var(--d-micro) var(--ease), background var(--d-micro) var(--ease);
-  }
-  .still__go .mono { color: inherit; }
-  .still__go:hover { border-color: var(--accent); background: rgba(10, 9, 8, 0.6); }
-  .still__arw { transition: transform var(--d-micro) var(--ease); }
-  .still__go:hover .still__arw { transform: translate(2px, -2px); }
-  @media (max-width: 900px) {
-    .still__go { left: var(--s-3); bottom: var(--s-3); padding: 9px 14px; }
-  }
+  /* THE CONTROL IS IN WatchMark.astro FROM 2026-10-06, applied from
+     preview/ab-zw13 on Ugam's word. The pill that used to be written here — a
+     1px border, a 35% ground and a 6px backdrop-filter — is gone; what
+     replaced it keeps a wash, because three of the six frames that carry this
+     control cannot hold unplated white type. The component carries the
+     readings, the solved alpha and the one question this leaves open, which is
+     that `.facade__play` still wears the pill on eight other pages. */
 </style>
 
 <script>

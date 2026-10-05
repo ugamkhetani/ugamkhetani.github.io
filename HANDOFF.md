@@ -899,6 +899,83 @@ Yamraj now names a platform.
 
 ---
 
+### Applied to the work pages, 2026-10-06
+
+**The outside link on an opening frame is ZW13, and it carries a wash.** The
+translucent pill — 1px 50%-white border, 35% ground, 6px backdrop-filter — is
+replaced on all six frames that carry it: Aasha, Taskaree, Ira and Special Ops
+on their bare stills, Mere Ho and Ve Maahi on their sleeves. The control is now
+`src/components/WatchMark.astro`: two tiers out of the work's own label, with a
+play triangle set inside the line of type at cap height. Chosen from fourteen
+drafts built on Aasha at `/preview/ab-zw1..14`.
+
+**IT WAS APPLIED, MEASURED, REVERTED AND RE-APPLIED IN ONE SITTING, and the
+reason is the most useful thing here.** ZW13's whole argument is that the pill
+was holding white type off a brightness that is not there — measured, and true,
+of AASHA'S photograph, which is the one frame all fourteen drafts were built and
+judged on. **It is not true of the catalogue.** Each ink against the brightest
+pixel inside its own glyph box, floors 4.5:1 under 24px and 3:1 at or over:
+
+```
+work          frame        lead   platform  arrow  triangle
+Aasha         still 4:3   14.22    5.02     17.04   13.77   pass
+Taskaree      still        5.44    9.82     12.93    9.82   pass
+Ira           still        5.91    5.06      9.83    6.95   pass
+Special Ops   still 2.1:1  1.84    2.77      5.45    2.80   FAIL
+Mere Ho       cover 1:1    3.06    1.01      1.07   18.09   FAIL
+Ve Maahi      cover 1:1    2.95    1.66      2.91    8.90   FAIL
+```
+
+Mere Ho's platform word read **1.01:1** — white on white. Special Ops has no
+dark corner to move to: mean .1619, p95 .3376, a blown pixel at .9647, and its
+darkest fifth still peaks at .7396. **A draft judged on one frame says nothing
+about the route**, and that is the lesson rather than the numbers.
+
+**THE WASH IS SOLVED, NOT CHOSEN — AND IT MUST BE SOLVED IN GAMMA SPACE.**
+`rgba(10, 9, 8, 0.56)` behind the lockup, blurred, with no border and no
+backdrop-filter. Binary-searched per work against the real pixels: Aasha,
+Taskaree and Ira need 0.000, Ve Maahi 0.269, Special Ops 0.434, and **Mere Ho
+0.542, which binds**. All six carry it anyway, because one rule that cannot be
+wrong on a work added tomorrow is worth more than three pages saved.
+
+<- THE FIRST FIGURE WAS 0.806 AND IT WAS WRONG. It was solved in LINEAR light;
+  CSS composites alpha per channel on the ENCODED sRGB values, which is far
+  more forgiving. The error made a wash look like a black panel and it was
+  quoted to Ugam before it was caught. **Composite in gamma space** — now in §6.
+
+**Two things inside it look arbitrary and are not.**
+
+- **The padding and the blur are in `em`, not px**, with the platform word's
+  size declared on the scrim so they resolve against it. In pixels they held
+  their size while the lockup shrank, and at 375 the scrim covered **74.7%** of
+  Special Ops, whose 2.1:1 frame is only 155px tall there. In em it fell to
+  52.5%. Same trap as ZW12's baseline padding, which resolved against the
+  anchor's 16px instead of the word's 51.2.
+- **Every glyph must clear the blur**, or the alpha under it is not the alpha
+  solved for. At the first attempt the nearest glyph sat 19.1px from the scrim
+  edge against a 20px blur — 0.9px inside it, with the comment already claiming
+  otherwise. It clears by 27.1px now.
+
+**The verb is derived, never hardcoded.** The lockup splits the work's own
+`label` on its own `platform`: four say "Watch on", two say "Listen on", and
+Diwali — which files its link in the Watch section rather than here — says "View
+on". The draft hardcoded "Watch on" because it only ever ran on Aasha. It splits
+only when the label really ends with the platform and sets the whole label on
+one line otherwise, so nothing is invented and nothing is dropped.
+
+**The arrow stays, and on a bare still it is load-bearing.** Nothing on these
+pages plays; the triangle promises inline playback and the arrow is the only
+mark in the lockup saying the press goes elsewhere.
+
+<- TWO THINGS LEFT OPEN. `.facade__play` still wears the pill on eight pages,
+  so §5's note that the still's button deliberately copied it is no longer
+  true — drafts for that were asked for and are the next piece of work. And
+  Special Ops gives the scrim **half its frame at 375**; moving the control
+  below the frame under 901px would remove it there, at the cost of a second
+  arrangement. The record is at `/preview/ab-zr1`.
+
+---
+
 ### Applied to the work pages, 2026-10-05
 
 Three changes, each on Ugam's word, each verified across the whole catalogue
@@ -1435,6 +1512,47 @@ children (`.tex-grain > * { z-index: 2 }`) rather than by fighting the parents.
 **A regex literal inside an Astro template expression is parsed as JSX and
 fails the build.** Keep regexes in the frontmatter and call a named function
 from the markup.
+
+### Added 2026-10-06, from the watch control
+
+**SOLVE ALPHA COMPOSITING IN GAMMA SPACE, NOT IN LINEAR LIGHT.** Working out
+how dark a scrim has to be to lift text over a contrast floor, the obvious
+method — convert both to relative luminance, mix, convert back — is wrong, and
+wrong in the direction that makes a design look impossible. CSS composites
+alpha PER CHANNEL on the encoded sRGB values. For the six watch frames, linear
+light demanded alpha 0.806 and the browser's own arithmetic demands **0.542**.
+The first figure was quoted to Ugam as evidence that a wash could not work.
+Mix the encoded bytes, then compute luminance from the result.
+
+**A DRAFT JUDGED ON ONE FRAME SAYS NOTHING ABOUT THE ROUTE.** Fourteen drafts
+of the watch control were built on Aasha, whose bottom-left corner is the
+darkest part of the darkest frame in the catalogue. Applied to the other five
+that carry the control, three failed outright — one at 1.01:1, which is white
+on white. §5 already says this about the countdown: what threatens white type
+is the brightest patch inside the glyph's own outline, and that is a property
+of the individual photograph. **Before applying anything measured on one work,
+re-measure it on every work it will reach.**
+
+**PADDING IN PIXELS DOES NOT SURVIVE A BREAKPOINT.** A scrim inset a fixed
+38/48/36/34 around a lockup held its size while the lockup shrank with the
+type, so its share of the frame grew: 12.1% of Special Ops at 1280 and
+**74.7%** at 375, where that 2.1:1 frame is only 155px tall. In `em` against
+the type it scales with it. Note the `em` must resolve against the right
+font-size — see the next trap.
+
+**AN `em` RESOLVES AGAINST THE ELEMENT'S OWN font-size, WHICH MAY NOT BE THE
+ONE YOU MEAN.** ZW12's triangle was lifted onto a baseline with
+`padding-bottom: 0.12em` written on a wrapper that inherited the ANCHOR's
+16px, not the 51.2px word it was aligning to — so it computed 1.9px instead of
+6.1 and missed by 2.2px, with the stylesheet reading exactly as intended.
+Declare the size on the element whose ems you are using.
+
+**A BLURRED SCRIM ONLY HAS THE ALPHA YOU SOLVED FOR WHERE THE BLUR CANNOT
+REACH.** `filter: blur()` on a flat box leaves a full-strength core and a fade
+at the edges; a glyph inside the fade sits on less ground than the arithmetic
+assumed. Measure each glyph's distance to the box edge against the blur radius.
+It was 19.1px against blur(20) at the first attempt — inside it, and passing
+only because the contrast margins were wide.
 
 ### Added 2026-10-05, from the documentation pass
 

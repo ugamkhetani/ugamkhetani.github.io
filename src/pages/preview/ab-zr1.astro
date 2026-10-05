@@ -2,11 +2,15 @@
 /**
  * ZR1 · THE ROUTE — ZW13's control on all six frames that would carry it.
  *
- * NOT A DESIGN. This is the evidence for a decision, built 2026-10-06 when
- * Ugam asked for ab-zw13 to be applied to the work pages. It was applied,
- * measured across the route, and REVERTED before being committed, because it
- * fails on half of them. The live site is untouched and still carries the
- * pill; this page is the only place the new control exists.
+ * NOT A DESIGN. This is the record of why the live control carries a wash,
+ * built 2026-10-06 when Ugam asked for ab-zw13 to be applied to the work
+ * pages. It was applied, measured across the route, found to fail on half of
+ * them, taken back off, and re-applied with a scrim once Ugam chose that over
+ * moving the control off the frame.
+ *
+ * THE FRAMES BELOW SHOW THE CONTROL AS IT IS LIVE — with the scrim. THE TABLES
+ * SHOW THE READINGS WITHOUT IT, which is what the scrim exists to fix. The two
+ * together are the before and after.
  *
  * WHY IT FAILS, IN ONE LINE: ZW13's whole argument is that the plate behind
  * the old button was holding white type off a brightness that is not there —
@@ -35,14 +39,18 @@
  * darkest fifth of it still peaks at .7396. There is nowhere on that frame to
  * put unplated white type.
  *
- * AND A SCRIM CANNOT RESCUE IT CHEAPLY. Working back from the floors, a
- * ground-colour wash behind the lockup would have to reach ALPHA 0.806 to
- * carry Mere Ho's arrow — against the 0.35 the old pill used, and the pill had
- * a 6px backdrop blur helping it. Eighty-one per cent is not a wash, it is a
- * black panel, and a black panel is the thing ZW13 was chosen for not having.
+ * <- AND THE FIRST SCRIM FIGURE QUOTED HERE WAS WRONG. It said alpha 0.806,
+ *   solved in LINEAR light. CSS composites alpha per channel on the encoded
+ *   sRGB values, which is far more forgiving: solved the way the browser
+ *   actually does it, the same six works ask for 0.542. The error made the
+ *   option look like a black panel when what it needs is a wash, and it was
+ *   quoted to Ugam before it was caught. Solve compositing in gamma space.
  *
- * SO THE DECISION IS UGAM'S AND IT IS NOT A SMALL ONE. The options, with what
- * each costs, are in the note at the foot of this page.
+ * UGAM TOOK THE SCRIM, 2026-10-06. Solved against the real pixels and
+ * composited the way the browser does — per channel on encoded sRGB, not in
+ * linear light — the alpha needed is 0.542, which Mere Ho binds; the live
+ * value is 0.56. Aasha, Taskaree and Ira need none of it. The options as they
+ * were put are kept at the foot of this page.
  *
  * WHAT IS ALREADY BUILT AND IS NOT WASTED: src/components/WatchMark.astro
  * carries the control, and it derives the lead from the work's own label
@@ -82,30 +90,31 @@ const READ: Record<string, { lead: number; plat: number; arrow: number; tri: num
 const f2 = (n: number) => n.toFixed(2);
 ---
 
-<Base title="ZR1 · The route — ZW13 across the six" description="ZW13's watch control measured on every frame that would carry it. Three of six fail; the live site is untouched.">
+<Base title="ZR1 · The route — ZW13 across the six" description="ZW13's watch control measured on every frame that carries it. Three of six could not hold unplated white type, which is why the live control carries a wash.">
   <OpNav variant="bracket" base={href()} />
 
   <nav class="sw" aria-label="Watch-button drafts">
     <span class="sw__id">ZR1</span>
     <span class="sw__nm">The route</span>
-    <span class="sw__su">ZW13 on all six frames — three of them fail</span>
+    <span class="sw__su">Why the live control carries a wash — three of six failed without one</span>
     <span class="sw__set">
       <a class="sw__prev" href={href('preview/ab-zw13')} title="The draft this applies">ZW13</a>
       <a class="sw__prev" href={href('preview/ab-zw2')} title="The stack it came from">ZW2</a>
-      <a class="sw__prev" href={href('work/special-ops-2')} title="The live page, still on the pill">LIVE</a>
+      <a class="sw__prev" href={href('work/special-ops-2')} title="The live page — the worst of the three">LIVE</a>
     </span>
   </nav>
 
   <article class="sc">
     <header class="zr__hd">
-      <p class="mono zr__over">Evidence · 2026-10-06 · nothing applied</p>
+      <p class="mono zr__over">Record · 2026-10-06 · applied with a 0.56 wash</p>
       <h1 class="zr__t">Three of six</h1>
       <p class="zr__lede">
         ZW13 takes the plate off the watch control because the corner it sits in
         is the darkest part of Aasha's frame. Every draft in that round was
-        built on Aasha. Across the six frames that would actually carry it,
-        three cannot hold unplated white type — and on Mere Ho the platform
-        word reads 1.01:1, which is white on white.
+        built on Aasha. Across the six frames that actually carry it, three
+        cannot hold unplated white type — on Mere Ho the platform word read
+        1.01:1, which is white on white. The frames below are live, with the
+        wash; the tables are the readings without it.
       </p>
     </header>
 
@@ -116,7 +125,7 @@ const f2 = (n: number) => n.toFixed(2);
         <section class="zr__case" aria-label={w.data.title}>
           <p class="mono zr__case-hd">
             <span class="zr__nm">{w.data.title}</span>
-            <span class={`zr__flag ${r.ok ? 'is-ok' : 'is-bad'}`}>{r.ok ? 'passes' : 'fails'}</span>
+            <span class={`zr__flag ${r.ok ? 'is-ok' : 'is-bad'}`}>{r.ok ? 'needed no wash' : 'failed without the wash'}</span>
           </p>
 
           <div class:list={['zr__frame', { 'is-cover': isAudio }]}>
@@ -153,6 +162,7 @@ const f2 = (n: number) => n.toFixed(2);
 
     <section class="zr__note" aria-label="The decision">
       <h2 class="zr__nt">What the options cost</h2>
+      <p class="zr__taken">The second was taken.</p>
       <p>
         <b>Put it below the frame.</b> On the page's own ground white reads
         19.9:1 and the lead 13.96:1, on every work, whatever the photograph —
@@ -161,10 +171,12 @@ const f2 = (n: number) => n.toFixed(2);
         belongs on the image.
       </p>
       <p>
-        <b>Keep it on the frame and add a scrim.</b> Working back from the
-        floors, it has to reach alpha 0.806 to carry Mere Ho's arrow. The pill
-        it replaced used 0.35 plus a 6px blur. This is the option that gives
-        back more chrome than was removed.
+        <b>Keep it on the frame and add a scrim. — TAKEN.</b> Solved against
+        the real pixels, in the colour space the browser composites in, it
+        needs alpha 0.542; the live value is 0.56 against the pill's 0.35, and
+        with no border and no backdrop blur. Aasha, Taskaree and Ira need none
+        of it and carry it anyway, because one rule that cannot be wrong on a
+        new work is worth more here than three pages saved.
       </p>
       <p>
         <b>Two treatments.</b> ZW13 on the three dark frames, the pill on the
@@ -256,6 +268,7 @@ const f2 = (n: number) => n.toFixed(2);
     font-size: clamp(1.6rem, 3.4vw, 2.4rem);
     line-height: 1; letter-spacing: -0.035em; text-transform: uppercase; color: var(--bone);
   }
+  .zr__taken { color: var(--accent) !important; }
   .zr__note p { margin: 0 0 18px; font-size: var(--t-base); line-height: 1.65; color: var(--bone-dim); max-width: 52ch; }
   .zr__note b { color: var(--bone); font-weight: 500; }
 </style>

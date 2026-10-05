@@ -6,13 +6,12 @@
  * It replaces `.still__go`, which was a translucent pill: a 1px 50%-white
  * border, a 35% ground and a 6px backdrop-filter holding a 10px mono label.
  *
- * WHY THE PILL WENT, AND IT IS A MEASUREMENT RATHER THAN A PREFERENCE. That
- * chrome exists to hold white type off a bright photograph, and the corner it
- * sat in is the DARKEST part of the frame it sat on. Read off Aasha's opening
- * still — 2880x2160, exactly its declared 4:3, so `cover` crops nothing — the
- * button's own box measures mean .0077 and p95 .0168 relative luminance,
- * where white reads 18.2:1 and 15.7:1 against a 4.5:1 floor. There was
- * nothing for the plate to do. Every draft in that round started there.
+ * WHAT WENT IS THE BORDER AND THE BLUR; A WASH STAYED. ZW13's argument was
+ * that the plate held white type off a brightness that is not there — true of
+ * Aasha's frame, where the button's own box measures mean .0077 and p95 .0168
+ * and white reads 18.2:1 and 15.7:1. It is NOT true of the catalogue: three of
+ * the six frames that carry this control cannot hold unplated white type at
+ * all. The full readings and the solved alpha are at `.wm__scrim` below.
  *
  * TWO TIERS OUT OF UGAM'S OWN LABEL, RE-SET AND NEVER REWRITTEN. The markdown
  * says `label: "Watch on ZEE5"` and `platform: "ZEE5"`; this splits the one on
@@ -70,6 +69,7 @@ const tail = splits ? platform : label;
 ---
 
 <a class="wm" href={url} target="_blank" rel="noopener noreferrer">
+  <span class="wm__scrim" aria-hidden="true"></span>
   {lead && <span class="wm__k">{lead}</span>}
   <span class="wm__p"><i class="wm__tri" aria-hidden="true"></i>{tail}<i
       class="wm__a" aria-hidden="true">&nearr;</i></span>
@@ -89,7 +89,93 @@ const tail = splits ? platform : label;
     text-decoration: none;
     color: var(--bone);
   }
+  /* ══ THE LEGIBILITY FLOOR ══════════════════════════════
+     ZW13 WORKS ON AASHA'S PHOTOGRAPH AND NOT ON THE CATALOGUE'S, which is the
+     one thing fourteen drafts built on one frame could not show. Measured on
+     the built site at 1280x800, each ink against the brightest pixel inside
+     its own glyph box, floors 4.5:1 under 24px and 3:1 at or over:
+
+       Aasha        lead 14.22  platform  5.02  arrow 17.04  tri 13.77  pass
+       Taskaree          5.44             9.82        12.93       9.82  pass
+       Ira               5.91             5.06         9.83       6.95  pass
+       Special Ops       1.84             2.77         5.45       2.80  FAIL
+       Mere Ho           3.06             1.01         1.07      18.09  FAIL
+       Ve Maahi          2.95             1.66         2.91       8.90  FAIL
+
+     Mere Ho's platform word reads 1.01:1 — white on white. Special Ops has no
+     dark corner to move to: mean .1619, p95 .3376, a blown pixel at .9647,
+     and its darkest fifth still peaks at .7396.
+
+     SO THE PLATE COMES BACK, AS A WASH RATHER THAN A PANEL. Ugam's decision,
+     2026-10-06, taken over moving the control off the frame.
+
+     0.56 IS SOLVED, NOT CHOSEN. Binary-searched per work against the real
+     pixels: Aasha, Taskaree and Ira need 0.000; Ve Maahi 0.269; Special Ops
+     0.434; Mere Ho 0.542, which binds. 0.56 is that with a little over.
+
+     <- AND IT MUST BE SOLVED IN GAMMA SPACE, which is the trap here. CSS
+       composites alpha per channel on the ENCODED sRGB values, not on linear
+       light. Solved in linear light the same six works ask for 0.806 — a
+       figure that was quoted once before it was caught, and which would have
+       put a black panel on the page to fix a problem that needs a wash. The
+       search below composites the way the browser does.
+
+     THE SOFTNESS IS A BLUR ON A FLAT BOX, not a gradient, because a flat core
+     is the only shape whose alpha at each glyph can be stated. Every glyph has
+     to sit further from the box edge than the blur reaches, or the alpha under
+     it is not the alpha solved for.
+
+     <- IT DID NOT, FIRST TIME. At inset 30/40/28/26 with blur(20) the nearest
+       glyph measured 19.1px from the edge — 0.9px INSIDE the blur, with this
+       comment already claiming it was clear. The contrast still passed, because
+       the margins are wide, which is exactly why it would not have been
+       noticed. The insets clear the blur by 27.1px at 1280 now.
+
+     <- AND THE PADDING HAD TO STOP BEING PIXELS. Fixed px held their size while
+       the lockup shrank, so the scrim grew as a share of the frame: at 375 it
+       covered 74.7% of Special Ops, whose 2.1:1 frame is only 155px tall
+       there. In em against the platform word it scales with the type, and
+       that case fell to 52.5%.
+
+     WHERE IT LANDED, MEASURED ON ALL SIX, BOTH WIDTHS. Every ink clears its
+     floor; the figure is the tightest ink on the page as a multiple of it, and
+     the share is how much of the frame the scrim covers:
+
+                      1280x800            375x812
+       Aasha          3.12x   4.6%        1.78x  19.8%
+       Taskaree       2.28x   6.6%        1.96x  28.6%
+       Ira            2.34x   6.5%           —      —
+       Ve Maahi       1.75x  15.0%           —      —
+       Special Ops    1.36x  12.1%        1.44x  52.5%
+       Mere Ho        1.07x  15.0%        1.07x  19.5%
+
+     <- TWO THINGS TO WATCH, BOTH UGAM'S CALL IF THEY MATTER. Mere Ho binds the
+       whole system at 1.07x — its arrow reads 4.81:1 against a 4.5 floor — so
+       a brighter sleeve, or a swapped frame on any of the six, means
+       re-solving the alpha rather than assuming it still holds. And Special
+       Ops at phone width gives the scrim HALF ITS FRAME, because a 2.1:1
+       picture is only 155px tall at 327 wide: the control plus the floor it
+       needs is simply large against it. Moving the control below the frame
+       under 901px would remove the scrim entirely there, at the cost of a
+       second arrangement to maintain. */
+  .wm__scrim {
+    position: absolute;
+    /* em, NOT px, and the font-size here is what makes them resolve against
+       the platform word rather than the anchor's 16px. In pixels the padding
+       stayed the same size while the lockup shrank, and on Special Ops at 375
+       — a 2.1:1 frame only 155px tall there — the scrim covered 74.7% of the
+       picture. Tied to the type it scales with it. */
+    font-size: var(--wm-size, clamp(2rem, 4.4vw, 3.2rem));
+    left: -0.74em; right: -0.94em; top: -0.70em; bottom: -0.66em;
+    border-radius: 0.94em;
+    background: rgba(10, 9, 8, var(--wm-scrim, 0.56));
+    filter: blur(0.31em);
+    pointer-events: none;
+  }
+
+  /* Positioned, so they paint above the positioned scrim without a z-index. */
   .wm__k {
+    position: relative;
     font-family: var(--mono);
     font-size: var(--t-micro);
     letter-spacing: var(--track-mono);
