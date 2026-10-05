@@ -115,6 +115,16 @@ const films = d.media.films.length ? d.media.films : listFilms(work.id);
 
    AND NEVER MORE STRIPS THAN FRAMES. Mere Ho and Ve Maahi have a single still
    each; two strips would give them one with a picture and one empty. */
+/* A WORK WHOSE ONLY STILL IS ITS OPENING HAS NOTHING TO CONTACT-PRINT.
+   `poster` is images[0], so on the two single-frame works — Mere Ho and Ve
+   Maahi, both singles with one square sleeve each — the stills section was
+   printing the same photograph the page had already shown at 1024px as the
+   cover, a second time, as a strip of one. The test is the frame count and
+   not the two slugs: add a ninth still to Mere Ho and the section comes back
+   on its own, and a third single added tomorrow behaves correctly without
+   anyone remembering this. */
+const hasStills = images.length > 1;
+
 const STILL_STRIPS = Math.max(1, Math.min(images.length, (RATIO_NUM[d.ratio] ?? 1.6) < 0.7 ? 3 : 2));
 
 /* SEQUENTIAL, NOT ALTERNATING, which is a correction to the draft. ab-fc3
@@ -532,7 +542,11 @@ const FACTS: { k: string; v: string }[] = [
       ))}
     </section>
 
-    {/* ── 03 · THE FRAMES ─────────────────────────────────────── */}
+    {/* ── 03 · THE FRAMES ─────────────────────────────────────────
+        Guarded, like Watch below it: a work with one still has already shown
+        it as the opening, so the section renders nothing rather than the same
+        picture twice. */}
+    {hasStills && (
     <section class="blk" aria-label="Stills">
       <div class="cut" style={`--strips:${STILL_STRIPS}; --strips-sm:${Math.min(2, STILL_STRIPS)}`}>
         {STILL_CUT.map((strip, s) => (
@@ -570,6 +584,7 @@ const FACTS: { k: string; v: string }[] = [
         ))}
       </div>
     </section>
+    )}
 
     {/* ── 04 · WATCH — lifted out of the credits ──────────────────
         It was a `.tbl__links` paragraph at the foot of the credits table, so
