@@ -41,6 +41,7 @@ meta:
   - { label: "Scope", value: "Original Score" }
   - { label: "Approach", value: "Director-led" }
   - { label: "Year", value: "2026" }
+cta: "Watch trailer"
 media:
   # Trailer. Unlisted, so the id carries its privacy hash.
   vimeo: "1127990904/5cea4ab7cf"

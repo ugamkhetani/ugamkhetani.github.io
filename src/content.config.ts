@@ -116,6 +116,24 @@ const works = defineCollection({
      */
     hover: z.array(z.object({ label: z.string(), value: z.string() })).default([]),
 
+    /**
+     * WHAT THE OPENING'S CONTROL SAYS. Applied 2026-10-06 with ab-zw12, when
+     * the watch control went to every work page and each one needed its own
+     * words: six say "Watch", Diwali "Watch trailer", three "View on
+     * Instagram", Aladdin "View".
+     *
+     * IT IS NOT DERIVED, AND THAT IS DELIBERATE. A rule over `opening` and
+     * `media` could guess most of these and would be wrong about the rest:
+     * Bloody Bubbly and Dinshaw's are both Instagram and say the same thing
+     * while one plays in the page and one leaves it, and Aladdin's films sit
+     * on Drive, which is not a name to put in front of a reader. These are
+     * Ugam's words per work.
+     *
+     * A work without one falls back to what it had: "Watch" on a facade, and
+     * FilmPlayer's own "View on <origin>" under a film.
+     */
+    cta: z.string().optional(),
+
     media: z
       .object({
         youtube: z.string().optional(),

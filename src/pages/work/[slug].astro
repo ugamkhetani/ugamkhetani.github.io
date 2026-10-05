@@ -426,7 +426,7 @@ const FACTS: { k: string; v: string }[] = [
     <section class="blk" aria-label={OPEN_LABEL} data-reveal>
 
       {isVideo && (
-        <VideoFacade youtube={d.media.youtube} vimeo={d.media.vimeo} instagram={d.media.instagram} title={d.title} poster={poster} alt={d.alt} eager />
+        <VideoFacade youtube={d.media.youtube} vimeo={d.media.vimeo} instagram={d.media.instagram} title={d.title} poster={poster} alt={d.alt} cta={d.cta} eager />
       )}
 
       {hasFilms && (
@@ -443,6 +443,7 @@ const FACTS: { k: string; v: string }[] = [
                   still — see coverFor in src/lib/frames.ts. */}
               fallbackPoster={coverFor(work.id, f.src) ?? images[i % images.length]}
               alt={`${d.alt} — ${f.label}`}
+              cta={d.cta}
             />
           ))}
         </div>
@@ -460,7 +461,7 @@ const FACTS: { k: string; v: string }[] = [
             already streams audio. */}
           <Image src={poster} alt={d.alt} widths={[512, 768, 1024]} sizes="(max-width: 640px) 92vw, 1024px" loading="eager" decoding="async" />
           {d.external && (
-            <WatchMark label={d.external.label} platform={d.external.platform} url={d.external.url} />
+            <WatchMark label={d.external.label} url={d.external.url} />
           )}
         </div>
       )}
@@ -470,7 +471,7 @@ const FACTS: { k: string; v: string }[] = [
         <div class="still">
           <Image src={poster} alt={d.alt} widths={[800, 1400, 2000]} sizes="(max-width: 900px) 100vw, 78vw" loading="eager" decoding="async" />
           {d.external && (
-            <WatchMark label={d.external.label} platform={d.external.platform} url={d.external.url} />
+            <WatchMark label={d.external.label} url={d.external.url} />
           )}
         </div>
       )}

@@ -42,6 +42,7 @@ meta:
   - { label: "Scope", value: "Sound Design" }
   - { label: "Channel", value: "Social-first" }
   - { label: "Year", value: "2025" }
+cta: "View on Instagram"
 media:
   # Campaign film, posted to Instagram.
   instagram: "DQZiyPUDSEB"

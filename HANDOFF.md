@@ -901,13 +901,56 @@ Yamraj now names a platform.
 
 ### Applied to the work pages, 2026-10-06
 
-**The outside link on an opening frame is ZW12, and it carries a wash.** The
-translucent pill — 1px 50%-white border, 35% ground, 6px backdrop-filter — is
-replaced on all six frames that carry it: Aasha, Taskaree, Ira and Special Ops
-on their bare stills, Mere Ho and Ve Maahi on their sleeves. The control is now
-`src/components/WatchMark.astro`: two tiers out of the work's own label, with a
-play triangle standing to their left on the word's own cap line and baseline.
-Chosen from fourteen drafts built on Aasha at `/preview/ab-zw1..14`.
+**ZW12 IS THE CONTROL ON EVERY WORK PAGE — ALL SEVENTEEN.** The translucent
+pill — 1px 50%-white border, 35% ground, 6px backdrop-filter — is gone from the
+site. `src/components/WatchMark.astro` is the only control now: two tiers out of
+the work's own words, with a play triangle standing to their left on the word's
+own cap line and baseline. Chosen from fourteen drafts built on Aasha at
+`/preview/ab-zw1..14`.
+
+**IT SERVES THREE SHAPES, AND THE TAG IS THE DIFFERENCE.**
+
+```
+tag      where                       works  arrow  leaves the site
+a        a bare still or a sleeve        6    yes  yes
+button   a video facade                  8     NO  no - it plays in the page
+span     a film in a grid                3    yes  yes - the .mp4 is not here
+```
+
+- **`a`** — Aasha, Taskaree, Ira, Special Ops on their stills; Mere Ho and Ve
+  Maahi on their sleeves. From `external.label`.
+- **`button`** — the eight single-video works. It REPLACES `.facade__play` and
+  its 7px accent triangle. The click is still handled on `[data-facade]` in
+  `main.ts`, not on the button, so nothing about the behaviour moved; and §5's
+  old note that the still's button copied the facade's is now true the other
+  way round, which closes that question.
+- **`span`** — the fourteen film cells on Aladdin, Book My Yamraj and
+  Dinshaw's, inside the anchor `FilmPlayer` already opened. Stepped down to
+  `1.45rem`, because a grid cell is about a third of the measure and the
+  route's `clamp(2rem, 4.4vw, 3.2rem)` runs straight out of it.
+
+**NO ARROW ON A FACADE, AND THAT IS THE WHOLE REASON THE PROP EXISTS.** Pressing
+one mounts the player IN the page. The arrow is the site's mark for leaving and
+would be a lie on it. The still openings keep theirs because nothing on those
+pages plays, and the film cells keep theirs because their `.mp4` has not
+arrived and the press really does go to Instagram or Drive. Bloody Bubbly and
+Dinshaw's both say "View on Instagram" and only one of them leaves — the arrow
+is what tells them apart.
+
+**THE WORDS ARE UGAM'S, PER WORK, IN A NEW `cta` FIELD.** Six say "Watch",
+Diwali "Watch trailer", Bloody Bubbly, Book My Yamraj and Dinshaw's "View on
+Instagram", Aladdin "View". Set 2026-10-06. It is NOT derived and that is
+deliberate: a rule over `opening` and `media` would guess most of them and be
+wrong about the rest — Aladdin's films sit on Google Drive, and "View on Drive"
+is a storage bucket rather than a destination to offer a reader. A work without
+a `cta` falls back to what it had, "Watch" on a facade and FilmPlayer's derived
+"View on <origin>" under a film.
+
+**THE SPLIT IS ON THE WORD " on ", one rule for all seventeen.** "Watch on
+ZEE5" and "View on Instagram" break into a small lead and a large destination;
+"Watch", "View" and "Watch trailer" have no " on " and set whole, with no lead.
+It replaced a split on `external.platform`, which could only ever work for the
+six works that have an `external` block — verified identical on all six.
 
 <- IT WAS ZW13 FOR PART OF THE SAME DAY — the same mark set INSIDE the line of
   type, before the platform word. Ugam took ZW12 instead. The swap is not
@@ -988,12 +1031,30 @@ one line otherwise, so nothing is invented and nothing is dropped.
 pages plays; the triangle promises inline playback and the arrow is the only
 mark in the lockup saying the press goes elsewhere.
 
-<- TWO THINGS LEFT OPEN. `.facade__play` still wears the pill on eight pages,
-  so §5's note that the still's button deliberately copied it is no longer
-  true — drafts for that were asked for and are the next piece of work. And
-  Special Ops gives the scrim **half its frame at 375**; moving the control
-  below the frame under 901px would remove it there, at the cost of a second
-  arrangement. The record is at `/preview/ab-zr1`.
+**THE WASH HOLDS ACROSS ALL SEVENTEEN AT 0.63, AND THE NEW ELEVEN BARELY NEED
+IT.** Re-measured on every surface the control now sits on — eight facade
+posters, replicating their `object-fit: cover` crop rather than drawing the raw
+bitmap, and all fourteen film cells. Worst ink as a multiple of its floor, at
+1280x800:
+
+```
+facades   Mumbai Standard Time 6.08   Shiva 4.90   Roar 4.83   Moholla 4.13
+          Broken Reflections 3.89   Diwali 3.19   Bloody Bubbly 2.95
+          My Red Crayon 2.74
+films     Book My Yamraj 1.74   Aladdin 1.64   Dinshaw's 1.50
+stills    Aasha 3.09  Taskaree 2.56  Ira 2.18  Special Ops 1.70
+          Ve Maahi 1.34  Mere Ho 1.06
+```
+
+The most any new work needs on its own is **0.475**; six of the eight facades
+need **nothing**. Mere Ho still binds the whole system at 0.613, so the number
+did not move. Nothing fails anywhere, at either width, and every glyph still
+clears the blur.
+
+<- ONE THING LEFT OPEN. Special Ops gives the scrim **more than half its frame
+  at 375**; moving the control below the frame under 901px would remove it
+  there, at the cost of a second arrangement. The record is at
+  `/preview/ab-zr1`.
 
 ---
 

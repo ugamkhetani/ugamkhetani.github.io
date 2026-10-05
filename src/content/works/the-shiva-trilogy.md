@@ -25,6 +25,7 @@ meta:
   - { label: "Scope", value: "End-to-end Audio" }
   - { label: "Treatment", value: "Cinematic" }
   - { label: "Year", value: "2026" }
+cta: "Watch"
 media:
   youtube: "uVuwV7zoNB0"
 links:

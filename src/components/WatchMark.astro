@@ -58,28 +58,55 @@
  *   for Ugam; nothing in VideoFacade.astro was touched.
  */
 interface Props {
-  /** The work's own `external.label`, as written. */
+  /** What the control says, in Ugam's words: a work's `cta`, or its
+   *  `external.label` where it has one. Set as written. */
   label: string;
-  /** The work's own `external.platform`, as written. */
-  platform: string;
-  url: string;
+  /** Present only when the control leaves the site. */
+  url?: string;
+  /** 'a' for a link, 'button' for a facade's own play control, 'span' when it
+   *  sits inside an anchor something else already opened. */
+  tag?: 'a' | 'button' | 'span';
+  /** The site's mark for leaving. On by default; OFF where the press plays
+   *  the work in the page, because there the arrow would be a lie. */
+  arrow?: boolean;
+  /** Steps the type down for a smaller frame, e.g. a film in a grid. */
+  size?: string;
+  /** Announced name where the visible words are not enough on their own. */
+  title?: string;
 }
-const { label, platform, url } = Astro.props;
+const { label, url, tag = 'a', arrow = true, size, title } = Astro.props;
+const Tag = tag;
 
-/* Split only on a real match; never manufacture a lead. */
-const splits = label.endsWith(platform) && label.length > platform.length;
-const lead = splits ? label.slice(0, -platform.length).trim() : '';
-const tail = splits ? platform : label;
+/* THE SPLIT IS ON THE WORD " on ", AND IT IS ONE RULE FOR ALL SEVENTEEN.
+   "Watch on ZEE5" and "View on Instagram" break into a small lead and a large
+   destination; "Watch", "View" and "Watch trailer" have no " on " and set
+   whole, large, with no lead at all. Nothing is invented, nothing is dropped,
+   and a label written tomorrow needs no entry anywhere.
+
+   IT REPLACED A SPLIT ON `external.platform`, which could only ever work for
+   the six works that have an `external` block. Verified identical on all six:
+   Watch on | ZEE5, Shorted, JioHotstar, Netflix and Listen on | Spotify. */
+const cut = label.toLowerCase().lastIndexOf(' on ');
+const lead = cut > 0 ? label.slice(0, cut + 3).trim() : '';
+const tail = cut > 0 ? label.slice(cut + 4).trim() : label;
 ---
 
-<a class="wm" href={url} target="_blank" rel="noopener noreferrer">
+<Tag
+  class="wm"
+  href={tag === 'a' ? url : undefined}
+  target={tag === 'a' ? '_blank' : undefined}
+  rel={tag === 'a' ? 'noopener noreferrer' : undefined}
+  type={tag === 'button' ? 'button' : undefined}
+  style={size ? `--wm-size:${size}` : undefined}
+>
   <span class="wm__scrim" aria-hidden="true"></span>
   <span class="wm__mark" aria-hidden="true"><i class="wm__tri"></i></span>
   <span class="wm__t">
     {lead && <span class="wm__k">{lead}</span>}
-    <span class="wm__p">{tail}<i class="wm__a" aria-hidden="true">&nearr;</i></span>
+    <span class="wm__p">{tail}{arrow && <i class="wm__a" aria-hidden="true">&nearr;</i>}</span>
   </span>
-</a>
+  {title && <span class="visually-hidden">{title}</span>}
+</Tag>
 
 <style>
   /* The frame is `position: relative`; this sits in its bottom-left corner at
@@ -95,6 +122,15 @@ const tail = splits ? platform : label;
     gap: 18px;
     text-decoration: none;
     color: var(--bone);
+    /* It renders as a <button> on a facade, so the UA's own chrome has to go
+       or the control arrives with a border, a grey ground and 13px Arial. */
+    appearance: none;
+    background: none;
+    border: 0;
+    padding: 0;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
   }
   .wm__t {
     position: relative;

@@ -29,6 +29,7 @@ meta:
   - { label: "Format", value: "AI-native Short Film" }
   - { label: "Year", value: "2026" }
   - { label: "Recognition", value: "First Prize · CinemAI Hackathon" }
+cta: "Watch"
 media:
   youtube: "g6HnZJt7MhU"
 links:

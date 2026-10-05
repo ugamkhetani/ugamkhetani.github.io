@@ -26,6 +26,7 @@ meta:
   - { label: "Channel", value: "Social-first" }
   - { label: "Release", value: "4-part Rollout" }
   - { label: "Year", value: "2026" }
+cta: "View"
 media:
   films:
     - { src: "reel-01.mp4", label: "Reel 01", href: "https://drive.google.com/file/d/1aTJndv-lvqO28_s_lpKJk7nSOl2DtDdL/view?usp=share_link" }

@@ -26,6 +26,7 @@ meta:
   - { label: "Scope", value: "Original Score" }
   - { label: "Approach", value: "Director-led" }
   - { label: "Year", value: "2025" }
+cta: "Watch"
 media:
   youtube: "AhzQTAfnsCs"
 links:

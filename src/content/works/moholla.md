@@ -31,6 +31,7 @@ meta:
   - { label: "Scope", value: "Original Score · Sound Design" }
   - { label: "Year", value: "2025" }
   - { label: "Recognition", value: "Official Selection · Waves · IFFI Goa" }
+cta: "Watch"
 media:
   youtube: "XL1G7qP8cz0"
 links:

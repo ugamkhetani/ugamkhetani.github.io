@@ -27,6 +27,7 @@ meta:
   - { label: "Scope", value: "Original Score · Sound Design" }
   - { label: "Year", value: "2025" }
   - { label: "Recognition", value: "Best AI Film · Waves · IFFI Goa" }
+cta: "Watch"
 media:
   youtube: "9jPFXdeCIwM"
 links:
