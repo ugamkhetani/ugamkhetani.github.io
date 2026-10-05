@@ -28,7 +28,7 @@ meta:
   - { label: "Channel", value: "Social-first" }
   - { label: "Release", value: "Multi-part Rollout" }
   - { label: "Year", value: "2026" }
-cta: "View on Instagram"
+cta: "Watch"
 media:
   films:
     - { src: "teaser.mp4", label: "Teaser", href: "https://www.instagram.com/reel/DTxIu-OkuyT/" }

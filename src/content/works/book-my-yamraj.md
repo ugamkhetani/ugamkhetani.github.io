@@ -44,7 +44,7 @@ meta:
   - { label: "Output", value: "6 Episodes · 6 Original Cues" }
   - { label: "Release", value: "Episodic Rollout" }
   - { label: "Year", value: "2025" }
-cta: "View on Instagram"
+cta: "Watch"
 media:
   films:
     - { src: "ep-01.mp4", label: "Episode 01", href: "https://www.instagram.com/reel/DNYXjztyjpN/" }

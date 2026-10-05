@@ -937,14 +937,23 @@ arrived and the press really does go to Instagram or Drive. Bloody Bubbly and
 Dinshaw's both say "View on Instagram" and only one of them leaves — the arrow
 is what tells them apart.
 
-**THE WORDS ARE UGAM'S, PER WORK, IN A NEW `cta` FIELD.** Six say "Watch",
-Diwali "Watch trailer", Bloody Bubbly, Book My Yamraj and Dinshaw's "View on
-Instagram", Aladdin "View". Set 2026-10-06. It is NOT derived and that is
-deliberate: a rule over `opening` and `media` would guess most of them and be
-wrong about the rest — Aladdin's films sit on Google Drive, and "View on Drive"
-is a storage bucket rather than a destination to offer a reader. A work without
-a `cta` falls back to what it had, "Watch" on a facade and FilmPlayer's derived
-"View on <origin>" under a film.
+**THE WORDS ARE UGAM'S, PER WORK, IN A NEW `cta` FIELD.** Ten say **"Watch"**
+and Diwali says **"Watch trailer"**. Set 2026-10-06. It is NOT derived and that
+is deliberate: a rule over `opening` and `media` would guess most of them and
+be wrong about the rest. A work without a `cta` falls back to what it had —
+"Watch" on a facade, and FilmPlayer's derived "View on <origin>" under a film.
+
+<- THEY SAID "VIEW ON INSTAGRAM" AND "VIEW" FOR AN HOUR. Bloody Bubbly, Book
+  My Yamraj and Dinshaw's were "View on Instagram" and Aladdin "View"; Ugam
+  made all four "Watch" the same day. The change is pure gain on the numbers —
+  a shorter label is a smaller control, so Bloody Bubbly's scrim fell from
+  17.5% of its frame to **10.5%**, the film cells from 6.9% to **3.5%**, and
+  every reading improved. **But the film cells no longer name where they go.**
+  "View on Instagram ↗" said it; "Watch ↗" leaves the arrow to carry it alone.
+  That is Ugam's call and it is recorded here because the information was
+  deliberate when FilmPlayer derived it — Aladdin's films are the reason the
+  override exists at all, since they sit on Google Drive and "View on Drive"
+  names a storage bucket rather than a destination.
 
 **THE SPLIT IS ON THE WORD " on ", one rule for all seventeen.** "Watch on
 ZEE5" and "View on Instagram" break into a small lead and a large destination;
@@ -1038,18 +1047,18 @@ bitmap, and all fourteen film cells. Worst ink as a multiple of its floor, at
 1280x800:
 
 ```
-facades   Mumbai Standard Time 6.08   Shiva 4.90   Roar 4.83   Moholla 4.13
-          Broken Reflections 3.89   Diwali 3.19   Bloody Bubbly 2.95
-          My Red Crayon 2.74
-films     Book My Yamraj 1.74   Aladdin 1.64   Dinshaw's 1.50
+facades   Mumbai Standard Time 6.08   Bloody Bubbly 6.30   Shiva 4.90
+          Roar 4.83   Moholla 4.13   Broken Reflections 3.89
+          Diwali 3.19   My Red Crayon 2.74
+films     Book My Yamraj 2.50   Dinshaw's 2.49   Aladdin 1.64
 stills    Aasha 3.09  Taskaree 2.56  Ira 2.18  Special Ops 1.70
           Ve Maahi 1.34  Mere Ho 1.06
 ```
 
-The most any new work needs on its own is **0.475**; six of the eight facades
-need **nothing**. Mere Ho still binds the whole system at 0.613, so the number
-did not move. Nothing fails anywhere, at either width, and every glyph still
-clears the blur.
+The most any of the eleven needs on its own is **0.473**; six of the eight
+facades need **nothing**. Mere Ho still binds the whole system at 0.613, so the
+number did not move. Nothing fails anywhere, at either width, and every glyph
+still clears the blur.
 
 <- ONE THING LEFT OPEN. Special Ops gives the scrim **more than half its frame
   at 375**; moving the control below the frame under 901px would remove it
