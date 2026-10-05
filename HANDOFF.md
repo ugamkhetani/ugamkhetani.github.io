@@ -1735,8 +1735,9 @@ are written down.
   `COUNTDOWN`. Ugam has seen this and wants it left as it is.
 
 ### Housekeeping
-**This IS a git repository** — `main`, 366 commits as of 2026-10-05, working
-tree clean. `node_modules`, `dist`, `.astro` and
+**This IS a git repository** — `main`, 367 commits at the end of 2026-10-05,
+working tree clean. (A commit count is the one figure here guaranteed to be
+stale by the next commit; `git rev-list --count HEAD` is the check.) `node_modules`, `dist`, `.astro` and
 `.DS_Store` are ignored; `src/media` (**395MB** of stills) and `_originals`
 (34MB) are tracked, because they are source the site builds from and there is
 no other copy. **The largest single file is 23.8MB** —
