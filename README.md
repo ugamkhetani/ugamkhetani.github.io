@@ -205,14 +205,20 @@ the next run and canonical tags start being emitted.
 
 ### What is published
 
-**21 pages** — the home page, seventeen work pages and three redirects. The
-57-draft library in `src/pages/preview/` is **deliberately not built**
-(see `astro.config.mjs`); it stays in the repository and on the dev server,
-where `npm run dev` serves it exactly as before. To publish it anyway, or just
-to check the drafts still compile:
+**21 pages, and that is everything the project builds** — the home page,
+seventeen work pages and three redirect stubs for the retired `/about`,
+`/contact` and `/contents` URLs. Every page in `src/pages/` is a production
+page; there is nothing withheld from the output and no build flag to remember.
+
+The draft library that used to live in `src/pages/preview/` — 72 working
+drawings, excluded from the build by an integration in `astro.config.mjs` —
+was removed on 2026-10-06 when the repository was prepared for upload, and the
+integration with it. Nothing on the live site changed: the twenty-one pages
+render byte-for-byte as they did, verified by comparing both builds. The
+drafts are in history at `22fe932`:
 
 ```
-PREVIEW=1 npm run build
+git show 22fe932:src/pages/preview/ab-zw12.astro
 ```
 
 ### Other hosts

@@ -1,58 +1,4 @@
 import { defineConfig } from 'astro/config';
-import fs from 'node:fs';
-
-/**
- * THE PREVIEW LIBRARY IS NOT PUBLISHED.
- *
- * Seventy-five draft pages live in src/pages/preview/. They are a kept
- * library — argued over, measured, and referenced by name from comments all
- * over this codebase — but they are working drawings, not the site, and
- * putting them on the open internet publishes every unreleased idea in it.
- *
- * SO THEY ARE EXCLUDED FROM THE BUILD RATHER THAN DELETED OR MOVED. Nothing
- * is removed from git and nothing changes on the dev server: `npm run dev`
- * still serves /preview/ and /preview/index exactly as before, because this
- * only runs at build time. It cuts 75 pages and 8.8MB of HTML from what
- * ships.
- *
- * SET PREVIEW=1 TO BUILD THEM ANYWAY — useful for checking that a draft
- * still compiles, which the build is otherwise no longer doing.
- *
- * <- IT REMOVES THEM FROM THE OUTPUT RATHER THAN FROM THE ROUTE TABLE, and
- *   the first attempt did the latter. `astro:routes:resolved` hands you the
- *   route list and splicing seventy-five entries out of it reports exactly
- *   that — "75 routes dropped" — and then builds all seventy-five anyway,
- *   because in Astro 5.2 the build does not read back the mutated array.
- *   Measured, not assumed: the log said 75 and `find dist -name '*.html'`
- *   still returned every draft. So the removal happens in
- *   `astro:build:done`, which is the last hook before the build ends and
- *   is verifiable by listing the directory afterwards.
- *
- * <- WHICH MEANS THEY ARE STILL RENDERED, and that is the honest cost: the
- *   build spends about a second on pages it then deletes, and any image a
- *   draft alone referenced stays in _astro with nothing pointing at it.
- *   Measured after: 21 pages ship and the output is 73MB against 82MB with
- *   them included. Most of that 9MB is the drafts' own HTML; the orphaned
- *   images are the small remainder, because the drafts render the same
- *   works the live site does and share its optimised files.
- */
-function withoutPreview() {
-  return {
-    name: 'without-preview',
-    hooks: {
-      'astro:build:done': async ({ dir, logger }) => {
-        if (process.env.PREVIEW) {
-          logger.info('PREVIEW=1 — the draft library is published in this build');
-          return;
-        }
-        const out = new URL('preview/', dir);
-        const n = fs.existsSync(out) ? fs.readdirSync(out).length : 0;
-        await fs.promises.rm(out, { recursive: true, force: true });
-        logger.info(`draft library not published — ${n} entries removed from the output`);
-      },
-    },
-  };
-}
 
 /* Normalised once so the config, the redirects and href() cannot disagree.
    Always slash-terminated, which is the shape Astro's own BASE_URL takes:
@@ -84,7 +30,6 @@ export default defineConfig({
    */
   site: process.env.SITE_URL || undefined,
   base: BASE,
-  integrations: [withoutPreview()],
   trailingSlash: 'ignore',
   /* host is pinned to IPv4 loopback on purpose. Left to itself the dev
      server binds only to [::1], and this machine's /etc/hosts maps

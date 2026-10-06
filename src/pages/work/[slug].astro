@@ -41,6 +41,13 @@
  * and it is now handled in the component rather than avoided.
  *
  * NOTHING IS INVENTED: every field is read from the work's own markdown.
+ *
+ * <- THE DRAFT LIBRARY IS GONE FROM THE WORKING TREE. Every `/preview/ab-*`
+ *   named in this file is a provenance record, not a path: the library was
+ *   removed on 2026-10-06 when the repository was prepared for upload. The
+ *   names still say which draft a decision came from, and the drafts
+ *   themselves are at `22fe932` — recover one with
+ *   `git show 22fe932:src/pages/preview/<name>.astro`.
  */
 import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';

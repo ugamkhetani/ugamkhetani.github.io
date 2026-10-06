@@ -1,9 +1,24 @@
 # Handoff — Ugam Khetani portfolio
 
-A static Astro site. **Seventeen works, 21 pages shipped** — the home page,
-seventeen work pages and three redirect stubs — plus a kept preview library of
-57 drafts that is built and withheld from the output. Every project is one
-markdown file; every image is a file in a folder. No CMS, no database.
+A static Astro site. **Seventeen works, 21 pages** — the home page, seventeen
+work pages and three redirect stubs. Every project is one markdown file; every
+image is a file in a folder. No CMS, no database.
+
+<- THE DRAFT LIBRARY IS GONE, 2026-10-06. `src/pages/preview/` held 72 working
+  drawings and was excluded from the build by an integration in
+  `astro.config.mjs`; both were removed when the repository was prepared for
+  upload, on Ugam's instruction. **Everything in this file that describes the
+  library, the §7 inventory and the `/preview` index included, is now history
+  rather than a description of the folder.** The drafts are at `22fe932` —
+  `git show 22fe932:src/pages/preview/<name>.astro` — and every `ab-*` name in
+  §5's provenance notes still says which draft a decision came from.
+
+  NOTHING ON THE LIVE SITE CHANGED. Proved rather than asserted: the `<body>`
+  of all 21 pages is identical before and after, the 876 CSS rules the live
+  pages load are the same set with none lost or gained, and the JavaScript
+  they run is byte-identical at 54,593 characters. The only difference in the
+  output is that Astro now inlines a stylesheet it used to link, which is a
+  delivery decision and not a rule.
 
 This file is the briefing for whoever picks the work up next — including a
 fresh chat with no memory of how any of it got here. Read §1, then §5 and §6

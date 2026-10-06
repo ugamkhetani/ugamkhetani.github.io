@@ -25,28 +25,23 @@ pnpm-debug.log*
 .vscode/
 *.swp
 
-# ── DELIBERATELY NOT IGNORED ──────────────────────────────────────────
-# The six *-backup files at the root are committed rather than ignored. They
-# are point-in-time snapshots taken before risky edits, from before there was
-# any version control — nothing imports them and the build ignores them. This
-# first commit keeps them so it is a faithful snapshot of the folder; now that
-# the history exists they are redundant and can be deleted whenever you like.
+# ── DELIBERATELY NOT IGNORED ──────────────────────────────────
+# src/media/ is ~395MB of stills. That is source material, not build output:
+# every work page and the mosaic bed are built from it, Astro optimises it at
+# build time into dist/, and there is no other copy. It has to be in history.
 #
-# _originals/ is 34MB of untouched source media for two works. Source, not
-# output — it stays.
+# _originals/ is 34MB of untouched source media. 20.4MB of it — the whole
+# broken-reflections folder — is byte-identical to files already in
+# src/media/, measured 2026-10-06; the 13.8MB roar folder is unique. Kept
+# because it is source rather than output, and flagged to Ugam as the one
+# place 20MB could be saved without touching the site.
 #
-# build12.py / chrome12.py / css12.py at the root are dead scaffolding from an
-# earlier generator workflow. build12.py imports a module (inner7) that is not
-# in the folder, so it cannot even run. Kept for history, safe to delete.
+# The largest single file is 23.8MB — Diwali's frame 03. Far inside GitHub's
+# 100MB per-file limit, and the repository as a whole is around 480MB of
+# history, which GitHub accepts. A first push and a fresh clone are both slow,
+# and CI checks out shallow for exactly that reason.
 #
-# src/media/ is ~360MB of stills. That is source material, not build
-# output: every work page and the mosaic bed are built from it, Astro
-# optimises it at build time into dist/, and there is no other copy. It
-# has to be in the history.
-#
-# RE-MEASURED 2026-09-30: the largest single file is 23.8MB — Diwali's
-# frame 03 — not the 7.5MB this note used to claim. Still far inside
-# GitHub's 100MB per-file limit, and the repository as a whole is around
-# 480MB of history, which GitHub accepts without complaint. But a first
-# push and a fresh clone are both slow, and CI checks out shallow for
-# exactly that reason.
+# CLEARED 2026-10-06, when the project was prepared for upload: the six
+# *-backup files at the root, the three dead .py generator scripts, and
+# src/pages/preview/ (72 drafts and their index). All are in git history; the
+# library's last commit is 22fe932.

@@ -22,10 +22,11 @@
  * slash or the join doubles it. Stripping leading slashes here means callers
  * can pass either form and neither breaks.
  *
- * <- IT IS DELIBERATELY NOT USED IN src/pages/preview/. Those pages are not
- *   built for production at all (see astro.config.mjs), so they only ever
- *   run on the dev server, where the base is always "/". Rewriting seventy-
- *   five drafts to fix a problem they cannot have would be churn.
+ * <- IT USED TO SAY THIS WAS NOT USED IN src/pages/preview/, which was true
+ *   while the draft library existed: those pages were never built for
+ *   production, so the base was always "/" for them. The library was removed
+ *   on 2026-10-06 and the exemption went with it — every page in the project
+ *   is now a production page and every internal link comes through here.
  */
 
 /** "/" with no base set, "/portfolio/" with one. Always ends in a slash. */
