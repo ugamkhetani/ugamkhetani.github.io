@@ -91,43 +91,6 @@ const { title, description, intro = false } = Astro.props;
       }
       @media (prefers-reduced-motion: reduce) { .cursor { display: none; } }
       @media (hover: none), (pointer: coarse) { .cursor { display: none; } }
-
-      /* ── Index overlay ─────────────────────────────────────────── */
-      .idx { display: flex; flex-direction: column; gap: var(--s-6); }
-      .idx__cat { padding-bottom: 10px; border-bottom: 1px solid var(--rule); }
-      .idx__list { list-style: none; margin: 0; padding: 0; }
-
-      .idx__row {
-        display: grid;
-        grid-template-columns: 3rem minmax(0, 1fr) minmax(0, 1fr) 4rem;
-        gap: var(--s-2);
-        align-items: baseline;
-        padding: 16px 0;
-        border-bottom: 1px solid var(--rule-soft);
-        transition: color var(--d-micro) var(--ease);
-      }
-      .idx__row:hover { color: var(--accent); }
-      .idx__no { color: var(--dim); font-variant-numeric: tabular-nums; }
-      .idx__title {
-        font-family: var(--display);
-        font-weight: 500;
-        font-size: var(--t-lg);
-        letter-spacing: -0.02em;
-        line-height: 1.05;
-      }
-      .idx__role { color: var(--muted); }
-      .idx__year {
-        color: var(--dim);
-        text-align: right;
-        font-variant-numeric: tabular-nums;
-      }
-
-      @media (max-width: 720px) {
-        .idx__row { grid-template-columns: 2.5rem minmax(0, 1fr) 3.5rem; }
-        .idx__role { display: none; }
-      }
-
-      /* ── Info overlay ──────────────────────────────────────────── */
     </style>
   </body>
 </html>

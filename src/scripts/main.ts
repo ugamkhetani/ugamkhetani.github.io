@@ -196,9 +196,8 @@ function initRunHead() {
     const y = window.scrollY;
     const down = y > last;
     last = y;
-    // Never hide near the top, and never hide while an overlay is open.
-    const overlayOpen = !!document.querySelector('[data-overlay]:not([hidden])');
-    head.classList.toggle('is-hidden', down && y > 220 && !overlayOpen);
+    // Never hide near the top.
+    head.classList.toggle('is-hidden', down && y > 220);
   };
 
   window.addEventListener(
@@ -218,126 +217,25 @@ function initHome() {
     if (el.dataset.bound) return;
     el.dataset.bound = '1';
     el.addEventListener('click', (e) => {
-      // From any view it dismisses first, so you are never left with an
-      // overlay open behind the homepage.
-      const open = document.querySelector<HTMLElement>('[data-overlay]:not([hidden])');
-      if (open) open.dispatchEvent(new CustomEvent('overlay:close'));
       if (location.pathname === '/') {
         e.preventDefault();
         lenis ? lenis.scrollTo(0) : window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     });
   });
-  markCurrent(null);
+  markCurrent();
 }
 
 /* ── Which of the four you are looking at ─────────────────────────
    `is-current` marks the label; RunHead.astro dims the other three. */
-function markCurrent(id: string | null) {
+function markCurrent() {
   const items = Array.from(document.querySelectorAll<HTMLElement>('.runhead .itm'));
   const path = location.pathname.replace(/\/+$/, '') || '/';
   // An item whose own path we are standing on wins. Otherwise (Works) holds
   // the homepage and every work page beneath it.
   const here = items.find((el) => el.dataset.path && el.dataset.path !== '/' && el.dataset.path === path);
   items.forEach((el) => {
-    const mine = id ? el.dataset.overlayOpen === id : here ? el === here : el.hasAttribute('data-home');
-    el.classList.toggle('is-current', mine);
-  });
-}
-
-/* ── Overlays: Contents, About, Contact ─────────────────────────── */
-function initOverlays() {
-  document.querySelectorAll<HTMLElement>('[data-overlay]').forEach((overlay) => {
-    if (overlay.dataset.bound) return;
-    overlay.dataset.bound = '1';
-
-    const closer = overlay.querySelector<HTMLElement>('[data-overlay-close]');
-    let lastFocused: HTMLElement | null = null;
-
-    const open = () => {
-      // Only one overlay at a time.
-      document.querySelectorAll<HTMLElement>('[data-overlay]').forEach((other) => {
-        if (other !== overlay && !other.hidden) other.dispatchEvent(new CustomEvent('overlay:close'));
-      });
-      lastFocused = document.activeElement as HTMLElement;
-      markCurrent(overlay.id);
-      overlay.hidden = false;
-      // Next frame, so the transition has a starting state to animate from.
-      requestAnimationFrame(() => overlay.classList.add('is-open'));
-      document.documentElement.style.overflow = 'hidden';
-      lenis?.stop();
-      // Focus must land inside the dialog: the Escape handler below is bound
-      // to the overlay, so if focus stays outside it Escape never reaches it.
-      (closer ?? overlay).focus();
-    };
-
-    const close = () => {
-      if (overlay.hidden) return;
-      markCurrent(null);
-      overlay.classList.remove('is-open');
-      document.documentElement.style.overflow = '';
-      lenis?.start();
-      // transitionend is the happy path, but a throttled or backgrounded tab
-      // may never fire it — and a closed overlay that never gets `hidden`
-      // stays a full-screen invisible click trap. The timer guarantees it.
-      let timer = 0;
-      const done = () => {
-        overlay.hidden = true;
-        overlay.removeEventListener('transitionend', done);
-        clearTimeout(timer);
-      };
-      if (reduced()) done();
-      else {
-        overlay.addEventListener('transitionend', done);
-        timer = window.setTimeout(done, 400);
-      }
-      lastFocused?.focus();
-    };
-
-    overlay.addEventListener('overlay:close', close);
-    closer?.addEventListener('click', close);
-
-    document
-      .querySelectorAll<HTMLElement>(`[data-overlay-open="${overlay.id}"]`)
-      .forEach((el) => el.addEventListener('click', open));
-
-    // Navigating to a work from the Index should not leave the overlay up.
-    overlay.querySelectorAll('a[href^="/"]').forEach((link) =>
-      link.addEventListener('click', () => {
-        overlay.classList.remove('is-open');
-        overlay.hidden = true;
-        document.documentElement.style.overflow = '';
-        lenis?.start();
-      })
-    );
-
-    overlay.addEventListener('keydown', (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        close();
-        return;
-      }
-      if (e.key !== 'Tab') return;
-      // Trap focus inside the overlay while it's open.
-      const focusable = overlay.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
-      );
-      // About and Contact hold no links at all. Returning here would let Tab
-      // walk straight out of an aria-modal dialog and onto the page behind.
-      if (!focusable.length) {
-        e.preventDefault();
-        overlay.focus();
-        return;
-      }
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
-      }
-    });
+    el.classList.toggle('is-current', here ? el === here : el.hasAttribute('data-home'));
   });
 }
 
@@ -346,13 +244,7 @@ function initOverlays() {
    reveal is additive now — but one throwing must not stop the rest
    from binding. */
 function boot() {
-  // Whatever happened on the previous page, this one starts scrollable.
-  // An overlay left open through a browser-back, a handler that threw
-  // mid-close — neither should be able to strand the site unscrollable.
-  document.documentElement.style.overflow = '';
-  lenis?.start();
-
-  for (const init of [initReveal, initFrames, initCursor, initMediaBus, initFacades, initOverlays, initRunHead, initHome]) {
+  for (const init of [initReveal, initFrames, initCursor, initMediaBus, initFacades, initRunHead, initHome]) {
     try {
       init();
     } catch (err) {

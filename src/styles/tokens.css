@@ -84,8 +84,8 @@
 
   /* ── Layout ─────────────────────────────────────────────────── */
   --margin:   clamp(24px, 6vw, 88px);
-  /* The fixed header's box: padding + one line of the nav type.
-     Overlays clear it so the four labels stay reachable on every view. */
+  /* The fixed header's box: padding + one line of the nav type. Anything
+     pinned below the header offsets by it — see ContactForm and the rail. */
   --head-h:   clamp(43px, 3.2vw, 56px);
   --cols:     12;
   --gutter:   clamp(12px, 1.6vw, 24px);
