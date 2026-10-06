@@ -27,11 +27,11 @@
  * sixteen. The big ghosted section numerals that used to sit behind each
  * heading have been removed.
  *
- * THE MENU IS THE HOME PAGE'S, not Base's running head. Work pages carried
- * RunHead until now, which meant leaving a work put you under a different
- * piece of furniture than the one you left — two menus for one site. They
- * mount OpNav instead, in the same "bracket" variant the home page uses, and
- * RunHead is hidden here exactly as it is there.
+ * THE MENU IS THE HOME PAGE'S. Work pages once carried a running head of
+ * their own, which meant leaving a work put you under a different piece of
+ * furniture than the one you left — two menus for one site. They mount OpNav
+ * instead, in the same "bracket" variant the home page uses; that header was
+ * hidden on every page it reached and has since been removed.
  *
  * IT IS MOUNTED WITH base="/". OpNav's four items are #top / #works / #about /
  * #contact, which are sections of the one-page home and are nothing at all
@@ -1545,9 +1545,3 @@ const FACTS: { k: string; v: string }[] = [
   initScore();
   document.addEventListener('astro:page-load', initScore);
 </script>
-
-<style is:global>
-  /* The same line index.astro carries: OpNav replaces the running head rather
-     than sitting under it. */
-  .runhead { display: none !important; }
-</style>

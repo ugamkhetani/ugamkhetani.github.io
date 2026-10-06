@@ -6,7 +6,6 @@ import '@fontsource-variable/jetbrains-mono/wght.css';
 import '@fontsource-variable/fraunces/wght-italic.css';
 
 import { ClientRouter } from 'astro:transitions';
-import RunHead from '../components/RunHead.astro';
 import { displayFontFace } from '../lib/displayFont';
 
 const fontFace = displayFontFace();
@@ -68,8 +67,6 @@ const { title, description, intro = false } = Astro.props;
     {/* Pointer trail. Sits above the page but below the opening sequence,
         and never intercepts a click. */}
     <canvas class="cursor" data-cursor aria-hidden="true"></canvas>
-
-    <RunHead />
 
     <main id="main">
       <slot />

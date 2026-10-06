@@ -182,69 +182,12 @@ function initFacades() {
   });
 }
 
-/* ── Running head retreats on the way down ──────────────────────── */
-function initRunHead() {
-  const head = document.querySelector<HTMLElement>('.runhead');
-  if (!head || head.dataset.bound) return;
-  head.dataset.bound = '1';
-
-  let last = window.scrollY;
-  let ticking = false;
-
-  const update = () => {
-    ticking = false;
-    const y = window.scrollY;
-    const down = y > last;
-    last = y;
-    // Never hide near the top.
-    head.classList.toggle('is-hidden', down && y > 220);
-  };
-
-  window.addEventListener(
-    'scroll',
-    () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(update);
-    },
-    { passive: true }
-  );
-}
-
-/* ── (Works) is the homepage ────────────────────────────────────── */
-function initHome() {
-  document.querySelectorAll<HTMLElement>('.runhead [data-home]').forEach((el) => {
-    if (el.dataset.bound) return;
-    el.dataset.bound = '1';
-    el.addEventListener('click', (e) => {
-      if (location.pathname === '/') {
-        e.preventDefault();
-        lenis ? lenis.scrollTo(0) : window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    });
-  });
-  markCurrent();
-}
-
-/* ── Which of the four you are looking at ─────────────────────────
-   `is-current` marks the label; RunHead.astro dims the other three. */
-function markCurrent() {
-  const items = Array.from(document.querySelectorAll<HTMLElement>('.runhead .itm'));
-  const path = location.pathname.replace(/\/+$/, '') || '/';
-  // An item whose own path we are standing on wins. Otherwise (Works) holds
-  // the homepage and every work page beneath it.
-  const here = items.find((el) => el.dataset.path && el.dataset.path !== '/' && el.dataset.path === path);
-  items.forEach((el) => {
-    el.classList.toggle('is-current', here ? el === here : el.hasAttribute('data-home'));
-  });
-}
-
 /* ── Boot ─────────────────────────────────────────────────────────
    Every initialiser is isolated. None of them can hide content — the
    reveal is additive now — but one throwing must not stop the rest
    from binding. */
 function boot() {
-  for (const init of [initReveal, initFrames, initCursor, initMediaBus, initFacades, initRunHead, initHome]) {
+  for (const init of [initReveal, initFrames, initCursor, initMediaBus, initFacades]) {
     try {
       init();
     } catch (err) {
