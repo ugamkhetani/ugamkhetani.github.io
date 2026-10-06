@@ -437,7 +437,11 @@ const FACTS: { k: string; v: string }[] = [
       </section>
     )}
 
-    {/* ── 01 · THE WORK. One section, four kinds of media. ────── */}
+    {/* ── 01 · THE WORK. One section, four kinds of media. ──────
+         FilmPlayer's fallbackPoster is a dedicated cover if one has been
+         dropped in, otherwise the still — see coverFor in src/lib/frames.ts.
+         The note lives up here because a {comment} among a component's
+         attributes builds but will not typecheck. */}
     <section class="blk" aria-label={OPEN_LABEL} data-reveal>
 
       {isVideo && (
@@ -454,8 +458,6 @@ const FACTS: { k: string; v: string }[] = [
               href={f.href}
               poster={f.poster}
               ratio={f.ratio}
-              {/* A dedicated cover if one has been dropped in, otherwise the
-                  still — see coverFor in src/lib/frames.ts. */}
               fallbackPoster={coverFor(work.id, f.src) ?? images[i % images.length]}
               alt={`${d.alt} — ${f.label}`}
               cta={d.cta}

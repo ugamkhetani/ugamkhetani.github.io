@@ -103,7 +103,18 @@ export const reserve = () => QUESTIONS.filter((q) => !ASKED.includes(q.key));
  *  need filling come first, then a marker, then the rest drawn with a dashed
  *  hairline. Saying it three times cost 186px and told nobody anything the
  *  shape doesn't. */
-export const FIELDS = [
+/* `type` IS ANNOTATED, NOT INFERRED. Left to itself the literal 'text' widens
+   to `string`, and <input type={f.type}> in ContactForm.astro will not take a
+   bare string — the attribute wants one of the input types. Naming the four we
+   use keeps the check honest and the error at this end if a fifth appears. */
+export const FIELDS: {
+  key: string;
+  label: string;
+  type: 'text' | 'email' | 'tel' | 'url';
+  required?: boolean;
+  placeholder: string;
+  autocomplete?: string;
+}[] = [
   { key: 'name',  label: 'Name',    type: 'text',  required: true, placeholder: 'Your name', autocomplete: 'name' },
   { key: 'email', label: 'Email',   type: 'email', required: true, placeholder: 'Your email', autocomplete: 'email' },
   { key: 'phone', label: 'Phone',   type: 'tel',   placeholder: 'Your number', autocomplete: 'tel' },
