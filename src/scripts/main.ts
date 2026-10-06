@@ -68,6 +68,29 @@ function mediaFrame(el: Element): HTMLElement | null {
   return el.closest<HTMLElement>('.film') ?? el.closest<HTMLElement>('.blk');
 }
 
+/* WHO STANDS DOWN, DERIVED FROM THE DOM EVERY TIME RATHER THAN TRACKED.
+
+   A control is down if it is inside the frame of whatever just started, or
+   inside a facade that is currently mounted. Both are read off the document,
+   so there is no state to get out of step and calling this twice is the same
+   as calling it once.
+
+   <- IT USED TO BE A CSS RULE IN VideoFacade REACHING `.wm`, WHICH IS
+     WatchMark'S ELEMENT, and that coupling is what made the failure
+     invisible: when the facade's button became WatchMark the old selector
+     `.facade.is-playing .facade__play` stopped matching anything and nothing
+     anywhere errored. The rule that hides the control now lives in the
+     component that owns it, keyed on a class this function sets, so the two
+     cannot drift apart again. */
+function syncStandDown(playing?: Element | null) {
+  const frame = playing ? mediaFrame(playing) : null;
+  document.querySelectorAll<HTMLElement>('.wm').forEach((wm) => {
+    const inPlayingFrame = !!frame && frame.contains(wm);
+    const inLiveFacade = !!wm.closest('[data-facade].is-playing');
+    wm.classList.toggle('is-stood-down', inPlayingFrame || inLiveFacade);
+  });
+}
+
 /* ── One piece of media at a time. Enforced globally. ───────────── */
 function initMediaBus() {
   if ((window as any).__mediaBus) return;
@@ -85,10 +108,7 @@ function initMediaBus() {
         if (!el.contains(playing)) closeFacade(el);
       });
       /* Whatever just started owns its frame; every other frame releases. */
-      document
-        .querySelectorAll<HTMLElement>('.is-media-live')
-        .forEach((el) => el.classList.remove('is-media-live'));
-      mediaFrame(playing)?.classList.add('is-media-live');
+      syncStandDown(playing);
     },
     true // capture: media events don't bubble
   );
@@ -96,17 +116,14 @@ function initMediaBus() {
   /* Both, because `ended` does not fire a `pause` in every engine and a
      scrubbed-to-the-end element can sit paused without ever ending. */
   (['pause', 'ended'] as const).forEach((type) =>
-    document.addEventListener(
-      type,
-      (e) => mediaFrame(e.target as Element)?.classList.remove('is-media-live'),
-      true
-    )
+    document.addEventListener(type, () => syncStandDown(null), true)
   );
 }
 
 function closeFacade(facade: HTMLElement) {
   facade.classList.remove('is-playing');
   facade.querySelector('iframe')?.remove();
+  syncStandDown(null);
 }
 
 /* ── YouTube facade: nothing third-party loads until you press play ── */
@@ -160,6 +177,7 @@ function initFacades() {
 
       facade.querySelector('.facade__stage')?.append(iframe);
       facade.classList.add('is-playing');
+      syncStandDown(null);
     });
   });
 }

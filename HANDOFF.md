@@ -1102,9 +1102,24 @@ hides the control with the poster, verified by clicking: the button computes
 does the same for the other two ways a page can play something, so the rule is
 true of every control rather than true by accident of which one you press.
 
+**THE RULE THAT HIDES IT LIVES IN WatchMark, WITH THE ELEMENT IT HIDES.**
+`syncStandDown()` in `main.ts` puts `is-stood-down` on each control and
+`.wm.is-stood-down { display: none }` does the rest. The state is DERIVED from
+the document every time rather than tracked: a control is down if it is inside
+the frame of whatever just started, or inside a mounted facade. Calling it
+twice is the same as calling it once.
+
+<- IT WAS THREE RULES IN THREE OTHER FILES REACHING IN WITH `:global(.wm)` —
+  VideoFacade's, FilmPlayer's and the work page's — and that coupling broke
+  silently the first time it was tested. When the facade's button became
+  WatchMark, VideoFacade's `.facade.is-playing .facade__play` stopped matching
+  anything: the class still went on, the iframe still mounted, and the control
+  simply stayed up over a playing video with no error anywhere. One rule, one
+  owner, and a selector that cannot go stale against a component it does not
+  own.
+
 **THE SCOPE IS THE CONTROL'S OWN FRAME, NOT THE PAGE.** `mediaFrame()` takes
-the nearest `.film` if there is one and the nearest `.blk` otherwise, and the
-`play` handler marks it `is-media-live` while `pause` and `ended` clear it.
+the nearest `.film` if there is one and the nearest `.blk` otherwise.
 That is what stops episode one playing from blanking the marks on episodes two
 to six — measured on Book My Yamraj with a real audio element in cell one:
 six cells, six marks, only the first hid, all six returned on pause. Both
@@ -1673,6 +1688,28 @@ fails the build.** Keep regexes in the frontmatter and call a named function
 from the markup.
 
 ### Added 2026-10-06, from the watch control
+
+**THE DEV SERVER WILL SERVE CURRENT MARKUP WITH A STALE STYLESHEET, AND THE
+SYMPTOM LOOKS EXACTLY LIKE A BUG YOU JUST WROTE.** Reproduced 2026-10-06 on
+4323: the page carried the NEW control (`.wm`) and the OLD rule
+(`.facade.is-playing .facade__play`), so pressing play mounted the video and
+left the button sitting on top of it. The built site on 4325 was correct the
+whole time, and a full reload of 4323 did not fix it. §6 has said since the
+ab-st7 round that the dev server can serve a stale scoped `<style>`; this is
+the same fault with a more convincing symptom, because the markup updates and
+only the CSS lags. **Judge a CSS change on `astro build` and the built-site
+preview, never on 4323** — and clear the cache with the server stopped:
+
+```bash
+rm -rf node_modules/.vite .astro && npm run dev -- --port 4323
+```
+
+**A CROSS-COMPONENT SELECTOR GOES STALE WITHOUT ERRORING.** The same failure
+had a second cause worth separating: the rule hiding the watch control lived
+in VideoFacade and reached WatchMark's element. Rename or replace the element
+and the selector matches nothing, silently. Keep the rule that hides a thing
+in the component that owns the thing, and drive it with a class rather than a
+descendant selector across a scope boundary.
 
 **SOLVE ALPHA COMPOSITING IN GAMMA SPACE, NOT IN LINEAR LIGHT.** Working out
 how dark a scrim has to be to lift text over a contrast floor, the obvious

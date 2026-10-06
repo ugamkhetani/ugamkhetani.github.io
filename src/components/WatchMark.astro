@@ -134,6 +134,19 @@ const tail = cut > 0 ? label.slice(cut + 4).trim() : label;
     text-align: left;
     cursor: pointer;
   }
+  /* IT STANDS DOWN WHILE THE WORK IS PLAYING, AND THE RULE LIVES HERE — with
+     the element it hides, in its own scope. `is-stood-down` is set by
+     syncStandDown() in main.ts, which derives it from the document: a control
+     is down if it is inside the frame of whatever just started, or inside a
+     mounted facade.
+
+     <- IT USED TO BE THREE RULES IN THREE OTHER FILES reaching in with
+       `:global(.wm)` — VideoFacade's, FilmPlayer's and the work page's — and
+       that is how it broke silently once already: when the facade's button
+       became this component, `.facade.is-playing .facade__play` stopped
+       matching anything and nothing errored anywhere. One rule, one owner. */
+  .wm.is-stood-down { display: none; }
+
   .wm__t {
     position: relative;
     display: flex;

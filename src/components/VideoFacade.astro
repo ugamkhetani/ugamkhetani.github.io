@@ -91,12 +91,10 @@ const MAXW = isIG ? '400px' : 'none';
   }
   .facade:hover .facade__poster { transform: scale(1.02); filter: brightness(1.05); }
 
-  /* The control itself is WatchMark.astro, which carries its own placement.
-     `:global()` reaches it because that component's elements wear their own
-     scope attribute — and this is a SCOPED block, where :global() compiles;
-     in an `is:global` one it would ship as a literal string and be dropped
-     with no error at all (§6). */
-  .facade.is-playing :global(.wm),
+  /* THE POSTER ONLY. The control hides itself — WatchMark owns that rule and
+     main.ts sets the class. This file used to reach into `.wm` from here, and
+     when the button became WatchMark the selector it reached with went stale
+     and nothing errored; the control simply stayed up over a playing video. */
   .facade.is-playing .facade__poster { display: none; }
 
   .visually-hidden {
