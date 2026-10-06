@@ -116,7 +116,9 @@ const tail = cut > 0 ? label.slice(cut + 4).trim() : label;
   .wm {
     position: absolute;
     left: var(--margin);
-    bottom: var(--margin);
+    /* --wm-lift is a per-work reading set on the page root; it is 0 on every
+       work but Broken Reflections. See src/lib/watch.ts. */
+    bottom: calc(var(--margin) + var(--wm-lift, 0px));
     display: flex;
     align-items: flex-end;
     gap: 18px;
@@ -339,7 +341,7 @@ const tail = cut > 0 ? label.slice(cut + 4).trim() : label;
      but the control's own treatment. The mark needs no entry here: it is
      em-sized and follows the word down on its own. */
   @media (max-width: 900px) {
-    .wm { left: var(--s-3); bottom: var(--s-3); gap: 13px; }
+    .wm { left: var(--s-3); bottom: calc(var(--s-3) + var(--wm-lift, 0px)); gap: 13px; }
     .wm__t { gap: 7px; }
   }
 </style>

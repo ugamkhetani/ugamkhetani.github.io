@@ -987,12 +987,47 @@ dark corner to move to: mean .1619, p95 .3376, a blown pixel at .9647, and its
 darkest fifth still peaks at .7396. **A draft judged on one frame says nothing
 about the route**, and that is the lesson rather than the numbers.
 
-**THE WASH IS SOLVED, NOT CHOSEN — AND IT MUST BE SOLVED IN GAMMA SPACE.**
-`rgba(10, 9, 8, 0.63)` behind the lockup, blurred, with no border and no
-backdrop-filter. Binary-searched per work against the real pixels: Aasha and
-Taskaree need 0.000, Ira 0.097, Special Ops 0.382, Ve Maahi 0.527, and **Mere
-Ho 0.613, which binds**. All six carry it anyway, because one rule that cannot
-be wrong on a work added tomorrow is worth more than three pages saved.
+**THE WASH IS PER WORK FROM 2026-10-06, AND MOST OF THE ROUTE CARRIES ALMOST
+NONE.** `rgba(10, 9, 8, var(--wm-scrim))` behind the lockup, blurred, with no
+border and no backdrop-filter. The table is `WATCH_SCRIM` in
+`src/lib/watch.ts`, set on the page root as a custom property so it reaches
+the control wherever it is mounted.
+
+It was ONE GLOBAL 0.63 for a few hours, set by the worst frame and worn by all
+seventeen. Ugam asked for it to be subtler and a lower global was not
+available — 0.63 IS the minimum that carries Mere Ho, whose sleeve is
+near-white where the lead sits. So it became a reading per work:
+
+```
+mumbai-standard-time  0      diwali-ke-shor-mein  0.15   moholla        0.32
+roar                  0      taskaree             0.19   ira            0.39
+broken-reflections    0      dinshaws             0.21   special-ops-2  0.43
+                             aasha                0.25   the-shiva-tr.  0.45
+                             my-red-crayon        0.27   bloody-bubbly  0.45
+                             book-my-yamraj       0.27   aladdin        0.53
+                                                         ve-maahi       0.56
+                                                         mere-ho        0.63
+```
+
+**Three works now carry no wash at all** and Diwali carries a quarter of what
+it did. The margin is 5% over the worse of the two widths; **Mere Ho is capped
+at the 0.63 it already had** rather than taking its 5%, because the
+instruction was subtler and nothing was allowed to get darker.
+
+**MEASURE BOTH WIDTHS OR THE PHONE FAILS SILENTLY.** Shiva, Bloody Bubbly and
+Moholla all read **0.000 at 1280 and 0.3–0.43 at 375** — the frame shrinks, the
+crop changes which pixels sit under the glyphs, and the type does not shrink
+in proportion. Verified after the change on all seventeen at both widths:
+every control clears its floor, the tightest being Book My Yamraj at 1.02x.
+
+**BROKEN REFLECTIONS LIFTS ITS CONTROL 40px.** `WATCH_LIFT` in the same file,
+and the only entry in it. Ugam's eye rather than a derivation: the control read
+as sitting on the frame's lower edge and 40px puts it inside the picture. It is
+free — that frame needs no wash at any lift from 0 to 80px, measured — and its
+poster carries a **98px bar burned into the top of the file**, which is why the
+picture reads shorter than the 16:9 box it is covering and the control looked
+low in it. Below 901px the lift rides on `--s-3` instead of `--margin`, so it
+is 64px there rather than 24.
 
 **THE ALPHA BELONGS TO THE POSITION, NOT TO THE CONTROL, and the ZW13 → ZW12
 swap proved it.** ZW13 put the triangle inside the line of type, so only the
