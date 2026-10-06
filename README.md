@@ -157,7 +157,10 @@ never drift apart.
 1. **Neue Haas Grotesk Display** — drop three `.woff2` into `public/fonts/`
    and they activate themselves. Falls back to Helvetica Neue today.
 2. **The fourteen films** — 4 Dinshaw's, 6 Book My Yamraj, 4 Aladdin.
-3. **A portrait for About** — name it in `PORTRAIT` in `src/data/about.ts`.
+3. **A portrait for About** — drop the file into `src/media/about/` and name
+   it in `PORTRAIT` in `src/data/about.ts`. The folder was removed on
+   2026-10-06 along with an unused 2.1MB placeholder; recreate it when the
+   real portrait arrives.
 4. **A booking link** — paste it into `CALL_URL` in `src/data/contact.ts` and
    the "rather talk" line appears. Empty means it never renders.
 5. **Audio excerpts** — optional; the player is built and waiting.
