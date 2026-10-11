@@ -108,12 +108,13 @@ const lines = questions.map((q) => [q.key, q.line]);
           given reads as one kind of thing whether they tapped it or typed it.
           The prompt lives inside, and the field grows to fit what is typed.
 
-          Nothing says "optional". The three that can be skipped are simply
+          Nothing says "optional". The four that can be skipped are simply
           quieter — faded to 38%, far enough that the row reads as two things
           that matter and three that are there if you want them. Their prompts
           are set in full bone rather than bone-dim to buy back some of what the
           fade takes, and hovering, focusing or filling one clears the fade
           entirely, so nobody ever reads a pill they are trying to use at 38%.
+          Budget is one of them: asked, never insisted on.
           Assistive tech is told properly regardless: the two that matter carry
           the `required` attribute. */}
       <div class="pills">
@@ -160,7 +161,7 @@ const lines = questions.map((q) => [q.key, q.line]);
             id="more"
             name="more"
             rows="2"
-            placeholder="Anything the answers above didn’t cover"></textarea>
+            placeholder="Anything the above answers did not cover"></textarea>
         </span>
       </div>
 
@@ -274,7 +275,7 @@ const lines = questions.map((q) => [q.key, q.line]);
     const d = new FormData(form);
     const get = (k) => (d.get(k) || '').trim();
     const name = get('name'), email = get('email'), phone = get('phone');
-    const title = get('title'), link = get('link'), more = get('more');
+    const title = get('title'), budget = get('budget'), link = get('link'), more = get('more');
 
     const body = ['Hi Ugam,', ''];
     const answered = [];
@@ -283,8 +284,15 @@ const lines = questions.map((q) => [q.key, q.line]);
       if (vals.length) answered.push(`${label}: ${vals.join(', ')}`);
     }
     body.push(answered.length ? answered.join('\n') : 'I would like to talk about a project.');
-    if (title) body.push('', `Title: ${title}`);
-    if (link) body.push(title ? `Link: ${link}` : '', title ? '' : `Link: ${link}`);
+    /* <- A LIST, NOT A CHAIN OF TERNARIES. Title and Link used to space
+       themselves against each other with a pair of conditionals, which does
+       not extend to a third fact. Same output for both old cases — one blank
+       line, then whichever facts exist. */
+    const facts = [];
+    if (title) facts.push(`Title: ${title}`);
+    if (budget) facts.push(`Budget: ${budget}`);
+    if (link) facts.push(`Link: ${link}`);
+    if (facts.length) body.push('', ...facts);
     if (more) body.push('', more);
     body.push('', '—', name || 'Your name', email || 'your@email');
     if (phone) body.push(phone);
@@ -687,7 +695,7 @@ const lines = questions.map((q) => [q.key, q.line]);
      lines when the left column is too narrow to hold both pairs. */
   .ct__direct {
     list-style: none; padding: 0; margin: 0;
-    display: flex; flex-wrap: wrap; gap: var(--s-3) var(--s-5);
+    display: flex; flex-wrap: wrap; gap: 8px var(--s-5);
   }
   .ct__direct li { display: flex; align-items: baseline; gap: 10px; }
   .ct__direct .mono { font-size: var(--t-xs); }
@@ -807,7 +815,13 @@ const lines = questions.map((q) => [q.key, q.line]);
        that; this is not trying to defeat it. */
     font-size: clamp(1.75rem, 3.06vw, 2.75rem);
     letter-spacing: -0.035em; line-height: 1;
-    color: var(--bone);
+    /* GREY UNTIL IT IS SENDABLE. Ugam, 2026-10-11. `is-ready` already
+       carried the cursor, the hover and the aria state from the moment
+       name and email are filled; it now carries the colour too, so the
+       action looks unavailable rather than only behaving that way.
+       --dim is #858585, 5.4:1 on the ground — quiet, still readable,
+       because this control stays reachable and has to explain itself. */
+    color: var(--dim);
     text-decoration: none; white-space: nowrap;
     display: inline-flex; align-items: baseline; gap: 0.3em;
     /* Deliberately NOT pointer-events: none. A control that cannot be
@@ -816,7 +830,7 @@ const lines = questions.map((q) => [q.key, q.line]);
     cursor: not-allowed;
     transition: color var(--d-micro) var(--ease), transform var(--d-micro) var(--ease);
   }
-  .send__act.is-ready { cursor: pointer; }
+  .send__act.is-ready { cursor: pointer; color: var(--bone); }
   .send__act.is-ready:hover { color: var(--accent); }
   /* ── THE LETTERS WAKE ─────────────────────────────────────────
      A wave travels through the words, each letter lifting from --dim to
@@ -1059,6 +1073,6 @@ const lines = questions.map((q) => [q.key, q.line]);
     .send__note { margin-left: 0; text-align: left; }
     .send__ink { transform-origin: left center; }
     .send__act { white-space: normal; }
-    .ct__direct { gap: var(--s-3); }
+    .ct__direct { gap: 8px; }
   }
 </style>

@@ -1547,3 +1547,37 @@ const FACTS: { k: string; v: string }[] = [
   initScore();
   document.addEventListener('astro:page-load', initScore);
 </script>
+
+{/* ══ NO MONOSPACE ON A WORK PAGE ═══════════════════════════════════
+    Ugam, 2026-10-11: everything that was JetBrains Mono here reads in the
+    display face instead. Nine labels in this file — the overline, the meta
+    row, the tally keys, the recognition numerals and citations, the two cut
+    marks, the cut number and the credit keys — plus the film labels and
+    sources, NextWork's eyebrow and meta, and the colophon.
+
+    THE TOKEN MOVES, NOT THE RULES. Exactly what index.astro:4131 does for
+    the home page with `:root .rg { --mono: var(--display); }`. Rewriting
+    nine `font-family` declarations here and four more across three
+    components would leave thirteen places to keep in step and would still
+    miss whatever gets added next; swapping what `--mono` POINTS AT catches
+    all of it, including anything later.
+
+    SCOPED TO WORK PAGES BY WHICH SHEET IT SHIPS IN. `is:global` is not
+    site-wide — this block rides the work-page bundle, so the home page
+    never loads it and keeps real JetBrains. #main is Base.astro's wrapper
+    and holds everything this page renders: the article, NextWork and the
+    colophon, which sit OUTSIDE </article> and would be missed by a rule
+    on .sc alone. OpNav is inside it too and sets no mono, so it is
+    untouched either way.
+
+    <- SPECIFICITY, NOT ORDER, the same trap the rest of this project has
+       paid for twice. tokens.css declares --mono on `:root` at (0,1,0); a
+       bare `:root` here would tie and lose or win on bundler order alone.
+       `:root #main` is (1,1,0) and wins wherever it lands.
+
+    <- DIGIT COLUMNS SURVIVE. Five of these carry font-variant-numeric:
+       tabular-nums, which is what was actually holding the numerals in
+       line — not the monospace. Helvetica Neue honours it. */}
+<style is:global>
+  :root #main { --mono: var(--display); }
+</style>

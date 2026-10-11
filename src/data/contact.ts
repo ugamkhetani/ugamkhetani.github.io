@@ -38,8 +38,8 @@ export const QUESTIONS: Question[] = [
     multi: true,
     line: 'Needed',
     options: [
-      'Original score', 'Sound design', 'Voice direction & casting',
-      'Final mix', 'Sonic identity', 'Song production', 'Not sure yet',
+      'Original score', 'Sound design', 'Voice direction',
+      'Mix & master', 'Sonic identity / MOGO', 'Song production', 'Not sure yet',
     ],
   },
   {
@@ -119,6 +119,11 @@ export const FIELDS: {
   { key: 'email', label: 'Email',   type: 'email', required: true, placeholder: 'Your email', autocomplete: 'email' },
   { key: 'phone', label: 'Phone',   type: 'tel',   placeholder: 'Your number', autocomplete: 'tel' },
   { key: 'title', label: 'Project', type: 'text',  placeholder: 'Project title' },
+  /* <- TEXT, NOT A NUMBER. A budget arrives as "8–10 lakh", "TBC", "per
+     episode" or a currency this site does not know about, and type="number"
+     would refuse all four. It sits next to the project title because that is
+     what it describes, and before the link, which is the loosest field. */
+  { key: 'budget', label: 'Budget', type: 'text', placeholder: 'Budget range' },
   { key: 'link',  label: 'Link',    type: 'url',   placeholder: 'A cut, a brief, or a reference' },
 ];
 

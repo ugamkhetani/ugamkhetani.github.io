@@ -204,11 +204,6 @@ const asks = (c: string) => c.trim().endsWith('?');
 const NAME = HERO.eyebrow.split('·')[0].trim();
 const NAME_PARTS = NAME.split(' ');
 
-/* The catalogue's real year range, for the corner labels — read off the
-   collection so it can never drift from the works themselves. */
-const YEARS = [...new Set(works.map((w) => w.data.year))].sort();
-const RANGE = `${YEARS[0]} — ${YEARS[YEARS.length - 1]}`;
-
 /* XL flattened HERO.statement to a string and re-wrapped it greedily at 22
    characters, because its caption is uppercase and had to break somewhere the
    data does not. Corners does not re-wrap: it sets one .line per entry in
@@ -263,6 +258,22 @@ const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => {
 /* D · Poster: splits a statement's trailing full stop off so it can take the
    site's orange. The words themselves are untouched. */
 const stopOf = (s: string): [string, string] => (s.endsWith('.') ? [s.slice(0, -1), '.'] : [s, '']);
+/* ONE PHRASE INSIDE A STATEMENT, SPLIT OUT SO IT CAN BE SET IN THE ITALIC.
+   Applied 2026-10-11 from /preview/ab-it1, which stays as the draft of
+   record; ab-it2 to ab-it4 and the four Swiss readings ab-sw1 to ab-sw4 are
+   the alternatives it was chosen against.
+
+   THE PHRASES ARE NAMED AT THE CALL SITE, NOT STORED IN about.ts. The data
+   file holds sentences, not markup, and a `<em>` written into it would be
+   the first piece of presentation in there. A miss returns the string whole
+   with an empty middle, so a reworded sentence loses its italic and never
+   renders a broken one — which is the failure worth having. */
+const emph = (s: string, phrase: string): [string, string, string] => {
+  const i = s.indexOf(phrase);
+  return i < 0 ? [s, '', ''] : [s.slice(0, i), phrase, s.slice(i + phrase.length)];
+};
+const WHO_EM = emph(stopOf(WHO.head)[0], 'not something added to it');
+const CLOSE_EM = emph(stopOf(CLOSING.head)[0], 'sound like itself');
 /* The opening letter, split off so it can be set as a versal. */
 const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
 ---
@@ -284,6 +295,12 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
       <span class="mono rh__mv" data-rh-mv>Selected works</span>
       <span class="mono rh__folio" data-rh-folio>01/06</span>
     </div>
+    {/* THE CUE, MOVED DOWN ONTO THE RUNNING HEAD'S LINE. A sibling of .rh
+        rather than a child, for two reasons: .rh is display:none below
+        901px and the cue should survive there, and .rh's content is
+        rewritten by initRunHead on every section change. Same fixed
+        context, same 24px off the foot, so the two share a baseline. */}
+    <p class="mono rh__cue" aria-hidden="true">Selected works &nbsp;·&nbsp; <span class="ov__cue">Scroll &darr;</span></p>
 
     <div class="ms__ground" aria-hidden="true">
       <div class="ms__bed">
@@ -424,22 +441,25 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
 
     <header class="ov ov--cm" id="top">
       <div class="fr fr--hero">
-        <p class="mono cn cn--tl">00<br />Opening</p>
-        <p class="mono cn cn--tr">{HERO.place[0]}<br />{HERO.place[1]}</p>
-        <p class="mono cn cn--bl">00/06<br />{RANGE}</p>
-        <p class="mono cn cn--br">Selected works<br /><span class="ov__cue">Scroll &darr;</span></p>
+        {/* THE HERO'S BOTTOM LINE IS GONE. EDITION went with ab-c1; the
+            name-and-arrow has now gone too, and the cue moved down to the
+            running head's own line — see .rh__cue up at the top of this
+            file. The frame keeps only the role and the place, which sit in
+            .ov__band below. */}
         {/* Corners' middle, lifted whole: .ov__middle / .ov__mast / .ov__word
-            and the .ov__stmt heading, with the same --i reveal ordering. The
-            frame around it is still XL's — .fr--hero and its four corner
-            labels are untouched. */}
+            and the .ov__stmt heading, with the same --i reveal ordering. */}
         <div class="fr__mid">
           <div class="ov__middle">
-            <div class="ov__mast">
-              {NAME_PARTS.map((part, i) => (
-                <span class="line ov__word" data-reveal style={`--i:${i + 1}`}>
-                  <span class="line__in">{part}</span>
-                </span>
-              ))}
+            <div class="ov__band">
+              <p class="mono cn cn--l">Composer · Producer<br />Sound designer</p>
+              <div class="ov__mast">
+                {NAME_PARTS.map((part, i) => (
+                  <span class="line ov__word" data-reveal style={`--i:${i + 1}`}>
+                    <span class="line__in">{part}</span>
+                  </span>
+                ))}
+              </div>
+              <p class="mono cn cn--r">{HERO.place[0]}<br />{HERO.place[1]}</p>
             </div>
             <h1 class="ov__stmt">
               {HERO.statement.map((line, li) => (
@@ -526,7 +546,7 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
       <h2 class="po-giant" id="r-who" style="--gs:27vw"><span class="po-pan">Who I am</span></h2>
       <div class="po-grid">
         <p class="po-label po-c1">02</p>
-        <h3 class="po-state">{stopOf(WHO.head)[0]}<span class="po-stop">{stopOf(WHO.head)[1]}</span></h3>
+        <h3 class="po-state">{WHO_EM[0]}<em class="po-em">{WHO_EM[1]}</em>{WHO_EM[2]}<span class="po-stop">{stopOf(WHO.head)[1]}</span></h3>
         <div class="po-body">
           {WHO.body.map((p, i) => (i === 0
             ? <p class="po-open"><span class="po-versal" aria-hidden="true">{versalOf(p)[0]}</span><span class="po-versal-sr">{versalOf(p)[0]}</span>{versalOf(p)[1]}</p>
@@ -540,7 +560,10 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
       <div class="po-grid">
         <p class="po-label po-c1">03</p>
         <h3 class="po-state">
-          {ACROSS.head.map((l) => <span class="po-line">{stopOf(l)[0]}<span class="po-stop">{stopOf(l)[1]}</span></span>)}
+          {ACROSS.head.map((l) => {
+            const [lead, em, tail] = emph(stopOf(l)[0], 'Same obsession');
+            return <span class="po-line">{lead}{em && <em class="po-em">{em}</em>}{tail}<span class="po-stop">{stopOf(l)[1]}</span></span>;
+          })}
         </h3>
         <p class="po-lede">{ACROSS.lede}</p>
         {ACROSS.columns.map((c, i) => (
@@ -573,10 +596,10 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     </section>
 
     <section class="mvt po-sec po-sec--end" aria-labelledby="r-close" data-mv="4">
-      <h2 class="po-giant" id="r-close" style="--gs:18vw"><span class="po-pan">What I’m after</span></h2>
+      <h2 class="po-giant" id="r-close" style="--gs:18vw"><span class="po-pan">What I am after</span></h2>
       <div class="po-grid">
         <p class="po-label po-c1">05</p>
-        <h3 class="po-state po-state--end">{stopOf(CLOSING.head)[0]}<span class="po-stop">{stopOf(CLOSING.head)[1]}</span></h3>
+        <h3 class="po-state po-state--end">{CLOSE_EM[0]}<em class="po-em">{CLOSE_EM[1]}</em>{CLOSE_EM[2]}<span class="po-stop">{stopOf(CLOSING.head)[1]}</span></h3>
         <p class="po-lede po-lede--end">{CLOSING.body}</p>
       </div>
     </section>
@@ -1099,7 +1122,7 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     const mv = rh.querySelector('[data-rh-mv]') as HTMLElement;
     const folio = rh.querySelector('[data-rh-folio]') as HTMLElement;
     const secs = Array.from(document.querySelectorAll('[data-mv]')) as HTMLElement[];
-    const NAMES = [{n:"01",t:"Selected works"},{n:"02",t:"Who I am"},{n:"03",t:"What I work across"},{n:"04",t:"How I work"},{n:"05",t:"What I’m after"},{n:"06",t:"Contact"}];
+    const NAMES = [{n:"01",t:"Selected works"},{n:"02",t:"Who I am"},{n:"03",t:"What I work across"},{n:"04",t:"How I work"},{n:"05",t:"What I am after"},{n:"06",t:"Contact"}];
     if (!secs.length) return;
 
     let raf = 0, last = -1, turn = 0;
@@ -2085,6 +2108,39 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
   .rh.is-turning .rh__mv, .rh.is-turning .rh__folio { opacity: 0; }
   @media (max-width: 900px) { .rh { display: none; } }
 
+  /* ── THE SCROLL CUE, ON THE RUNNING HEAD'S LINE ───────────────────
+     It used to sit in the hero frame's bottom-right corner, 122px above
+     this line and scrolling away with the frame. Measured at 1280 before
+     the move: .rh at 77..356 with its foot 24px off the viewport, the
+     hero's own bottom line at top 658. Now both are 24px off the foot and
+     share a baseline, the run-head ranged left and the cue ranged right.
+
+     TYPE IS THE RUNNING HEAD'S, NOT THE CORNER LABELS'. --t-micro at
+     0.16em over 1.55, which is what the cue already carried; the colour
+     drops to --bone-dim so it sits with .rh__name rather than louder.
+
+     <- IT FADES AS SELECTED WORKS ARRIVES, because "Scroll" stops being
+       true once you have. It rides the same --works timeline and the same
+       entry 50%..100% range that already drives --smoke and --haze, so the
+       cue is gone exactly when the bed finishes darkening. .rh itself
+       stays — it is a running head and is meant to persist. */
+  .rh__cue {
+    position: fixed; z-index: 100; right: var(--margin); bottom: 24px; margin: 0;
+    pointer-events: none; font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--bone-dim); line-height: 1.55;
+    text-shadow: 0 1px 3px var(--ground), 0 0 14px rgba(10, 9, 8, 0.95);
+  }
+  @supports (animation-timeline: scroll(root block)) {
+    @media (prefers-reduced-motion: no-preference) {
+      .rh__cue {
+        animation: cue-out linear both;
+        animation-timeline: --works;
+        animation-range: entry 50% entry 100%;
+      }
+    }
+  }
+  @keyframes cue-out { 0% { opacity: 1; } 100% { opacity: 0; } }
+
   /* ══ 01 · THE WORKS ═══════════════════════════════════════════ */
   .sec--works { position: relative; margin-inline: calc(var(--margin) * -1); padding-block: 0; }
   .sec--works.is-live { height: calc(var(--count) * 62vh + 100vh); }
@@ -2609,11 +2665,41 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     text-transform: uppercase; color: var(--bone-dim); line-height: 1.55;
     text-shadow: 0 1px 3px var(--ground), 0 0 14px rgba(10, 9, 8, 0.95);
   }
-  .cn--tl { top: 0; left: 0; text-align: left; }
-  .cn--tr { top: 0; right: 0; text-align: right; }
-  .cn--bl { bottom: 0; left: 0; text-align: left; }
-  .cn--br { bottom: 0; right: 0; text-align: right; }
-  .cn--tl { color: var(--bone); }
+  /* ── WHERE THE LABELS SIT, approved as ab-c1 ──────────────────────
+     Two of the four corners are gone. The role and the place now flank the
+     NAME on a desktop, and the two bottom corners are one line.
+
+     THE TYPE IS UNCHANGED. Same .cn above — 10px, 0.16em, 1.55, --bone-dim,
+     the same shadow over the bed, and the same two-line break in each
+     label. Measured on the running site before the change and on the draft
+     after it: 151px and 127px wide, both at 10px/1.6px/15.5px. Only the
+     placement moved.
+
+     THE FLANKS FIT, AND THE MARGIN IS WHY. .fr--hero is 77..1203 at 1280
+     and the mast is 232..1048, so there are 155px of gutter a side against
+     a 151px label — 4px clear on the left, 28 on the right. That only works
+     from the FRAME's edge, not the content's: .ov__band cancels the frame's
+     own padding-inline so the labels reach the same margin the old corner
+     labels used. The band's centre is the frame's centre, so the mast does
+     not move by a pixel.
+
+     <- BELOW 1248px THE GUTTER IS NARROWER THAN THE LABEL. The gutter is
+       0.121 x vw and the label is a fixed 151px, so they collide under
+       1248. There the pair lifts onto one row above the name — still 10px,
+       still two lines, still ranged to the two margins. Nothing shrinks. */
+  .cn--l, .cn--r { top: 50%; transform: translateY(-50%); }
+  .cn--l { left: 0; text-align: left; color: var(--bone); }
+  .cn--r { right: 0; text-align: right; }
+
+  /* The band is the mast's own row, widened to the frame so the labels can
+     reach its margins. position:relative is what hands them the NAME's
+     midline rather than the frame's; the phone rule turns that off. */
+  .ov__band {
+    position: relative; align-self: stretch;
+    margin-inline: calc(-1 * clamp(26px, 4vw, 72px));
+    display: flex; justify-content: center;
+  }
+
   .fr--over { position: absolute; z-index: 6; top: clamp(66px, 10vh, 110px); left: var(--margin); right: var(--margin); }
 
   .fr__mid { position: relative; z-index: 2; }
@@ -2674,28 +2760,127 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
   .s__enq { margin-top: clamp(44px, 8vh, 100px); text-align: left; }
   .s__enq :global(.ct__page) { padding-top: 0; }
   .hot { color: var(--accent); text-transform: none; font-family: var(--serif); font-style: italic; font-weight: 300; font-size: 1.06em; }
+
+  /* ── "film" HAS TO CLEAR THE BED IT SITS ON ───────────────────────
+     MEASURED, NOT PICKED. The word is composited over the mosaic, so the
+     number that matters is the brightest pixel inside its own box with the
+     bed's grade and the pane's lift applied — the same method watch.ts uses
+     for the play control. Sampled on a canvas with
+     `brightness(0.46) saturate(0.78) contrast(1.05) saturate(1.2) brightness(0.86)`:
+
+       width   type size   bar     ground   #E85D2C   #F2794C
+       1280    36.6px      3:1     0.0542   2.90:1    3.66:1
+        430    22.0px      4.5:1   0.0240   3.67:1    5.14:1
+        412    22.0px      4.5:1   0.0089   5.12:1    6.46:1
+        393    22.0px      4.5:1   0.0089   5.12:1    6.46:1
+        375    22.0px      4.5:1   0.0089   5.12:1    6.46:1
+        360    22.0px      4.5:1   0.0084   5.17:1    6.51:1
+
+     Phone rows are after the bed shift below. At 36.6px the statement is
+     WCAG large text, so the bar is 3:1 — and the shipped accent missed it
+     at 2.90. On a phone the type is 22px, which is not large text, so the
+     bar is 4.5, and the accent was at 2.07 before the bed moved. 430 is the
+     binding width: the shipped accent would have scraped 3.67 there.
+
+     #F2794C IS THE SAME ORANGE, LIFTED. Hue is unchanged; luminance goes
+     0.252 to 0.331. Lighter than that starts reading as peach rather than
+     as the accent — #FFAE8C would give 9.94:1 and would not be this brand.
+
+     <- ONLY THE OPENING'S STATEMENT. --accent is unchanged everywhere else,
+       because everywhere else the bed is under full smoke and the accent
+       already clears its background. This is the one place the type sits on
+       a lifted bed. */
+  .fr--hero .ov__stmt .hot { color: #F2794C; }
   .ov__cue { color: var(--dim); }
+
+  /* <- 151px of label into a gutter that is 0.121 x vw: it runs out at
+       1248px. Between there and the phone rule the pair lifts onto one row
+       above the name, keeping its size, its ranging and its line breaks. */
+  @media (max-width: 1247px) {
+    .cn--l, .cn--r { top: auto; bottom: calc(100% + clamp(16px, 2.4vh, 28px)); transform: none; }
+    .cn--l { left: 0; right: auto; }
+    .cn--r { right: 0; left: auto; }
+  }
 
   @media (max-width: 900px) {
     .ms__bed { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    /* ── THE FOUR CORNERS STAY CORNERS ─────────────────────────────
-       They were `position: static; display: inline-block` here, which
-       dropped all four out of the frame and stacked them as a four-row
-       run above the name — each keeping its own alignment, so the column
+    /* ── THE CORNERS STAY CORNERS ──────────────────────────────────
+       They were `position: static; display: inline-block` here once, which
+       dropped all four out of the frame and stacked them as a four-row run
+       above the name — each keeping its own alignment, so the column
        alternated left, right, left, right. Measured at 375: four full-
        width blocks at y 65, 106, 147 and 188, with the mast pushed down
        to 229. It read as a list of labels rather than as a frame.
 
-       Absolute again, which is the desktop placement: 00/OPENING and the
-       place at the top two corners, the range and SELECTED WORKS at the
-       bottom two, with the name and statement between them. The frame is
-       the point of the opening and a phone is wide enough for it — the
-       widest pair is the bottom two at about 190px of a 327px measure,
-       so the two columns never meet.
+       Absolute again. On a phone the role and the place go back to the two
+       TOP corners — which is where this frame has always put them, and is
+       exactly what ab-c1 was chosen for. The desktop flanking is a desktop
+       idea; a 375px screen has no gutter to flank into.
 
-       <- THE TYPE IS NOT CHANGED. Same 10px, same 0.16em, same shadow
-          over the bed. Only the placement comes back. */
+       .ov__band DROPS TO STATIC, AND THAT IS THE WHOLE MECHANISM. It is
+       position:relative above 900px, which is what makes the two labels
+       measure against the NAME. Static here hands them back to .fr--hero,
+       so the same two elements reach the frame's corners with no second
+       copy in the markup.
+
+       <- THE TYPE IS NOT CHANGED. Same 10px, same 0.16em, same 1.55, same
+          shadow over the bed. Measured against the deployed site at 390:
+          all four corners 10px / 1.6px / 15.5px. Only the placement moves. */
     .fr { padding-inline: 0; }
+
+    /* <- THE BED COMES UP 40px SO THE STATEMENT IS NOT ON A LIT TILE.
+         At 393x852 "film" landed on taskaree/08, whose brightest pixel
+         inside the word's own box reads 0.096 — 2.07:1 against the accent.
+         Swept the bed from -140 to +140 in 20px steps, measuring that same
+         pixel at each stop: -40 is the best at 0.0088, which is 5.13:1, and
+         it is the smallest move that clears the bar. (-60 and -80 also
+         pass; -20, 0 and +20 do not.)
+
+         The bed is inset -10%, which is 85px of overhang at this height, so
+         40px of travel opens no gap at the foot. The parallax term is kept
+         — this is added to it, not substituted for it.
+
+         <- IT IS A FIXED OFFSET AGAINST A GRID THAT MOVES WITH THE
+           VIEWPORT, so it is tuned, not derived: a different phone height
+           puts different tiles under the word. The accent lift above is
+           what carries the cases this number does not. */
+    .ms__bed { transform: translate3d(0, calc(var(--prog, 0) * -8% - 40px), 0) scale(1.06); }
+    /* <- .fr__mid IS position:relative, SO IT — NOT THE FRAME — WAS CATCHING
+         THEM. With .ov__band static the labels fall through to the next
+         positioned ancestor, and that is .fr__mid, which starts one top
+         pad below the frame. Measured at 390: top:0 put them 68px down,
+         straight across the name (clearOfName -31). The draft never saw
+         this because its .mid is inset:0 over the whole frame.
+         Static here too, so the frame catches them as it always did. */
+    .fr--hero .fr__mid { position: static; }
+    .ov__band { position: static; margin-inline: 0; }
+
+    /* <- AND THE FRAME GOES STATIC TOO, SO THE LABELS REACH THE SCREEN.
+         .fr--hero is a SHORT box centred in a full-height .ov — measured at
+         375x812 it runs 312..581, only 269px tall. Pinned to its top the
+         labels landed at y=312, 38% of the way down the screen, while
+         ab-d1 puts them at 65. The draft's frame is inset 8vh inside a
+         100svh section, so its top corners ARE near the top of the screen;
+         this frame's are not.
+
+         .ov is position:relative and spans the viewport, so dropping
+         .fr--hero to static hands the labels to it and `top` is then
+         measured from the top of the screen. clamp(46px, 8vh, 104px) is
+         the draft frame's own inset, which is why this lands on 65 at 812
+         rather than on a number picked to match.
+
+         Safe because nothing else in the opening is absolute against this
+         frame: .cn--l and .cn--r are the only two left, .fr--over belongs
+         to Selected works, and .fr__mid is already static here. The name
+         and the statement are in flow and do not move — they stay at 377
+         and 459, exactly where they were. */
+    .fr--hero { position: static; }
+    .cn--l { top: clamp(46px, 8vh, 104px); bottom: auto; left: 0; right: auto; transform: none; }
+    .cn--r { top: clamp(46px, 8vh, 104px); bottom: auto; right: 0; left: auto; transform: none; }
+
+    /* The hero's bottom line is gone, so its wrap guard went with it. The
+       cue now lives on .rh__cue, which is one nowrap line at any width. */
+    .rh__cue { white-space: nowrap; }
     .s__body { columns: 1; }
     .s__cols { grid-template-columns: 1fr; }
   }
@@ -3255,6 +3440,23 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
   }
   .po-line { display: block; }
   .po-stop { color: var(--accent); }
+  /* THE ITALIC PHRASE — ab-it1, applied 2026-10-11.
+     Fraunces italic, which Base.astro already loads for .serif and .hot, so
+     this costs nothing to ship and is the same hand the opening aside
+     already speaks in.
+
+     TRACKING IS RELIEVED, NOT INHERITED. .po-state runs -0.04em, which suits
+     a grotesque at display size; Fraunces italic at that figure collides on
+     the entry strokes of the round lowercase — the a, o and e lean into
+     whatever follows. -0.025em, which is the draft's measured figure.
+
+     NOT .serif, WHICH IS THE SAME FACE AT A DIFFERENT SIZE. That class runs
+     -0.015em for the 1.06em aside in the hero. Two sizes, two trackings; one
+     class could not serve both without the larger one setting loose. */
+  .po-em {
+    font-family: var(--serif); font-style: italic; font-weight: 400;
+    letter-spacing: -0.025em; font-variation-settings: 'opsz' 96;
+  }
 
   .po-body {
     grid-column: 5 / -1; grid-row: 3;
@@ -3272,6 +3474,14 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
   .po-list--0 { grid-column: 1 / span 4; }
   .po-list--1 { grid-column: 5 / span 4; }
   .po-list--2 { grid-column: 9 / span 4; }
+  /* FILM / BRAND / MUSIC ONLY, AND ONLY ON DESKTOP. Ugam, 2026-10-11. The
+     base .po-label is 12px and is shared with the section numerals and the
+     step numbers, so the size is set here on the list heads alone. 901px is
+     the file's own desktop boundary; below it they stay at 12. Specificity
+     (0,2,0) beats the base rule wherever the bundler puts it. */
+  @media (min-width: 901px) {
+    .po-list .po-label--hi { font-size: 16px; }
+  }
   .po-list ul { list-style: none; margin: clamp(22px, 3.6vh, 40px) 0 0; padding: 0; }
   .po-list li {
     font-size: clamp(1.35rem, 2.2vw, 2.25rem); font-weight: 500;
@@ -3397,8 +3607,13 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
   @property --haze { syntax: '<length>'; inherits: true; initial-value: 7px; }
   @property --veil { syntax: '<percentage>'; inherits: true; initial-value: 100%; }
   @property --iris { syntax: '<percentage>'; inherits: true; initial-value: 0%; }
+  /* THE BED'S OWN BRIGHTNESS, applied 2026-10-11 from /preview/ab-d1.
+     Registered for the same reason as the four above: unregistered, a
+     custom property snaps at the halfway mark, and on a brightness
+     multiplier that is a visible step rather than a morph. */
+  @property --lift { syntax: '<number>'; inherits: true; initial-value: 1; }
 
-  .rg { --smoke: 1; --haze: 7px; --veil: 100%; --iris: 0%; }
+  .rg { --smoke: 1; --haze: 7px; --veil: 100%; --iris: 0%; --lift: 1; }
 
   /* THE RAMP IS KEYED TO SELECTED WORKS ENTERING, not to a count of
      viewport heights. Applied 2026-09-29 from /preview/ab-sm2.
@@ -3445,21 +3660,21 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
 
   /* Reduced motion gets the destination, not the journey. */
   @media (prefers-reduced-motion: reduce) {
-    .rg { --smoke: 1; --haze: 7px; --veil: 100%; --iris: 0%; }
+    .rg { --smoke: 1; --haze: 7px; --veil: 100%; --iris: 0%; --lift: 1; }
   }
 
 @supports (animation-timeline: scroll(root block)) {
     @media (prefers-reduced-motion: no-preference) {
       .rg {
-        animation: sm-haze linear both, sm-ground linear both;
-        animation-timeline: --works, --works;
+        animation: sm-haze linear both, sm-ground linear both, bed-lift linear both;
+        animation-timeline: --works, --works, --works;
         /* entry 0% is the conveyor's top edge at the bottom of the screen,
            entry 100% that edge at the top — scrollY 0..768 today, because
            the opening is exactly one viewport tall. Starting at 50% leaves
            the opening's whole first half clean and finishes the ramp as
            Selected works takes the frame. Measured: full blur at scrollY
            595, both values held from 768 to the document end at 15369. */
-        animation-range: entry 50% entry 100%, entry 50% entry 100%;
+        animation-range: entry 50% entry 100%, entry 50% entry 100%, entry 50% entry 100%;
       }
     }
   }
@@ -3474,6 +3689,14 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     0%   { --smoke: 0; }
     55%  { --smoke: 0.4; }
     100% { --smoke: 1; }
+  }
+  /* Lighter at the top, back to the page's grade by the time Selected
+     works has the frame. 0.46 / 0.34 = 1.353. Linear, with no 55% hinge:
+     the blur is soft-first and the smoke dark-after because they are
+     doing two different jobs, and the bed only has to arrive with them. */
+  @keyframes bed-lift {
+    0%   { --lift: 1.353; }
+    100% { --lift: 1; }
   }
 
 
@@ -3550,9 +3773,30 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     -webkit-backdrop-filter: blur(calc(var(--haze) * 2)) saturate(1.2) brightness(0.86);
     backdrop-filter: blur(calc(var(--haze) * 2)) saturate(1.2) brightness(0.86);
   }
+  /* ── THE OPENING IS LIGHTER THAN THE REST OF THE PAGE ────────────
+     Applied 2026-10-11 from /preview/ab-d1, chosen over d2/d3/d4.
+
+     0.34 IS STILL THE PAGE'S GRADE. --lift is 1 everywhere below the
+     opening, so this evaluates to brightness(0.34) exactly as before and
+     nothing past the hero changes by a hundredth. The opening alone
+     starts at 1.353, which is 0.46, and comes back down.
+
+     IT RIDES THE RAMP THAT WAS ALREADY THERE. Same --works view timeline,
+     same `entry 50% entry 100%` range as --smoke and --haze, so the bed
+     darkens on exactly the clock the page already blurs and smokes on —
+     one movement, not a new one running beside it. Measured on the
+     running page: 0.46 held to scrollY 400, 0.4096 at 600, 0.3474 at 800,
+     0.34 by 1000, which is where --smoke reaches 1.
+
+     <- WHY d1 AND NOT BRIGHTER. The corner labels sit on this bed. At the
+       worst case a photograph can produce, --bone-dim reads 6.32:1 against
+       the shipped grade and 4.15:1 at d1; d2 is 2.59:1 and d4 is 1.03:1.
+       d1 is the last step where the type is still arguably readable over a
+       blown highlight, and it is already under AA at that worst case — the
+       shadow on .cn is doing real work here. */
   :root[data-blur] .rg .ms__bed,
   :root .rg .ms__bed {
-    filter: brightness(0.34) saturate(0.78) contrast(1.05);
+    filter: brightness(calc(0.34 * var(--lift))) saturate(0.78) contrast(1.05);
   }
 
   /* ══ THE WORK'S NAME, FROM ab-ty2 ════════════════════════════════

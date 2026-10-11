@@ -42,7 +42,18 @@ pnpm-debug.log*
 # unique roar folder), and src/media/about/portrait.PNG, which was 2.1MB that
 # nothing read because PORTRAIT in src/data/about.ts is empty.
 #
-# All of it is in git history — the draft library's last commit is 22fe932 —
-# so nothing is lost, but note that REMOVING A FILE DOES NOT SHRINK .git. The
+# CLEARED AGAIN 2026-10-12. A second library grew between 10-06 and 10-11 —
+# the hero and bed drafts — and went the same way once d1 and c1 had been
+# applied. Its last commit is ec65f33, which is the sha to use for any
+# `/preview/ab-*` name written in a comment after 2026-10-06.
+#
+# THE FOLDER IS NOT IGNORED, DELIBERATELY. Ignoring it would let a draft be
+# written and never noticed in `git status`; the build-time guard in
+# astro.config.mjs is what keeps drafts off the live site, and it only works
+# on a folder git can still see.
+#
+# All of it is in git history — the first library's last commit is 22fe932,
+# the second's is ec65f33 — so nothing is lost, but note that REMOVING A FILE
+# DOES NOT SHRINK .git. The
 # blobs stay in history and a fresh clone still pulls them; only rewriting
 # history would reclaim the space, and that changes every commit hash.

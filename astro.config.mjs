@@ -1,4 +1,50 @@
 import { defineConfig } from 'astro/config';
+import fs from 'node:fs';
+
+/**
+ * THE PREVIEW LIBRARY IS NOT PUBLISHED.
+ *
+ * Draft pages live in src/pages/preview/. They are working drawings, not the
+ * site, and putting them on the open internet publishes every unreleased idea
+ * in them. This hook deletes them from the OUTPUT after the build.
+ *
+ * RESTORED 2026-10-11 with the first new drafts since the library was cleared
+ * for upload on 2026-10-06. It has to come back BEFORE any page is added to
+ * that folder: the site is live now, and without this a draft reaches
+ * ugamkhetani.github.io on the next push.
+ *
+ * Nothing changes on the dev server — `npm run dev` still serves /preview/,
+ * because this only runs at build time. SET PREVIEW=1 to build them anyway,
+ * which is the only way to check a draft still compiles.
+ *
+ * <- IT REMOVES THEM FROM THE OUTPUT RATHER THAN FROM THE ROUTE TABLE, and
+ *   the first attempt did the latter. `astro:routes:resolved` hands you the
+ *   route list, and splicing entries out of it reports exactly that and then
+ *   builds them all anyway, because in Astro 5 the build does not read back
+ *   the mutated array. Measured, not assumed. So the removal happens in
+ *   `astro:build:done`, the last hook before the build ends, and is
+ *   verifiable by listing the directory afterwards.
+ *
+ * <- WHICH MEANS THEY ARE STILL RENDERED, and that is the honest cost: the
+ *   build spends time on pages it then deletes.
+ */
+function withoutPreview() {
+  return {
+    name: 'without-preview',
+    hooks: {
+      'astro:build:done': async ({ dir, logger }) => {
+        if (process.env.PREVIEW) {
+          logger.info('PREVIEW=1 — the draft library is published in this build');
+          return;
+        }
+        const out = new URL('preview/', dir);
+        const n = fs.existsSync(out) ? fs.readdirSync(out).length : 0;
+        await fs.promises.rm(out, { recursive: true, force: true });
+        logger.info(`draft library not published — ${n} entries removed from the output`);
+      },
+    },
+  };
+}
 
 /* Normalised once so the config, the redirects and href() cannot disagree.
    Always slash-terminated, which is the shape Astro's own BASE_URL takes:
@@ -30,6 +76,7 @@ export default defineConfig({
    */
   site: process.env.SITE_URL || undefined,
   base: BASE,
+  integrations: [withoutPreview()],
   trailingSlash: 'ignore',
   /* host is pinned to IPv4 loopback on purpose. Left to itself the dev
      server binds only to [::1], and this machine's /etc/hosts maps
