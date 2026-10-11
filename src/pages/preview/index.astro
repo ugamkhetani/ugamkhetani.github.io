@@ -1,0 +1,143 @@
+---
+/**
+ * THE PREVIEW INDEX — one page that lists every draft.
+ *
+ * The library used to be 71 pages with no way in except a URL you had to
+ * remember, and it was deleted partly for that. This is the way back in: any
+ * .astro file dropped in this folder appears here on the next build, with no
+ * list to keep in step.
+ *
+ * DISCOVERY IS A GLOB, NOT A TABLE. `import.meta.glob` is evaluated at build
+ * time and is eager: false, so nothing here loads a draft's module — only its
+ * path is read. A draft that is deleted stops being listed because the file is
+ * gone, which is the only kind of index that cannot go stale.
+ *
+ * The glob is case-sensitive, as it is in src/lib/frames.ts (HANDOFF §6), but
+ * every page in this folder is lowercase .astro so one pattern is enough.
+ *
+ * NOTES ARE OPTIONAL. A slug with no entry in NOTES still lists, under a title
+ * derived from its filename — so adding a draft never means editing this file,
+ * and writing a note is a courtesy rather than a requirement.
+ */
+import Base from '../../layouts/Base.astro';
+
+const pages = Object.keys(import.meta.glob('./*.astro', { eager: false }))
+  .map((p) => p.replace('./', '').replace('.astro', ''))
+  /* `_`-prefixed files are shared parts, not drafts — Astro does not route
+     them and this index does not list them. _bed.astro is the hero drafts'
+     mosaic, and listing it would offer a page that renders no composition. */
+  .filter((s) => s !== 'index' && !s.startsWith('_'))
+  .sort();
+
+/** slug → [group, title, note]. Anything missing falls back to its filename. */
+const NOTES: Record<string, [string, string, string]> = {
+  /* ── HOME · THE BED, LESS DARK AT THE TOP ──────────────────────
+     Four levels of hero brightness, each ramping back to the running
+     site's own grade as Selected works takes the frame. The ramp rides
+     the page's existing --works view timeline, so it is the same clock
+     that already drives --smoke and --haze. */
+  'ab-d1': ['Home · the bed, less dark at the top', 'D1 · Half-lit',
+    'The smallest lift that reads as a change at all. Faces resolve; the bed still sits well behind the type.'],
+  'ab-d2': ['Home · the bed, less dark at the top', 'D2 · Open',
+    'The middle setting. The catalogue is legible as a catalogue without competing with the name.'],
+  'ab-d3': ['Home · the bed, less dark at the top', 'D3 · Bright',
+    'The mosaic becomes the subject and the type sits on it. Needs the shadow under the labels to hold.'],
+  'ab-d4': ['Home · the bed, less dark at the top', 'D4 · Full',
+    'Almost the unfiltered photographs. The most striking and the most dangerous — contrast is the thing to check.'],
+};
+
+
+const pretty = (s: string) =>
+  s.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+
+const groups = new Map<string, { slug: string; title: string; note: string }[]>();
+for (const slug of pages) {
+  const [group, title, note] = NOTES[slug] ?? ['Unfiled', pretty(slug), ''];
+  if (!groups.has(group)) groups.set(group, []);
+  groups.get(group)!.push({ slug, title, note });
+}
+---
+
+<Base
+  title="Previews — Ugam Khetani"
+  description="The working drawings. Never published — astro.config.mjs strips this folder from the build."
+>
+  <main class="pv">
+    <header class="pv__hd">
+      <p class="mono pv__eyebrow">Previews</p>
+      <h1 class="pv__t">Drafts</h1>
+      <p class="pv__lede">
+        Design options built as real pages, to be judged in the browser rather
+        than described. Nothing here is on the live site unless it says so.
+      </p>
+      <p class="mono pv__count">{pages.length} {pages.length === 1 ? 'draft' : 'drafts'}</p>
+    </header>
+
+    {[...groups].map(([group, items]) => (
+      <section class="pv__grp" aria-label={group}>
+        <p class="mono pv__grpname">{group}</p>
+        <ul class="pv__list">
+          {items.map((it) => (
+            <li class="pv__row">
+              <a class="pv__a" href={`/preview/${it.slug}`}>
+                <span class="pv__name">{it.title}</span>
+                <span class="mono pv__slug">{it.slug}</span>
+                {it.note && <span class="pv__note">{it.note}</span>}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+
+    <p class="mono pv__back"><a href="/">&larr; Back to the site</a></p>
+  </main>
+</Base>
+
+<style>
+  .pv {
+    max-width: min(860px, 100%);
+    margin-inline: auto;
+    padding: clamp(96px, 15vh, 190px) var(--margin) clamp(80px, 14vh, 180px);
+  }
+  .pv__eyebrow {
+    margin: 0 0 clamp(18px, 3vh, 30px);
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--dim);
+  }
+  .pv__t {
+    margin: 0 0 clamp(18px, 3vh, 28px);
+    font-family: var(--display); font-weight: 500;
+    font-size: clamp(2.4rem, 7vw, 4.2rem); line-height: 1; letter-spacing: -0.03em;
+  }
+  .pv__lede { margin: 0 0 14px; max-width: 52ch; font-size: var(--t-md); color: var(--bone-dim); }
+  .pv__count { margin: 0 0 clamp(56px, 9vh, 110px); font-size: var(--t-micro); color: var(--dim); }
+
+  .pv__grp { margin-bottom: clamp(52px, 8vh, 96px); }
+  .pv__grpname {
+    margin: 0 0 clamp(14px, 2vh, 20px); padding-bottom: 12px;
+    border-bottom: 1px solid var(--rule);
+    font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--bone-dim);
+  }
+  .pv__list { list-style: none; margin: 0; padding: 0; }
+  .pv__row { border-bottom: 1px solid var(--rule); }
+  .pv__a {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px clamp(16px, 3vw, 40px); align-items: baseline;
+    padding-block: clamp(16px, 2.4vh, 24px);
+    text-decoration: none; color: var(--bone);
+  }
+  .pv__name { font-size: var(--t-md); }
+  .pv__slug { font-size: var(--t-micro); color: var(--dim); text-align: right; }
+  .pv__note {
+    grid-column: 1 / -1; max-width: 60ch;
+    font-size: var(--t-sm); color: var(--bone-dim); line-height: 1.5;
+  }
+  .pv__a:hover .pv__name { text-decoration: underline; text-underline-offset: 4px; }
+  .pv__a:hover .pv__slug { color: var(--bone-dim); }
+
+  .pv__back { margin: 0; font-size: var(--t-micro); }
+  .pv__back a { color: var(--dim); text-decoration: none; }
+  .pv__back a:hover { color: var(--bone); }
+</style>

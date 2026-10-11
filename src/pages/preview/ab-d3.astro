@@ -1,0 +1,204 @@
+---
+/**
+ * D3 · Bright  —  the bed, less dark at the top
+ *
+ * The mosaic becomes the subject and the type sits on it rather than over it.
+ *
+ * WHAT CHANGES, AND ONLY THIS. The bed's grade is brightness(0.34) on the
+ * running site, constant at every scroll position. Here it starts at
+ * 0.76 and RAMPS BACK to 0.34 as Selected works takes the frame.
+ * Saturation and contrast are untouched at 0.78 and 1.05, so the one
+ * variable under test is darkness.
+ *
+ * THE RAMP IS THE PAGE'S OWN CLOCK, NOT A SECOND ONE. --lift rides the
+ * same --works view timeline over the same `entry 50% entry 100%` range
+ * that already drives --smoke and --haze. Measured on the running page:
+ * both hold at 0 and 0px through scrollY 400, cross at 600 (0.337 and
+ * 5.9px) and finish by about 850. The lift finishes with them, so the
+ * three land together and the bed arrives at the shipped grade exactly
+ * as the smoke reaches full.
+ *
+ * <- THE HERO IS NOT AS DARK AS THE OLD DRAFTS MADE IT LOOK. Those pinned
+ *   --smoke to 1 and --haze to 7px, which is the SCROLLED state; the real
+ *   hero has neither. Against a correct hero the lift needed here is
+ *   smaller than it would have looked against the old bed.
+ *
+ * EFFECTIVE GRADE AT THE TOP. The frosted pane adds a constant
+ * brightness(0.86) over the bed, so the running hero reads 0.34 x 0.86 =
+ * 0.292 and this draft reads 0.76 x 0.86 = 0.654.
+ */
+import Bed from './_bed.astro';
+import { HERO } from '../../data/about';
+
+const NAME = ['Ugam', 'Khetani'];
+const ROLE = ['Composer · Producer', 'Sound designer'];
+const CUE = ['Selected works', 'Scroll \u2193'];
+---
+
+<Bed no="D3" name="Bright" idea="The mosaic becomes the subject and the type sits on it rather than over it.">
+  <section class="hz hz--w">
+    <div class="fr">
+      <div class="mid">
+        <div class="lock">
+          <div class="band">
+            <p class="flank flank--l">{ROLE[0]}<br />{ROLE[1]}</p>
+            <div class="mast"><p class="word">{NAME[0]}</p><p class="word">{NAME[1]}</p></div>
+            <p class="flank flank--r">{HERO.place[0]}<br />{HERO.place[1]}</p>
+          </div>
+          <h1 class="stmt">{HERO.statement.map((line) => (
+            <span class="ln">{line.map((p) => (p.accent ? <em class="hot">{p.t}</em> : p.t))}</span>
+          ))}</h1>
+        </div>
+      </div>
+      <div class="foot">
+        <p>{NAME.join(' ')} <span class="arrow">&rarr;</span></p>
+        <p>{CUE[0]} &nbsp;·&nbsp; <span class="cue">{CUE[1]}</span></p>
+      </div>
+    </div>
+  </section>
+</Bed>
+
+<style>
+  /* ══ FIXED IN ALL FOUR ══════════════════════════════════════════
+     Edit 5: the name and the statement are not resized and not moved. The
+     centre carries the running site's spec verbatim — clamp(2.4rem, 9.2vw,
+     7.6rem) at -0.045em over 0.86, and clamp(1.3rem, 2.7vw, 2.3rem) at 24ch
+     under a clamp(34px, 6vh, 72px) top margin. Measured live at 1280:
+     117.76px and 34.56px, 49px apart.
+
+     <- THE FRAME IS THE LIVE FRAME, WHICH IS THE WHOLE CORRECTION HERE.
+       The V drafts set `.fr` to `inset: ... var(--margin)` — but `.hz` is
+       ALREADY inset by --margin, so the frame came out at 154..1126 against
+       the live hero's 77..1203. That cost 77px of gutter on each side and
+       left only 78px for a label that measures 151. It is why the V set had
+       to wrap the flanks into narrow columns.
+
+       Measured on the live page at 1280: .fr--hero is 77..1203, .cn--tl is
+       151px wide and .cn--tr 127, the mast is 232..1048. Gutter 155px a
+       side. The labels fit AT FULL SIZE, with 4px to spare on the left and
+       28 on the right. So edit 2's "only reposition" is achievable, and
+       nothing here changes a font-size, an alignment or a line break.
+
+     Edit 1: no EDITION. Edit 4: the cue leaves its corner and joins the
+     name-arrow on one bottom line, ranged to the opposite edge. */
+  .fr { position: absolute; inset: clamp(46px,8vh,104px) 0; }
+  .mid { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 2; }
+  .lock { display: flex; flex-direction: column; align-items: center; width: 100%; text-align: center; }
+
+  .band { position: relative; width: 100%; display: flex; justify-content: center; }
+  .mast { display: flex; flex-wrap: nowrap; justify-content: center; column-gap: clamp(12px,1.7vw,30px); }
+  .word { display: block; margin: 0; font-family: var(--display); font-weight: 500;
+    font-size: clamp(2.4rem, 9.2vw, 7.6rem); letter-spacing: -0.045em; line-height: 0.86;
+    color: var(--bone); text-transform: uppercase; }
+  .stmt { margin: clamp(34px,6vh,72px) auto 0; font-family: var(--display); font-weight: 500;
+    font-size: clamp(1.3rem, 2.7vw, 2.3rem); letter-spacing: -0.035em; line-height: 1.02;
+    color: var(--bone-dim); max-width: 24ch; }
+  .ln { display: block; }
+
+  /* ── THE FLANKS ────────────────────────────────────────────────
+     Edit 2: repositioned, and ONLY repositioned. Every value below is the
+     live .cn rule's own — 10px (var(--t-micro) is 0.625rem), 0.16em,
+     line-height 1.55, --bone-dim, the same two-line break, left ranged left
+     and right ranged right. Absolute inside the band so they cannot touch
+     the mast's layout, which is what protects edit 5. */
+  .flank { position: absolute; margin: 0; z-index: 3;
+    font-family: var(--mono); font-size: var(--t-micro); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--bone-dim); line-height: 1.55;
+    text-shadow: 0 1px 3px var(--ground), 0 0 14px rgba(10,9,8,0.95); }
+  .flank--l { text-align: left; }
+  .flank--r { text-align: right; }
+
+  /* Edit 4 — one line, both ends, on the live frame's own margins. */
+  .foot { position: absolute; left: 0; right: 0; bottom: 0; z-index: 3;
+    display: flex; align-items: baseline; justify-content: space-between; gap: var(--gutter);
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--bone-dim); line-height: 1.6;
+    text-shadow: 0 1px 3px var(--ground), 0 0 14px rgba(10,9,8,0.95); }
+  .foot p { margin: 0; }
+  .foot .arrow { color: var(--accent); }
+  .cue { color: var(--dim); }
+
+  /* ── W1 ── on the frame's margin, centred on the name ─────────── */
+  .flank { top: 50%; transform: translateY(-50%); }
+  .flank--l { left: 0; }
+  .flank--r { right: 0; }
+
+  /* ── BELOW THE BREAK ───────────────────────────────────────────
+     The gutter is a fixed share of the viewport and the label is a fixed
+     151px, so there IS a width where the device stops fitting. Modelled
+     from two measured points (1280 and 1024) the gutter is 0.121 x vw:
+     151px needs 1248px.
+
+     Under it the labels move again rather than shrink — up onto one row
+     above the name, left ranged left and right ranged right. Edit 2 allows
+     a reposition; it does not allow a smaller type size or a new line
+     break, so the fallback changes neither. */
+  @media (max-width: 1247px) {
+    .flank { top: auto; bottom: calc(100% + clamp(16px,2.4vh,28px)); transform: none; }
+    .flank--l { left: 0; right: auto; }
+    .flank--r { right: 0; left: auto; }
+  }
+  /* ── MOBILE ────────────────────────────────────────────────────
+     MEASURED OFF THE LIVE PAGE AT 375, NOT GUESSED. The running hero puts
+     the role and the place on ONE ROW at the top of the frame — .cn--tl at
+     24..175 ranged left, .cn--tr at 224..351 ranged right — and centres the
+     name and the statement under them, both at 188 against a 187.5 centre.
+     The frame's horizontal padding goes to 0.
+
+     So "centred" here means the NAME and the STATEMENT, which is what the
+     live page centres; the two labels keep the left/right ranging they
+     already have. W1's base centres the lockup by default, so none of these
+     four blocks touches .lock, .mast or .stmt — they only place the labels.
+     That is also why the centring cannot drift between the four drafts. */
+
+  /* ── C1 ── the live placement: one row, frame top ────────────── */
+  @media (max-width: 900px) {
+    .band { position: static; }
+    .flank { position: absolute; top: 0; bottom: auto; transform: none; }
+    .flank--l { left: 0; right: auto; text-align: left; }
+    .flank--r { right: 0; left: auto; text-align: right; }
+    /* .cn is 1.55, .foot was 1.6 — half a pixel on a single line, but the
+       point of C1 is that it matches live, so it matches live. */
+    .foot { line-height: 1.55; }
+
+    /* <- AT THE LIVE SIZE THE BOTTOM LINE NEEDS 315px, so it holds to 363.
+         Under that something has to give, and it must not be the labels:
+         left to itself the flex box broke "Ugam Khetani →" onto two lines
+         with the arrow stranded, and split "Scroll ↓" off "Selected works".
+         Measured at 360 and at 320 — both did it.
+
+         So each label is nowrap and the PAIR wraps instead: one row while
+         it fits, two intact rows when it does not, the cue still ranged
+         right by the auto margin. Edit 4 survives wherever it can and
+         degrades by stacking rather than by breaking a label. */
+    .foot { flex-wrap: wrap; row-gap: 4px; }
+    .foot p { white-space: nowrap; }
+    .foot p:last-child { margin-left: auto; }
+  }
+
+  /* <- THE FOOT STAYS AT THE LIVE SIZE. It used to drop to 9px/0.10em below
+       600px, and that was right when the frame was 279px wide — the V-set
+       inset `.fr` by --margin on top of .hz's own, so the bottom line had
+       315px of content in 279px of room.
+
+       The frame is the live frame now, so the room is 342px at 390 and 327
+       at 375, and 10px/0.16em needs 315. It fits. The reduction was a fix
+       for a bug that is gone, and it was making the two bottom corners
+       9px/0.9px/14.4px against the live page's 10px/1.6px/15.5px — the one
+       place in this draft where the corner type did not match.
+
+       Measured on ugamkhetani.com at 390: all four corners 10px, 1.6px
+       tracking, 15.5px leading. All four now match. */
+</style>
+
+{/* Scoped <style> would rename the keyframes, and .rg lives in the bed's
+    global sheet — so this one rule has to be global to reach it. */}
+<style is:global>
+  /* 0.76 / 0.34 = 2.235. The 0% value is held by `fill: both` for the
+     whole of the hero, so the top of the page sits at the lifted grade
+     and only begins returning when Selected works starts to enter. */
+  @keyframes bed-lift {
+    0%   { --lift: 2.235; }
+    100% { --lift: 1; }
+  }
+</style>
