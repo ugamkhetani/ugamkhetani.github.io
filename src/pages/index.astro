@@ -3642,10 +3642,9 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     backdrop-filter: blur(var(--haze));
   }
   /* Where the pane cannot blur it thickens instead, so the page never loses
-     the separation the blur was providing. */
-  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .sm { background: color-mix(in srgb, var(--ground) calc(var(--smoke) * 76%), transparent); }
-  }
+     the separation the blur was providing. The rule itself is further down,
+     after the one it has to beat — see THE FALLBACK HAS TO OUTWEIGH THE
+     RULE IT REPLACES. */
 
   /* The sections hand their ground to the pane. The conveyor's own
      var(--ground) goes with them — it was the last opaque thing between the
@@ -3772,6 +3771,55 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     background: color-mix(in srgb, var(--ground) calc(var(--smoke) * 26%), transparent);
     -webkit-backdrop-filter: blur(calc(var(--haze) * 2)) saturate(1.2) brightness(0.86);
     backdrop-filter: blur(calc(var(--haze) * 2)) saturate(1.2) brightness(0.86);
+  }
+
+  /* ── THE FALLBACK HAS TO OUTWEIGH THE RULE IT REPLACES ────────────
+     This thickening has existed since the pane was built and has never
+     once applied. It was written as `.sm` inside its @supports, which is
+     (0,1,0); the rule directly above is `:root .rg .sm` at (0,3,0) and is
+     NOT inside any @supports, so it won everywhere. A browser with no
+     backdrop-filter therefore got the 26% ground that was only ever meant
+     to pair WITH the blur, and no blur — about a third of the separation
+     the fallback was written to provide.
+
+     SPECIFICITY, NOT ORDER — the trap this project has now paid for three
+     times. Matching the selector exactly and sitting after it is what
+     makes the @supports decide this, which was always the intent.
+
+     76% IS STILL THE RIGHT NUMBER, which is worth recording because it was
+     calibrated against the OLD pairing (55% ground and blur(7px)) and the
+     Aperture pass changed both sides to 26% and blur(14px). Re-measured on
+     the live bed rather than inherited: composite the real tiles at the
+     shipped grade, once through `saturate(1.2) brightness(0.86) blur(14px)`
+     and once through nothing, and solve for the ground alpha that lands on
+     the same result.
+
+         max luminance    0.0859 unblurred -> 0.0169 blurred
+         ground alpha to match, by mean     74%
+         ground alpha to match, by max      87%
+         in the stylesheet                  76%
+
+     The blur is doing most of the work on PEAKS — it cuts the brightest
+     pixel fivefold — which is why the replacement has to be so much
+     heavier than the 26% it stands in for.
+
+     <- TODAY THIS IS NEARLY UNREACHABLE, and the fix is correctness rather
+       than behaviour. Every current engine supports backdrop-filter, so the
+       @supports is false everywhere and nothing takes this path. It is
+       fixed because it was silently wrong, not because anyone sees it.
+
+       IT IS NOT, STRICTLY, THE BRANCH A SLOW DEVICE WOULD TAKE. The probe
+       in the <head> already measures the device and writes `data-blur`,
+       and nothing reads that verdict yet. Gating the blur on it would mean
+       a SIBLING of this rule — `:root:not([data-blur]) .rg .sm` — not this
+       one, which asks a different question. What this rule gives that work
+       is the two things it would otherwise rediscover: the 76%, measured
+       above against the current pairing rather than the old one, and the
+       selector weight that actually beats the rule above. */
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    :root .rg .sm {
+      background: color-mix(in srgb, var(--ground) calc(var(--smoke) * 76%), transparent);
+    }
   }
   /* ── THE OPENING IS LIGHTER THAN THE REST OF THE PAGE ────────────
      Applied 2026-10-11 from /preview/ab-d1, chosen over d2/d3/d4.
