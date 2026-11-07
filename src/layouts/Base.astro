@@ -32,6 +32,45 @@ const { title, description, intro = false } = Astro.props;
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Ugam Khetani" />
+    {/* ── THE LINK PREVIEW ─────────────────────────────────────────────
+        WHAT INSTAGRAM AND WHATSAPP SHOW is og:image, and nothing else on
+        the page. Until this existed there was none, so every scraper fell
+        back to guessing — it took the first <img> in the document, which is
+        tile one of the mosaic, and sent people a random still with no name
+        on it.
+
+        IT IS NOT ONE OF THE SITE'S OWN IMAGES, deliberately. public/og/
+        is served untouched: Astro never optimises it, no page references
+        it, and changing it cannot change a single pixel of the site. Swap
+        the file, keep the name, and every link preview updates.
+
+        ABSOLUTE OR IT IS IGNORED. Scrapers do not resolve relative paths,
+        so this needs `site`, which CI sets from configure-pages. Locally,
+        with SITE_URL unset, the tag is simply absent — the same honest
+        behaviour the canonical link below already has.
+
+        1200x630 IS THE SIZE EVERY PLATFORM CROPS FROM. Width and height
+        are declared so the card reserves the right box before the image
+        arrives, which is what stops the preview reflowing as it loads.
+
+        JPEG, NOT PNG OR WEBP. A photograph as PNG is megabytes for no gain,
+        and WebP is still read unevenly by scrapers — JPEG is the one format
+        every one of them handles. The extension also has to match the bytes:
+        Pages sets Content-Type from it, so a JPEG named .png would be served
+        as image/png and some scrapers reject the mismatch. */}
+    {Astro.site && (
+      <>
+        <meta property="og:url" content={new URL(Astro.url.pathname, Astro.site)} />
+        <meta property="og:image" content={new URL('og/share.jpg', Astro.site)} />
+        <meta property="og:image:type" content="image/jpeg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Ugam Khetani — Composer, Producer, Sound Designer" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content={new URL('og/share.jpg', Astro.site)} />
+      </>
+    )}
     {/* A canonical URL has to be absolute, so it needs `site` — and `site`
         is deliberately unset until the domain is decided (see
         astro.config.mjs). Emitting it against an undefined base throws at
