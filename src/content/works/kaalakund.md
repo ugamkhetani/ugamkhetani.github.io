@@ -45,11 +45,12 @@ quote: "You can generate an explosion. Not the silence after it."
 #    subject is interior rather than martial. That is what "the subject is
 #    not the war" rests on.
 #
-#    THE LAST CLAUSE IS ROAR'S AND SHIVA'S ARGUMENT, NOT THEIR WORDS. Ugam
-#    asked for the angle of "When the image is synthetic, every human detail
-#    matters more." (Roar's quote) or "Scale is seen. Believability is
-#    heard." (Shiva's). Both are live on those two pages, so reusing either
-#    would print one sentence twice across the catalogue.
+#    IT ENDS ON "Score and sound carry that confrontation." A clause once
+#    followed, carrying Roar's and Shiva's believability argument in this
+#    film's own words — "which is what turns the generated world around it
+#    into a believable film." Cut 2026-11-07. The quote above already makes
+#    that case, and it makes it better: an explosion and the silence after
+#    it is the same point with something to picture.
 #
 #    NO TECHNIQUE IS NAMED, DELIBERATELY. Roar closes on "hybrid acoustic
 #    and electronic scoring, processed instruments, granular textures and
@@ -60,12 +61,12 @@ quote: "You can generate an explosion. Not the silence after it."
 #    and leaves the solution unclaimed. One line from him naming what he
 #    reached for turns it from a reading into a report.
 description: >
-  Full audio for an eleven-minute AI-generated war film. Set during the 1962 Sino-Indian War, the film follows an untested
-  young officer whose first encounter with war forces him to confront what
-  it means to be a soldier. The subject is not the war but what he finds in
-  himself on meeting it, which is the part no image can generate. Score and
-  sound carry that confrontation, which is what turns the generated world
-  around it into a believable film.
+  Full audio for an eleven-minute AI-generated war film. Set during the 1962
+  Sino-Indian War, the film follows an untested young officer whose first
+  encounter with war forces him to confront what it means to be a soldier.
+  The subject is not the war but what he finds in himself on meeting it,
+  which is the part no image can generate. Score and sound carry that
+  confrontation.
 # <- A FORCED BREAK, the second in the catalogue after Mumbai Standard
 #    Time's. It breaks mid-word, after the hyphen in "eleven-minute" — the
 #    break text is simply the text that ends the line, and nothing requires
