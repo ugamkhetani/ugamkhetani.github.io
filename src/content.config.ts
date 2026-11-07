@@ -86,7 +86,11 @@ const works = defineCollection({
      * instruction 2026-09-29: "A 48-hour production window" / "spanning
      * idea, script, image and sound."
      */
-    ledeBreak: z.string().optional(),
+    /* ONE STRING BREAKS IT ONCE; AN ARRAY BREAKS IT AS OFTEN AS IT HAS
+     * ENTRIES. Each entry is the exact text ending one line, taken in
+     * order, and the remainder sets as the last line. The single-string
+     * form is unchanged, so Mumbai Standard Time's is untouched. */
+    ledeBreak: z.union([z.string(), z.array(z.string())]).optional(),
 
     /** The four-column mono block below the media. */
     meta: z.array(z.object({ label: z.string(), value: z.string() })).default([]),

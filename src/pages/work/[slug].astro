@@ -247,9 +247,19 @@ const watchLinks =
       ? [{ label: d.external.label, url: d.external.url }]
       : [];
 
-/* Split on spaces only. The words keep their own punctuation, so nothing has
-   to be re-inserted and the joined text is identical to the source. */
-const QW = (d.quote ?? '').split(' ').filter(Boolean);
+/* LINES FIRST, THEN WORDS. A quote written as a YAML block scalar keeps the
+   breaks it was written with; one written on a single line yields a single
+   line and sets as it always has, so the other seventeen do not move.
+
+   Split on spaces within a line. The words keep their own punctuation, so
+   nothing has to be re-inserted and the joined text matches the source.
+
+   A SPACE IS EMITTED BEFORE EACH BREAK. .q__br goes display:none below
+   620px, and without it the lines weld — "an explosion.Not the silence".
+   A newline in a YAML block is a space in prose, so unlike the lede's
+   break this one is unconditional. */
+const QL = (d.quote ?? '').split('\n').map((l) => l.trim()).filter(Boolean);
+const QBRK = QL.length > 1;
 /* A · STANDFIRST, applied 2026-09-07. The first sentence is the standfirst
    and the rest is the paragraph, so both halves have to be split out of the
    one string — and both are then split again into WORDS, because the reading
@@ -282,9 +292,36 @@ const REST = SENT.slice(1).join(' ');
    description rewritten without updating it simply stops matching and the
    sentence sets normally. No index arithmetic, nothing to go stale
    silently. */
-const BRK = d.ledeBreak && LEDE.startsWith(d.ledeBreak) ? d.ledeBreak.length : 0;
-const LEDE_A = BRK ? LEDE.slice(0, BRK) : '';
-const LEDE_B = BRK ? LEDE.slice(BRK).replace(/^\s+/, '') : '';
+/* EACH ENTRY IS THE TEXT THAT ENDS ONE LINE, consumed in order; whatever is
+   left sets as the last. A bare string is one entry, which is the original
+   behaviour and what Mumbai Standard Time still uses.
+
+   IT FAILS SOFT, AS IT ALWAYS HAS. If any entry is not where it claims to
+   be — because the sentence was rewritten and this was not — every break is
+   dropped and the sentence sets to the measure. It never throws and it
+   never puts a break in the wrong place. */
+const LB = d.ledeBreak == null ? [] : Array.isArray(d.ledeBreak) ? d.ledeBreak : [d.ledeBreak];
+const LEDE_LINES: string[] = [];
+let ledeRest = LEDE;
+for (const part of LB) {
+  if (!ledeRest.startsWith(part)) { LEDE_LINES.length = 0; ledeRest = LEDE; break; }
+  const after = ledeRest.slice(part.length);
+  /* THE SPACE AT THE BREAK IS KEPT, AND THAT IS A BUG FIX, NOT A FLOURISH.
+     .lede__br is display:none below 620px, and with the space consumed there
+     was nothing left to separate the halves: Mumbai Standard Time has read
+     "A 48-hour production windowspanning idea..." on every phone since the
+     break shipped. Holding the space as a trailing one on the line puts it
+     back — invisible above 620 where it falls at a line end and collapses,
+     load-bearing below it.
+
+     ONLY WHERE THERE WAS ONE. Kaalakund breaks mid-word, after the hyphen
+     in "eleven-minute", and a space there would read "eleven- minute". So
+     this follows the source rather than adding one unconditionally. */
+  LEDE_LINES.push(part + (/^\s/.test(after) ? ' ' : ''));
+  ledeRest = after.replace(/^\s+/, '');
+}
+if (LEDE_LINES.length) LEDE_LINES.push(ledeRest);
+const BRK = LEDE_LINES.length > 1;
 /* NO WORD ARRAYS ANY MORE. A1 · Lead and lag animates the two BLOCKS, so the
    description is no longer split into words, no longer wrapped in 69 spans,
    and no longer carries a per-word seed in an inline style. The statement
@@ -428,12 +465,13 @@ const FACTS: { k: string; v: string }[] = [
     </header>
 
     {/* ── THE STATEMENT, ASSEMBLED. Twelve of sixteen works have one. ── */}
-    {QW.length > 0 && (
+    {QL.length > 0 && (
       <section class="q" aria-label="Statement">
         {/* One line, deliberately: a multiline fragment emits its own
             indentation as text, which lands on top of the explicit space and
-            doubles it. */}
-        <p class="q__t">{QW.map((w, i) => (<><span class="w" data-w>{w}</span>{i < QW.length - 1 ? ' ' : ''}</>))}</p>
+            doubles it. That holds per line now there can be several, so the
+            whole map stays on one source line. */}
+        <p class={`q__t${QBRK ? ' q__t--brk' : ''}`}>{QL.map((ln, li) => (<>{ln.split(' ').filter(Boolean).map((w, i, a) => (<><span class="w" data-w>{w}</span>{i < a.length - 1 ? ' ' : ''}</>))}{li < QL.length - 1 ? <>{' '}<br class="q__br" /></> : ''}</>))}</p>
       </section>
     )}
 
@@ -505,7 +543,7 @@ const FACTS: { k: string; v: string }[] = [
         {/* --n is the standfirst's own length in characters. Everything about
             how it sets is derived from that number; see the CSS. */}
         <p class={`body__lede${BRK ? ' body__lede--brk' : ''}`} style={`--n:${LEDE.length}`}>
-          {BRK ? <Fragment>{LEDE_A}<br class="lede__br" />{LEDE_B}</Fragment> : LEDE}
+          {BRK ? LEDE_LINES.map((ln, i) => (<Fragment>{ln}{i < LEDE_LINES.length - 1 ? <br class="lede__br" /> : ''}</Fragment>)) : LEDE}
         </p>
         {REST && <p class="body__rest">{REST}</p>}
       </div>
@@ -771,12 +809,43 @@ const FACTS: { k: string; v: string }[] = [
     margin: clamp(80px, 14vh, 180px) auto;
     text-align: center;
   }
+  /* <- BALANCED, BECAUSE A 20ch MEASURE STRANDS LAST WORDS. Kaalakund's
+       quote broke "…the silence after / it." — one word on a fourth line,
+       7% of the width of the widest. Measured across all eighteen quotes in
+       the catalogue by substituting each into this element at this width:
+       balance fixes two widows (Kaalakund 0.07 -> 1.00, Mere Ho 0.21 ->
+       1.00), improves the last-line fill on ten more, leaves six untouched
+       and makes none worse. No quote changes its number of lines, so
+       nothing moves on the page — only where the words sit within it.
+
+       BALANCE, NOT PRETTY. The file already uses both: `pretty` on body
+       copy, which only repairs the final line, and `balance` on display
+       type, which is what this is. */
   .q__t {
     margin: 0 auto; max-width: 20ch;
     font-family: var(--display); font-weight: 500;
     font-size: clamp(1.9rem, 5.4vw, 4.4rem);
     line-height: 1.02; letter-spacing: -0.045em;
-    color: var(--bone);
+    color: var(--bone); text-wrap: balance;
+  }
+
+  /* A QUOTE THAT CARRIES ITS OWN BREAKS IS MEASURED BY ITS LONGEST LINE —
+     the move .body__lede--brk makes above, for the same reason. The 20ch cap
+     comes off because the chosen lines ARE the measure now, and balance goes
+     with it: balance re-distributes words across the lines it is given,
+     which is the one thing a chosen break must not allow.
+
+     Kaalakund's longer line, "You can generate an explosion.", is 614px
+     against the 520px that 20ch allows, so without lifting the cap the break
+     would be honoured and then immediately re-wrapped. */
+  :root .q__t--brk { max-width: none; text-wrap: wrap; }
+
+  /* A DESKTOP INSTRUCTION, as the lede's is: at 375 the column is 327px and
+     that line is far wider, so honouring it would push the page sideways.
+     Below 620 the breaks stand down and the quote sets to the measure. */
+  @media (max-width: 620px) {
+    .q__br { display: none; }
+    :root .q__t--brk { max-width: 20ch; text-wrap: balance; }
   }
 
   /* ── BLOCKS ─────────────────────────────────────────────────── */

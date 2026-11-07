@@ -97,13 +97,36 @@ export const composition: Stanza[] = [
     pause: 24,
   },
   {
-    // 4:3 against 16:9, the narrow one held smaller so the two land at
-    // nearly the same height — 303px against 348 at 1440 — which is what
-    // makes the width difference read as width rather than as importance.
+    // 4:3 AGAINST 2.35:1 — the narrowest landscape in the catalogue beside
+    // one of the two widest. This stanza used to be Ira with Moholla, 4:3
+    // against 16:9 at 303px and 348; Kaalakund takes Moholla's slot exactly,
+    // same column, same span, same offset, and the pair comes out 303
+    // against 263. The wide frame is the bigger object and the shorter one,
+    // which is the relationship Book My Yamraj and Broken Reflections open
+    // Movement II with — gentler here, because 4:3 is not 9:16.
+    //
+    // <- THERE IS A TIGHTER VERSION OF THIS AND IT COSTS IRA ITS COLUMN.
+    //    At seven columns Kaalakund is 309px tall against Ira's 303 — six
+    //    pixels, the closest two frames come anywhere in the score. It does
+    //    not fit beside Ira at col 2: span 7 has to start at col 6, so Ira
+    //    would move to col 1 and the pair would run 1–4 and 6–12. Left
+    //    undone because moving Ira was not asked for. That is the recipe if
+    //    the near-match is ever wanted.
     items: [
       { slug: 'ira', col: 2, span: 4, tCol: 1, tSpan: 3 },
-      { slug: 'moholla', col: 7, span: 6, offset: 14, tCol: 4, tSpan: 3, tOffset: 10 },
+      { slug: 'kaalakund', col: 7, span: 6, offset: 14, tCol: 4, tSpan: 3, tOffset: 10 },
     ],
+    pause: 20,
+  },
+  {
+    // MOHOLLA ALONE, because the work that used to stand beside it now
+    // stands where it stood. Six columns flush left at 348px: the same
+    // frame it had in the pair, moved to the other margin so the stanza
+    // above does not read as three works in a row. 16:9 is the catalogue's
+    // most ordinary proportion and carries a solo without being elevated
+    // by it — the three solos at the head are elevated by SCALE, eight
+    // columns centred and seven and twelve, not by standing alone.
+    items: [{ slug: 'moholla', col: 1, span: 6, tCol: 1, tSpan: 4 }],
     pause: 20,
   },
   {
