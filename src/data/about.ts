@@ -71,7 +71,7 @@ export const ACROSS = {
   lede: 'I work across formats, but the underlying approach stays the same: build a distinct sonic world that belongs to the work.',
   columns: [
     { label: 'Film',  items: ['Original Score', 'Film & OTT', 'Short Films', 'AI Films', 'Micro Drama'] },
-    { label: 'Brand', items: ['Sonic Identity', 'Campaign Audio', 'Sound Design', 'Voice Direction', 'Final Mix'] },
+    { label: 'Brand', items: ['Sonic Identity', 'Campaign Audio', 'Sound Design', 'Voice Design', 'Mix & Master'] },
     { label: 'Music', items: ['Production', 'Composition', 'Mixing', 'Artist-led Records', 'Original Music'] },
   ],
 };

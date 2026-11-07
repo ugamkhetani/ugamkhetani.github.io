@@ -247,19 +247,9 @@ const watchLinks =
       ? [{ label: d.external.label, url: d.external.url }]
       : [];
 
-/* LINES FIRST, THEN WORDS. A quote written as a YAML block scalar keeps the
-   breaks it was written with; one written on a single line yields a single
-   line and sets as it always has, so the other seventeen do not move.
-
-   Split on spaces within a line. The words keep their own punctuation, so
-   nothing has to be re-inserted and the joined text matches the source.
-
-   A SPACE IS EMITTED BEFORE EACH BREAK. .q__br goes display:none below
-   620px, and without it the lines weld — "an explosion.Not the silence".
-   A newline in a YAML block is a space in prose, so unlike the lede's
-   break this one is unconditional. */
-const QL = (d.quote ?? '').split('\n').map((l) => l.trim()).filter(Boolean);
-const QBRK = QL.length > 1;
+/* Split on spaces only. The words keep their own punctuation, so nothing has
+   to be re-inserted and the joined text is identical to the source. */
+const QW = (d.quote ?? '').split(' ').filter(Boolean);
 /* A · STANDFIRST, applied 2026-09-07. The first sentence is the standfirst
    and the rest is the paragraph, so both halves have to be split out of the
    one string — and both are then split again into WORDS, because the reading
@@ -465,13 +455,12 @@ const FACTS: { k: string; v: string }[] = [
     </header>
 
     {/* ── THE STATEMENT, ASSEMBLED. Twelve of sixteen works have one. ── */}
-    {QL.length > 0 && (
+    {QW.length > 0 && (
       <section class="q" aria-label="Statement">
         {/* One line, deliberately: a multiline fragment emits its own
             indentation as text, which lands on top of the explicit space and
-            doubles it. That holds per line now there can be several, so the
-            whole map stays on one source line. */}
-        <p class={`q__t${QBRK ? ' q__t--brk' : ''}`}>{QL.map((ln, li) => (<>{ln.split(' ').filter(Boolean).map((w, i, a) => (<><span class="w" data-w>{w}</span>{i < a.length - 1 ? ' ' : ''}</>))}{li < QL.length - 1 ? <>{' '}<br class="q__br" /></> : ''}</>))}</p>
+            doubles it. */}
+        <p class="q__t">{QW.map((w, i) => (<><span class="w" data-w>{w}</span>{i < QW.length - 1 ? ' ' : ''}</>))}</p>
       </section>
     )}
 
@@ -827,25 +816,6 @@ const FACTS: { k: string; v: string }[] = [
     font-size: clamp(1.9rem, 5.4vw, 4.4rem);
     line-height: 1.02; letter-spacing: -0.045em;
     color: var(--bone); text-wrap: balance;
-  }
-
-  /* A QUOTE THAT CARRIES ITS OWN BREAKS IS MEASURED BY ITS LONGEST LINE —
-     the move .body__lede--brk makes above, for the same reason. The 20ch cap
-     comes off because the chosen lines ARE the measure now, and balance goes
-     with it: balance re-distributes words across the lines it is given,
-     which is the one thing a chosen break must not allow.
-
-     Kaalakund's longer line, "You can generate an explosion.", is 614px
-     against the 520px that 20ch allows, so without lifting the cap the break
-     would be honoured and then immediately re-wrapped. */
-  :root .q__t--brk { max-width: none; text-wrap: wrap; }
-
-  /* A DESKTOP INSTRUCTION, as the lede's is: at 375 the column is 327px and
-     that line is far wider, so honouring it would push the page sideways.
-     Below 620 the breaks stand down and the quote sets to the measure. */
-  @media (max-width: 620px) {
-    .q__br { display: none; }
-    :root .q__t--brk { max-width: 20ch; text-wrap: balance; }
   }
 
   /* ── BLOCKS ─────────────────────────────────────────────────── */
