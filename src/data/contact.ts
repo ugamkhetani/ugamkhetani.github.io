@@ -39,7 +39,7 @@ export const QUESTIONS: Question[] = [
     line: 'Needed',
     options: [
       'Original score', 'Sound design', 'Voice design',
-      'Mix & master', 'Sonic identity / MOGO', 'Song production', 'Not sure yet',
+      'Mix & master', 'Sonic identity', 'Song production', 'Not sure yet',
     ],
   },
   {
