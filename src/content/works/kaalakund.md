@@ -6,6 +6,25 @@ lead: false
 opening: video
 ratio: "2.35:1"
 role: "Music · Sound · Voice Direction"
+# NOMINATIONS, NOT SELECTIONS, because that is the word Ugam used — and the
+# catalogue already treats them as different things: Aasha's line reads
+# "7 Official Selections · 10 Nominations · 6 Wins". Everywhere a single
+# festival is named the form is "Official Selection · <festival>"; these
+# follow that shape with the one word changed.
+#
+# NO YEAR ON EITHER, because none was given. Diwali's three carry none, so
+# there is precedent; Moholla's and My Red Crayon's do. Say the word and
+# they take one.
+#
+# NO `star`, which is reserved for wins — Mumbai's First Prize and My Red
+# Crayon's Best AI Film are the only two in the catalogue that carry it.
+#
+# NO Recognition ROW IN `meta` EITHER. The three works that have one each
+# have a single result to name; Diwali, the only other work with more than
+# one festival, lists them here and nowhere else.
+awards:
+  - text: "Nomination · New Delhi Film Festival"
+  - text: "Nomination · Jaipur International Film Festival"
 # THE QUOTE'S FORM IS THE CATALOGUE'S — two clauses, present tense, a craft
 # principle rather than a logline, as in Roar's "When the image is synthetic,
 # every human detail matters more." and Shiva's "Scale is seen. Believability
