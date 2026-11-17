@@ -404,12 +404,38 @@ export const BED_CELLS: Record<number, { slug: string; frame: string; note: stri
   2:  { slug: 'mumbai-standard-time', frame: '10.png',  note: 'an alarm clock, still life, 13.5' },
   3:  { slug: 'dinshaws-dildaari-battles', frame: '08.png', note: 'a crowd in identical masks, 20.8' },
   4:  { slug: 'the-shiva-trilogy',    frame: '02.png',  note: 'an archer against fire, 21.5 - restored, see THE REVERT below' },
-  5:  { slug: 'my-red-crayon',        frame: '05.png',  note: 'two children and a red ribbon, 27.8' },
+  /* CELL 5 WAS MY RED CRAYON AND HAD TO MOVE, 2026-11-17. Kaalakund went
+     between Ira and Moholla, which slid the cycle one place and put My Red
+     Crayon in centre cell 10 — diagonally under this one. Ring against
+     centre, so the ring gives way, which is this table's standing rule.
+     Kaalakund 08 is the only frame in that work's set that is not a
+     head-and-shoulders: a camp, tents and mountains with the figure large
+     but the field behind it open. Graded at the bed's own
+     brightness(0.34) saturate(0.78) contrast(1.05): 25.3 mean against the
+     25.6 this cell was running, and 10 pixels over #4C4C4C against 526. It
+     is the same tone and a cleaner one. */
+  5:  { slug: 'kaalakund',            frame: '08.png',  note: 'a camp below mountains, 25.3' },
 
   /* side middles, 0.336 visible */
   6:  { slug: 'special-ops-2',        frame: '07.JPG',  note: 'a call at night, the city behind in bokeh, 6.3' },
   11: { slug: 'aasha',                frame: '05.png',  note: 'blinds, black and white, 20.6' },
-  12: { slug: 'roar',                 frame: '02.png',  note: "a tiger's eye, 9.5" },
+  /* CELL 12 WAS ROAR AND THE VIOLATION PREDATES THE REORDER. Adding
+     Kaalakund as an eighteenth work in October slid the cycle and put Roar
+     in centre cell 13, beside this one; nothing checked it at the time and
+     it shipped. Ring against centre again, so this cell gives way. Moholla
+     08 is a street at dusk — washing lines, scooters, lamps, no face — and
+     at 12.2 mean it lands between the two neighbours that can be measured,
+     Special Ops 07 at 9.5 and Book My Yamraj 07 at 13.1. It sits among them
+     rather than against them, which is what this corner of the bed asks
+     for. 54 pixels over #4C4C4C, against 0 for the Roar frame: the lamps
+     are the cost, and seven of the eighteen cells here now run hotter than
+     that since the opening was brightened to 0.34.
+
+     MOHOLLA IS NOW AT ITS CEILING, cells 25 and 12, two ring cells and not
+     adjacent. Every Moholla frame carries a burned-in border of 9 to 25px
+     — measured across the set, not peculiar to this one — and cell 25 has
+     been shipping with it. */
+  12: { slug: 'moholla',              frame: '08.png',  note: 'a street at dusk, lamps and washing, 12.2' },
   17: { slug: 'taskaree',             frame: '08.webp', note: 'hands over gold, 19.9 - see THE REVERT below; this one could NOT go back' },
   18: { slug: 'book-my-yamraj',       frame: '07.png',  note: '11.0 - restored, see THE REVERT below' },
   23: { slug: 'aladdin-dateable-bites', frame: '03.png', note: '21.5' },
