@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
 import fs from 'node:fs';
+import { ogCards } from './scripts/ogCards.mjs';
 
 /**
  * THE PREVIEW LIBRARY IS NOT PUBLISHED.
@@ -76,7 +77,7 @@ export default defineConfig({
    */
   site: process.env.SITE_URL || undefined,
   base: BASE,
-  integrations: [withoutPreview()],
+  integrations: [withoutPreview(), ogCards()],
   trailingSlash: 'ignore',
   /* host is pinned to IPv4 loopback on purpose. Left to itself the dev
      server binds only to [::1], and this machine's /etc/hosts maps

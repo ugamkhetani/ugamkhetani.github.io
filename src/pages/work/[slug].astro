@@ -85,6 +85,22 @@ const d = work.data;
 
 const images = framesFor(work.id, d.frames);
 const poster = images[0];
+
+/* THE LINK-PREVIEW CARD IS THIS WORK'S FIRST STILL — the same frame `poster`
+   opens the page on, so what someone is sent and what they land on agree.
+   Built into og/work/<slug>.jpg at build time; scripts/ogCards.mjs carries
+   the argument. Before this, sharing any work sent the studio photograph,
+   which is right for the homepage and wrong for a film.
+
+   KEPT ON ONE LINE AT THE <Base> CALL BELOW. Breaking that tag across lines
+   changes the whitespace Astro emits inside the whole page — measured: every
+   work page's markup re-indented and trailing spaces vanished before closing
+   tags. Harmless to render and pure noise in a diff, which is how a real
+   change gets lost. Hence this object up here. */
+const SHARE = {
+  path: `og/work/${work.id}.jpg`,
+  alt: d.alt ?? `Still from ${d.title}`,
+};
 const AR = d.ratio.replace(':', ' / ');
 
 /* THE ROLE'S PARTS, FROM THE ONE STRING. Split on "/" only, so a role that
@@ -401,7 +417,7 @@ const FACTS: { k: string; v: string }[] = [
 ];
 ---
 
-<Base title={`${d.title} — Ugam Khetani`} description={d.description}>
+<Base title={`${d.title} — Ugam Khetani`} description={d.description} share={SHARE}>
   <OpNav variant="bracket" base={href()} />
 
   <article class="sc" data-sc style={[`--ar:${AR}`, cropFor(work.id),

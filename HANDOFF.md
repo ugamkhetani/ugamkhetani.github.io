@@ -154,6 +154,7 @@ something to frame it, the frame wants something inside it.
 | `src/scripts/frames.ts` | Pointer scrubbing on the homepage thumbnails. |
 | `src/scripts/cursor.ts` | The pointer trail, and what it is clipped by. |
 | `src/styles/tokens.css` | Every colour, size, duration. Nothing outside it invents one. |
+| `scripts/ogCards.mjs` | **The link-preview card for each work**, built from that work's first still at build time into `dist/og/work/<slug>.jpg`. Registered as an Astro integration in `astro.config.mjs`. The homepage's card is the committed photograph in `public/og/share.jpg` and this never touches it. |
 
 **Pages:** `/` · `/work/<slug>` x17, plus whatever is under `/preview/`.
 **`astro build` reports 76 pages and ships 21 HTML files** — the home page,

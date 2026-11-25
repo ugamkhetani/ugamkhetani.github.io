@@ -15,8 +15,19 @@ interface Props {
   description: string;
   /** Homepage only: run the opening frame sequence once per session. */
   intro?: boolean;
+  /**
+   * This page's own link-preview card, as a path under the site root. Omit
+   * it and the site's card is used — see the note on og:image below.
+   */
+  share?: { path: string; alt: string };
 }
-const { title, description, intro = false } = Astro.props;
+const { title, description, intro = false, share } = Astro.props;
+
+/* THE SITE'S OWN CARD IS THE FALLBACK, and the homepage is what it is for. */
+const SHARE = share ?? {
+  path: 'og/share.jpg',
+  alt: 'Ugam Khetani — Composer, Producer, Sound Designer',
+};
 
 
 ---
@@ -40,10 +51,19 @@ const { title, description, intro = false } = Astro.props;
         tile one of the mosaic, and sent people a random still with no name
         on it.
 
-        IT IS NOT ONE OF THE SITE'S OWN IMAGES, deliberately. public/og/
-        is served untouched: Astro never optimises it, no page references
-        it, and changing it cannot change a single pixel of the site. Swap
-        the file, keep the name, and every link preview updates.
+        THE HOMEPAGE'S CARD IS NOT ONE OF THE SITE'S OWN IMAGES,
+        deliberately. public/og/ is served untouched: Astro never optimises
+        it, no page references it, and changing it cannot change a single
+        pixel of the site. Swap the file, keep the name, and the homepage's
+        link preview updates.
+
+        A WORK PAGE SENDS ITS OWN STILL INSTEAD, from 2026-11-25 on Ugam's
+        instruction. Sharing /work/kaalakund used to show a portrait of the
+        composer rather than the film. Work pages now pass `share`, and the
+        card is built from that work's first still at build time —
+        scripts/ogCards.mjs has the whole argument, including why it is
+        generated rather than committed. Any page that passes nothing still
+        gets the photograph, which is what the homepage wants.
 
         ABSOLUTE OR IT IS IGNORED. Scrapers do not resolve relative paths,
         so this needs `site`, which CI sets from configure-pages. Locally,
@@ -62,13 +82,13 @@ const { title, description, intro = false } = Astro.props;
     {Astro.site && (
       <>
         <meta property="og:url" content={new URL(Astro.url.pathname, Astro.site)} />
-        <meta property="og:image" content={new URL('og/share.jpg', Astro.site)} />
+        <meta property="og:image" content={new URL(SHARE.path, Astro.site)} />
         <meta property="og:image:type" content="image/jpeg" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="Ugam Khetani — Composer, Producer, Sound Designer" />
+        <meta property="og:image:alt" content={SHARE.alt} />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:image" content={new URL('og/share.jpg', Astro.site)} />
+        <meta name="twitter:image" content={new URL(SHARE.path, Astro.site)} />
       </>
     )}
     {/* A canonical URL has to be absolute, so it needs `site` — and `site`
