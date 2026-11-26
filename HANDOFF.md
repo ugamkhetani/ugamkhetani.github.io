@@ -20,6 +20,27 @@ image is a file in a folder. No CMS, no database.
   output is that Astro now inlines a stylesheet it used to link, which is a
   delivery decision and not a rule.
 
+<- IT WAS REFILLED ON 2026-11-27 AND IS STILL NOT IN THE REPOSITORY. Eleven
+  drafts and an index — `ab-bed1` to `ab-bed11`, every mosaic bed that has
+  shipped — were built on Ugam's instruction so an earlier background could be
+  looked at without checking a commit out. **They live in his working tree and
+  are deliberately uncommitted, on his instruction**, so `src/pages/preview/`
+  will not be in a fresh clone and nothing in the repository should be written
+  as though it is. The §"There is a preview index at `/preview`" section
+  describes a DIFFERENT index that no longer exists either way.
+
+  THE CHOICE IS WHY. Committing them publishes 73 orphan `.webp` at 292KB on
+  every build: the index's thumbnails are 64px wide, nothing on the live site
+  asks for that size, and `without-preview` deletes draft PAGES without
+  knowing what assets they pulled in. Teaching it to sweep unreferenced assets
+  is a change to the live build and has not been made.
+
+<- ONE OF THEM WAS APPLIED, and that part IS in the repository. `ab-bed5` —
+  the bed of 22 September — is the live background from 2026-11-27, and
+  `src/lib/bed.ts` now names all thirty cells rather than eighteen. The whole
+  argument, including what pinning the bed costs and what it buys, is in that
+  file's header; the drafts were how it was chosen, not where it is recorded.
+
 This file is the briefing for whoever picks the work up next — including a
 fresh chat with no memory of how any of it got here. Read §1, then §5 and §6
 before changing anything.
@@ -1863,6 +1884,22 @@ a media folder; 17 and 17, nothing orphaned.
 5. **Audio excerpts** — optional; the player is built and waiting.
 
 ### There is a preview index at `/preview`
+
+<- THE FOLDER WAS EMPTIED ON 2026-10-06 AND REFILLED ON 2026-11-27, and the
+  index is a different page now. **Everything below this note describes the
+  old one and is history.** The index that exists today lists eleven drafts
+  and nothing else — `ab-bed1` to `ab-bed11`, every mosaic bed that has
+  shipped — and it takes them from `PAST_BEDS` in `src/pages/preview/_bedPast.ts`
+  rather than from a glob of the folder, because the record is ordered and a
+  directory listing is not. A twelfth draft dropped in the folder will NOT
+  appear on it. The `NOTES` check below has nothing to check: there is no
+  `NOTES` map any more.
+
+  The two underscore-prefixed files are not routes — Astro's router skips
+  them — so they are not drafts and `without-preview` has nothing to remove
+  for them. `_bedPast.ts` is the frozen record of all eleven casts and
+  `_BedPast.astro` renders one of them on the live bed's geometry.
+
 Any `.astro` file dropped in `src/pages/preview/` is listed there on the next
 build — the page globs the folder rather than keeping a list, so the LISTING
 cannot go stale, and a draft with no entry in its `NOTES` map still appears

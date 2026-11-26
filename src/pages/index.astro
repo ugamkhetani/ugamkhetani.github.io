@@ -99,7 +99,7 @@ import { composition, numberFor, total, RATIO_NUM } from '../data/composition';
 import { getCollection } from 'astro:content';
 import Opening from '../components/Opening.astro';
 import { framesFor } from '../lib/frames';
-import { BED_SWAPS, BED_CROP, BED_GRADE, BED_TILES, BED_CELLS } from '../lib/bed';
+import { BED_CROP, BED_TILES, BED_CELLS } from '../lib/bed';
 import { cardK, type CardMode } from '../lib/cards';
 import { infoRows } from '../lib/wkinfo';
 
@@ -230,29 +230,29 @@ for (const stanza of composition) {
   }
 }
 
-/* The bed's cast and its frame corrections live in src/lib/bed.ts. That was
-   so the mosaic drafts could render from the same tables as this page rather
-   than a second copy; the drafts are gone, and the split stays because those
-   tables are content decisions with long arguments attached. */
-const bedCast = wnodes.map((n) => {
-  const to = BED_SWAPS[n.w.id];
-  return to ? { ...n, w: bySlug.get(to)! } : n;
-});
-
 /* The catalogue as a bed behind the whole document. It comes round more than
    once on purpose: a wall of work should read as more than you can count.
 
-   BED_CELLS overrides individual cells with a named work AND a named FILE.
-   The cycle alone put the same photograph in a partial cell that was already
-   fully visible in the centre, fourteen times over; the table breaks those
-   repeats by reaching for a different frame rather than a different work. A
-   cell it does not name falls through to the cycle exactly as before, which
-   is what keeps the twelve centre tiles untouched. */
+   EVERY CELL IS NAMED, since 2026-11-27. BED_CELLS used to override eighteen
+   tiles and let the other twelve fall through to the score, walked round and
+   round until thirty were filled — which meant any reorder or new work
+   re-cast the bed silently, and four times it did. It names all thirty now.
+   src/lib/bed.ts has the whole argument, including what that costs.
+
+   A MISSING CELL IS A BUILD ERROR RATHER THAN A GAP. There is no cycle left
+   to fall back to, and a bed with a hole in it would render as a hole: the
+   tiles are grid items, so cell 17 going missing does not shuffle the rest
+   up, it leaves a rectangle of bare ground in the middle of the page. */
 const GROUND_TILES = Array.from({ length: BED_TILES }, (_, i) => {
   const pick = BED_CELLS[i];
-  if (pick) return { w: bySlug.get(pick.slug)!, frames: [pick.frame], set: true };
-  const n = bedCast[i % bedCast.length];
-  return { w: n.w, frames: n.w.data.frames, set: false };
+  if (!pick) {
+    throw new Error(
+      `The mosaic bed has no cell ${i}.\n` +
+        `  BED_TILES is ${BED_TILES}, so src/lib/bed.ts must name 0 to ${BED_TILES - 1}.\n` +
+        `  Add the cell, or lower BED_TILES — but the bed is 6 x 5 and 30 is the grid.`
+    );
+  }
+  return { w: bySlug.get(pick.slug)!, frames: [pick.frame], k: pick.k };
 });
 
 /* D · Poster: splits a statement's trailing full stop off so it can take the
@@ -311,11 +311,11 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
             style={[
               BED_CROP[c.w.id] &&
                 `--crop-s:${BED_CROP[c.w.id].scale};--crop-y:${BED_CROP[c.w.id].shiftY}%`,
-              /* The grade is frame-specific -- it exists to rescue Bloody
-                 Bubbly's FIRST frame, which graded to a hole. A cell that
-                 names its own file is measured on that file and does not
-                 inherit it; see BED_CELLS in src/lib/bed.ts. */
-              !c.set && BED_GRADE[c.w.id] && `--bed-k:${BED_GRADE[c.w.id].contrast}`,
+              /* The contrast override is per CELL, because it is per FILE —
+                 it exists to rescue Bloody Bubbly's first frame, which grades
+                 to a hole, and that work's other frame in the bed needs
+                 nothing. See cell 15 in src/lib/bed.ts. */
+              c.k !== undefined && `--bed-k:${c.k}`,
             ]
               .filter(Boolean)
               .join(';') || undefined}
@@ -2615,7 +2615,7 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
     will-change: transform;
   }
   /* THE GRADE IS ON THE TILE, NOT ON THE BED. It sat on .ms__bed until one
-     frame needed a different contrast — see BED_GRADE in src/lib/bed.ts, where
+     frame needed a different contrast — see cell 15 in src/lib/bed.ts, where
      the reasoning and the measurements are. The tiles do not overlap and the
      filter is per-pixel, so thirty filtered tiles paint identically to one
      filtered grid; what it buys is a tile being able to name its own value.
@@ -3722,7 +3722,7 @@ const versalOf = (s: string): [string, string] => [s.slice(0, 1), s.slice(1)];
   }
   /* Thirty filtered surfaces down to none. */
   .rg .ms__tile { filter: none; }
-  /* Except the one BED_GRADE names. Targeted on the inline custom property
+  /* Except the one cell that names a `k`. Targeted on the inline custom property
      the bed markup already writes, so no markup changes: contrast composes
      multiplicatively, so 1.05 on the parent and 1/1.05 here is 1.0. */
   .rg .ms__tile[style*="--bed-k"] { filter: contrast(calc(var(--bed-k) / 1.05)); }
