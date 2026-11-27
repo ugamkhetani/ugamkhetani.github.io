@@ -94,12 +94,17 @@
  *
  * WHERE THE HISTORY WENT. The thirty cells below ARE the record of this
  * arrangement — there is nothing computed left to reconstruct, so the table
- * says exactly what the page draws. The ten arrangements before it are in git:
- * `git show 13d7396:src/lib/bed.ts` is the one this replaced, and that file's
- * own notes name the commits for the rest. They were also built as browsable
- * drafts, ab-bed1 to ab-bed11, on 2026-11-27 — those are in Ugam's working
- * tree and deliberately not committed, so do not expect src/pages/preview/ to
- * exist in a fresh clone.
+ * says exactly what the page draws. The ten arrangements before it are in
+ * git and nowhere else: `git show 13d7396:src/lib/bed.ts` is the one this
+ * replaced, and that file's own notes name the commits back to the first.
+ *
+ * <- THEY WERE ALSO BUILT AS BROWSABLE DRAFTS ON 2026-11-27, ab-bed1 to
+ *   ab-bed11 under src/pages/preview/, which is how this one was chosen.
+ *   Those pages were never committed and were deleted the same day on Ugam's
+ *   instruction, so there is nothing to recover and nothing to look for.
+ *   Seeing an old bed again means re-deriving it from the commits above —
+ *   each one's cast is its BED_CELLS plus `order` from that commit's
+ *   composition.ts, walked and repeated to thirty.
  */
 
 /**
