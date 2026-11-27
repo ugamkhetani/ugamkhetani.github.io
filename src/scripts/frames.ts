@@ -12,6 +12,11 @@
  * the most-centred object in the viewport, and stops when it isn't.
  *
  * Reduced motion: neither. The first still, the title, and a working link.
+ *
+ * WHERE THIS RUNS, counted off the built pages rather than assumed: the home
+ * page only. A work page has no [data-frame] at all — its stills are the cut
+ * strip, which is plain images. The home page has 48: thirty bed tiles, all
+ * single-frame, and the eighteen cards of Selected works.
  */
 
 const AUTO_MS = 1600;
@@ -23,6 +28,13 @@ const MIN_CUT_MS = 60;
 const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const fine = () => window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
+/* <- DO NOT EXPORT THIS TO SHARE IT WITH A DRAFT. Tried on 2026-11-27 so the
+   mobile rail drafts could cut frames through the same function, on the
+   assumption that a keyword changes nothing. It changes every page: a second
+   importer makes Rollup split this module into its own chunk, which rewrites
+   the hash of the script all 19 pages load. Measured — 19 of 19 HTML files
+   differed and the main bundle was replaced. A draft copies this function
+   instead and says that it is a copy. */
 function setIndex(frame: HTMLElement, index: number) {
   const layers = Array.from(frame.querySelectorAll<HTMLElement>('.frame__layer'));
   const i = Math.max(0, Math.min(index, layers.length - 1));
@@ -142,10 +154,41 @@ function initKeyboard(frame: HTMLElement, count: number) {
   frame.addEventListener('blur', () => setIndex(frame, 0));
 }
 
-/** Touch: the centred frame advances itself, and only that one. */
+/**
+ * Touch: the centred frame advances itself, and only that one.
+ *
+ * THE BAND ALONE WAS NOT ENOUGH AND THE RAIL IS WHY. Applied 2026-11-27 from
+ * /preview/ab-rail2, chosen against three others. The observer below reports
+ * whatever crosses the middle band of the screen, and the band is inset 42%
+ * top and bottom and NOT AT ALL left or right — down a page that names one
+ * thing, which is all this was written against. Below 900px Selected works
+ * is a horizontal snap rail, two cards qualify at once, and the old code
+ * took whichever entry came last.
+ *
+ * MEASURED ON THE LIVE SITE AT 375px BEFORE THE FIX: the driven card was one
+ * to the RIGHT at every scroll position tried. At rest card 0 was fully
+ * visible and sitting on its first still while card 1 — forty-five pixels of
+ * a 293-pixel card, a sliver at the screen edge — was four stills deep. The
+ * section read as static on a phone while still paying for the stills.
+ *
+ * SO THE BAND NOW CHOOSES CANDIDATES AND THE HORIZONTAL CENTRE DECIDES. One
+ * extra rule, and it generalises: on a tablet, where the conveyor is still
+ * the 3D stage and several cards cross the band, the nearest to the middle
+ * is the one being looked at there too.
+ *
+ * AND IT RE-PICKS ON SCROLL, NOT ONLY ON INTERSECTION. A snap can finish
+ * without anything crossing the band, and then the choice is stale — the
+ * drafts showed exactly that: a drag ended with card 1 centred and the clock
+ * still running on card 0. The listener is on `document` in the capture
+ * phase because a scroll event does not bubble and the rail is an inner
+ * scroller; it is rAF-throttled, and it does nothing at all unless more than
+ * one frame is in the band, which is the only case that can be ambiguous.
+ */
 function initCentred(frames: HTMLElement[]) {
   let timer: number | undefined;
   let current: HTMLElement | null = null;
+  /** Everything in the band right now, not just what last changed. */
+  const live = new Set<HTMLElement>();
 
   const stop = () => {
     if (timer) window.clearInterval(timer);
@@ -162,34 +205,67 @@ function initCentred(frames: HTMLElement[]) {
     }, AUTO_MS);
   };
 
+  /* The frame whose own centre is nearest the middle of the screen. A
+     single-frame work can win this and should: landing on Mere Ho has to
+     stop the last card rather than leave it cutting off-screen. start()
+     declines to run a clock for it, which is the right nothing. */
+  const choose = () => {
+    const mid = window.innerWidth / 2;
+    let best: HTMLElement | null = null;
+    let bestD = Infinity;
+    for (const frame of live) {
+      const r = frame.getBoundingClientRect();
+      if (!r.width) continue;
+      const d = Math.abs((r.left + r.right) / 2 - mid);
+      if (d < bestD) {
+        bestD = d;
+        best = frame;
+      }
+    }
+    if (best === current) return;
+
+    if (current) {
+      current.classList.remove('is-active');
+      setIndex(current, 0);
+    }
+    current = best;
+    stop();
+    if (current) {
+      current.classList.add('is-active');
+      start(current);
+    }
+  };
+
   const observer = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
         const frame = entry.target as HTMLElement;
-        if (entry.isIntersecting) {
-          if (current && current !== frame) {
-            current.classList.remove('is-active');
-            setIndex(current, 0);
-          }
-          current = frame;
-          frame.classList.add('is-active');
-          start(frame);
-        } else if (current === frame) {
-          frame.classList.remove('is-active');
-          setIndex(frame, 0);
-          current = null;
-          stop();
-        }
+        if (entry.isIntersecting) live.add(frame);
+        else live.delete(frame);
       }
+      choose();
     },
-    // Fires only for whatever is crossing the middle band of the screen.
+    // Reports whatever is crossing the middle band of the screen.
     { rootMargin: '-42% 0px -42% 0px', threshold: 0 }
   );
 
+  let ticking = false;
+  const onScroll = () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      ticking = false;
+      if (live.size > 1) choose();
+    });
+  };
+
   frames.forEach((f) => observer.observe(f));
+  document.addEventListener('scroll', onScroll, { capture: true, passive: true });
+
   return () => {
     observer.disconnect();
     stop();
+    document.removeEventListener('scroll', onScroll, { capture: true });
   };
 }
 
@@ -199,7 +275,24 @@ export function initFrames() {
   teardown?.();
   teardown = undefined;
 
-  const frames = Array.from(document.querySelectorAll<HTMLElement>('[data-frame]'));
+  /* THE BED IS NOT A CANDIDATE AND NEVER WAS MEANT TO BE. Thirty of the
+     home page's forty-eight frames are mosaic tiles inside an
+     aria-hidden .ms__ground — decoration, one frame each, and fixed, so
+     they sit in the middle band permanently. The old picker tolerated them
+     by accident: they fire once at observe time and never again, and a
+     single-frame tile starts no clock. The centred rule below would not
+     tolerate them at all — a fixed tile is always nearest the middle of the
+     screen, and it would win every time.
+
+     A FRAME NOBODY IS MEANT TO READ IS NOT A FRAME TO DRIVE, which is the
+     rule rather than naming .ms__ground here. It costs one closest() per
+     frame at startup and nothing after.
+
+     Desktop is untouched by this line: the only frames it removes are
+     single-frame ones, and initPointer already declines those. */
+  const frames = Array.from(document.querySelectorAll<HTMLElement>('[data-frame]')).filter(
+    (f) => !f.closest('[aria-hidden="true"]')
+  );
   if (!frames.length) return;
 
   if (reduced()) return;
