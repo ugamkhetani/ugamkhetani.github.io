@@ -20,14 +20,22 @@ image is a file in a folder. No CMS, no database.
   output is that Astro now inlines a stylesheet it used to link, which is a
   delivery decision and not a rule.
 
-<- IT WAS REFILLED ON 2026-11-27 AND EMPTIED AGAIN THE SAME DAY, so the
+<- IT WAS REFILLED TWICE ON 2026-11-27 AND EMPTIED BOTH TIMES, so the
   statement above still holds: **`src/pages/preview/` does not exist, in the
-  repository or in Ugam's working tree.** Eleven drafts and an index were
-  built that morning — `ab-bed1` to `ab-bed11`, every mosaic bed that has
-  shipped — so that an earlier background could be looked at without checking
-  a commit out. They were never committed, one of them was chosen, and the
-  rest were deleted on Ugam's instruction once it was applied. **They are not
-  recoverable**; nothing in git ever held them.
+  repository or in Ugam's working tree.**
+
+  THE PATTERN IS NOW THE HABIT and it is worth knowing before you build a
+  draft: options go up as real pages, one is chosen, the rest are deleted the
+  same day, and **none of it is ever committed, so none of it is
+  recoverable**. Ugam is told that before each deletion and has chosen it
+  both times. What survives a round is the applied change and the argument
+  written into the file it changed.
+
+  ROUND ONE, the morning: `ab-bed1` to `ab-bed11` and an index, every mosaic
+  bed that has shipped, so an earlier background could be looked at without
+  checking a commit out. ROUND TWO, the afternoon: `ab-rail1` to `ab-rail4`,
+  four readings of what the stills should do on a phone, where the desktop's
+  hover does not exist.
 
   WHAT SURVIVES IS THE THING THEY WERE FOR. `ab-bed5`, the bed of
   22 September, is the live background from 2026-11-27, and `src/lib/bed.ts`
@@ -41,6 +49,22 @@ image is a file in a folder. No CMS, no database.
   arrangement this replaced, and that file's own notes name the commits back
   to the first. Rebuilding the browsable version means re-deriving it from
   those commits, which is a morning's work and was done once already.
+
+  ROUND TWO SURVIVES THE SAME WAY. `ab-rail2` is applied: on a phone the
+  stills now advance on the card in the middle of the screen rather than on
+  its half-visible neighbour, which is what the touch branch had been doing
+  at every scroll position since the rail was built. `src/scripts/frames.ts`
+  carries it and the whole argument, the measurements included. Desktop was
+  not touched. Those four drafts were never in git either and are gone.
+
+  <- TWO THINGS A DRAFT MAY NOT DO, both learned in round two and both
+    recorded where they were tried. A draft may not import from the live
+    source — exporting one function made Rollup split that module into its
+    own chunk and rewrote the script hash on all nineteen pages. And a draft
+    may not import `src/styles/tokens.css` — same fault, the stylesheet
+    re-chunks. Copy what a draft needs and mark it as a copy; the test is a
+    build against the previous commit, which should move nothing but the
+    pages' own CSS delivery.
 
 This file is the briefing for whoever picks the work up next — including a
 fresh chat with no memory of how any of it got here. Read §1, then §5 and §6

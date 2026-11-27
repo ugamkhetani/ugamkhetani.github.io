@@ -33,8 +33,8 @@ const fine = () => window.matchMedia('(hover: hover) and (pointer: fine)').match
    assumption that a keyword changes nothing. It changes every page: a second
    importer makes Rollup split this module into its own chunk, which rewrites
    the hash of the script all 19 pages load. Measured — 19 of 19 HTML files
-   differed and the main bundle was replaced. A draft copies this function
-   instead and says that it is a copy. */
+   differed and the main bundle was replaced. The draft carried a copy of
+   this function instead, marked as one. */
 function setIndex(frame: HTMLElement, index: number) {
   const layers = Array.from(frame.querySelectorAll<HTMLElement>('.frame__layer'));
   const i = Math.max(0, Math.min(index, layers.length - 1));
@@ -158,7 +158,10 @@ function initKeyboard(frame: HTMLElement, count: number) {
  * Touch: the centred frame advances itself, and only that one.
  *
  * THE BAND ALONE WAS NOT ENOUGH AND THE RAIL IS WHY. Applied 2026-11-27 from
- * /preview/ab-rail2, chosen against three others. The observer below reports
+ * /preview/ab-rail2, chosen against three other readings of the same
+ * question. Those four drafts were never committed and were deleted once
+ * this was applied, so the name is provenance and not somewhere to look —
+ * everything they established is in this comment. The observer below reports
  * whatever crosses the middle band of the screen, and the band is inset 42%
  * top and bottom and NOT AT ALL left or right — down a page that names one
  * thing, which is all this was written against. Below 900px Selected works
